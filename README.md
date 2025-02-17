@@ -1,1 +1,1 @@
-- Landing Page
+Base themes : biru, kuning, pink
