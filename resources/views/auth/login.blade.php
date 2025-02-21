@@ -6,70 +6,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Login - {{ config('app.name') }}</title>
-
-    <!-- CSS files -->
     <link href="{{ asset('dist/css/tabler.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('dist/css/tabler-flags.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('dist/css/tabler-payments.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('dist/css/tabler-vendors.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('dist/css/demo.min.css') }}" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="d-flex flex-column bg-white">
-    <div class="row g-0 flex-fill">
-        <div class="col-12 col-lg-6 col-xl-4 border-top-wide border-primary d-flex flex-column justify-content-center">
-            <div class="container container-tight my-5 px-lg-5">
-                <div class="text-center mb-4">
-                    <h2 class="h3 text-center mb-3">Login to your account</h2>
+<body class="bg-gradient-to-br from-[#2196F3] via-[#00BCD4] to-[#4CAF50]">
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+            <!-- Logo/Brand -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-[#212121]">Welcome Back</h2>
+                <p class="text-[#607D8B] mt-2">Sign in to your account</p>
+            </div>
+
+            <form method="POST" action="{{ route('login') }}">
+                @csrf
+                <!-- Email Input -->
+                <div class="mb-6">
+                    <label class="block text-[#212121] text-sm font-semibold mb-2">Email address</label>
+                    <div class="relative">
+                        <input type="email" name="email"
+                            class="pl-10 w-full border-2 border-[#E0E0E0] rounded-lg py-2 px-3 focus:outline-none focus:border-[#2196F3] transition-colors"
+                            placeholder="your@email.com" value="{{ old('email') }}" required autofocus>
+                    </div>
+                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
                 </div>
 
-                <x-auth-session-status class="mb-4" :status="session('status')" />
-
-                <form method="POST" action="{{ route('login') }}">
-                    @csrf
-                    <div class="mb-3">
-                        <label class="form-label">Email address</label>
-                        <input type="email" name="email" class="form-control" placeholder="your@email.com"
-                            value="{{ old('email') }}" required autofocus>
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                <!-- Password Input -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[#212121] text-sm font-semibold">Password</label>
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}"
+                                class="text-sm text-[#2196F3] hover:text-[#1976D2] transition-colors">
+                                Forgot password?
+                            </a>
+                        @endif
                     </div>
-
-                    <div class="mb-2">
-                        <label class="form-label">
-                            Password
-                            @if (Route::has('password.request'))
-                                <span class="form-label-description">
-                                    <a href="{{ route('password.request') }}">Forgot password?</a>
-                                </span>
-                            @endif
-                        </label>
-                        <input type="password" name="password" class="form-control" placeholder="Your password"
-                            required>
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                    <div class="relative">
+                        <input type="password" name="password"
+                            class="pl-10 w-full border-2 border-[#E0E0E0] rounded-lg py-2 px-3 focus:outline-none focus:border-[#2196F3] transition-colors"
+                            placeholder="••••••••" required>
                     </div>
+                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                </div>
 
-                    <div class="mb-2">
-                        <label class="form-check">
-                            <input type="checkbox" name="remember" class="form-check-input" />
-                            <span class="form-check-label">Remember me on this device</span>
-                        </label>
-                    </div>
+                <!-- Remember Me -->
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember"
+                            class="rounded border-[#E0E0E0] text-[#2196F3] focus:ring-[#2196F3]">
+                        <span class="ml-2 text-sm text-[#607D8B]">Remember me</span>
+                    </label>
+                </div>
 
-                    <div class="form-footer">
-                        <button type="submit" class="btn btn-primary w-100">Sign in</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="col-12 col-lg-6 col-xl-8 d-none d-lg-block">
-            <div class="bg-cover h-100 min-vh-100"
-                style="background-image: url(./dist/img/hero.jpg)">
-            </div>
+                <!-- Login Button -->
+                <button type="submit"
+                    class="w-full bg-[#2196F3] hover:bg-[#1976D2] text-white font-bold py-3 px-4 rounded-lg transition duration-300 transform hover:scale-105 shadow-lg">
+                    Sign in
+                </button>
+            </form>
+
+            <!-- Sign Up Link -->
+            {{-- <p class="text-center mt-6 text-sm text-[#607D8B]">
+                Don't have an account?
+                <a href="{{ route('register') }}"
+                    class="text-[#2196F3] hover:text-[#1976D2] font-semibold transition-colors">
+                    Sign up
+                </a>
+            </p> --}}
         </div>
     </div>
-
-    <!-- Tabler Core -->
-    <script src="{{ asset('dist/js/tabler.min.js') }}" defer></script>
 </body>
 
 </html>

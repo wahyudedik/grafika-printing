@@ -7,17 +7,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware( 'dev')->group(function () {
-    Route::get('/dev', function () {
+Route::middleware( ['auth', 'verified', 'dev'])->group(function () {
+    Route::get('/administrator', function () {
         return view('dev.dashboard');
     })->name('dev.dashboard');
 });
 
-Route::middleware( 'vendor')->group(function () {
+Route::middleware( ['auth', 'verified', 'vendor'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
