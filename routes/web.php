@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -9,8 +11,13 @@ Route::get('/', function () {
 
 Route::middleware( ['auth', 'verified', 'dev'])->group(function () {
     Route::get('/administrator', function () {
-        return view('dev.dashboard');
+        return view('dev.dashboard', [
+            'user' => Auth::user()
+        ]);
     })->name('dev.dashboard');
+
+    // users routes resource
+    Route::resource('/administrator/users', UserController::class);
 });
 
 Route::middleware( ['auth', 'verified', 'vendor'])->group(function () {
