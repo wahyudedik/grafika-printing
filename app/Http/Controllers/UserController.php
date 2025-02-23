@@ -24,7 +24,7 @@ class UserController extends Controller
             });
         }
 
-        $perPage = $request->get('perPage', 10);
+        $perPage = $request->get('perPage', 5);
         $users = $query->paginate($perPage);
 
         return view('dev.users.index', compact('users'));

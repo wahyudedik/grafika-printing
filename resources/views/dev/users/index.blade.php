@@ -109,13 +109,4 @@
             {{ $users->links('dev.components.pagination') }}
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            document.querySelector('select[name="perPage"]').addEventListener('change', function() {
-                window.location.href = '{{ route('users.index') }}?perPage=' + this.value +
-                    '&search={{ request('search') }}';
-            });
-        </script>
-    @endpush
 @endsection
