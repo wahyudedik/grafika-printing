@@ -44,18 +44,19 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
+            $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8',
+                'password' => 'required|string|min:8|confirmed',
                 'usertype' => 'required|string'
             ]);
 
-            User::create($request->all());
+            $validatedData['password'] = bcrypt($request->password);
+            User::create($validatedData);
 
-            return redirect()->route('users.index')->with('success', 'User created successfully');
+            return redirect()->route('users.index')->with('toast_success', 'User created successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error creating user');
+            return redirect()->back()->with('toast_error', 'Error creating user');
         }
     }
 
@@ -64,7 +65,12 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        try {
+            $user = User::findOrFail($id);
+            return view('dev.users.show', compact('user'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('toast_error', 'Error showing user');
+        }
     }
 
     /**
@@ -88,6 +94,11 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            User::destroy($id);
+            return redirect()->route('users.index')->with('toast_success', 'User deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('toast_error', 'Error deleting user');
+        }
     }
 }

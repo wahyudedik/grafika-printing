@@ -38,6 +38,7 @@ Fitur APP :
         - widget jumlah produk per vendor
         - widget jumlah transaksi per vendor
     b. User
+        - List users
         - User activity
         - User Management Role
     c. Vendor

@@ -36,7 +36,7 @@
                     </a>
                 </div>
             </div>
-        </div>        @include('dev.components.alert')
+        </div>
         <div class="table-responsive">
             <table class="table card-table table-vcenter text-nowrap">
                 <thead>
@@ -79,12 +79,14 @@
                                                 d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
                                         </svg>
                                     </a>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline">
+                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="inline"
+                                        id="delete-form-{{ $user->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-icon btn-ghost-danger"
+                                        <button type="button" class="btn btn-icon btn-ghost-danger"
                                             data-bs-toggle="tooltip" title="Delete"
-                                            onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                            onclick="confirmDelete('delete-form-{{ $user->id }}')">
+                                            <!-- Delete icon SVG -->
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 class="icon icon-tabler icon-tabler-trash" width="24" height="24"
                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -98,6 +100,8 @@
                                             </svg>
                                         </button>
                                     </form>
+
+                                   
                                 </div>
                             </td>
                         </tr>
