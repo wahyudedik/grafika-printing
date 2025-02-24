@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
@@ -18,6 +19,9 @@ Route::middleware( ['auth', 'verified', 'dev'])->group(function () {
 
     // users routes resource
     Route::resource('/administrator/users', UserController::class);
+
+    // vendors routes resource
+    Route::resource('/administrator/vendors', VendorController::class);
 });
 
 Route::middleware( ['auth', 'verified', 'vendor'])->group(function () {

@@ -58,8 +58,8 @@
                                 <span class="nav-link-title">Home</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('dev.vendors.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="#">
+                        <li class="nav-item {{ request()->routeIs('vendors.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendors.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -133,7 +133,7 @@
                     <ul class="list-inline list-inline-dots mb-0">
                         <li class="list-inline-item">
                             Copyright © {{ date('Y') }}
-                            <a href="#" class="link-secondary">Your Company</a>.
+                            <a href="#" class="link-secondary">Grafika Printing</a>.
                             All rights reserved.
                         </li>
                     </ul>

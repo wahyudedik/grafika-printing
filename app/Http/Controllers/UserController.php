@@ -78,7 +78,12 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        try {
+            $user = User::findOrFail($id);
+            return view('dev.users.edit', compact('user'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('toast_error', 'Error editing user');
+        }
     }
 
     /**
@@ -86,7 +91,27 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $id,
+                'password' => 'nullable|string|min:8|confirmed',
+                'usertype' => 'required|string'
+            ]);
+
+            $user = User::findOrFail($id);
+
+            if ($request->filled('password')) {
+                $validatedData['password'] = bcrypt($request->password);
+            } else {
+                unset($validatedData['password']);
+            }
+
+            $user->update($validatedData);
+            return redirect()->route('users.index')->with('toast_success', 'User updated successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('toast_error', 'Error updating user');
+        }
     }
 
     /**
