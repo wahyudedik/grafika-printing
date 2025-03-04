@@ -5,20 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use PhpParser\Node\Stmt\Return_;
+use PhpParser\Node\Stmt\TryCatch;
 
 class VendorController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $vendors = Vendor::paginate(5);
+            $vendor = Vendor::query();
+            if($request->has('search')){
+                $search = $request->search;
+                $vendor->where(function($query) use ($search){
+                    $query->where('name', 'like', "%{$search}%");
+                });
+            }
+
+            $perPage = $request->get('perPage', 5);
+            $vendors = $vendor->paginate($perPage);
             return view('dev.vendors.index', compact('vendors'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error loading vendors');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 
@@ -28,11 +38,10 @@ class VendorController extends Controller
     public function create()
     {
         try {
-            $users = User::where('usertype', 'vendor')->get();
-
+            $users = User::get();
             return view('dev.vendors.create', compact('users'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error loading create vendor form');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 
@@ -41,45 +50,41 @@ class VendorController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
         try {
-            $validation = $request->validate([
+            $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email|unique:vendors,email',
-                'phone' => 'required|string|max:20',
-                'address' => 'required|string|max:500',
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
-                'website' => 'nullable|string|url|max:255',
-                'is_active' => 'required|boolean',
-                'user_id' => 'nullable|exists:users,id'
+                'email' => 'required|string|email|max:255|unique:users',
+                'phone' => 'required|string|max:255',
+                'address' => 'required|string|max:255',
+                'logo' => 'image|mimes:jpeg,png|max:2048',
+                'website' => 'nullable|string|max:255',
+                'is_active' => 'boolean',
+                'user_id' => 'required|exists:users,id',
             ]);
 
-            // save logo
-            if ($request->hasFile('logo') && $request->file('logo')->isValid()) {
-                $file = $request->file('logo');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $filePath = $file->storeAs('vendors', $fileName, 'public');
-                $validation['logo'] = 'storage/' . $filePath;
+            if ($request->hasFile('logo')) {
+                $logo = $request->file('logo');
+                $logoName = time() . '.' . $logo->getClientOriginalExtension();
+                $logo->move(public_path('vendors_logo'), $logoName);
             }
-            
-            $vendor = Vendor::create($validation);
 
-            if ($request->user_id) {
-                try {
-                    $user = User::where('id', $request->user_id)
-                        ->where('usertype', 'vendor')
-                        ->firstOrFail();
-                    $vendor->users()->attach($user);
-                } catch (\Exception $e) {
-                    return redirect()->back()->withInput()
-                        ->with('toast_error', 'Error attaching user: ' . $e->getMessage());
-                }
-            }
+            $vendors = new Vendor([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'logo' => $logoName,
+                'website' => $request->website,
+                'is_active' => $request->is_active,
+            ]);
+
+            $vendors->save();
+
+            $vendors->vendorUser()->attach($request->user_id);
 
             return redirect()->route('vendors.index')->with('toast_success', 'Vendor created successfully');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()
-                ->with('toast_error', 'Error creating vendor: ' . $e->getMessage());
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 
@@ -90,9 +95,10 @@ class VendorController extends Controller
     {
         try {
             $vendor = Vendor::findOrFail($id);
-            return view('dev.vendors.show', compact('vendor'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error loading vendor');
+            $users = $vendor->vendorUser()->first();
+            return view('dev.vendors.show', compact('vendor', 'users'));
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 
@@ -103,9 +109,10 @@ class VendorController extends Controller
     {
         try {
             $vendor = Vendor::findOrFail($id);
-            return view('dev.vendors.edit', compact('vendor'));
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error loading edit vendor form');
+            $users = $vendor->vendorUser()->first();
+            return view('dev.vendors.edit', compact('vendor', 'users'));
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 
@@ -116,32 +123,43 @@ class VendorController extends Controller
     {
         try {
             $vendor = Vendor::findOrFail($id);
-            $validation = $request->validate([
-                'name' => 'required|string',
-                'email' => 'required|email',
-                'phone' => 'required|string',
-                'address' => 'required|string',
-                'logo' => 'nullable|string',
-                'website' => 'nullable|string',
-                'is_active' => 'required|boolean',
-                'users' => 'nullable|array'
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:users,email,' . $vendor->id,
+                'phone' => 'required|string|max:255',
+                'address' => 'required|string|max:255',
+                'logo' => 'image|mimes:jpeg,png|max:2048',
+                'website' => 'nullable|string|max:255',
+                'is_active' => 'boolean',
+                'user_id' => 'required|exists:users,id',
             ]);
 
             if ($request->hasFile('logo')) {
-                if ($vendor->logo && Storage::disk('public')->exists($vendor->logo)) {
-                    Storage::disk('public')->delete($vendor->logo);
+                // Delete old logo if exists
+                if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
+                    unlink(public_path('vendors_logo/' . $vendor->logo));
                 }
-                $validation['logo'] = $request->file('logo')->store('vendors', 'public');
-            } else {
-                $validation['logo'] = $vendor->logo;
+                
+                $logo = $request->file('logo');
+                $logoName = time() . '.' . $logo->getClientOriginalExtension();
+                $logo->move(public_path('vendors_logo'), $logoName);
             }
-            $vendor->update($validation);
-            $user = User::find($request->users);
-            $vendor->users()->sync($user);
+
+            $vendor->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'logo' => $logoName,
+                'website' => $request->website,
+                'is_active' => $request->is_active,
+            ]);
+
+            $vendor->vendorUser()->sync($request->user_id);
 
             return redirect()->route('vendors.index')->with('toast_success', 'Vendor updated successfully');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error updating vendor');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 
@@ -152,14 +170,14 @@ class VendorController extends Controller
     {
         try {
             $vendor = Vendor::findOrFail($id);
-            if ($vendor->logo && Storage::disk('public')->exists($vendor->logo)) {
-                Storage::disk('public')->delete($vendor->logo);
+            if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
+                unlink(public_path('vendors_logo/' . $vendor->logo));
             }
             $vendor->delete();
-
             return redirect()->route('vendors.index')->with('toast_success', 'Vendor deleted successfully');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error deleting vendor');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 }
+ 

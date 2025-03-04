@@ -3,6 +3,8 @@
 3. npm install
 4. php artisan key:generate --ansi
 5. php artisan migrate
+    - php artisan migrate --path=database/migrations/landlord --database=mysql
+    - php artisan migrate --path=database/migrations/tenant --database=tenant
 6. php artisan db:seed
 7. npm run dev
 
@@ -32,16 +34,53 @@ Fitur APP :
 3. Register -> Done
 4. Reset Password -> Done
 5. Verification Email -> Done
-6. Dashboard Admin -> 
+6. Dashboard Admin -> Done
     a. Dashboard
-        - Widget jumlah vendor
-        - widget jumlah produk per vendor
-        - widget jumlah transaksi per vendor
+        - Widget jumlah user -> Done
+        - Widget jumlah vendor -> Done
     b. User
-        - List users
-        - User activity
-        - User Management Role
+        - CRUD users -> Done
+        - Search User -> Done
     c. Vendor
-        - Vendor Management
-        - Vendor activity
+        - CRUD Vendor -> Done
+        - Search Vendor ->Done
 7. Dashboard User -> 
+    a. Masuk ke hal vedor mau pilih vendor mana -> menuju dashboard dengan data vendor
+    b. pengaturan akun
+        - Edit profil -> Done
+        - Ubah password -> Done
+    c. dashboard 
+        - swith to vendor toko lain
+        - widget total produk
+        - widget transaksi hari ini
+        - widget transaksi bulanan
+        - widget pendapatan bulanan
+        - widget grafik produk populer
+        - widget grafik pendapatan bulanan
+    d. Pengguna
+        - User list
+        - Manage Role
+    e. Pelanggan
+        - CRUD pelanggan
+        - Search pelanggan
+    f. alat dan bahan
+        - CRUD alat dan bahan
+        - Search alat dan bahan
+        - Estimasi produksi
+            - CRUD estimasi produksi
+            - Search estimasi produksi
+    g. produk
+        - CRUD produk 
+        - Search produk
+        - Spesifikasi produk
+            - CRUD spesifikasi produk
+            - Search spesifikasi produk
+    h. Menu Pos
+    i. POS
+    j. transaksi
+        - CRUD transaksi
+        - Search transaksi
+    k. Menu Laporan
+        - Laporan panjulan per hari
+        - laporan penjualan per bulan
+        - laporan penjualan per tahun

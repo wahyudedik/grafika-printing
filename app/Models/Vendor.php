@@ -22,7 +22,7 @@ class Vendor extends Model
         'is_active' => 'boolean'
     ];
 
-    public function users()
+    public function vendorUser()
     {
         return $this->belongsToMany(User::class, 'vendor_user');
     }

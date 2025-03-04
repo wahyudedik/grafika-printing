@@ -55,7 +55,7 @@
                         <tr>
                             <td>
                                 @if ($vendor->logo)
-                                    <img src="{{ asset('storage/' . $vendor->logo) }}" alt="{{ $vendor->name }}"
+                                    <img src="{{ asset('vendors_logo/' . $vendor->logo) }}" alt="{{ $vendor->name }}"
                                         class="avatar">
                                 @else
                                     <span class="avatar">{{ substr($vendor->name, 0, 2) }}</span>
