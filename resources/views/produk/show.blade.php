@@ -85,6 +85,7 @@
                                                 <th>Tipe Input</th>
                                                 <th>Wajib Diisi</th>
                                                 <th>Pilihan</th>
+                                                <th>Bahan Digunakan</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -104,6 +105,18 @@
                                                             <ul class="list-unstyled mb-0">
                                                                 @foreach ($spec->pilihan as $pilihan)
                                                                     <li>{{ $pilihan }}</li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($spec->bahanSpesifikasiProduk->count() > 0)
+                                                            <ul class="list-unstyled mb-0">
+                                                                @foreach ($spec->bahanSpesifikasiProduk as $bahan)
+                                                                    <li>{{ $bahan->nama_bahan }} ({{ $bahan->satuan }})
+                                                                    </li>
                                                                 @endforeach
                                                             </ul>
                                                         @else

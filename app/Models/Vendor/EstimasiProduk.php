@@ -3,7 +3,7 @@
 namespace App\Models\Vendor;
 
 use App\Models\Vendor;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class EstimasiProduk extends TenantModel
 {
@@ -32,6 +32,18 @@ class EstimasiProduk extends TenantModel
         return $this->belongsTo(Alat::class, 'alat_id');
     }
 
+    /**
+     * Scope to find by product and equipment
+     */
+    public function scopeFindByProductAndEquipment(Builder $query, int $productId, int $equipmentId): Builder
+    {
+        return $query->where('produk_id', $productId)
+                     ->where('alat_id', $equipmentId);
+    }
+
+    /**
+     * Calculate total production time
+     */
     public function calculateTotalProductionTime($quantity, $area = null)
     {
         $setupTime = $this->waktu_persiapan;
@@ -46,7 +58,7 @@ class EstimasiProduk extends TenantModel
         });
 
         // Calculate maximum workload factor
-        $maxWorkload = $equipmentWorkloads->max('workload');
+        $maxWorkload = $equipmentWorkloads->max('workload') ?? 1;
 
         if ($area) {
             return ($setupTime + ($area * $productionTimePerUnit * $quantity)) * $maxWorkload;
@@ -55,6 +67,9 @@ class EstimasiProduk extends TenantModel
         return ($setupTime + ($productionTimePerUnit * $quantity)) * $maxWorkload;
     }
 
+    /**
+     * Get workload multiplier based on active jobs
+     */
     private function getWorkloadMultiplier($alat)
     {
         $activeJobs = Transaksi::where('status', 'processing')

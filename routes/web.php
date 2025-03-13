@@ -9,9 +9,12 @@ use App\Http\Controllers\Vendor\AlatController;
 use App\Http\Controllers\vendor\BahanController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\vendor\ProdukController;
+use App\Http\Controllers\vendor\LaporanController;
 use App\Http\Controllers\vendor\PenggunaController;
 use App\Http\Controllers\vendor\PelangganController;
+use App\Http\Controllers\vendor\TransaksiController;
 use App\Http\Controllers\vendor\SpesifikasiController;
+use App\Http\Controllers\vendor\KategoriProdukController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -69,6 +72,30 @@ Route::middleware(['auth', 'verified', 'vendor'])->group(function () {
         ->name('produk.batch-delete');
     Route::put('produk/batch-update', [ProdukController::class, 'batchUpdate'])
         ->name('produk.batch-update');
+
+    // Kategori Produk routes resource
+    Route::resource('/dashboard/kategori-produk', KategoriProdukController::class);
+    Route::delete('kategori-produk/batch-delete', [KategoriProdukController::class, 'batchDelete'])
+        ->name('kategori-produk.batch-delete');
+
+    // Transaksi routes resource
+    Route::resource('/dashboard/transaksi', TransaksiController::class);
+    Route::delete('/dashboard/transaksi/batch-delete', [TransaksiController::class, 'batchDelete'])
+        ->name('transaksi.batch-delete');
+    Route::put('/transaksi/batch-update', [TransaksiController::class, 'batchUpdate'])
+        ->name('transaksi.batch-update');
+    Route::get('transaksi/{id}/invoice', [TransaksiController::class, 'generateInvoice'])
+        ->name('transaksi.generateInvoice');
+
+    // routes Laporan
+    Route::get('/penjualan-harian', [LaporanController::class, 'penjualanHarian'])
+        ->name('laporan.penjualan-harian');
+    Route::get('/penjualan-bulanan', [LaporanController::class, 'penjualanBulanan'])
+        ->name('laporan.penjualan-bulanan');
+    Route::get('/penjualan-tahunan', [LaporanController::class, 'penjualanTahunan'])
+        ->name('laporan.penjualan-tahunan');
+    Route::get('/export/penjualan', [LaporanController::class, 'exportPenjualan'])
+        ->name('laporan.export-penjualan');
 });
 
 Route::middleware('auth')->group(function () {

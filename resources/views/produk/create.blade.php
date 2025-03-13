@@ -38,15 +38,39 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label class="form-label required">Kategori</label>
-                                    <select class="form-select @error('kategori_id') is-invalid @enderror" name="kategori_id">
-                                        <option value="">Pilih Kategori</option>
-                                        @foreach ($kategories as $kategori)
-                                            <option value="{{ $kategori->id }}" {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
-                                                {{ $kategori->nama_kategori }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select @error('kategori_id') is-invalid @enderror" 
+                                            name="kategori_id" id="kategori-select">
+                                            <option value="">Pilih Kategori</option>
+                                            @foreach ($kategories as $kategori)
+                                                <option value="{{ $kategori->id }}" 
+                                                    {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                                                    {{ $kategori->nama_kategori }}
+                                                </option>
+                                            @endforeach
+                                            <option value="new">+ Kategori Baru</option>
+                                        </select>
+                                        <button class="btn btn-outline-secondary" type="button" id="toggle-new-category">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" 
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" 
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M12 5l0 14"></path>
+                                                <path d="M5 12l14 0"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
                                     @error('kategori_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                
+                                <div id="new-category-container" class="mb-3" style="display: none;">
+                                    <label class="form-label">Nama Kategori Baru</label>
+                                    <input type="text" class="form-control @error('new_kategori') is-invalid @enderror" 
+                                        name="new_kategori" value="{{ old('new_kategori') }}" 
+                                        placeholder="Masukkan nama kategori baru">
+                                    @error('new_kategori')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -160,9 +184,31 @@
                 const addSpecificationButton = document.getElementById('add-specification-row');
                 const estimatesContainer = document.getElementById('estimates-container');
                 const addEstimateButton = document.getElementById('add-estimate-row');
+                const kategoriSelect = document.getElementById('kategori-select');
+                const newCategoryContainer = document.getElementById('new-category-container');
+                const toggleNewCategoryBtn = document.getElementById('toggle-new-category');
                 
                 let specRowCount = 0;
                 let estimateRowCount = 0;
+                
+                // Category handling
+                kategoriSelect.addEventListener('change', function() {
+                    if (this.value === 'new') {
+                        newCategoryContainer.style.display = 'block';
+                    } else {
+                        newCategoryContainer.style.display = 'none';
+                    }
+                });
+                
+                toggleNewCategoryBtn.addEventListener('click', function() {
+                    if (newCategoryContainer.style.display === 'none') {
+                        newCategoryContainer.style.display = 'block';
+                        kategoriSelect.value = 'new';
+                    } else {
+                        newCategoryContainer.style.display = 'none';
+                        kategoriSelect.value = '';
+                    }
+                });
 
                 // Add specification row
                 addSpecificationButton.addEventListener('click', function() {
@@ -177,15 +223,21 @@
                 function addSpecificationRow() {
                     const rowId = `spec-row-${specRowCount}`;
                     const spesifikasis = @json($spesifikasis);
+                    const bahans = @json($bahans);
                     
                     let spesifikasiOptions = '';
                     spesifikasis.forEach(spec => {
                         spesifikasiOptions += `<option value="${spec.id}">${spec.nama_spesifikasi} (${spec.tipe_input})</option>`;
                     });
                     
+                    let bahanOptions = '';
+                    bahans.forEach(bahan => {
+                        bahanOptions += `<option value="${bahan.id}">${bahan.nama_bahan} (${bahan.satuan})</option>`;
+                    });
+                    
                     const html = `
                     <div class="row g-3 mb-3 spec-row" id="${rowId}">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">Jenis Spesifikasi</label>
                             <select class="form-select spec-select" name="spesifikasi[${specRowCount}][spesifikasi_id]" required onchange="updateSpecOptions('${rowId}')">
                                 <option value="">Pilih Spesifikasi</option>
@@ -199,16 +251,23 @@
                                 <label class="form-check-label">Ya</label>
                             </div>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <label class="form-label">Pilihan (untuk dropdown/radio)</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="${rowId}-option-input" placeholder="Tambahkan pilihan">
                                 <button type="button" class="btn btn-outline-secondary" onclick="addOption('${rowId}')">+</button>
-                            </div>
+                                                       </div>
                             <small class="form-hint">Tekan + untuk menambahkan setiap pilihan</small>
                             <div class="mt-2" id="${rowId}-options-container">
                                 <!-- Options will be added here -->
                             </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Bahan yang Digunakan</label>
+                            <select class="form-select" name="spesifikasi[${specRowCount}][bahan_ids][]" multiple>
+                                ${bahanOptions}
+                            </select>
+                            <small class="form-hint">Tahan Ctrl untuk memilih beberapa bahan</small>
                         </div>
                         <div class="col-md-1 d-flex align-items-end">
                             <button type="button" class="btn btn-outline-danger" onclick="removeSpecRow('${rowId}')">
@@ -236,7 +295,7 @@
                     });
                     
                     const html = `
-                                        <div class="row g-3 mb-3 estimate-row" id="${rowId}">
+                    <div class="row g-3 mb-3 estimate-row" id="${rowId}">
                         <div class="col-md-4">
                             <label class="form-label">Alat Produksi</label>
                             <select class="form-select" name="estimasi[${estimateRowCount}][alat_id]" required>
@@ -269,6 +328,10 @@
                     estimatesContainer.insertAdjacentHTML('beforeend', html);
                     estimateRowCount++;
                 }
+                
+                // Add at least one row of each by default
+                addSpecificationRow();
+                addEstimateRow();
             });
             
             // Function to remove specification row
@@ -311,8 +374,14 @@
             
             // Function to update specification options based on spec type
             function updateSpecOptions(rowId) {
-                const specSelect = document.querySelector(`#${rowId} .spec-select`);
-                const optionsSection = document.getElementById(`${rowId}-options-container`).parentElement.parentElement;
+                const row = document.getElementById(rowId);
+                if (!row) return;
+
+                const specSelect = row.querySelector('.spec-select');
+                if (!specSelect) return;
+
+                const optionsSection = row.querySelector('[id$="-options-container"]').parentElement;
+                const bahanSection = optionsSection.nextElementSibling;
                 
                 // Get the selected specification
                 const spesifikasis = @json($spesifikasis);
@@ -325,6 +394,9 @@
                     } else {
                         optionsSection.style.display = 'none';
                     }
+                    
+                    // Always show bahan selection
+                    bahanSection.style.display = 'block';
                 }
             }
         </script>

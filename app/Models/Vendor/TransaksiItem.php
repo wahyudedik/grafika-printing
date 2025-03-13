@@ -6,19 +6,11 @@ use App\Models\Vendor;
 use App\Models\Vendor\Bahan;
 use App\Models\Vendor\Produk;
 use App\Models\Vendor\Transaksi;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Vendor\TransaksiItemSpecifications;
 
-class TransaksiItem extends Model
+class TransaksiItem extends TenantModel
 {
     protected $table = 'transaksi_items';
-
-    protected $with = [
-        'vendor',
-        'transaksi',
-        'produk',
-        'transaksiItemSpecifications' 
-    ];
 
     protected $fillable = [
         'vendor_id',
@@ -30,7 +22,10 @@ class TransaksiItem extends Model
 
     protected $casts = [
         'kuantitas' => 'integer',
-        'harga_satuan' => 'decimal:2'
+        'harga_satuan' => 'decimal:2',
+        'vendor_id' => 'integer',
+        'transaksi_id' => 'integer',
+        'produk_id' => 'integer'
     ];
 
     public function vendor()
@@ -53,14 +48,18 @@ class TransaksiItem extends Model
         return $this->hasMany(TransaksiItemSpecifications::class, 'transaksi_item_id');
     }
 
+    public function getSubtotalAttribute()
+    {
+        return $this->kuantitas * $this->harga_satuan;
+    }
+
     protected static function booted()
     {
-        static::created(function ($transaksiItem) {
-            $bahan = Bahan::find($transaksiItem->bahan_id);
-            if ($bahan) {
-                $bahan->decrement('stok', $transaksiItem->kuantitas);
-                $bahan->checkStockLevel(); // Trigger notifikasi stok rendah jika diperlukan
-            }
+        parent::booted();
+        
+        static::deleting(function ($transaksiItem) {
+            // Delete related specifications when item is deleted
+            $transaksiItem->transaksiItemSpecifications()->delete();
         });
     }
 }

@@ -5,7 +5,7 @@ namespace App\Models\Vendor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
-abstract class TenantModel extends Model
+abstract class TenantModel extends Model 
 {
     protected static function booted()
     {

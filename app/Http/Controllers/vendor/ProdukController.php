@@ -7,6 +7,7 @@ use App\Models\Vendor\Produk;
 use App\Models\Vendor\KategoriProduk;
 use App\Models\Vendor\Spesifikasi;
 use App\Models\Vendor\Alat;
+use App\Models\Vendor\Bahan;
 use App\Models\Vendor\EstimasiProduk;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Http\Request;
@@ -57,8 +58,9 @@ class ProdukController extends Controller
         $kategories = KategoriProduk::all();
         $spesifikasis = Spesifikasi::all();
         $alats = Alat::all();
+        $bahans = Bahan::all();
 
-        return view('produk.create', compact('kategories', 'spesifikasis', 'alats'));
+        return view('produk.create', compact('kategories', 'spesifikasis', 'alats', 'bahans'));
     }
 
     /**
@@ -70,16 +72,29 @@ class ProdukController extends Controller
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'kategori_id' => 'required|exists:kategori_produks,id',
+            'new_kategori' => 'nullable|string|max:255',
             'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'spesifikasi' => 'nullable|array',
             'spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
             'spesifikasi.*.wajib_diisi' => 'boolean',
             'spesifikasi.*.pilihan' => 'nullable|array',
+            'spesifikasi.*.bahan_ids' => 'nullable|array',
+            'spesifikasi.*.bahan_ids.*' => 'exists:bahans,id',
             'estimasi' => 'nullable|array',
             'estimasi.*.alat_id' => 'required|exists:alats,id',
             'estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
             'estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
         ]);
+
+        // Handle category - create new if needed
+        $kategori_id = $request->kategori_id;
+        if ($request->has('new_kategori') && !empty($request->new_kategori)) {
+            $kategori = KategoriProduk::create([
+                'nama_kategori' => $request->new_kategori,
+                'slug' => Str::slug($request->new_kategori),
+            ]);
+            $kategori_id = $kategori->id;
+        }
 
         // Handle image uploads
         $gambars = [];
@@ -95,19 +110,24 @@ class ProdukController extends Controller
         $produk = Produk::create([
             'nama_produk' => $request->nama_produk,
             'deskripsi' => $request->deskripsi,
-            'kategori_id' => $request->kategori_id,
+            'kategori_id' => $kategori_id,
             'gambar' => $gambars,
         ]);
 
         // Handle specifications
         if ($request->has('spesifikasi')) {
             foreach ($request->spesifikasi as $spec) {
-                SpesifikasiProduk::create([
+                $specModel = SpesifikasiProduk::create([
                     'produk_id' => $produk->id,
                     'spesifikasi_id' => $spec['spesifikasi_id'],
                     'wajib_diisi' => $spec['wajib_diisi'] ?? false,
                     'pilihan' => $spec['pilihan'] ?? [],
                 ]);
+
+                // Handle bahan (materials) for this specification
+                if (isset($spec['bahan_ids']) && is_array($spec['bahan_ids'])) {
+                    $specModel->bahanSpesifikasiProduk()->attach($spec['bahan_ids']);
+                }
             }
         }
 
@@ -132,8 +152,12 @@ class ProdukController extends Controller
      */
     public function show(string $id)
     {
-        $produk = Produk::with(['kategori', 'spesifikasiProduk.spesifikasi', 'estimasiProduk.alat'])
-            ->findOrFail($id);
+        $produk = Produk::with([
+            'kategori',
+            'spesifikasiProduk.spesifikasi',
+            'spesifikasiProduk.bahanSpesifikasiProduk',
+            'estimasiProduk.alat'
+        ])->findOrFail($id);
 
         return view('produk.show', compact('produk'));
     }
@@ -143,13 +167,18 @@ class ProdukController extends Controller
      */
     public function edit(string $id)
     {
-        $produk = Produk::with(['spesifikasiProduk.spesifikasi', 'estimasiProduk'])
-            ->findOrFail($id);
+        $produk = Produk::with([
+            'spesifikasiProduk.spesifikasi',
+            'spesifikasiProduk.bahanSpesifikasiProduk',
+            'estimasiProduk'
+        ])->findOrFail($id);
+
         $kategories = KategoriProduk::all();
         $spesifikasis = Spesifikasi::all();
         $alats = Alat::all();
+        $bahans = Bahan::all();
 
-        return view('produk.edit', compact('produk', 'kategories', 'spesifikasis', 'alats'));
+        return view('produk.edit', compact('produk', 'kategories', 'spesifikasis', 'alats', 'bahans'));
     }
 
     /**
@@ -163,19 +192,42 @@ class ProdukController extends Controller
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'kategori_id' => 'required|exists:kategori_produks,id',
+            'new_kategori' => 'nullable|string|max:255',
             'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'spesifikasi' => 'nullable|array',
             'spesifikasi.*.id' => 'nullable|exists:spesifikasi_produks,id',
             'spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
             'spesifikasi.*.wajib_diisi' => 'boolean',
             'spesifikasi.*.pilihan' => 'nullable|array',
+            'spesifikasi.*.bahan_ids' => 'nullable|array',
+            'spesifikasi.*.bahan_ids.*' => 'exists:bahans,id',
+            'new_spesifikasi' => 'nullable|array',
+            'new_spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
+            'new_spesifikasi.*.wajib_diisi' => 'boolean',
+            'new_spesifikasi.*.pilihan' => 'nullable|array',
+            'new_spesifikasi.*.bahan_ids' => 'nullable|array',
+            'new_spesifikasi.*.bahan_ids.*' => 'exists:bahans,id',
             'estimasi' => 'nullable|array',
             'estimasi.*.id' => 'nullable|exists:estimasi_produks,id',
             'estimasi.*.alat_id' => 'required|exists:alats,id',
             'estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
             'estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
+            'new_estimasi' => 'nullable|array',
+            'new_estimasi.*.alat_id' => 'required|exists:alats,id',
+            'new_estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
+            'new_estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
             'delete_image' => 'nullable|array',
         ]);
+
+        // Handle category - create new if needed
+        $kategori_id = $request->kategori_id;
+        if ($request->has('new_kategori') && !empty($request->new_kategori)) {
+            $kategori = KategoriProduk::create([
+                'nama_kategori' => $request->new_kategori,
+                'slug' => Str::slug($request->new_kategori),
+            ]);
+            $kategori_id = $kategori->id;
+        }
 
         // Handle image deletions
         if ($request->has('delete_image')) {
@@ -213,7 +265,7 @@ class ProdukController extends Controller
         // Update basic product info
         $produk->nama_produk = $request->nama_produk;
         $produk->deskripsi = $request->deskripsi;
-        $produk->kategori_id = $request->kategori_id;
+        $produk->kategori_id = $kategori_id;
         $produk->save();
 
         // Handle specifications
@@ -232,28 +284,44 @@ class ProdukController extends Controller
                         'pilihan' => $spec['pilihan'] ?? [],
                     ]);
 
-                    $updatedSpecIds[] = $spec['id'];
-                } else {
-                    // Create new specification
-                    $newSpec = SpesifikasiProduk::create([
-                        'produk_id' => $produk->id,
-                        'spesifikasi_id' => $spec['spesifikasi_id'],
-                        'wajib_diisi' => $spec['wajib_diisi'] ?? false,
-                        'pilihan' => $spec['pilihan'] ?? [],
-                    ]);
+                    // Handle bahan associations - detach all then attach new ones
+                    $specModel->bahanSpesifikasiProduk()->detach();
+                    if (isset($spec['bahan_ids']) && is_array($spec['bahan_ids'])) {
+                        $specModel->bahanSpesifikasiProduk()->attach($spec['bahan_ids']);
+                    }
 
-                    $updatedSpecIds[] = $newSpec->id;
+                    $updatedSpecIds[] = $spec['id'];
                 }
             }
 
-            // Delete removed specifications
-            $toDelete = array_diff($existingSpecIds, $updatedSpecIds);
-            if (!empty($toDelete)) {
-                SpesifikasiProduk::whereIn('id', $toDelete)->delete();
+            // Delete specifications that were removed in the form
+            if ($request->has('deleted_spec_ids') && !empty($request->deleted_spec_ids)) {
+                $deletedIds = explode(',', $request->deleted_spec_ids);
+                SpesifikasiProduk::whereIn('id', $deletedIds)->delete();
+            } else {
+                // If no explicit deletion IDs, delete specs not included in the form
+                $toDelete = array_diff($existingSpecIds, $updatedSpecIds);
+                if (!empty($toDelete)) {
+                    SpesifikasiProduk::whereIn('id', $toDelete)->delete();
+                }
             }
-        } else {
-            // If no specifications provided, delete all existing ones
-            $produk->spesifikasiProduk()->delete();
+        }
+
+        // Handle new specifications
+        if ($request->has('new_spesifikasi')) {
+            foreach ($request->new_spesifikasi as $spec) {
+                $specModel = SpesifikasiProduk::create([
+                    'produk_id' => $produk->id,
+                    'spesifikasi_id' => $spec['spesifikasi_id'],
+                    'wajib_diisi' => $spec['wajib_diisi'] ?? false,
+                    'pilihan' => $spec['pilihan'] ?? [],
+                ]);
+
+                // Handle bahan associations for new specs
+                if (isset($spec['bahan_ids']) && is_array($spec['bahan_ids'])) {
+                    $specModel->bahanSpesifikasiProduk()->attach($spec['bahan_ids']);
+                }
+            }
         }
 
         // Handle production estimates
@@ -273,27 +341,32 @@ class ProdukController extends Controller
                     ]);
 
                     $updatedEstimateIds[] = $estimasi['id'];
-                } else {
-                    // Create new estimate
-                    $newEstimate = EstimasiProduk::create([
-                        'produk_id' => $produk->id,
-                        'alat_id' => $estimasi['alat_id'],
-                        'waktu_persiapan' => $estimasi['waktu_persiapan'],
-                        'waktu_produksi_per_unit' => $estimasi['waktu_produksi_per_unit'],
-                    ]);
-
-                    $updatedEstimateIds[] = $newEstimate->id;
                 }
             }
 
-            // Delete removed estimates
-            $toDelete = array_diff($existingEstimateIds, $updatedEstimateIds);
-            if (!empty($toDelete)) {
-                EstimasiProduk::whereIn('id', $toDelete)->delete();
+            // Delete estimates that were removed in the form
+            if ($request->has('deleted_estimate_ids') && !empty($request->deleted_estimate_ids)) {
+                $deletedIds = explode(',', $request->deleted_estimate_ids);
+                EstimasiProduk::whereIn('id', $deletedIds)->delete();
+            } else {
+                // If no explicit deletion IDs, delete estimates not included in the form
+                $toDelete = array_diff($existingEstimateIds, $updatedEstimateIds);
+                if (!empty($toDelete)) {
+                    EstimasiProduk::whereIn('id', $toDelete)->delete();
+                }
             }
-        } else {
-            // If no estimates provided, delete all existing ones
-            $produk->estimasiProduk()->delete();
+        }
+
+        // Handle new estimates
+        if ($request->has('new_estimasi')) {
+            foreach ($request->new_estimasi as $estimasi) {
+                EstimasiProduk::create([
+                    'produk_id' => $produk->id,
+                    'alat_id' => $estimasi['alat_id'],
+                    'waktu_persiapan' => $estimasi['waktu_persiapan'],
+                    'waktu_produksi_per_unit' => $estimasi['waktu_produksi_per_unit'],
+                ]);
+            }
         }
 
         return redirect()->route('produk.index')
@@ -318,7 +391,12 @@ class ProdukController extends Controller
         }
 
         // Delete associated data
-        $produk->spesifikasiProduk()->delete();
+        $produk->spesifikasiProduk()->each(function ($spec) {
+            // Detach all bahan associations first
+            $spec->bahanSpesifikasiProduk()->detach();
+            $spec->delete();
+        });
+
         $produk->estimasiProduk()->delete();
 
         // Delete the product
@@ -328,9 +406,6 @@ class ProdukController extends Controller
             ->with('success', 'Produk berhasil dihapus!');
     }
 
-    /**
-     * Batch delete products
-     */
     /**
      * Batch delete products
      */
@@ -358,7 +433,12 @@ class ProdukController extends Controller
                 }
 
                 // Delete associated data
-                $produk->spesifikasiProduk()->delete();
+                $produk->spesifikasiProduk()->each(function ($spec) {
+                    // Detach all bahan associations first
+                    $spec->bahanSpesifikasiProduk()->detach();
+                    $spec->delete();
+                });
+
                 $produk->estimasiProduk()->delete();
 
                 // Delete the product

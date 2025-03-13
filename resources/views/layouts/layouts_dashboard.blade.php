@@ -105,7 +105,12 @@
                                 </a>
                             </div>
                         </li>
-                        <li class="nav-item dropdown {{ request()->routeIs('produk.*') || request()->routeIs('spesifikasi.*') ? 'active' : '' }}">
+                        <li
+                            class="nav-item dropdown {{ request()->routeIs('produk.*') ||
+                            request()->routeIs('spesifikasi.*') ||
+                            request()->routeIs('kategori-produk.*')
+                                ? 'active'
+                                : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-extra"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
                                 aria-expanded="false">
@@ -129,6 +134,9 @@
                                 <a class="dropdown-item" href="{{ route('produk.index') }}">
                                     Produk
                                 </a>
+                                <a class="dropdown-item" href="{{ route('kategori-produk.index') }}">
+                                    Kategori Produk
+                                </a>
                             </div>
                         </li>
                         <li class="nav-item {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}">
@@ -147,14 +155,30 @@
                                 <span class="nav-link-title">Pelanggan</span>
                             </a>
                         </li>
-                        {{-- <li class="nav-item {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('laporan.index') }}">
+                        <li class="nav-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('transaksi.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path
+                                            d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" />
+                                        <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Transaksi</span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-reports"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path
                                             d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
                                         <line x1="9" y1="9" x2="15" y2="9" />
@@ -164,7 +188,18 @@
                                 </span>
                                 <span class="nav-link-title">Laporan</span>
                             </a>
-                        </li> --}}
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('laporan.penjualan-harian') }}">
+                                    Laporan Penjualan Harian
+                                </a>
+                                <a class="dropdown-item" href="{{ route('laporan.penjualan-bulanan') }}">
+                                    Laporan Penjualan Bulanan
+                                </a>
+                                <a class="dropdown-item" href="{{ route('laporan.penjualan-tahunan') }}">
+                                    Laporan Penjualan Tahunan
+                                </a>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>

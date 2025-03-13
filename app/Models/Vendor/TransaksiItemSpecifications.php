@@ -5,19 +5,11 @@ namespace App\Models\Vendor;
 use App\Models\Vendor;
 use App\Models\Vendor\Bahan;
 use App\Models\Vendor\TransaksiItem;
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Vendor\SpesifikasiProduk;
 
-class TransaksiItemSpecifications extends Model
+class TransaksiItemSpecifications extends TenantModel
 {
     protected $table = 'transaksi_item_specifications';
-
-    protected $with = [
-        'vendor',
-        'transaksiItem',
-        'spesifikasiProduk',
-        'bahan', 
-    ];
 
     protected $fillable = [
         'vendor_id',

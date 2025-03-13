@@ -3,11 +3,7 @@
 namespace App\Models\Vendor;
 
 use App\Models\Vendor;
-use App\Models\Vendor\Produk;
-use App\Models\Vendor\Spesifikasi;
-use App\Models\Vendor\WholesalePrice;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Vendor\TransaksiItemSpecifications;
+use Illuminate\Database\Eloquent\Builder;
 
 class SpesifikasiProduk extends TenantModel
 {
@@ -18,12 +14,15 @@ class SpesifikasiProduk extends TenantModel
         'produk_id',
         'spesifikasi_id',
         'wajib_diisi',
-        'pilihan'
+        'pilihan',
     ];
 
     protected $casts = [
-        'pilihan' => 'array'
+        'pilihan' => 'array',
+        'wajib_diisi' => 'boolean',
+        'use_bahan' => 'boolean',
     ];
+    
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
@@ -44,38 +43,45 @@ class SpesifikasiProduk extends TenantModel
         return $this->hasMany(TransaksiItemSpecifications::class, 'spesifikasi_produk_id');
     }
 
-    // public function bahans()
-    // {
-    //     $vendorId = auth()->user()->vendor->id;
+    public function bahanSpesifikasiProduk()
+    {
+       return $this->belongsToMany(Bahan::class, 'bahan_spesifikasi_produk', 'spesifikasi_produk_id', 'bahan_id')
+                  ->withTimestamps();
+    }
 
-    //     // Relasi many-to-many antara SpesifikasiProduk dan Bahan
-    //     // Menggunakan tabel pivot 'bahan_spesifikasi_produk'
-    //     // Hanya mengambil bahan yang dimiliki oleh vendor yang sedang login
-    //     return $this->belongsToMany(Bahan::class, 'bahan_spesifikasi_produk', 'spesifikasi_produk_id', 'bahan_id')
-    //         ->when($vendorId, function ($query) use ($vendorId) {
-    //             $query->where('bahans.vendor_id', $vendorId);
-    //         });
-    // }
+    /**
+     * Find specification by product and specification ID
+     */
+    public function scopeFindByProductAndSpec(Builder $query, int $productId, int $specId): Builder
+    {
+        return $query->where('produk_id', $productId)
+                     ->where('spesifikasi_id', $specId);
+    }
 
+    /**
+     * Calculate price based on selected bahan and quantity
+     */
     public function calculatePrice($value, $bahanId, $quantity)
     {
         $bahan = Bahan::find($bahanId);
         if (!$bahan) return 0;
 
-        $basePrice = $bahan->harga_per_satuan * $value;
+        $basePrice = $bahan->hpp * $value;
 
         // Apply wholesale pricing if applicable
-        $wholesalePrice = new WholesalePrice();
-        return $wholesalePrice->calculateFinalPrice($basePrice, $quantity, $bahanId);
+        return (new WholesalePrice)->calculateFinalPrice($basePrice, $quantity, $bahanId);
     }
 
+    /**
+     * Validate specification value
+     */
     public function validateSpecificationValue($value)
     {
         switch ($this->spesifikasi->tipe_input) {
             case 'number':
                 return is_numeric($value) && $value >= 0;
             case 'select':
-                return $this->bahans->pluck('id')->contains($value);
+                return $this->bahanSpesifikasiProduk->pluck('id')->contains($value);
             case 'text':
                 return is_string($value) && !empty($value);
             default:

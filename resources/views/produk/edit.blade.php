@@ -38,17 +38,40 @@
 
                                 <div class="mb-3">
                                     <label class="form-label required">Kategori</label>
-                                    <select class="form-select @error('kategori_id') is-invalid @enderror"
-                                        name="kategori_id">
-                                        <option value="">Pilih Kategori</option>
-                                        @foreach ($kategories as $kategori)
-                                            <option value="{{ $kategori->id }}"
-                                                {{ old('kategori_id', $produk->kategori_id) == $kategori->id ? 'selected' : '' }}>
-                                                {{ $kategori->nama_kategori }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select @error('kategori_id') is-invalid @enderror"
+                                            name="kategori_id" id="kategori-select">
+                                            <option value="">Pilih Kategori</option>
+                                            @foreach ($kategories as $kategori)
+                                                <option value="{{ $kategori->id }}"
+                                                    {{ old('kategori_id', $produk->kategori_id) == $kategori->id ? 'selected' : '' }}>
+                                                    {{ $kategori->nama_kategori }}
+                                                </option>
+                                            @endforeach
+                                            <option value="new">+ Tambah Kategori Baru</option>
+                                        </select>
+                                        <button type="button" class="btn btn-outline-secondary" id="toggle-new-category">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M12 5l0 14" />
+                                                <path d="M5 12l14 0" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                     @error('kategori_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <!-- New category input (initially hidden) -->
+                                <div class="mb-3" id="new-category-container" style="display: none;">
+                                    <label class="form-label">Nama Kategori Baru</label>
+                                    <input type="text" class="form-control @error('new_kategori') is-invalid @enderror"
+                                        name="new_kategori" value="{{ old('new_kategori') }}"
+                                        placeholder="Masukkan nama kategori baru">
+                                    @error('new_kategori')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -118,7 +141,7 @@
                                     <div class="row g-3 mb-3 spec-row" id="spec-row-existing-{{ $spec->id }}">
                                         <input type="hidden" name="spesifikasi[{{ $index }}][id]"
                                             value="{{ $spec->id }}">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">Jenis Spesifikasi</label>
                                             <select class="form-select spec-select"
                                                 name="spesifikasi[{{ $index }}][spesifikasi_id]" required
@@ -142,7 +165,7 @@
                                                 <label class="form-check-label">Ya</label>
                                             </div>
                                         </div>
-                                        <div class="col-md-5">
+                                        <div class="col-md-3">
                                             <label class="form-label">Pilihan (untuk dropdown/radio)</label>
                                             <div class="input-group">
                                                 <input type="text" class="form-control"
@@ -179,6 +202,19 @@
                                                     @endforeach
                                                 @endif
                                             </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Bahan yang Digunakan</label>
+                                            <select class="form-select"
+                                                name="spesifikasi[{{ $index }}][bahan_ids][]" multiple>
+                                                @foreach ($bahans as $bahan)
+                                                    <option value="{{ $bahan->id }}"
+                                                        {{ $spec->bahanSpesifikasiProduk->contains($bahan->id) ? 'selected' : '' }}>
+                                                        {{ $bahan->nama_bahan }} ({{ $bahan->satuan }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="form-hint">Tahan Ctrl untuk memilih beberapa bahan</small>
                                         </div>
                                         <div class="col-md-1 d-flex align-items-end">
                                             <button type="button" class="btn btn-outline-danger remove-existing-spec"
@@ -334,11 +370,33 @@
                 const addEstimateButton = document.getElementById('add-estimate-row');
                 const deletedSpecIds = document.getElementById('deleted-spec-ids');
                 const deletedEstimateIds = document.getElementById('deleted-estimate-ids');
+                const kategoriSelect = document.getElementById('kategori-select');
+                const newCategoryContainer = document.getElementById('new-category-container');
+                const toggleNewCategoryBtn = document.getElementById('toggle-new-category');
 
                 let specRowCount = 0;
                 let estimateRowCount = 0;
                 let deletedSpecs = [];
                 let deletedEstimates = [];
+
+                // Category handling
+                kategoriSelect.addEventListener('change', function() {
+                    if (this.value === 'new') {
+                        newCategoryContainer.style.display = 'block';
+                    } else {
+                        newCategoryContainer.style.display = 'none';
+                    }
+                });
+
+                toggleNewCategoryBtn.addEventListener('click', function() {
+                    if (newCategoryContainer.style.display === 'none') {
+                        newCategoryContainer.style.display = 'block';
+                        kategoriSelect.value = 'new';
+                    } else {
+                        newCategoryContainer.style.display = 'none';
+                        kategoriSelect.value = '';
+                    }
+                });
 
                 // Initialize functionality for existing specs and estimates
                 document.querySelectorAll('.remove-existing-spec').forEach(button => {
@@ -382,6 +440,7 @@
                 function addSpecificationRow() {
                     const rowId = `new-spec-row-${specRowCount}`;
                     const spesifikasis = @json($spesifikasis);
+                    const bahans = @json($bahans);
 
                     let spesifikasiOptions = '';
                     spesifikasis.forEach(spec => {
@@ -389,9 +448,15 @@
                             `<option value="${spec.id}">${spec.nama_spesifikasi} (${spec.tipe_input})</option>`;
                     });
 
+                    let bahanOptions = '';
+                    bahans.forEach(bahan => {
+                        bahanOptions +=
+                            `<option value="${bahan.id}">${bahan.nama_bahan} (${bahan.satuan})</option>`;
+                    });
+
                     const html = `
                             <div class="row g-3 mb-3 spec-row" id="${rowId}">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label">Jenis Spesifikasi</label>
                                     <select class="form-select spec-select" name="new_spesifikasi[${specRowCount}][spesifikasi_id]" required onchange="updateSpecOptions('${rowId}')">
                                         <option value="">Pilih Spesifikasi</option>
@@ -405,7 +470,7 @@
                                         <label class="form-check-label">Ya</label>
                                     </div>
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-3">
                                     <label class="form-label">Pilihan (untuk dropdown/radio)</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="${rowId}-option-input" placeholder="Tambahkan pilihan">
@@ -415,6 +480,13 @@
                                     <div class="mt-2" id="${rowId}-options-container">
                                         <!-- Options will be added here -->
                                     </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Bahan yang Digunakan</label>
+                                    <select class="form-select" name="new_spesifikasi[${specRowCount}][bahan_ids][]" multiple>
+                                        ${bahanOptions}
+                                    </select>
+                                    <small class="form-hint">Tahan Ctrl untuk memilih beberapa bahan</small>
                                 </div>
                                 <div class="col-md-1 d-flex align-items-end">
                                     <button type="button" class="btn btn-outline-danger" onclick="removeSpecRow('${rowId}')">
@@ -451,26 +523,26 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                                                <label class="form-label">Waktu Persiapan (menit)</label>
-                            <input type="number" class="form-control" name="new_estimasi[${estimateRowCount}][waktu_persiapan]" 
-                                step="0.01" min="0" required placeholder="Waktu setup">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Waktu Per Unit (menit)</label>
-                            <input type="number" class="form-control" name="new_estimasi[${estimateRowCount}][waktu_produksi_per_unit]" 
-                                step="0.01" min="0" required placeholder="Waktu produksi per unit">
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-danger" onclick="removeEstimateRow('${rowId}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M18 6l-12 12" />
-                                    <path d="M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    `;
+                                    <label class="form-label">Waktu Persiapan (menit)</label>
+                                    <input type="number" class="form-control" name="new_estimasi[${estimateRowCount}][waktu_persiapan]" 
+                                        step="0.01" min="0" required placeholder="Waktu setup">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Waktu Per Unit (menit)</label>
+                                    <input type="number" class="form-control" name="new_estimasi[${estimateRowCount}][waktu_produksi_per_unit]" 
+                                        step="0.01" min="0" required placeholder="Waktu produksi per unit">
+                                </div>
+                                <div class="col-md-1 d-flex align-items-end">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removeEstimateRow('${rowId}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M18 6l-12 12" />
+                                            <path d="M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            `;
 
                     newEstimatesContainer.insertAdjacentHTML('beforeend', html);
                     estimateRowCount++;
@@ -541,6 +613,7 @@
                 if (!specSelect) return;
 
                 const optionsSection = row.querySelector('[id$="-options-container"]').parentElement;
+                const bahanSection = optionsSection.nextElementSibling;
 
                 // Get the selected specification
                 const spesifikasis = @json($spesifikasis);
@@ -553,6 +626,9 @@
                     } else {
                         optionsSection.style.display = 'none';
                     }
+
+                    // Always show bahan selection
+                    bahanSection.style.display = 'block';
                 }
             }
         </script>

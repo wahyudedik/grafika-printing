@@ -33,6 +33,7 @@
             title: message,
             allowOutsideClick: false,
             showConfirmButton: false,
+            timer: 3000,
             didOpen: () => {
                 Swal.showLoading();
             }

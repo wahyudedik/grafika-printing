@@ -7,17 +7,13 @@ use App\Models\Vendor;
 use App\Models\Vendor\Pelanggan;
 use Illuminate\Support\Facades\DB;
 use App\Models\Vendor\TransaksiItem;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use App\Notifications\OrderStatusChanged;
 use App\Models\Vendor\TransaksiItemSpecifications;
 
-class Transaksi extends Model
+class Transaksi extends TenantModel
 {
     protected $table = 'transaksis';
-
-    // Add eager loading by default
-    protected $with =
-    ['pelanggan', 'transaksiItem.produk', 'vendor'];
     
     protected $fillable = [
         'vendor_id',
@@ -36,8 +32,11 @@ class Transaksi extends Model
     protected $casts = [
         'total_harga' => 'decimal:2',
         'status' => 'string',
-        'tanggal_dibuat' => 'date'
+        'tanggal_dibuat' => 'datetime',
+        'estimasi_selesai' => 'datetime',
+        'progress_percentage' => 'integer'
     ];
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
@@ -68,20 +67,75 @@ class Transaksi extends Model
         );
     }
 
+    /**
+     * Scope a query to filter transactions by status.
+     */
+    public function scopeWithStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status', $status);
+    }
+
+    /**
+     * Scope a query to filter transactions by date range.
+     */
+    public function scopeWithinDateRange(Builder $query, $startDate, $endDate): Builder
+    {
+        if ($startDate) {
+            $query->whereDate('tanggal_dibuat', '>=', $startDate);
+        }
+        
+        if ($endDate) {
+            $query->whereDate('tanggal_dibuat', '<=', $endDate);
+        }
+        
+        return $query;
+    }
+
+    /**
+     * Scope a query to search transactions by code or customer.
+     */
+    public function scopeSearch(Builder $query, string $search): Builder
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('kode', 'like', "%{$search}%")
+                ->orWhereHas('pelanggan', function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%");
+                });
+        });
+    }
+
     protected static function booted()
     {
+        parent::booted();
+
         static::creating(function ($transaksi) {
-            // Verify pelanggan exists before creating transaction
-            if (!Pelanggan::find($transaksi->pelanggan_id)) {
-                throw new \Exception('Customer not found');
+            // Set current date if not provided
+            if (!$transaksi->tanggal_dibuat) {
+                $transaksi->tanggal_dibuat = now();
+            }
+            
+            // Set default status and progress if not set
+            if (!$transaksi->status) {
+                $transaksi->status = 'pending';
+            }
+            
+            if (!$transaksi->progress_percentage) {
+                $transaksi->progress_percentage = 0;
             }
         });
 
-        static::created(function ($transaksi) {
-            // Load relationships before notification
-            $transaksi->load(['pelanggan', 'transaksiItem.produk', 'vendor']);
-            if ($transaksi->pelanggan) {
-                $transaksi->pelanggan->notify(new OrderStatusChanged($transaksi));
+        static::updating(function ($transaksi) {
+            // Make sure progress percentage matches status if status is being updated
+            if ($transaksi->isDirty('status')) {
+                $progressMap = [
+                    'pending' => 0,
+                    'processing' => 25,
+                    'quality_check' => 80,
+                    'completed' => 100,
+                    'cancelled' => 0
+                ];
+                
+                $transaksi->progress_percentage = $progressMap[$transaksi->status] ?? 0;
             }
         });
     }
@@ -103,8 +157,14 @@ class Transaksi extends Model
             ])->save();
 
             $this->refresh();
-            sleep(1);
-            $this->pelanggan->notify(new OrderStatusChanged($this));
+            
+            // Only notify if the customer relationship exists
+            if ($this->pelanggan) {
+                // Only attempt to notify if the OrderStatusChanged class exists
+                if (class_exists('App\Notifications\OrderStatusChanged')) {
+                    $this->pelanggan->notify(new OrderStatusChanged($this));
+                }
+            }
         });
     }
 }

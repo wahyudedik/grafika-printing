@@ -6,6 +6,12 @@
 6. php artisan db:seed
 7. npm run dev or php artisan dev
 
+Tech Stack :
+1. Laravel 11
+2. Bootsrap 5
+3. tabler io
+4. dompdf
+
 // Get all vendor-type users
 $vendorUsers = User::ofType('vendor')->get();
 
@@ -76,29 +82,29 @@ Fitur APP :
     d. Pengguna
         - User list
         - Manage Role
-    e. Pelanggan
-        - CRUD pelanggan
-        - Search pelanggan
+    e. Pelanggan -> Done
+        - CRUD pelanggan -> Done
+        - Search pelanggan -> Done
     f. alat dan bahan
-        - CRUD alat dan bahan
-        - Search alat dan bahan
-        - Estimasi produksi
-            - CRUD estimasi produksi
-            - Search estimasi produksi
-    g. produk
-        - CRUD produk 
-        - Search produk
-        - Spesifikasi produk
-            - CRUD spesifikasi produk
-            - Search spesifikasi produk
+        - CRUD alat dan bahan -> Done
+        - Search alat dan bahan -> Done
+        - Estimasi produksi -> Done
+            - CRUD estimasi produksi -> Done
+            - Search estimasi produksi -> Done
+    g. produk -> Done
+        - CRUD produk -> Done
+        - Search produk -> Done
+        - Spesifikasi produk -> Done
+            - CRUD spesifikasi produk -> Done
+            - Search spesifikasi produk -> Done
     h. Menu Pos
     i. POS
-    j. transaksi
-        - CRUD transaksi
-        - Search transaksi
-    k. Menu Laporan
-        - Laporan panjulan per hari
-        - laporan penjualan per bulan
-        - laporan penjualan per tahun
+    j. transaksi -> Done
+        - CRUD transaksi -> Done
+        - Search transaksi -> Done
+    k. Menu Laporan -> Done
+        - Laporan penjualan per hari -> Done
+        - laporan penjualan per bulan -> Done
+        - laporan penjualan per tahun -> Done
     l. Notifikasi bahan habis
     m. notifikasi email proses cetak produk yang di pesan
