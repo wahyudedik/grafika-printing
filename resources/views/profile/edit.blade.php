@@ -1,4 +1,8 @@
-@extends('dev.layouts.app')
+@if (Auth::user()->usertype == 'dev')
+    @extends('dev.layouts.app')
+@else
+    @extends('layouts.layouts_dashboard')
+@endif
 
 @section('title', 'Edit Profile')
 

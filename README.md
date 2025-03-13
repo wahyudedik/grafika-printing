@@ -3,10 +3,26 @@
 3. npm install
 4. php artisan key:generate --ansi
 5. php artisan migrate
-    - php artisan migrate --path=database/migrations/landlord --database=mysql
-    - php artisan migrate --path=database/migrations/tenant --database=tenant
 6. php artisan db:seed
-7. npm run dev
+7. npm run dev or php artisan dev
+
+// Get all vendor-type users
+$vendorUsers = User::ofType('vendor')->get();
+
+// Get users associated with a specific vendor
+$vendorUsers = User::forVendor($vendorId)->get();
+
+// Get all active vendors
+$activeVendors = Vendor::all(); // the active scope is applied automatically
+
+// Include inactive vendors
+$allVendors = Vendor::withInactive()->get();
+
+// Get vendors for current user
+$userVendors = Vendor::forUser(auth()->id())->get();
+
+// Search vendors by name
+$searchResults = Vendor::searchByName('Some Vendor')->get();
 
 Color Palette:
 
@@ -45,8 +61,8 @@ Fitur APP :
         - CRUD Vendor -> Done
         - Search Vendor ->Done
 7. Dashboard User -> 
-    a. Masuk ke hal vedor mau pilih vendor mana -> menuju dashboard dengan data vendor
-    b. pengaturan akun
+    a. Masuk ke hal vedor mau pilih vendor mana -> menuju dashboard dengan data vendor 
+    b. pengaturan akun -> Done
         - Edit profil -> Done
         - Ubah password -> Done
     c. dashboard 
@@ -84,3 +100,5 @@ Fitur APP :
         - Laporan panjulan per hari
         - laporan penjualan per bulan
         - laporan penjualan per tahun
+    l. Notifikasi bahan habis
+    m. notifikasi email proses cetak produk yang di pesan

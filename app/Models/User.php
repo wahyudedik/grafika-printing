@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -21,7 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'usertype',
+        'usertype', //dev, vendor
     ];
 
     /**
@@ -46,4 +47,31 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Define relationship with vendors
+     */
+    public function vendorUser()
+    {
+        return $this->belongsToMany(Vendor::class, 'vendor_user');
+    }
+
+    /**
+     * Scope a query to only include users of a specific type.
+     */
+    public function scopeOfType(Builder $query, string $type): Builder
+    {
+        return $query->where('usertype', $type);
+    }
+
+    /**
+     * Scope a query to only include users associated with a specific vendor.
+     */
+    public function scopeForVendor(Builder $query, int $vendorId): Builder
+    {
+        return $query->whereHas('vendorUser', function ($q) use ($vendorId) {
+            $q->where('vendor_id', $vendorId);
+        });
+    }
+
 }
