@@ -73,12 +73,12 @@ Fitur APP :
         - Ubah password -> Done
     c. dashboard 
         - swith to vendor toko lain
-        - widget total produk
-        - widget transaksi hari ini
-        - widget transaksi bulanan
-        - widget pendapatan bulanan
-        - widget grafik produk populer
-        - widget grafik pendapatan bulanan
+        - widget total produk -> Done
+        - widget transaksi hari ini -> Done
+        - widget transaksi bulanan -> Done
+        - widget pendapatan bulanan -> Done
+        - widget grafik produk populer -> Done
+        - widget grafik pendapatan bulanan -> Done
     d. Pengguna
         - User list
         - Manage Role

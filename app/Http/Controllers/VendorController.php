@@ -84,7 +84,7 @@ class VendorController extends Controller
 
             return redirect()->route('vendors.index')->with('toast_success', 'Vendor created successfully');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return redirect()->back()->with('toast_error', 'Something went wrong' . $th->getMessage());
         }
     }
 
@@ -159,7 +159,7 @@ class VendorController extends Controller
 
             return redirect()->route('vendors.index')->with('toast_success', 'Vendor updated successfully');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return redirect()->back()->with('toast_error', 'Something went wrong' . $th->getMessage());
         }
     }
 
