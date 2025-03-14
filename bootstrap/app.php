@@ -15,15 +15,18 @@ return Application::configure(basePath: dirname(__DIR__))
             ->alias([
                 'dev' => \App\Http\Middleware\DevMiddleware::class,
                 'vendor' => \App\Http\Middleware\VendorMiddleware::class,
+                'tenants' => \App\Http\Middleware\SetTenantContext::class,
+                'Tenant' => \App\Facades\Tenant::class,
             ])
             ->group(
                 'tenant',
                 [
-                    \Spatie\Multitenancy\Http\Middleware\NeedsTenant::class,
-                    \Spatie\Multitenancy\Http\Middleware\EnsureValidTenantSession::class,
+                    // \Spatie\Multitenancy\Http\Middleware\NeedsTenant::class,
+                    // \Spatie\Multitenancy\Http\Middleware\EnsureValidTenantSession::class,
                 ]
             );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
+    })
+    ->create();

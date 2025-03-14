@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified', 'dev'])->group(function () {
     Route::resource('/administrator/vendors', VendorController::class);
 });
 
-Route::middleware(['auth', 'verified', 'vendor'])->group(function () {
+Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'vendorDashboard'])
         ->name('dashboard');
 

@@ -92,7 +92,7 @@
                             <td class="font-medium">{{ $item->nama_alat }}</td>
                             <td>{{ $item->merek }}</td>
                             <td>{{ $item->model }}</td>
-                            <td>{{ Str::limit($item->spesifikasi_alat, 50) }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($item->spesifikasi_alat, 50) }}</td>
                             <td><span class="badge bg-{{ $item->status_color }}-lt">{{ $item->status }}</span></td>
                             <td>{{ $item->tanggal_pembelian->format('d M Y') }}</td>
                             <td>{{ $item->kapasitas_cetak_per_jam }}</td>

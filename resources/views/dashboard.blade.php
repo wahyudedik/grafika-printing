@@ -384,17 +384,17 @@
                                 <td>Rp {{ number_format($transaction->total_harga, 0, ',', '.') }}</td>
                                 <td>
                                     @if ($transaction->status == 'pending')
-                                        <span class="badge bg-yellow">Pending</span>
+                                        <span class="badge bg-yellow text-white">Pending</span>
                                     @elseif($transaction->status == 'processing')
-                                        <span class="badge bg-blue">Processing</span>
+                                        <span class="badge bg-blue text-white">Processing</span>
                                     @elseif($transaction->status == 'quality_check')
-                                        <span class="badge bg-purple">Quality Check</span>
+                                        <span class="badge bg-purple text-white">Quality Check</span>
                                     @elseif($transaction->status == 'completed')
-                                        <span class="badge bg-green">Completed</span>
+                                        <span class="badge bg-green text-white">Completed</span>
                                     @elseif($transaction->status == 'cancelled')
-                                        <span class="badge bg-red">Cancelled</span>
+                                        <span class="badge bg-red text-white">Cancelled</span>
                                     @else
-                                        <span class="badge bg-secondary">{{ ucfirst($transaction->status) }}</span>
+                                        <span class="badge bg-secondary text-white">{{ ucfirst($transaction->status) }}</span>
                                     @endif
                                 </td>
                                 <td>

@@ -35,4 +35,15 @@ class Pelanggan extends TenantModel
     {
         return $this->hasMany(Transaksi::class, 'pelanggan_id');
     }
+
+    /**
+     * Get the date of the latest transaction for this customer
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function getLatestTransactionDate()
+    {
+        $latestTransaction = $this->transaksi()->latest('created_at')->first();
+        return $latestTransaction ? $latestTransaction->created_at : null;
+    }
 }
