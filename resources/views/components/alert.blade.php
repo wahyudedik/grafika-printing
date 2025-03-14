@@ -7,7 +7,11 @@
             position: 'top-end',
             showConfirmButton: false,
             timer: 3000,
-            timerProgressBar: true
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
         });
     </script>
 @endif
@@ -21,7 +25,11 @@
             position: 'top-end',
             showConfirmButton: false,
             timer: 3000,
-            timerProgressBar: true
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
         });
     </script>
 @endif
@@ -60,16 +68,23 @@
     }
 
     // Loading state for forms
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', () => {
-            showLoading('Processing...');
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form:not([data-no-loading])').forEach(form => {
+            form.addEventListener('submit', (e) => {
+                if (!form.hasAttribute('data-no-loading')) {
+                    showLoading('Processing...');
+                }
+            });
         });
-    });
 
-    // Loading state for links
-    document.querySelectorAll('a:not([href^="#"])').forEach(link => {
-        link.addEventListener('click', () => {
-            showLoading('Loading...');
-        });
+        // Loading state for links except certain ones
+        document.querySelectorAll('a:not([href^="#"]):not([data-bs-toggle]):not([data-no-loading])').forEach(
+            link => {
+                link.addEventListener('click', () => {
+                    if (!link.hasAttribute('data-no-loading')) {
+                        showLoading('Loading...');
+                    }
+                });
+            });
     });
 </script>

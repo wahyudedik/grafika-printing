@@ -35,6 +35,12 @@ class Bahan extends TenantModel
         return $this->hasMany(WholesalePrice::class, 'bahan_id');
     }
 
+    // In app/Models/Vendor/Bahan.php
+    public function wholesalePrice()
+    {
+        return $this->wholesalePrices();
+    }
+
     /**
      * Scopes
      */
@@ -106,5 +112,28 @@ class Bahan extends TenantModel
             'low' => '<span class="badge bg-warning text-white">Rendah (' . $this->stok . ')</span>',
             default => '<span class="badge bg-success text-white">' . $this->stok . '</span>',
         };
+    }
+
+    /**
+     * Check if the stock level is low and update status accordingly
+     *
+     * @return void
+     */
+    public function checkStockLevel()
+    {
+        // Assuming you have a 'stok' column in your bahans table
+        // If you have a minimum_stok field, use that, otherwise use a default value
+        $minimumStock = $this->minimum_stok ?? 5; // Default minimum stock level is 5
+
+        if ($this->stok <= $minimumStock) {
+            // If you have a status field, update it
+            if (isset($this->attributes['status'])) {
+                $this->status = 'low_stock';
+                $this->save();
+            }
+
+            // You could log low stock situations
+            \Illuminate\Support\Facades\Log::warning("Low stock alert: {$this->nama_bahan} (ID: {$this->id}) - Current stock: {$this->stok}");
+        }
     }
 }

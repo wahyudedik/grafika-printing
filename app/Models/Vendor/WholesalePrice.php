@@ -46,4 +46,29 @@ class WholesalePrice extends TenantModel
     {
         return $this->max_quantity ?? 'Unlimited';
     }
+
+    /**
+     * Calculate the final price based on quantity and wholesale pricing tiers
+     *
+     * @param float $basePrice The base price (hpp)
+     * @param int $quantity The quantity
+     * @param int $bahanId The bahan ID to check for wholesale pricing
+     * @return float The calculated final price per unit
+     */
+    public function calculateFinalPrice($basePrice, $quantity, $bahanId)
+    {
+        // Find applicable wholesale price tier
+        $wholesalePricing = self::where('bahan_id', $bahanId)
+            ->where('min_quantity', '<=', $quantity)
+            ->where('max_quantity', '>=', $quantity)
+            ->first();
+
+        // If a wholesale price tier is found, use that price
+        if ($wholesalePricing) {
+            return $wholesalePricing->harga;
+        }
+
+        // Otherwise, return the base price
+        return $basePrice;
+    }
 }

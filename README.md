@@ -97,8 +97,8 @@ Fitur APP :
         - Spesifikasi produk -> Done
             - CRUD spesifikasi produk -> Done
             - Search spesifikasi produk -> Done
-    h. Menu Pos
-    i. POS
+    h. Menu Pos -> Done
+    i. POS -> Done
     j. transaksi -> Done
         - CRUD transaksi -> Done
         - Search transaksi -> Done

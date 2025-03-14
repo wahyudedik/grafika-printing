@@ -3,6 +3,7 @@
 namespace App\Models\Vendor;
 
 use App\Models\Vendor;
+use App\Models\Vendor\Bahan;
 use Illuminate\Database\Eloquent\Builder;
 
 class SpesifikasiProduk extends TenantModel
@@ -47,6 +48,11 @@ class SpesifikasiProduk extends TenantModel
     {
        return $this->belongsToMany(Bahan::class, 'bahan_spesifikasi_produk', 'spesifikasi_produk_id', 'bahan_id')
                   ->withTimestamps();
+    }
+
+    public function bahans()
+    {
+        return $this->bahanSpesifikasiProduk();
     }
 
     /**
