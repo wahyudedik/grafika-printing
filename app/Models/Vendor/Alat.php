@@ -5,17 +5,13 @@ namespace App\Models\Vendor;
 use App\Models\Vendor;
 use App\Models\Vendor\Produk;
 use App\Models\Vendor\Transaksi;
+use App\Models\Vendor\TenantModel;
 use App\Models\Vendor\EstimasiProduk;
 use Illuminate\Database\Eloquent\Model;
 
 class Alat extends TenantModel
 {
     protected $table = 'alats';
-
-    protected $with = [
-        'vendor',
-        'estimasiProduk',
-    ];
 
     protected $fillable = [
         'vendor_id',
@@ -115,5 +111,13 @@ class Alat extends TenantModel
             ->first();
 
         return $lastScheduledJob ? $lastScheduledJob->estimasi_selesai : now();
+    }
+
+    // Tambahan accessor untuk ketersediaan
+    public function getAvailabilityLabelAttribute()
+    {
+        return $this->tersedia
+            ? '<span class="badge bg-success-lt">Tersedia</span>'
+            : '<span class="badge bg-danger-lt">Tidak Tersedia</span>';
     }
 }

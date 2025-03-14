@@ -3,6 +3,7 @@
 namespace App\Models\Vendor;
 
 use App\Models\Vendor;
+use App\Models\Vendor\TenantModel;
 use App\Models\Vendor\EstimasiProduk;
 use App\Models\Vendor\KategoriProduk;
 use Illuminate\Database\Eloquent\Model;

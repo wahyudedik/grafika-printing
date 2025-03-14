@@ -68,11 +68,10 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Modify validation rules to handle "new" category
+        $rules = [
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'kategori_id' => 'required|exists:kategori_produks,id',
-            'new_kategori' => 'nullable|string|max:255',
             'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'spesifikasi' => 'nullable|array',
             'spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
@@ -84,11 +83,20 @@ class ProdukController extends Controller
             'estimasi.*.alat_id' => 'required|exists:alats,id',
             'estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
             'estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
-        ]);
+        ];
+
+        // Conditional validation for category
+        if ($request->kategori_id === 'new') {
+            $rules['new_kategori'] = 'required|string|max:255';
+        } else {
+            $rules['kategori_id'] = 'required|exists:kategori_produks,id';
+        }
+
+        $request->validate($rules);
 
         // Handle category - create new if needed
         $kategori_id = $request->kategori_id;
-        if ($request->has('new_kategori') && !empty($request->new_kategori)) {
+        if ($request->kategori_id === 'new' && !empty($request->new_kategori)) {
             $kategori = KategoriProduk::create([
                 'nama_kategori' => $request->new_kategori,
                 'slug' => Str::slug($request->new_kategori),
@@ -144,7 +152,7 @@ class ProdukController extends Controller
         }
 
         return redirect()->route('produk.index')
-            ->with('success', 'Produk berhasil ditambahkan!');
+            ->with('toast_success', 'Produk berhasil ditambahkan!');
     }
 
     /**
@@ -188,11 +196,10 @@ class ProdukController extends Controller
     {
         $produk = Produk::findOrFail($id);
 
-        $request->validate([
+        // Modify validation rules to handle "new" category
+        $rules = [
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
-            'kategori_id' => 'required|exists:kategori_produks,id',
-            'new_kategori' => 'nullable|string|max:255',
             'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'spesifikasi' => 'nullable|array',
             'spesifikasi.*.id' => 'nullable|exists:spesifikasi_produks,id',
@@ -217,11 +224,20 @@ class ProdukController extends Controller
             'new_estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
             'new_estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
             'delete_image' => 'nullable|array',
-        ]);
+        ];
+
+        // Conditional validation for category
+        if ($request->kategori_id === 'new') {
+            $rules['new_kategori'] = 'required|string|max:255';
+        } else {
+            $rules['kategori_id'] = 'required|exists:kategori_produks,id';
+        }
+
+        $request->validate($rules);
 
         // Handle category - create new if needed
         $kategori_id = $request->kategori_id;
-        if ($request->has('new_kategori') && !empty($request->new_kategori)) {
+        if ($request->kategori_id === 'new' && !empty($request->new_kategori)) {
             $kategori = KategoriProduk::create([
                 'nama_kategori' => $request->new_kategori,
                 'slug' => Str::slug($request->new_kategori),
@@ -370,7 +386,7 @@ class ProdukController extends Controller
         }
 
         return redirect()->route('produk.index')
-            ->with('success', 'Produk berhasil diperbarui!');
+            ->with('toast_success', 'Produk berhasil diperbarui!');
     }
 
     /**
@@ -403,74 +419,6 @@ class ProdukController extends Controller
         $produk->delete();
 
         return redirect()->route('produk.index')
-            ->with('success', 'Produk berhasil dihapus!');
-    }
-
-    /**
-     * Batch delete products
-     */
-    public function batchDelete(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:produks,id',
-        ]);
-
-        $count = 0;
-
-        foreach ($request->ids as $id) {
-            $produk = Produk::find($id);
-
-            if ($produk) {
-                // Delete associated images
-                if (!empty($produk->gambar)) {
-                    foreach ($produk->gambar as $image) {
-                        $imagePath = public_path($image);
-                        if (file_exists($imagePath)) {
-                            unlink($imagePath);
-                        }
-                    }
-                }
-
-                // Delete associated data
-                $produk->spesifikasiProduk()->each(function ($spec) {
-                    // Detach all bahan associations first
-                    $spec->bahanSpesifikasiProduk()->detach();
-                    $spec->delete();
-                });
-
-                $produk->estimasiProduk()->delete();
-
-                // Delete the product
-                $produk->delete();
-                $count++;
-            }
-        }
-
-        return redirect()->route('produk.index')
-            ->with('success', "$count produk berhasil dihapus!");
-    }
-
-    /**
-     * Update multiple products status or category
-     */
-    public function batchUpdate(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:produks,id',
-            'action' => 'required|in:category',
-            'kategori_id' => 'required_if:action,category|exists:kategori_produks,id',
-        ]);
-
-        $count = 0;
-
-        if ($request->action == 'category') {
-            $count = Produk::whereIn('id', $request->ids)
-                ->update(['kategori_id' => $request->kategori_id]);
-        }
-
-        return redirect()->route('produk.index')
-            ->with('success', "$count produk berhasil diperbarui!");
+            ->with('toast_success', 'Produk berhasil dihapus!');
     }
 }

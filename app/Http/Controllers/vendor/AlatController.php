@@ -32,6 +32,11 @@ class AlatController extends Controller
                 $query->byStatus($request->status);
             }
 
+            // Availability filter (tambahan)
+            if ($request->has('tersedia') && $request->tersedia !== '') {
+                $query->where('tersedia', $request->tersedia === 'yes');
+            }
+
             // Sorting
             $sort = $request->input('sort', 'created_at');
             $order = $request->input('order', 'desc');
@@ -156,43 +161,6 @@ class AlatController extends Controller
             $alat = Alat::findOrFail($id);
             $alat->delete();
             return redirect()->route('alat.index')->with('toast_success', 'Alat berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error deleting alat: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Update status for multiple alat items.
-     */
-    public function batchUpdateStatus(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'required|exists:alats,id',
-            'status' => 'required|in:aktif,maintenance,rusak',
-        ]);
-
-        try {
-            $count = Alat::whereIn('id', $request->ids)->update(['status' => $request->status]);
-            return redirect()->route('alat.index')->with('toast_success', $count . ' alat berhasil diperbarui');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error updating alat status: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Delete multiple alat items.
-     */
-    public function batchDelete(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'required|exists:alats,id',
-        ]);
-
-        try {
-            $count = Alat::whereIn('id', $request->ids)->delete();
-            return redirect()->route('alat.index')->with('toast_success', $count . ' alat berhasil dihapus');
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', 'Error deleting alat: ' . $e->getMessage());
         }

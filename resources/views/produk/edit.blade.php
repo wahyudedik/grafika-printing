@@ -373,6 +373,7 @@
                 const kategoriSelect = document.getElementById('kategori-select');
                 const newCategoryContainer = document.getElementById('new-category-container');
                 const toggleNewCategoryBtn = document.getElementById('toggle-new-category');
+                const newKategoriInput = document.querySelector('input[name="new_kategori"]');
 
                 let specRowCount = 0;
                 let estimateRowCount = 0;
@@ -383,8 +384,10 @@
                 kategoriSelect.addEventListener('change', function() {
                     if (this.value === 'new') {
                         newCategoryContainer.style.display = 'block';
+                        newKategoriInput.setAttribute('required', 'required');
                     } else {
                         newCategoryContainer.style.display = 'none';
+                        newKategoriInput.removeAttribute('required');
                     }
                 });
 
@@ -392,9 +395,11 @@
                     if (newCategoryContainer.style.display === 'none') {
                         newCategoryContainer.style.display = 'block';
                         kategoriSelect.value = 'new';
+                        newKategoriInput.setAttribute('required', 'required');
                     } else {
                         newCategoryContainer.style.display = 'none';
                         kategoriSelect.value = '';
+                        newKategoriInput.removeAttribute('required');
                     }
                 });
 

@@ -3,6 +3,7 @@
 namespace App\Models\Vendor;
 
 use App\Models\Vendor;
+use App\Models\Vendor\TenantModel;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Vendor\SpesifikasiProduk;
 

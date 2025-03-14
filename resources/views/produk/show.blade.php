@@ -95,9 +95,9 @@
                                                     <td>{{ ucfirst($spec->spesifikasi->tipe_input) }}</td>
                                                     <td>
                                                         @if ($spec->wajib_diisi)
-                                                            <span class="badge bg-success">Ya</span>
+                                                            <span class="badge bg-success text-white">Ya</span>
                                                         @else
-                                                            <span class="badge bg-secondary">Tidak</span>
+                                                            <span class="badge bg-secondary text-white">Tidak</span>
                                                         @endif
                                                     </td>
                                                     <td>

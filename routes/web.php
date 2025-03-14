@@ -43,50 +43,26 @@ Route::middleware(['auth', 'verified', 'vendor'])->group(function () {
 
     // Alat routes resource
     Route::resource('/dashboard/alat', AlatController::class);
-    Route::put('/dashboard/alat/batch-update-status', [AlatController::class, 'batchUpdateStatus'])
-        ->name('alat.batch-update-status');
-    Route::delete('/dashboard/alat/batch-delete', [AlatController::class, 'batchDelete'])
-        ->name('alat.batch-delete');
 
     // Bahan routes resource
     Route::resource('/dashboard/bahan', BahanController::class);
-    Route::delete('/dashboard/bahan/batch-delete', [BahanController::class, 'batchDelete'])
-        ->name('bahan.batch-delete');
-    Route::put('/dashboard/bahan/batch-update-stock', [BahanController::class, 'batchUpdateStock'])
-        ->name('bahan.batch-update-stock');
     Route::delete('/dashboard/bahan/wholesale-price/{id}', [BahanController::class, 'deleteWholesalePrice'])
         ->name('bahan.wholesale-price.delete');
 
     // Pelanggan routes resource
     Route::resource('/dashboard/pelanggan', PelangganController::class);
-    Route::delete('pelanggan/batch-delete', [PelangganController::class, 'batchDelete'])
-        ->name('pelanggan.batch-delete');
-    Route::put('/dashboard/pelanggan/batch-update-status', [PelangganController::class, 'batchUpdateStatus'])
-        ->name('pelanggan.batch-update-status');
 
     // Spesifikasi input type bahan produk routes resource
     Route::resource('/dashboard/spesifikasi', SpesifikasiController::class);
-    Route::delete('/dashboard/spesifikasi/batch-delete', [SpesifikasiController::class, 'batchDelete'])
-        ->name('spesifikasi.batch-delete');
 
     // Produk routes resource
     Route::resource('/dashboard/produk', ProdukController::class);
-    Route::delete('/dashboard/produk/batch-delete', [ProdukController::class, 'batchDelete'])
-        ->name('produk.batch-delete');
-    Route::put('/dashboard/produk/batch-update', [ProdukController::class, 'batchUpdate'])
-        ->name('produk.batch-update');
 
     // Kategori Produk routes resource
     Route::resource('/dashboard/kategori-produk', KategoriProdukController::class);
-    Route::delete('/dashboard/kategori-produk/batch-delete', [KategoriProdukController::class, 'batchDelete'])
-        ->name('kategori-produk.batch-delete');
 
     // Transaksi routes resource
     Route::resource('/dashboard/transaksi', TransaksiController::class);
-    Route::delete('/dashboard/transaksi/batch-delete', [TransaksiController::class, 'batchDelete'])
-        ->name('transaksi.batch-delete');
-    Route::put('/dashboard/transaksi/batch-update', [TransaksiController::class, 'batchUpdate'])
-        ->name('transaksi.batch-update');
     Route::get('/dashboard/transaksi/{id}/invoice', [TransaksiController::class, 'generateInvoice'])
         ->name('transaksi.generateInvoice');
 

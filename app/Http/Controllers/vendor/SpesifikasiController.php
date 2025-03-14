@@ -5,7 +5,6 @@ namespace App\Http\Controllers\vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\Spesifikasi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class SpesifikasiController extends Controller
 {
@@ -49,7 +48,7 @@ class SpesifikasiController extends Controller
             'tipe_input' => 'required|in:' . implode(',', Spesifikasi::TIPE_INPUT),
             'satuan' => 'nullable|string|max:50',
         ]);
-        
+
         // Set default empty string for satuan when not provided
         if (!isset($validated['satuan'])) {
             $validated['satuan'] = '';
@@ -58,7 +57,7 @@ class SpesifikasiController extends Controller
         Spesifikasi::create($validated);
 
         return redirect()->route('spesifikasi.index')
-            ->with('success', 'Spesifikasi berhasil ditambahkan.');
+            ->with('toast_success', 'Spesifikasi berhasil ditambahkan.');
     }
 
     /**
@@ -92,7 +91,7 @@ class SpesifikasiController extends Controller
             'tipe_input' => 'required|in:' . implode(',', Spesifikasi::TIPE_INPUT),
             'satuan' => 'nullable|string|max:50',
         ]);
-        
+
         // Set default empty string for satuan when not provided
         if (!isset($validated['satuan'])) {
             $validated['satuan'] = '';
@@ -101,7 +100,7 @@ class SpesifikasiController extends Controller
         $spesifikasi->update($validated);
 
         return redirect()->route('spesifikasi.index')
-            ->with('success', 'Spesifikasi berhasil diperbarui.');
+            ->with('toast_success', 'Spesifikasi berhasil diperbarui.');
     }
 
     /**
@@ -110,51 +109,16 @@ class SpesifikasiController extends Controller
     public function destroy(string $id)
     {
         $spesifikasi = Spesifikasi::findOrFail($id);
-        
+
         // Check if the specification is being used
         if ($spesifikasi->spesifikasiProduk()->count() > 0) {
             return redirect()->route('spesifikasi.index')
-                ->with('error', 'Spesifikasi tidak dapat dihapus karena sedang digunakan oleh produk.');
+                ->with('toast_error', 'Spesifikasi tidak dapat dihapus karena sedang digunakan oleh produk.');
         }
-        
+
         $spesifikasi->delete();
 
         return redirect()->route('spesifikasi.index')
-            ->with('success', 'Spesifikasi berhasil dihapus.');
-    }
-
-    /**
-     * Batch delete spesifikasi
-     */
-    public function batchDelete(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:spesifikasis,id',
-        ]);
-
-        $ids = $request->ids;
-        $unusedIds = [];
-        $usedIds = [];
-
-        foreach ($ids as $id) {
-            $spesifikasi = Spesifikasi::find($id);
-            if ($spesifikasi && $spesifikasi->spesifikasiProduk()->count() == 0) {
-                $unusedIds[] = $id;
-            } else {
-                $usedIds[] = $id;
-            }
-        }
-
-        if (!empty($unusedIds)) {
-            Spesifikasi::whereIn('id', $unusedIds)->delete();
-            Session::flash('success', count($unusedIds) . ' spesifikasi berhasil dihapus.');
-        }
-
-        if (!empty($usedIds)) {
-            Session::flash('error', count($usedIds) . ' spesifikasi tidak dapat dihapus karena sedang digunakan.');
-        }
-
-        return redirect()->route('spesifikasi.index');
+            ->with('toast_success', 'Spesifikasi berhasil dihapus.');
     }
 }

@@ -40,6 +40,9 @@ class BahanController extends Controller
         $validated = $this->validateBahan($request);
         
         return DB::transaction(function() use ($request, $validated) {
+            // Add vendor_id to validated data
+            $validated['vendor_id'] = session('current_vendor_id');
+            
             // Create bahan
             $bahan = Bahan::create($validated);
             
@@ -47,7 +50,7 @@ class BahanController extends Controller
             $this->processWholesalePrices($bahan->id, $request);
 
             return redirect()->route('bahan.index')
-                ->with('success', 'Bahan berhasil ditambahkan!');
+                ->with('toast_success', 'Bahan berhasil ditambahkan!');
         });
     }
 
@@ -90,7 +93,7 @@ class BahanController extends Controller
             $this->deleteRemovedWholesalePrices($request);
 
             return redirect()->route('bahan.index')
-                ->with('success', 'Bahan berhasil diperbarui!');
+                ->with('toast_success', 'Bahan berhasil diperbarui!');
         });
     }
 
@@ -109,63 +112,7 @@ class BahanController extends Controller
             $bahan->delete();
 
             return redirect()->route('bahan.index')
-                ->with('success', 'Bahan berhasil dihapus!');
-        });
-    }
-
-    /**
-     * Batch delete multiple bahans.
-     */
-    public function batchDelete(Request $request)
-    {
-        $ids = $request->ids;
-
-        if (empty($ids)) {
-            return redirect()->route('bahan.index')
-                ->with('error', 'Tidak ada item yang dipilih!');
-        }
-        
-        return DB::transaction(function() use ($ids) {
-            // Delete associated wholesale prices
-            WholesalePrice::whereIn('bahan_id', $ids)->delete();
-            
-            // Delete the selected bahans
-            Bahan::whereIn('id', $ids)->delete();
-
-            return redirect()->route('bahan.index')
-                ->with('success', 'Bahan yang dipilih berhasil dihapus!');
-        });
-    }
-
-    /**
-     * Batch update stock for multiple bahans.
-     */
-    public function batchUpdateStock(Request $request)
-    {
-        $ids = $request->ids;
-        $action = $request->action;
-        $value = (int) $request->value;
-
-        if (empty($ids) || empty($action) || $value < 0) {
-            return redirect()->route('bahan.index')
-                ->with('error', 'Parameter tidak valid!');
-        }
-
-        return DB::transaction(function() use ($ids, $action, $value) {
-            $bahans = Bahan::whereIn('id', $ids)->get();
-
-            foreach ($bahans as $bahan) {
-                $bahan->stok = match($action) {
-                    'add' => $bahan->stok + $value,
-                    'subtract' => max(0, $bahan->stok - $value),
-                    'set' => $value,
-                    default => $bahan->stok
-                };
-                $bahan->save();
-            }
-
-            return redirect()->route('bahan.index')
-                ->with('success', 'Stok bahan berhasil diperbarui!');
+                ->with('toast_success', 'Bahan berhasil dihapus!');
         });
     }
 

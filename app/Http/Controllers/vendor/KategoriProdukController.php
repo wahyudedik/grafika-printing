@@ -16,19 +16,19 @@ class KategoriProdukController extends Controller
     public function index(Request $request)
     {
         $query = KategoriProduk::query();
-        
+
         // Search functionality
         if ($request->has('search') && !empty($request->search)) {
             $query->where('nama_kategori', 'like', '%' . $request->search . '%');
         }
-        
+
         // Sort functionality
         $sortField = $request->sort ?? 'nama_kategori';
         $sortOrder = $request->order ?? 'asc';
         $query->orderBy($sortField, $sortOrder);
-        
+
         $kategori = $query->paginate(10)->appends(request()->query());
-        
+
         return view('kategori_produk.index', compact('kategori'));
     }
 
@@ -48,15 +48,15 @@ class KategoriProdukController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
         ]);
-        
+
         KategoriProduk::create([
             'nama_kategori' => $request->nama_kategori,
             'slug' => Str::slug($request->nama_kategori),
             'vendor_id' => session('current_vendor_id', 1) // Assuming you store current vendor ID in session
         ]);
-        
+
         return redirect()->route('kategori-produk.index')
-                ->with('success', 'Kategori produk berhasil ditambahkan.');
+            ->with('toast_success', 'Kategori produk berhasil ditambahkan.');
     }
 
     /**
@@ -83,14 +83,14 @@ class KategoriProdukController extends Controller
         $request->validate([
             'nama_kategori' => 'required|string|max:255',
         ]);
-        
+
         $kategoriProduk->update([
             'nama_kategori' => $request->nama_kategori,
             'slug' => Str::slug($request->nama_kategori)
         ]);
-        
+
         return redirect()->route('kategori-produk.index')
-                ->with('success', 'Kategori produk berhasil diperbarui.');
+            ->with('toast_success', 'Kategori produk berhasil diperbarui.');
     }
 
     /**
@@ -101,44 +101,12 @@ class KategoriProdukController extends Controller
         // Check if category has products
         if ($kategoriProduk->produk()->count() > 0) {
             return redirect()->route('kategori-produk.index')
-                    ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait.');
+                ->with('toast_error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait.');
         }
-        
+
         $kategoriProduk->delete();
-        
+
         return redirect()->route('kategori-produk.index')
-                ->with('success', 'Kategori produk berhasil dihapus.');
-    }
-    
-    /**
-     * Batch delete multiple categories
-     */
-    public function batchDelete(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'exists:kategori_produks,id'
-        ]);
-        
-        $canDelete = true;
-        $categoryIds = $request->ids;
-        
-        // Check if any categories have products
-        $categoriesWithProducts = KategoriProduk::whereIn('id', $categoryIds)
-            ->whereHas('produk')
-            ->pluck('nama_kategori')
-            ->toArray();
-            
-        if (count($categoriesWithProducts) > 0) {
-            $categoryNames = implode(', ', $categoriesWithProducts);
-            return redirect()->route('kategori-produk.index')
-                ->with('error', "Kategori berikut tidak dapat dihapus karena masih memiliki produk: {$categoryNames}");
-        }
-        
-        // Delete categories without products
-        KategoriProduk::whereIn('id', $categoryIds)->delete();
-        
-        return redirect()->route('kategori-produk.index')
-            ->with('success', 'Kategori produk yang dipilih berhasil dihapus.');
+            ->with('toast_success', 'Kategori produk berhasil dihapus.');
     }
 }

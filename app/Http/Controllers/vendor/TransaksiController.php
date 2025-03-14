@@ -67,14 +67,14 @@ class TransaksiController extends Controller
 
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $pelanggans = Pelanggan::where('vendor_id', $vendor->id)->get();
 
         if ($pelanggans->isEmpty()) {
             return redirect()->route('pelanggan.create')
-                ->with('info', 'Anda belum memiliki pelanggan. Silakan tambahkan pelanggan terlebih dahulu.');
+                ->with('toast_info', 'Anda belum memiliki pelanggan. Silakan tambahkan pelanggan terlebih dahulu.');
         }
 
         $produks = Produk::where('vendor_id', $vendor->id)
@@ -83,7 +83,7 @@ class TransaksiController extends Controller
 
         if ($produks->isEmpty()) {
             return redirect()->route('produk.create')
-                ->with('info', 'Anda belum memiliki produk. Silakan tambahkan produk terlebih dahulu.');
+                ->with('toast_info', 'Anda belum memiliki produk. Silakan tambahkan produk terlebih dahulu.');
         }
 
         $paymentMethods = [
@@ -107,7 +107,7 @@ class TransaksiController extends Controller
 
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         // Validate main transaction data
@@ -187,10 +187,10 @@ class TransaksiController extends Controller
             DB::commit();
 
             return redirect()->route('transaksi.show', $transaksi->id)
-                ->with('success', 'Transaksi berhasil dibuat dengan kode: ' . $transactionCode);
+                ->with('toast_success', 'Transaksi berhasil dibuat dengan kode: ' . $transactionCode);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('toast_error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -203,7 +203,7 @@ class TransaksiController extends Controller
 
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)
@@ -228,7 +228,7 @@ class TransaksiController extends Controller
 
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)
@@ -273,7 +273,7 @@ class TransaksiController extends Controller
 
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)->findOrFail($id);
@@ -386,10 +386,10 @@ class TransaksiController extends Controller
             DB::commit();
 
             return redirect()->route('transaksi.show', $transaksi->id)
-                ->with('success', 'Transaksi berhasil diperbarui.');
+                ->with('toast_success', 'Transaksi berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('toast_error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -399,10 +399,10 @@ class TransaksiController extends Controller
     public function destroy(string $id)
     {
         $vendor = Auth::user()->vendorUser->first();
-        
+
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)->findOrFail($id);
@@ -427,123 +427,10 @@ class TransaksiController extends Controller
             DB::commit();
 
             return redirect()->route('transaksi.index')
-                ->with('success', 'Transaksi berhasil dihapus.');
+                ->with('toast_success', 'Transaksi berhasil dihapus.');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Batch delete transactions
-     */
-    public function batchDelete(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'ids' => 'required|array',
-            'ids.*' => 'required|integer|exists:transaksis,id',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Data transaksi tidak valid.');
-        }
-
-        $vendor = session('current_vendor');
-
-        if (!$vendor) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
-        }
-
-        // Begin transaction
-        DB::beginTransaction();
-
-        try {
-            // Get transactions for this vendor
-            $transaksis = Transaksi::where('vendor_id', $vendor->id)
-                ->whereIn('id', $request->ids)
-                ->get();
-
-            // Delete related records
-            foreach ($transaksis as $transaksi) {
-                // First delete specifications
-                TransaksiItemSpecifications::whereIn(
-                    'transaksi_item_id',
-                    $transaksi->transaksiItem->pluck('id')->toArray()
-                )->delete();
-
-                // Delete transaction items
-                TransaksiItem::where('transaksi_id', $transaksi->id)->delete();
-
-                // Delete the transaction
-                $transaksi->delete();
-            }
-
-            DB::commit();
-
-            return redirect()->route('transaksi.index')
-                ->with('success', count($transaksis) . ' transaksi berhasil dihapus.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Batch update transaction status
-     */
-    public function batchUpdate(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'ids' => 'required|array',
-            'ids.*' => 'required|integer|exists:transaksis,id',
-            'action' => 'required|string|in:status',
-            'status' => 'required_if:action,status|string|in:pending,processing,quality_check,completed,cancelled',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Data tidak valid.');
-        }
-
-        $vendor = session('current_vendor');
-
-        if (!$vendor) {
-            return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
-        }
-
-        // Begin transaction
-        DB::beginTransaction();
-
-        try {
-            // Get transactions for this vendor
-            $transaksis = Transaksi::where('vendor_id', $vendor->id)
-                ->whereIn('id', $request->ids)
-                ->get();
-
-            // Update status for each transaction
-            $progressMap = [
-                'pending' => 0,
-                'processing' => 25,
-                'quality_check' => 80,
-                'completed' => 100,
-                'cancelled' => 0
-            ];
-
-            foreach ($transaksis as $transaksi) {
-                $transaksi->update([
-                    'status' => $request->status,
-                    'progress_percentage' => $progressMap[$request->status]
-                ]);
-            }
-
-            DB::commit();
-
-            return redirect()->route('transaksi.index')
-                ->with('success', 'Status ' . count($transaksis) . ' transaksi berhasil diperbarui.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('toast_error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -556,7 +443,7 @@ class TransaksiController extends Controller
 
         if (!$vendor) {
             return redirect()->route('dashboard')
-                ->with('error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)

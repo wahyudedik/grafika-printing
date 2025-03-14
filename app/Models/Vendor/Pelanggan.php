@@ -10,11 +10,6 @@ class Pelanggan extends TenantModel
 {
     protected $table = 'pelanggans';
 
-    protected $with = [
-        'vendor',
-        'transaksi'
-    ];
-
     protected $fillable = [
         'vendor_id',
         'kode',

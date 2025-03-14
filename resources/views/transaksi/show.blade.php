@@ -66,7 +66,7 @@
                                                     'cancelled' => 'Dibatalkan',
                                                 ];
                                             @endphp
-                                            <span class="badge {{ $statusColors[$transaksi->status] }}">
+                                            <span class="badge text-white {{ $statusColors[$transaksi->status] }}">
                                                 {{ $statusLabels[$transaksi->status] }}
                                             </span>
                                         </td>

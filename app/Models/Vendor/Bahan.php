@@ -3,6 +3,9 @@
 namespace App\Models\Vendor;
 
 use App\Models\Vendor;
+use App\Models\Vendor\TenantModel;
+use Illuminate\Support\Facades\Log;
+use App\Models\Vendor\WholesalePrice;
 use Illuminate\Database\Eloquent\Builder;
 
 class Bahan extends TenantModel
