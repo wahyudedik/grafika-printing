@@ -44,19 +44,98 @@
                                     </select>
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#newCustomerModal">
-                                        <i class="fas fa-plus"></i>
+                                        <i class="fas fa-plus"></i> Add Customer
                                     </button>
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label class="form-label">Payment Method</label>
-                                <select name="payment_method" class="form-select" required>
+                                <select name="payment_method" class="form-select" required id="paymentMethodSelect">
                                     <option value="cash">Cash</option>
                                     <option value="transfer">Bank Transfer</option>
                                     <option value="qris">QRIS</option>
                                 </select>
                             </div>
+
+                            <!-- Tambahkan input jumlah pembayaran (akan muncul jika metode pembayaran cash) -->
+                            <div class="mb-3" id="paymentAmountContainer" style="display: none;">
+                                <label class="form-label">Jumlah Pembayaran</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" name="payment_amount" id="paymentAmount" class="form-control" placeholder="Masukkan jumlah pembayaran">
+                                </div>
+                                <div class="mt-2">
+                                    <span class="text-muted">Total: Rp <span id="totalAmountDisplay">{{ number_format($totalAmount, 0, ',', '.') }}</span></span>
+                                </div>
+                                <div class="mt-2" id="changeContainer" style="display: none;">
+                                    <span class="fw-bold">Kembalian: Rp <span id="changeAmount">0</span></span>
+                                </div>
+                            </div>
+
+                            <!-- Tambahkan tombol shortcut pembayaran -->
+                            <div class="mb-3" id="paymentShortcutsContainer" style="display: none;">
+                                <label class="form-label">Shortcut Pembayaran</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="{{ $totalAmount }}">Uang Pas</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="{{ $totalAmount + 10000 }}">+10rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="{{ $totalAmount + 50000 }}">+50rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="100000">100rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="200000">200rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="500000">500rb</button>
+                                </div>
+                            </div>
+
+                            <!-- Tambahkan script untuk menangani tampilan input pembayaran -->
+                            <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+                                const paymentAmountContainer = document.getElementById('paymentAmountContainer');
+                                const paymentShortcutsContainer = document.getElementById('paymentShortcutsContainer');
+                                const paymentAmount = document.getElementById('paymentAmount');
+                                const changeContainer = document.getElementById('changeContainer');
+                                const changeAmount = document.getElementById('changeAmount');
+                                const totalAmount = {{ $totalAmount }};
+                                
+                                // Fungsi untuk menghitung kembalian
+                                function calculateChange() {
+                                    const amount = parseFloat(paymentAmount.value) || 0;
+                                    const change = amount - totalAmount;
+                                    
+                                    if (change >= 0) {
+                                        changeAmount.textContent = change.toLocaleString('id-ID');
+                                        changeContainer.style.display = 'block';
+                                    } else {
+                                        changeContainer.style.display = 'none';
+                                    }
+                                }
+                                
+                                // Event listener untuk perubahan metode pembayaran
+                                paymentMethodSelect.addEventListener('change', function() {
+                                    if (this.value === 'cash') {
+                                        paymentAmountContainer.style.display = 'block';
+                                        paymentShortcutsContainer.style.display = 'block';
+                                    } else {
+                                        paymentAmountContainer.style.display = 'none';
+                                        paymentShortcutsContainer.style.display = 'none';
+                                    }
+                                });
+                                
+                                // Event listener untuk input jumlah pembayaran
+                                paymentAmount.addEventListener('input', calculateChange);
+                                
+                                // Event listener untuk tombol shortcut pembayaran
+                                document.querySelectorAll('.payment-shortcut').forEach(button => {
+                                    button.addEventListener('click', function() {
+                                        paymentAmount.value = this.dataset.amount;
+                                        calculateChange();
+                                    });
+                                });
+                                
+                                // Trigger change event untuk menampilkan/menyembunyikan input pembayaran sesuai metode awal
+                                paymentMethodSelect.dispatchEvent(new Event('change'));
+                            });
+                            </script>
 
                             <div class="mb-3">
                                 <label class="form-label">Notes</label>
@@ -109,7 +188,8 @@
                                                         {{ number_format($pricePerUnit, 0, ',', '.') }} = Rp
                                                         {{ number_format($spec['price'], 0, ',', '.') }}
                                                     @elseif ($spesifikasiProduk && $spesifikasiProduk->spesifikasi && $bahan)
-                                                        {{ $spec['value'] }} {{ $spesifikasiProduk->spesifikasi->satuan }}
+                                                        {{ number_format($spec['value'], 2, ',', '.') }}
+                                                        {{ $spesifikasiProduk->spesifikasi->satuan }}
                                                         x Rp {{ number_format($pricePerUnit, 0, ',', '.') }} = Rp
                                                         {{ number_format($spec['price'], 0, ',', '.') }}
                                                     @else

@@ -335,13 +335,18 @@
 - [x] Sales Reporting
 - [] Email Notifications
 - [] Stock Notification
+- [] Switch Multi Vendor Dashboard
+- [] User role dan permission
+- [] profile user
+- [] profile user vendor
+
 
 ## Dashboard Features
-### Admin Dashboard
+### Admin Dashboard (Developer)
 - [x] User Statistics
 - [x] Vendor Management
 - [x] User Management
-- [x] System Monitoring
+- [] System Monitoring Laravel Pulse
 
 ### Vendor Dashboard
 - [x] Sales Analytics

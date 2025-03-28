@@ -394,11 +394,15 @@
                                     @elseif($transaction->status == 'cancelled')
                                         <span class="badge bg-red text-white">Cancelled</span>
                                     @else
-                                        <span class="badge bg-secondary text-white">{{ ucfirst($transaction->status) }}</span>
+                                        <span
+                                            class="badge bg-secondary text-white">{{ ucfirst($transaction->status) }}</span>
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="{{ route('transaksi.generateInvoice', $transaction->id) }}"
+                                        class="btn btn-sm btn-outline-primary">Invoice</a>
+                                    <a href="{{ route('transaksi.show', $transaction->id) }}"
+                                        class="btn btn-sm btn-outline-primary">Detail</a>
                                 </td>
                             </tr>
                         @empty

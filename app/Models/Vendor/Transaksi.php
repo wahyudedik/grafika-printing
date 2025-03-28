@@ -21,6 +21,8 @@ class Transaksi extends TenantModel
         'user_id',
         'pelanggan_id',
         'total_harga',
+        'terbayar',
+        'kembali',
         'status',
         'payment_method',
         'estimasi_selesai',
@@ -31,6 +33,8 @@ class Transaksi extends TenantModel
 
     protected $casts = [
         'total_harga' => 'decimal:2',
+        'terbayar' => 'decimal:2',
+        'kembali' => 'decimal:2',
         'status' => 'string',
         'tanggal_dibuat' => 'datetime',
         'estimasi_selesai' => 'datetime',

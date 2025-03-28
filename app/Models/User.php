@@ -74,4 +74,8 @@ class User extends Authenticatable implements MustVerifyEmail
         });
     }
 
+    public function profiles()
+    {
+        return $this->hasMany(Profile::class, 'user_id');
+    }
 }

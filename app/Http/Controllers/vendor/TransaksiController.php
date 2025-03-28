@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Vendor\Pelanggan;
 use App\Models\Vendor\Transaksi;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\TransaksiItem;
 use Illuminate\Support\Facades\Auth;
@@ -139,6 +140,12 @@ class TransaksiController extends Controller
                 $totalPrice += $item['kuantitas'] * $item['harga_satuan'];
             }
 
+            // Ambil jumlah pembayaran dari request
+            $terbayar = $request->input('terbayar', $totalPrice);
+            
+            // Hitung kembalian
+            $kembali = max(0, $terbayar - $totalPrice);
+
             // Create transaction
             $transaksi = Transaksi::create([
                 'vendor_id' => $vendor->id,
@@ -151,7 +158,9 @@ class TransaksiController extends Controller
                 'estimasi_selesai' => $request->estimasi_selesai,
                 'tanggal_dibuat' => now(),
                 'progress_percentage' => 0,
-                'catatan' => $request->catatan
+                'catatan' => $request->catatan,
+                'terbayar' => $terbayar,
+                'kembali' => $kembali
             ]);
 
             // Process transaction items
@@ -315,6 +324,15 @@ class TransaksiController extends Controller
                 'cancelled' => 0
             ];
 
+            // Jika ada perubahan pada total atau pembayaran
+            if ($request->has('terbayar')) {
+                $terbayar = $request->input('terbayar');
+                $kembali = max(0, $terbayar - $transaksi->total_harga);
+                
+                $transaksi->terbayar = $terbayar;
+                $transaksi->kembali = $kembali;
+            }
+
             $transaksi->update([
                 'pelanggan_id' => $request->pelanggan_id,
                 'total_harga' => $totalPrice,
@@ -439,7 +457,7 @@ class TransaksiController extends Controller
      */
     public function generateInvoice(string $id)
     {
-        $vendor = Vendor::findOrFail(session('current_vendor_id'));
+        $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
             return redirect()->route('dashboard')
@@ -456,7 +474,54 @@ class TransaksiController extends Controller
             ])
             ->findOrFail($id);
 
-        $pdf = PDF::loadView('transaksi.invoice', compact('transaksi'));
+        // Prepare logo as base64 data URI
+        $logoBase64 = null;
+
+        if ($transaksi->vendor && $transaksi->vendor->logo) {
+            $logoPath = public_path('vendors_logo/' . $transaksi->vendor->logo);
+            if (file_exists($logoPath)) {
+                $logoBase64 = $this->getBase64Image($logoPath);
+            }
+        }
+
+        // If vendor logo doesn't exist, use default logo
+        if (!$logoBase64) {
+            $defaultLogoPath = public_path('images/logo.png');
+            if (file_exists($defaultLogoPath)) {
+                $logoBase64 = $this->getBase64Image($defaultLogoPath);
+            }
+        }
+
+        // Set PDF options
+        $options = [
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'sans-serif',
+            'dpi' => 150,
+            'fontDir' => storage_path('fonts/'),
+            'fontCache' => storage_path('fonts/'),
+            'chroot' => public_path(),
+        ];
+
+        $pdf = PDF::loadView('transaksi.invoice', compact('transaksi', 'logoBase64'))
+            ->setOptions($options);
+
         return $pdf->stream("invoice-{$transaksi->kode}.pdf");
+    }
+
+    /**
+     * Convert an image to base64 data URI
+     */
+    private function getBase64Image($path)
+    {
+        try {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            return $base64;
+        } catch (\Exception $e) {
+            Log::error('Error converting image to base64: ' . $e->getMessage());
+            return null;
+        }
     }
 }

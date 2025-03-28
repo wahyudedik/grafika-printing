@@ -173,16 +173,31 @@
                                                                     @endforeach
                                                                 </select>
                                                             @else
-                                                                <div class="input-group">
-                                                                    <input type="{{ $spec->spesifikasi->tipe_input }}"
-                                                                        name="specifications[{{ $spec->id }}]"
-                                                                        class="form-control"
-                                                                        {{ $spec->wajib_diisi ? 'required' : '' }}>
-                                                                    @if ($spec->spesifikasi->satuan)
-                                                                        <span
-                                                                            class="input-group-text">{{ $spec->spesifikasi->satuan }}</span>
-                                                                    @endif
-                                                                </div>
+                                                                @if ($spec->spesifikasi->tipe_input === 'number')
+                                                                    <div class="input-group">
+                                                                        <input type="text"
+                                                                            name="specifications[{{ $spec->id }}]"
+                                                                            class="form-control decimal-input"
+                                                                            {{ $spec->wajib_diisi ? 'required' : '' }}
+                                                                            pattern="[0-9]*[.,]?[0-9]+"
+                                                                            inputmode="decimal">
+                                                                        @if ($spec->spesifikasi->satuan)
+                                                                            <span
+                                                                                class="input-group-text">{{ $spec->spesifikasi->satuan }}</span>
+                                                                        @endif
+                                                                    </div>
+                                                                @else
+                                                                    <div class="input-group">
+                                                                        <input type="{{ $spec->spesifikasi->tipe_input }}"
+                                                                            name="specifications[{{ $spec->id }}]"
+                                                                            class="form-control"
+                                                                            {{ $spec->wajib_diisi ? 'required' : '' }}>
+                                                                        @if ($spec->spesifikasi->satuan)
+                                                                            <span
+                                                                                class="input-group-text">{{ $spec->spesifikasi->satuan }}</span>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
                                                             @endif
                                                         </div>
                                                     @endforeach
@@ -215,127 +230,147 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('[id^="cekHarga"]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const form = this.closest('form');
-                    const productId = this.id.replace('cekHarga', '');
-                    const formData = new FormData(form);
-                    const data = {
-                        product_id: formData.get('product_id'),
-                        quantity: formData.get('quantity'),
-                        specifications: {}
-                    };
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tangani input desimal
+        document.querySelectorAll('.decimal-input').forEach(input => {
+            input.addEventListener('input', function(e) {
+                // Ganti koma dengan titik untuk perhitungan
+                this.value = this.value.replace(/,/g, '.');
 
-                    // Show loading state
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
-                    this.disabled = true;
+                // Hanya izinkan angka dan satu titik desimal
+                this.value = this.value.replace(/[^0-9.]/g, '');
 
-                    // Clear previous price details
-                    const priceDetails = document.querySelector(`#priceDetails${productId}`);
-                    priceDetails.innerHTML =
-                        '<div class="alert alert-info">Calculating price...</div>';
-
-                    formData.forEach((value, key) => {
-                        if (key.startsWith('specifications')) {
-                            const matches = key.match(/\[(.*?)\]/);
-                            if (matches) {
-                                data.specifications[matches[1]] = value;
-                            }
-                        }
-                    });
-
-                    fetch(`{{ route('pos.checkPrice') }}`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').content,
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(data)
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.error) {
-                                priceDetails.innerHTML = `
-                                    <div class="alert alert-danger">
-                                        <p class="mb-0"><strong>Error:</strong> ${data.error}</p>
-                                    </div>
-                                `;
-                            } else {
-                                priceDetails.innerHTML = `
-                                    <div class="card border-0 bg-light">
-                                        <div class="card-body">
-                                            <h6 class="mb-3 fw-bold"><i class="fas fa-receipt me-2"></i>Rincian Harga:</h6>
-                                            <div class="d-flex justify-content-between mb-2">
-                                                <span>Quantity:</span>
-                                                <span class="fw-medium">${data.quantity}</span>
-                                            </div>
-                                            ${data.specifications.map(spec => `
-                                                        <div class="d-flex justify-content-between mb-2">
-                                                            <span>${spec.name}:</span>
-                                                            <span class="fw-medium">Rp ${spec.price}</span>
-                                                        </div>
-                                                    `).join('')}
-                                            <hr>
-                                            <div class="d-flex justify-content-between">
-                                                <span class="fw-bold">Total Harga:</span>
-                                                <span class="fw-bold text-primary">Rp ${data.totalPrice}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            priceDetails.innerHTML = `
-                                                                <div class="alert alert-danger">
-                                    <p class="mb-0"><strong>Error:</strong> Failed to calculate price. Please try again.</p>
-                                </div>
-                            `;
-                        })
-                        .finally(() => {
-                            // Reset button state
-                            this.innerHTML = '<i class="fas fa-calculator me-2"></i>Cek Harga';
-                            this.disabled = false;
-                        });
-                });
-            });
-
-            // Form validation before submission
-            document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    const requiredFields = this.querySelectorAll('[required]');
-                    let isValid = true;
-
-                    requiredFields.forEach(field => {
-                        if (!field.value.trim()) {
-                            isValid = false;
-                            field.classList.add('is-invalid');
-                        } else {
-                            field.classList.remove('is-invalid');
-                        }
-                    });
-
-                    if (!isValid) {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validation Error',
-                            text: 'Please fill in all required fields',
-                            confirmButtonColor: '#3085d6'
-                        });
-                    }
-                });
+                // Pastikan hanya ada satu titik desimal
+                const parts = this.value.split('.');
+                if (parts.length > 2) {
+                    this.value = parts[0] + '.' + parts.slice(1).join('');
+                }
             });
         });
-    </script>
-@endsection
+
+        document.querySelectorAll('[id^="cekHarga"]').forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('form');
+                const productId = this.id.replace('cekHarga', '');
+                const formData = new FormData(form);
+                const data = {
+                    product_id: formData.get('product_id'),
+                    quantity: formData.get('quantity'),
+                    specifications: {}
+                };
+
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
+                this.disabled = true;
+
+                // Clear previous price details
+                const priceDetails = document.querySelector(`#priceDetails${productId}`);
+                priceDetails.innerHTML =
+                    '<div class="alert alert-info">Calculating price...</div>';
+
+                formData.forEach((value, key) => {
+                    if (key.startsWith('specifications')) {
+                        const matches = key.match(/\[(.*?)\]/);
+                        if (matches) {
+                            const specId = matches[1];
+                            // Konversi ke float, bukan integer
+                            const numValue = parseFloat(value);
+                            data.specifications[specId] = isNaN(numValue) ? value :
+                                numValue;
+                        }
+                    }
+                });
+
+                fetch(`{{ route('pos.checkPrice') }}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector(
+                                'meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            priceDetails.innerHTML = `
+                            <div class="alert alert-danger">
+                                <p class="mb-0"><strong>Error:</strong> ${data.error}</p>
+                            </div>
+                        `;
+                        } else {
+                            priceDetails.innerHTML = `
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="mb-3 fw-bold"><i class="fas fa-receipt me-2"></i>Rincian Harga:</h6>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Quantity:</span>
+                                        <span class="fw-medium">${data.quantity}</span>
+                                    </div>
+                                    ${data.specifications.map(spec => `
+                                                                                <div class="d-flex justify-content-between mb-2">
+                                                                                    <span>${spec.name}:</span>
+                                                                                    <span class="fw-medium">Rp ${spec.price}</span>
+                                                                                </div>
+                                                                            `).join('')}
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold">Total Harga:</span>
+                                        <span class="fw-bold text-primary">Rp ${data.totalPrice}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        priceDetails.innerHTML = `
+                        <div class="alert alert-danger">
+                            <p class="mb-0"><strong>Error:</strong> Failed to calculate price. Please try again.</p>
+                        </div>
+                    `;
+                    })
+                    .finally(() => {
+                        // Reset button state
+                        this.innerHTML = '<i class="fas fa-calculator me-2"></i>Cek Harga';
+                        this.disabled = false;
+                    });
+            });
+        });
+
+        // Form validation before submission
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const requiredFields = this.querySelectorAll('[required]');
+                let isValid = true;
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('is-invalid');
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Please fill in all required fields',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            });
+        });
+    });
+</script>@endsection

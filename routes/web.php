@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Vendor\AlatController;
+use App\Http\Controllers\vendor\AlatController;
 use App\Http\Controllers\vendor\BahanController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\vendor\ProdukController;
@@ -92,17 +92,11 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () 
         Route::get('/invoice/{transaksi}', [InvoiceController::class, 'show'])->name('invoice.show');
         Route::get('/invoice/{transaksi}/download', [InvoiceController::class, 'download'])->name('invoice.download');
     });
-});
 
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-Route::middleware('tenant')->group(function () {
-    // routes
+    // profile route
+    Route::get('/dashboard/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/dashboard/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/dashboard/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';

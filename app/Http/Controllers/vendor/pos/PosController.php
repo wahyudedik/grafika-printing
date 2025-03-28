@@ -107,6 +107,14 @@ class PosController extends Controller
     public function addToCart(Request $request)
     {
         try {
+            // Validasi input
+            $validated = $request->validate([
+                'product_id' => 'required|exists:produks,id',
+                'quantity' => 'required|integer|min:1',
+                'specifications' => 'required|array',
+                'specifications.*' => 'required'
+            ]);
+
             // Dapatkan vendor dari user yang sedang login
             $vendor = Auth::user()->vendorUser->first();
             $product = Produk::where('vendor_id', $vendor->id)
@@ -146,7 +154,7 @@ class PosController extends Controller
                         ];
                     }
                 } else {
-                    $inputValue = (int)$value;
+                    $inputValue = (float)$value;
                     $bahan = $spesifikasiProduk->bahans->first();
                     if ($bahan) {
                         $pricePerUnit = $wholesalePrice->calculateFinalPrice($bahan->hpp, $inputValue, $bahan->id);
@@ -186,7 +194,6 @@ class PosController extends Controller
                 ->with('toast_error', 'Failed to add product to cart: ' . $e->getMessage());
         }
     }
-
     // Fungsi untuk menampilkan keranjang
     public function cart()
     {
@@ -209,7 +216,7 @@ class PosController extends Controller
                         $finalPrice = $wholesalePrice->calculateFinalPrice($bahan->hpp, $quantity, $bahan->id);
                         $specPrice = $finalPrice * $quantity;
                     } elseif ($bahan) {
-                        $inputValue = (int)$spec['value'];
+                        $inputValue = (float)$spec['value'];
                         $pricePerUnit = $wholesalePrice->calculateFinalPrice($bahan->hpp, $inputValue, $bahan->id);
                         $specPrice = $pricePerUnit * $inputValue * $quantity;
                     } else {
@@ -267,7 +274,7 @@ class PosController extends Controller
     }
 
     // Fungsi untuk memeriksa harga
-    public function checkPrice(Request $request)
+    public function checkPrice(Request $request) 
     {
         try {
             // Dapatkan vendor dari user yang sedang login
@@ -302,7 +309,7 @@ class PosController extends Controller
                         ];
                     }
                 } elseif ($spesifikasiProduk->spesifikasi->tipe_input === 'number') {
-                    $inputValue = (int)$value;
+                    $inputValue = (float)$value;
                     $bahan = $spesifikasiProduk->bahans->first();
                     if ($bahan) {
                         $pricePerUnit = $wholesalePrice->calculateFinalPrice($bahan->hpp, $inputValue, $bahan->id);

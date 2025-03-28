@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Storage;
 
-class AlatController extends Controller
+class AlatController extends Controller 
 {
     /**
      * Display a listing of the resource.

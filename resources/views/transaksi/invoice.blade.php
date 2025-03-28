@@ -1,152 +1,333 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
+
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice #{{ $transaksi->kode }}</title>
+    <title>Invoice {{ $transaksi->kode }}</title>
     <style>
+        @page {
+            margin: 0;
+            padding: 0;
+            width: 7.5cm;
+        }
+
+        /* Base styles optimized for 7.5cm width */
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 12px;
+            width: 7.5cm;
+            margin: 0 auto;
+            padding: 10px;
+            background: #fff;
+            color: #000;
         }
-        .invoice-header {
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-        }
-        .logo-container {
-            text-align: left;
-        }
-        .invoice-info {
-            text-align: right;
-        }
-        h1 {
-            font-size: 24px;
-            color: #333;
+
+        /* Header section */
+        .header {
+            text-align: center;
+            padding-bottom: 5px;
             margin-bottom: 5px;
         }
-        .invoice-addresses {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
+
+        .header h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
         }
-        .invoice-addresses > div {
-            width: 45%;
+
+        .header p {
+            margin: 2px 0;
+            font-size: 11px;
         }
-        table {
+
+        .logo-img {
+            height: 50px;
+            margin-bottom: 8px;
+            max-width: 100%;
+        }
+
+        /* Divider lines */
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 5px 0;
+        }
+
+        /* Transaction info section */
+        .info-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            font-size: 12px;
+            margin-bottom: 8px;
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+
+        .info-table td {
+            padding: 3px 0;
         }
-        th {
-            background-color: #f5f5f5;
+
+        /* Items section */
+        .items {
+            font-size: 12px;
+            width: 100%;
         }
-        .total-row td {
+
+        .item-row {
+            margin-bottom: 12px;
+        }
+
+        .item-title {
             font-weight: bold;
-            border-top: 2px solid #000;
+            margin-bottom: 4px;
+            font-size: 13px;
         }
-        .text-right {
+
+        .item-spec {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 3px;
+        }
+
+        .spec-label {
+            color: #666;
+        }
+
+        .spec-value {
+            font-weight: 500;
             text-align: right;
         }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            color: #777;
+
+        .item-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .item-total-value {
+            color: #0d6efd;
+        }
+
+        .item-separator {
+            border-bottom: 1px solid #ccc;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Totals section */
+        .total-table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 12px;
+        }
+
+        .total-table td {
+            padding: 4px 0;
+        }
+
+        .total-table tr:last-child {
+            font-weight: bold;
+        }
+
+        /* Footer section */
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px dashed #000;
+        }
+
+        .footer p {
+            margin: 2px 0;
+        }
+
+        /* Container for the entire invoice */
+        .invoice-print-container {
+            width: 100%;
+            max-width: 7.5cm;
+        }
+
+        @media print {
+            body {
+                width: 7.5cm;
+                margin: 0;
+                padding: 5px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="invoice-header">
-        <div class="logo-container">
-            <h1>{{ $transaksi->vendor->name }}</h1>
-            <p>{{ $transaksi->vendor->address }}</p>
-            <p>{{ $transaksi->vendor->phone }}</p>
-        </div>
-        <div class="invoice-info">
-            <h2>INVOICE</h2>
-            <p><strong>No: {{ $transaksi->kode }}</strong></p>
-            <p>Tanggal: {{ $transaksi->tanggal_dibuat->format('d/m/Y') }}</p>
-            <p>Status: {{ ucfirst($transaksi->status) }}</p>
-        </div>
-    </div>
+    <div class="invoice-print-container">
+        <!-- HEADER SECTION -->
+        <div class="header">
+            @php
+                $vendorName = $transaksi->vendor->name ?? ($transaksi->vendor->nama_vendor ?? 'Grafika Digital Printing');
+                $vendorAddress = $transaksi->vendor->address ?? ($transaksi->vendor->alamat ?? 'Alamat Vendor');
+                $vendorPhone = $transaksi->vendor->phone ?? ($transaksi->vendor->telepon ?? 'Telepon Vendor');
+                $vendorEmail = $transaksi->vendor->email ?? 'email@vendor.com';
+            @endphp
 
-    <div class="invoice-addresses">
-        <div>
-            <h3>Ditagihkan Kepada:</h3>
-            <p><strong>{{ $transaksi->pelanggan->nama }}</strong></p>
-            <p>{{ $transaksi->pelanggan->alamat }}</p>
-            <p>Telp: {{ $transaksi->pelanggan->telepon }}</p>
-            <p>Email: {{ $transaksi->pelanggan->email }}</p>
+            <div class="text-center">
+                <!-- Logo with base64 encoding -->
+                @if(isset($logoBase64) && $logoBase64)
+                    <img src="{{ $logoBase64 }}" alt="Logo" class="logo-img">
+                @else
+                    <!-- Fallback jika base64 tidak tersedia -->
+                    @php
+                        $logoPath = $transaksi->vendor && $transaksi->vendor->logo
+                            ? asset('vendors_logo/' . $transaksi->vendor->logo)
+                            : asset('images/logo.png');
+                    @endphp
+                    <img src="{{ $logoPath }}" alt="Logo" class="logo-img">
+                @endif
+                <h2>{{ $vendorName }}</h2>
+                <p>{{ $vendorAddress }}</p>
+                <p>{{ $vendorPhone }} | {{ $vendorEmail }}</p>
+            </div>
         </div>
-        <div>
-            <h3>Metode Pembayaran:</h3>
-            <p>{{ $transaksi->payment_method }}</p>
-            <h3>Estimasi Selesai:</h3>
-            <p>{{ $transaksi->estimasi_selesai->format('d/m/Y') }}</p>
-        </div>
-    </div>
 
-    <table>
-        <thead>
+        <!-- TRANSACTION INFO SECTION -->
+        <table class="info-table">
             <tr>
-                <th>Produk</th>
-                <th>Spesifikasi</th>
-                <th class="text-right">Kuantitas</th>
-                <th class="text-right">Harga Satuan</th>
-                <th class="text-right">Subtotal</th>
+                <td style="width: 40%;">No. Invoice</td>
+                <td style="width: 60%;">: {{ $transaksi->kode }}</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($transaksi->transaksiItem as $item)
-                <tr>
-                    <td>{{ $item->produk->nama_produk }}</td>
-                    <td>
-                        @if($item->transaksiItemSpecifications->count() > 0)
-                            <ul style="padding-left: 15px; margin: 0;">
-                                @foreach($item->transaksiItemSpecifications as $spec)
-                                    <li>
-                                        {{ $spec->spesifikasiProduk->spesifikasi->nama_spesifikasi ?? 'Spesifikasi' }}: 
-                                        {{ $spec->value }}
-                                        @if($spec->bahan)
-                                            ({{ $spec->bahan->nama_bahan }})
-                                        @endif
-                                    </li>
-                                @endforeach
-                            </ul>
-                        @endif
-                    </td>
-                    <td class="text-right">{{ $item->kuantitas }}</td>
-                    <td class="text-right">Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
-                    <td class="text-right">Rp {{ number_format($item->kuantitas * $item->harga_satuan, 0, ',', '.') }}</td>
-                </tr>
+            <tr>
+                <td>Tanggal</td>
+                <td>: {{ $transaksi->tanggal_dibuat->format('d/m/Y') }}</td>
+            </tr>
+            <tr>
+                <td>Customer</td>
+                <td>: {{ $transaksi->pelanggan->nama }}</td>
+            </tr>
+            <tr>
+                <td>Pembayaran</td>
+                <td>: {{ ucfirst($transaksi->payment_method ?? 'Transfer') }}</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td>: {{ ucfirst($transaksi->status ?? 'Processing') }}</td>
+            </tr>
+        </table>
+
+        <div class="divider"></div>
+
+        <!-- ITEMS SECTION -->
+        <div class="items">
+            @foreach ($transaksi->transaksiItem as $item)
+                <div class="item-row">
+                    <!-- Product Name -->
+                    <div class="item-title">{{ $item->produk->nama_produk }}</div>
+
+                    <!-- Quantity -->
+                    <div class="item-spec">
+                        <span class="spec-label">Quantity</span>
+                        <span class="spec-value">{{ $item->kuantitas }} pcs</span>
+                    </div>
+
+                    <!-- Product Specifications -->
+                    @if ($item->transaksiItemSpecifications && count($item->transaksiItemSpecifications) > 0)
+                        <div class="item-details">
+                            @foreach ($item->transaksiItemSpecifications as $spec)
+                                @if ($spec->spesifikasiProduk && $spec->spesifikasiProduk->spesifikasi)
+                                    <div class="item-spec">
+                                        <span class="spec-label">
+                                            {{ $spec->spesifikasiProduk->spesifikasi->nama_spesifikasi }}
+                                        </span>
+                                        <span class="spec-value">
+                                            @php
+                                                $hargaSatuan = 0;
+                                                $totalHarga = $spec->price ?? 0;
+                                                $nilai = $spec->nilai_spesifikasi ?? null;
+
+                                                // If nilai_spesifikasi is empty, check value field
+                                                if (empty($nilai) && isset($spec->value)) {
+                                                    $nilai = $spec->value;
+                                                }
+
+                                                if ($spec->input_type == 'select' && $spec->bahan) {
+                                                    // For select type (material selection)
+                                                    echo $spec->bahan->nama_bahan .
+                                                        ': ' .
+                                                        $item->kuantitas .
+                                                        ' x Rp ' .
+                                                        number_format($totalHarga / $item->kuantitas, 0, ',', '.') .
+                                                        ' = Rp ' .
+                                                        number_format($totalHarga, 0, ',', '.');
+                                                } elseif ($nilai && $spec->spesifikasiProduk->spesifikasi) {
+                                                    // For numeric type (size, etc)
+                                                    if ($totalHarga > 0 && $nilai > 0) {
+                                                        $hargaSatuan = $totalHarga / $nilai;
+                                                    }
+
+                                                    echo number_format($nilai, 2, ',', '.') .
+                                                        ' ' .
+                                                        ($spec->spesifikasiProduk->spesifikasi->satuan ?? '') .
+                                                        ' x Rp ' .
+                                                        number_format($hargaSatuan, 0, ',', '.') .
+                                                        ' = Rp ' .
+                                                        number_format($totalHarga, 0, ',', '.');
+                                                } else {
+                                                    echo 'Rp ' . number_format($totalHarga, 0, ',', '.');
+                                                }
+                                            @endphp
+                                        </span>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <!-- Item Total -->
+                    <div class="item-total">
+                        <span>Total Item</span>
+                        <span class="item-total-value">
+                            Rp {{ number_format($item->harga_satuan * $item->kuantitas, 0, ',', '.') }}
+                        </span>
+                    </div>
+
+                    <!-- Item Separator -->
+                    @if (!$loop->last)
+                        <div class="item-separator"></div>
+                    @endif
+                </div>
             @endforeach
-            <tr class="total-row">
-                <td colspan="4" class="text-right">Total:</td>
-                <td class="text-right">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    @if($transaksi->catatan)
-        <div>
-            <h3>Catatan:</h3>
-            <p>{{ $transaksi->catatan }}</p>
         </div>
-    @endif
 
-    <div class="footer">
-        <p>Terima kasih atas kepercayaan Anda.</p>
-        <p>{{ $transaksi->vendor->name }} | {{ $transaksi->vendor->email }} | {{ $transaksi->vendor->phone }}</p>
+        <div class="divider"></div>
+
+        <!-- TOTALS SECTION -->
+        <table class="total-table">
+            <tr>
+                <td style="width: 60%; text-align: left;">Total</td>
+                <td style="width: 40%; text-align: right;">
+                    Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Terbayar</td>
+                <td style="text-align: right;">
+                    Rp {{ number_format($transaksi->terbayar ?? $transaksi->total_harga, 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Kembali</td>
+                <td style="text-align: right;">
+                    Rp {{ number_format($transaksi->kembali ?? 0, 0, ',', '.') }}
+                </td>
+            </tr>
+        </table>
+
+        <!-- FOOTER SECTION -->
+        <div class="footer">
+            <p>Terima kasih telah berbelanja!</p>
+            <p>Estimasi Selesai: {{ \Carbon\Carbon::parse($transaksi->estimasi_selesai)->format('d/m/Y H:i') }}</p>
+            <p>{{ $vendorName }} | {{ $vendorPhone }}</p>
+        </div>
     </div>
 </body>
+
 </html>

@@ -80,10 +80,7 @@ CREATE TABLE IF NOT EXISTS `cache` (
   PRIMARY KEY (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.cache: ~2 rows (approximately)
-REPLACE INTO `cache` (`key`, `value`, `expiration`) VALUES
-	('da4b9237bacccdf19c0760cab7aec4a8359010b0', 'i:1;', 1741952717),
-	('da4b9237bacccdf19c0760cab7aec4a8359010b0:timer', 'i:1741952717;', 1741952717);
+-- Dumping data for table grafika-printing.cache: ~0 rows (approximately)
 
 -- Dumping structure for table grafika-printing.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
@@ -317,7 +314,7 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 
 -- Dumping data for table grafika-printing.sessions: ~1 rows (approximately)
 REPLACE INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('LFnozWUiYceLorHtyeKVCLnxokumMyByT6VV1Fdt', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidlBlSUhQYkFVWTRsa2ZBTWlBRWtIdFcwTm52cmFWRnBPa3ZmUUtMWSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjg6Imh0dHA6Ly9ncmFmaWthLXByaW50aW5nLnRlc3QiO319', 1741953063);
+	('hJiryyYKUYquFUlJjaSpsPZ7KGlsiXQ6Z2Ifkhtd', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiMkt5bnl4akNBcGFwVk9CT3I5emc0VlJMRmtxbGpRYURPd2lrS3pnYiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQzOiJodHRwOi8vZ3JhZmlrYS1wcmludGluZy50ZXN0L2Rhc2hib2FyZC9hbGF0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjE3OiJjdXJyZW50X3ZlbmRvcl9pZCI7aToxO30=', 1742030624);
 
 -- Dumping structure for table grafika-printing.spesifikasis
 DROP TABLE IF EXISTS `spesifikasis`;
@@ -453,8 +450,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Dumping data for table grafika-printing.users: ~2 rows (approximately)
 REPLACE INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `usertype`, `remember_token`, `created_at`, `updated_at`) VALUES
-	(1, 'Dev', 'dev@gmail.com', '2025-03-14 11:34:58', '$2y$12$1KkIy6j3ykGGnQCrR8gAUOFGcc8lZ54r8C77x.W09vlgRmuHqrDrS', 'dev', 'ltsoFNXjQtuiLL0g72RtWOKJJJbEeFExLiblaLJWzRfm3DdStp78wpb6GKbS', '2025-03-14 11:34:59', '2025-03-14 11:34:59'),
-	(2, 'Grafika Printing', 'grafika@gmail.com', '2025-03-14 11:46:23', '$2y$12$HmB06oOq7dXefE9w5Xd/UeCEO1W8dRJkvMsuDAaTTG1kKuHNvXutO', 'vendor', NULL, '2025-03-14 11:39:03', '2025-03-14 11:39:03');
+	(1, 'Dev', 'dev@gmail.com', '2025-03-15 09:22:44', '$2y$12$DIzXpDUVhVC0iP8.97483O0ybwz5NYb3hwr/SRbOj896DhVVVyoTW', 'dev', 'F4WS3uhENZ', '2025-03-15 09:22:44', '2025-03-15 09:22:44'),
+	(2, 'Vendor', 'vendor@gmail.com', '2025-03-15 09:22:44', '$2y$12$DIzXpDUVhVC0iP8.97483O0ybwz5NYb3hwr/SRbOj896DhVVVyoTW', 'vendor', 'MlhvYC7a4x', '2025-03-15 09:22:44', '2025-03-15 09:22:44');
 
 -- Dumping structure for table grafika-printing.vendors
 DROP TABLE IF EXISTS `vendors`;
@@ -476,7 +473,7 @@ CREATE TABLE IF NOT EXISTS `vendors` (
 
 -- Dumping data for table grafika-printing.vendors: ~1 rows (approximately)
 REPLACE INTO `vendors` (`id`, `name`, `email`, `phone`, `address`, `logo`, `website`, `is_active`, `created_at`, `updated_at`) VALUES
-	(1, 'Malik Olson', 'motevygyb@mailinator.com', '+1 (114) 384-6369', 'Qui commodo molestia', '1741952609.png', 'https://www.fedirypimycyput.biz', 1, '2025-03-14 11:42:20', '2025-03-14 11:43:29');
+	(1, 'Grafika Printing', 'grafika@gmail.com', '081234567890', 'Jl. Grafika No. 1', NULL, 'grafika-printing.com', 1, '2025-03-15 09:22:44', '2025-03-15 09:22:44');
 
 -- Dumping structure for table grafika-printing.vendor_user
 DROP TABLE IF EXISTS `vendor_user`;

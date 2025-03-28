@@ -102,7 +102,8 @@
                                                         {{ number_format($pricePerUnit, 0, ',', '.') }} = Rp
                                                         {{ number_format($spec['price'], 0, ',', '.') }}
                                                     @elseif ($bahan && $spesifikasiProduk && $spesifikasiProduk->spesifikasi)
-                                                        {{ $spec['value'] }} {{ $spesifikasiProduk->spesifikasi->satuan }}
+                                                        {{ number_format($spec['value'], 2, ',', '.') }}
+                                                        {{ $spesifikasiProduk->spesifikasi->satuan }}
                                                         x Rp {{ number_format($pricePerUnit, 0, ',', '.') }} = Rp
                                                         {{ number_format($spec['price'], 0, ',', '.') }}
                                                     @else

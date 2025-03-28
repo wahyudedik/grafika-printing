@@ -100,6 +100,18 @@
                                         <th>Estimasi Selesai</th>
                                         <td>{{ $transaksi->estimasi_selesai->format('d/m/Y') }}</td>
                                     </tr>
+                                    <tr>
+                                        <th>Total Harga</th>
+                                        <td>Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Terbayar</th>
+                                        <td>Rp {{ number_format($transaksi->terbayar ?? $transaksi->total_harga, 0, ',', '.') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kembali</th>
+                                        <td>Rp {{ number_format($transaksi->kembali ?? 0, 0, ',', '.') }}</td>
+                                    </tr>
                                 </table>
                             </div>
 

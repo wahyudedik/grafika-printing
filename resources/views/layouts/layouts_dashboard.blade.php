@@ -19,7 +19,19 @@
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
                 <a href="#">
-                    Grafika Printing
+                    @php
+                        $vendorName = 'Dashboard';
+                        if (auth()->check()) {
+                            // Gunakan relasi belongsToMany yang ada di User.php
+                            $vendor = auth()->user()->vendorUser->first();
+
+                            if ($vendor) {
+                                // Coba kedua kemungkinan nama field
+                                $vendorName = $vendor->name ?? ($vendor->nama_vendor ?? 'Dashboard');
+                            }
+                        }
+                    @endphp
+                    {{ $vendorName }}
                 </a>
             </h1>
 

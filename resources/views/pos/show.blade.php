@@ -1,230 +1,336 @@
-<!DOCTYPE html>
-<html>
+@extends('layouts.layouts_dashboard')
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice {{ $transaksi->kode }}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+@section('title', 'Invoice ' . $transaksi->kode)
+
+@section('content')
+    <div class="container-xl">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h3 class="card-title">Invoice #{{ $transaksi->kode }}</h3>
+                        <div>
+                            <a href="{{ route('pos.invoice.download', $transaksi->id) }}" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download me-2"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                    <path d="M7 11l5 5l5 -5"></path>
+                                    <path d="M12 4l0 12"></path>
+                                </svg>Download PDF
+                            </a>
+                            <a href="#" onclick="window.print()" class="btn btn-outline-secondary ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer me-2"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path
+                                        d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2">
+                                    </path>
+                                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
+                                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z">
+                                    </path>
+                                </svg>Print
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Invoice yang akan diprint -->
+                        <div class="invoice-print-container mx-auto">
+                            <div class="header">
+                                @php
+                                    $vendorName =
+                                        $transaksi->vendor->name ??
+                                        ($transaksi->vendor->nama_vendor ?? 'Bamboo Digital Printing');
+                                    $vendorAddress =
+                                        $transaksi->vendor->address ??
+                                        ($transaksi->vendor->alamat ?? 'Pesantren Peterongan Jombang');
+                                    $vendorPhone =
+                                        $transaksi->vendor->phone ?? ($transaksi->vendor->telepon ?? '081-515-876-755');
+                                    $vendorEmail = $transaksi->vendor->email ?? 'infografikaprint@gmail.com';
+                                    $logoPath =
+                                        $transaksi->vendor && $transaksi->vendor->logo
+                                            ? asset('vendors_logo/' . $transaksi->vendor->logo)
+                                            : asset('images/logo.png');
+                                @endphp
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="text-center">
+                                        <img src="{{ $logoPath }}" alt="Logo"
+                                            style="height: 50px; margin-bottom: 10px;">
+                                        <h2 style="margin: 0;">{{ $vendorName }}</h2>
+                                        <p style="margin: 2px 0;">{{ $vendorAddress }}</p>
+                                        <p style="margin: 2px 0;">{{ $vendorPhone }} | {{ $vendorEmail }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info d-flex mb-5">
+                                <div class="col-6">
+                                    <p>No: {{ $transaksi->kode }}</p>
+                                    <p>Cust: {{ $transaksi->pelanggan->nama }}</p>
+                                    <p>Bayar: {{ ucfirst($transaksi->metode_pembayaran ?? 'Transfer') }}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>Tanggal: {{ $transaksi->tanggal_dibuat->format('d/m/Y') }}</p>
+                                    <p>Status: {{ ucfirst($transaksi->status ?? 'Processing') }}</p>
+                                </div>
+                            </div>
+
+                            <div class="items">
+                                @foreach ($transaksi->transaksiItem as $item)
+                                    <div style="margin-bottom: 15px;">
+                                        <!-- Nama Produk -->
+                                        <div style="font-weight: bold; margin-bottom: 5px;">
+                                            {{ $item->produk->nama_produk }}</div>
+
+                                        <!-- Jumlah (quantity) -->
+                                        <div
+                                            style="display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px dashed #ccc; padding-bottom: 3px;">
+                                            <span style="color: #666;">Quantity</span>
+                                            <span style="font-weight: 500;">{{ $item->kuantitas }} pcs</span>
+                                        </div>
+
+                                        <!-- Spesifikasi Produk -->
+                                        @if ($item->transaksiItemSpecifications && count($item->transaksiItemSpecifications) > 0)
+                                            <div class="item-details">
+                                                @foreach ($item->transaksiItemSpecifications as $spec)
+                                                    @if ($spec->spesifikasiProduk && $spec->spesifikasiProduk->spesifikasi)
+                                                        <div
+                                                            style="display: flex; justify-content: space-between; margin-bottom: 3px; border-bottom: 1px dashed #ccc; padding-bottom: 3px;">
+                                                            <span style="color: #666;">
+                                                                {{ $spec->spesifikasiProduk->spesifikasi->nama_spesifikasi }}
+                                                            </span>
+                                                            <span style="font-weight: 500;">
+                                                                @php
+                                                                    // Debug info
+                                                                    // dd($spec->toArray());
+
+                                                                    $hargaSatuan = 0;
+                                                                    $totalHarga = $spec->price ?? 0;
+                                                                    $nilai = $spec->nilai_spesifikasi ?? null;
+
+                                                                    // Jika nilai_spesifikasi kosong, coba cek field value
+                                                                    if (empty($nilai) && isset($spec->value)) {
+                                                                        $nilai = $spec->value;
+                                                                    }
+
+                                                                    if ($spec->input_type == 'select' && $spec->bahan) {
+                                                                        // Untuk tipe select (pilihan bahan)
+                                                                        echo $spec->bahan->nama_bahan .
+                                                                            ': ' .
+                                                                            $item->kuantitas .
+                                                                            ' x Rp ' .
+                                                                            number_format(
+                                                                                $totalHarga / $item->kuantitas,
+                                                                                0,
+                                                                                ',',
+                                                                                '.',
+                                                                            ) .
+                                                                            ' = Rp ' .
+                                                                            number_format($totalHarga, 0, ',', '.');
+                                                                    } elseif (
+                                                                        $nilai &&
+                                                                        $spec->spesifikasiProduk->spesifikasi
+                                                                    ) {
+                                                                        // Untuk tipe numerik (ukuran, dll)
+                                                                        if ($totalHarga > 0 && $nilai > 0) {
+                                                                            $hargaSatuan = $totalHarga / $nilai;
+                                                                        }
+
+                                                                        echo number_format($nilai, 2, ',', '.') .
+                                                                            ' ' .
+                                                                            ($spec->spesifikasiProduk->spesifikasi
+                                                                                ->satuan ??
+                                                                                '') .
+                                                                            ' x Rp ' .
+                                                                            number_format($hargaSatuan, 0, ',', '.') .
+                                                                            ' = Rp ' .
+                                                                            number_format($totalHarga, 0, ',', '.');
+                                                                    } else {
+                                                                        echo 'Rp ' .
+                                                                            number_format($totalHarga, 0, ',', '.');
+                                                                    }
+                                                                @endphp
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        <!-- Estimasi Waktu Produksi -->
+                                        {{-- @php
+                                            $estimatedTime = 0;
+                                            if (isset($item->produk) && $item->produk->estimasiProduk) {
+                                                $estimatedTime = $item->produk->getEstimatedProductionTime(
+                                                    $item->kuantitas,
+                                                );
+                                            }
+                                        @endphp
+                                        <div
+                                            style="display: flex; justify-content: space-between; margin-bottom: 3px; border-bottom: 1px dashed #ccc; padding-bottom: 3px;">
+                                            <span style="color: #666;">Estimasi Waktu Produksi</span>
+                                            <span style="font-weight: 500;">{{ $estimatedTime }} menit</span>
+                                        </div> --}}
+
+                                        <!-- Alat Produksi -->
+                                        {{-- <div
+                                            style="display: flex; justify-content: space-between; margin-bottom: 3px; border-bottom: 1px dashed #ccc; padding-bottom: 3px;">
+                                            <span style="color: #666;">Alat Produksi</span>
+                                            <span style="font-weight: 500;">
+                                                @if (isset($item->produk) && $item->produk->estimasiProduk)
+                                                    {{ $item->produk->estimasiProduk->pluck('alat.nama_alat')->filter()->implode(', ') ?: 'Tidak ada alat' }}
+                                                @else
+                                                    Tidak ada alat
+                                                @endif
+                                            </span>
+                                        </div> --}}
+
+                                        <!-- Total Harga Item -->
+                                        <div
+                                            style="display: flex; justify-content: space-between; margin-top: 5px; font-weight: bold;">
+                                            <span>Total Item</span>
+                                            <span style="color: #0d6efd;">
+                                                Rp {{ number_format($item->harga_satuan * $item->kuantitas, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Garis pemisah antar item -->
+                                        @if (!$loop->last)
+                                            <div
+                                                style="border-bottom: 1px solid #ccc; margin-top: 10px; margin-bottom: 10px;">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="total">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 60%; text-align: left; padding-bottom: 5px;">Total</td>
+                                        <td style="width: 40%; text-align: right; padding-bottom: 5px;">
+                                            Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 60%; text-align: left; padding-bottom: 5px;">Terbayar</td>
+                                        <td style="width: 40%; text-align: right; padding-bottom: 5px;">
+                                            Rp {{ number_format($transaksi->terbayar, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 60%; text-align: left; padding-bottom: 5px;">Kembali</td>
+                                        <td style="width: 40%; text-align: right; padding-bottom: 5px;">
+                                            Rp {{ number_format($transaksi->kembali, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+
+                            <div class="footer">
+                                <p>Terima kasih telah berbelanja!</p>
+                                <p>Estimasi Selesai:
+                                    {{ \Carbon\Carbon::parse($transaksi->estimasi_selesai)->format('d/m/Y H:i') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #1e293b;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+        /* Styles untuk tampilan invoice di halaman */
+        .invoice-print-container {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            width: 7.5cm;
+            padding: 10px;
+            background: #fff;
+            color: #000;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
         }
 
-        .header h1 {
-            color: #1e293b;
+        .info {
+            font-size: 10px;
             margin-bottom: 10px;
-            font-weight: 700;
         }
 
-        .invoice-info {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+        .info p {
+            margin: 2px 0;
         }
 
-        .invoice-info p {
+        .divider {
+            border-top: 1px dashed #000;
             margin: 5px 0;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
+        .items {
+            font-size: 10px;
         }
 
-        th,
-        td {
-            padding: 12px 15px;
-            border: 1px solid #e0e0e0;
-        }
-
-        th {
-            background-color: #f5f5f5;
-            color: #1e293b;
-            font-weight: 600;
-            text-align: left;
+        .item-details {
+            margin-left: 10px;
+            font-size: 9px;
         }
 
         .total {
-            text-align: right;
             font-weight: bold;
-            font-size: 18px;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            margin-bottom: 30px;
+            padding-top: 5px;
+        }
+
+        .total table {
+            width: 100%;
         }
 
         .footer {
             text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #f0f0f0;
-            color: #64748b;
+            font-size: 10px;
+            margin-top: 10px;
+            padding-top: 5px;
         }
 
-        .actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            background-color: #4a6cf7;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            border: none;
-            cursor: pointer;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            background-color: #3a5bd9;
-        }
-
-        .btn-secondary {
-            background-color: #64748b;
-        }
-
-        .btn-secondary:hover {
-            background-color: #475569;
-        }
-
+        /* Styles khusus untuk print */
         @media print {
-            .actions {
-                display: none;
+            body * {
+                visibility: hidden;
             }
 
-            body {
-                background-color: white;
-                padding: 0;
+            .invoice-print-container,
+            .invoice-print-container * {
+                visibility: visible;
             }
 
-            .container {
+            .invoice-print-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 7.5cm;
+                margin: 0;
+                padding: 0.5cm;
+                border: none;
                 box-shadow: none;
-                max-width: 100%;
-                padding: 0;
+            }
+
+            .navbar,
+            .header-menu,
+            .footer-menu,
+            .btn,
+            .card-header {
+                display: none !important;
             }
         }
     </style>
-</head>
-
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>{{ $transaksi->vendor->name }}</h1>
-            <p>{{ $transaksi->vendor->address }}</p>
-        </div>
-
-        <div class="invoice-info">
-            <p><strong>Invoice #:</strong> {{ $transaksi->kode }}</p>
-            <p><strong>Date:</strong> {{ $transaksi->tanggal_dibuat->format('d/m/Y') }}</p>
-            <p><strong>Customer:</strong> {{ $transaksi->pelanggan->nama }}</p>
-            <p><strong>Payment Method:</strong> {{ ucfirst($transaksi->payment_method) }}</p>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Specifications</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($transaksi->transaksiItem as $item)
-                    <tr>
-                        <td>{{ $item->produk->nama_produk ?? 'Product Not Found' }}</td>
-                        <td>
-                            @foreach ($item->transaksiItemSpecifications as $spec)
-                                <strong>{{ $spec->spesifikasiProduk->spesifikasi->nama_spesifikasi ?? 'Specification' }}:</strong>
-                                @if ($spec->input_type === 'select')
-                                    {{ $spec->bahan->nama_bahan ?? 'Material Not Found' }}
-                                @else
-                                    {{ $spec->value }} {{ $spec->spesifikasiProduk->spesifikasi->satuan ?? '' }}
-                                @endif
-                                (Rp {{ number_format($spec->price, 0, ',', '.') }})
-                                <br>
-                            @endforeach
-                        </td>
-                        <td>{{ $item->kuantitas }}</td>
-                        <td>Rp {{ number_format($item->harga_satuan * $item->kuantitas, 0, ',', '.') }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <div class="total">
-            <p>Total: Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-        </div>
-
-        <div class="actions">
-            <a href="{{ route('pos.invoice.download', ['transaksi' => $transaksi->id]) }}" class="btn">
-                <i class="fas fa-download"></i> Download PDF
-            </a>
-            <a href="{{ route('pos.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to POS
-            </a>
-            <button onclick="window.print()" class="btn">
-                <i class="fas fa-print"></i> Print
-            </button>
-        </div>
-
-        <div class="footer">
-            <p>Thank you for your business!</p>
-            <p>Estimated Completion: {{ \Carbon\Carbon::parse($transaksi->estimasi_selesai)->format('d/m/Y H:i') }}</p>
-            <p>{{ $transaksi->vendor->name }} | {{ $transaksi->vendor->phone }}</p>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Show success message when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                icon: 'success',
-                title: 'Invoice Generated',
-                text: 'Your invoice has been generated successfully!',
-                confirmButtonColor: '#3085d6'
-            });
-        });
-    </script>
-</body>
-
-</html>
+@endsection

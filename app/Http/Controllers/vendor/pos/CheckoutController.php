@@ -24,6 +24,7 @@ class CheckoutController extends Controller
         $validatedData = $request->validate([
             'pelanggan_id' => 'required|exists:pelanggans,id',
             'payment_method' => 'required|in:cash,transfer,qris',
+            'payment_amount' => 'nullable|numeric', // Tambahkan validasi untuk jumlah pembayaran
             'catatan' => 'nullable|string'
         ]);
 
@@ -50,13 +51,25 @@ class CheckoutController extends Controller
 
             $startTime = $latestPending ? Carbon::parse($latestPending->estimasi_selesai) : now();
             $estimatedCompletion = $startTime->addMinutes($totalTime);
+            
+            // Hitung total harga
+            $totalAmount = collect($cartItems)->sum('total_price');
+            
+            // Hitung jumlah terbayar dan kembalian
+            $paymentAmount = $validatedData['payment_method'] === 'cash' && isset($validatedData['payment_amount']) 
+                ? (float) $validatedData['payment_amount'] 
+                : $totalAmount;
+                
+            $changeAmount = max(0, $paymentAmount - $totalAmount);
 
             $transaksi = Transaksi::create([
                 'vendor_id' => $vendor->id,
                 'kode' => 'TRX-' . date('Ymd') . '-' . rand(1000, 9999),
                 'user_id' => Auth::id(),
                 'pelanggan_id' => $validatedData['pelanggan_id'],
-                'total_harga' => collect($cartItems)->sum('total_price'),
+                'total_harga' => $totalAmount,
+                'terbayar' => $paymentAmount, // Tambahkan jumlah terbayar
+                'kembali' => $changeAmount, // Tambahkan jumlah kembalian
                 'status' => 'pending',
                 'payment_method' => $validatedData['payment_method'],
                 'estimasi_selesai' => $estimatedCompletion,
@@ -78,7 +91,7 @@ class CheckoutController extends Controller
                         'vendor_id' => $vendor->id,
                         'spesifikasi_produk_id' => $specId,
                         'bahan_id' => $spec['bahan_id'],
-                        'value' => $spec['value'],
+                        'nilai_spesifikasi' => $spec['value'],
                         'input_type' => $spec['input_type'],
                         'price' => $spec['price']
                     ]);
@@ -87,7 +100,8 @@ class CheckoutController extends Controller
                     $bahan = Bahan::find($spec['bahan_id']);
                     if ($bahan) {
                         if ($spec['input_type'] === 'number') {
-                            $bahan->decrement('stok', $spec['value'] * $item['quantity']);
+                            // PERBAIKAN: Pastikan nilai desimal dipertahankan
+                            $bahan->decrement('stok', (float)$spec['value'] * $item['quantity']);
                         } else {
                             $bahan->decrement('stok', $item['quantity']);
                         }
@@ -183,9 +197,9 @@ class CheckoutController extends Controller
                 'email' => $validated['email']
             ]);
 
-            if ($request->expectsJson()) {
+            if ($request->expectsJson()) { 
                 return response()->json([
-                    'success' => true,
+                    'success' => true, 
                     'customer' => $customer
                 ]);
             }
