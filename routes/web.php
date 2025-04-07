@@ -87,9 +87,7 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () 
         Route::get('/cart/clear', [PosController::class, 'clearCart'])->name('clearCart');
         Route::post('/check-price', [PosController::class, 'checkPrice'])->name('checkPrice');
         Route::get('/checkout', [CheckoutController::class, 'show'])->name('checkout');
-
         Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
-        
         Route::post('/customer/create', [CheckoutController::class, 'createCustomer'])->name('customer.create');
         Route::get('/invoice/{transaksi}', [InvoiceController::class, 'show'])->name('invoice.show');
         Route::get('/invoice/{transaksi}/download', [InvoiceController::class, 'download'])->name('invoice.download');
