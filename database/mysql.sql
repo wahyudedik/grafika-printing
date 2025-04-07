@@ -32,9 +32,14 @@ CREATE TABLE IF NOT EXISTS `alats` (
   PRIMARY KEY (`id`),
   KEY `alats_vendor_id_foreign` (`vendor_id`),
   CONSTRAINT `alats_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.alats: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.alats: ~3 rows (approximately)
+DELETE FROM `alats`;
+INSERT INTO `alats` (`id`, `vendor_id`, `nama_alat`, `merek`, `model`, `spesifikasi_alat`, `status`, `tanggal_pembelian`, `kapasitas_cetak_per_jam`, `tersedia`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'Mesin Digital Printing', 'Mesin Digital Printing', 'Mesin Digital Printing', 'Mesin Digital Printing', 'aktif', '2025-03-27', 1, 1, '2025-03-27 07:16:37', '2025-03-27 07:16:37'),
+	(2, 1, 'Pengeringan', 'Pengeringan', 'Pengeringan', 'Pengeringan', 'aktif', '2025-03-27', 1, 1, '2025-03-27 07:16:57', '2025-03-27 07:16:57'),
+	(3, 1, 'Finishing', 'Finishing', 'Finishing', 'Finishing', 'aktif', '2025-03-27', 1, 1, '2025-03-27 07:17:17', '2025-03-27 07:17:17');
 
 -- Dumping structure for table grafika-printing.bahans
 DROP TABLE IF EXISTS `bahans`;
@@ -50,9 +55,13 @@ CREATE TABLE IF NOT EXISTS `bahans` (
   PRIMARY KEY (`id`),
   KEY `bahans_vendor_id_foreign` (`vendor_id`),
   CONSTRAINT `bahans_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.bahans: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.bahans: ~2 rows (approximately)
+DELETE FROM `bahans`;
+INSERT INTO `bahans` (`id`, `vendor_id`, `nama_bahan`, `hpp`, `satuan`, `stok`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'Flexi Korea 440gsm', 45000.00, 'Meter', '-234', '2025-03-27 07:19:12', '2025-04-07 21:20:02'),
+	(2, 1, 'Mata Ayam', 20000.00, 'pcs', '910', '2025-03-27 07:21:01', '2025-04-07 21:20:02');
 
 -- Dumping structure for table grafika-printing.bahan_spesifikasi_produk
 DROP TABLE IF EXISTS `bahan_spesifikasi_produk`;
@@ -67,9 +76,16 @@ CREATE TABLE IF NOT EXISTS `bahan_spesifikasi_produk` (
   KEY `bahan_spesifikasi_produk_spesifikasi_produk_id_foreign` (`spesifikasi_produk_id`),
   CONSTRAINT `bahan_spesifikasi_produk_bahan_id_foreign` FOREIGN KEY (`bahan_id`) REFERENCES `bahans` (`id`) ON DELETE CASCADE,
   CONSTRAINT `bahan_spesifikasi_produk_spesifikasi_produk_id_foreign` FOREIGN KEY (`spesifikasi_produk_id`) REFERENCES `spesifikasi_produks` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.bahan_spesifikasi_produk: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.bahan_spesifikasi_produk: ~5 rows (approximately)
+DELETE FROM `bahan_spesifikasi_produk`;
+INSERT INTO `bahan_spesifikasi_produk` (`id`, `bahan_id`, `spesifikasi_produk_id`, `created_at`, `updated_at`) VALUES
+	(3, 1, 1, '2025-03-27 07:29:18', '2025-03-27 07:29:18'),
+	(4, 1, 2, '2025-03-27 07:29:18', '2025-03-27 07:29:18'),
+	(5, 2, 3, '2025-03-27 07:29:18', '2025-03-27 07:29:18'),
+	(6, 1, 5, '2025-03-27 08:18:19', '2025-03-27 08:18:19'),
+	(7, 2, 6, '2025-03-27 08:18:19', '2025-03-27 08:18:19');
 
 -- Dumping structure for table grafika-printing.cache
 DROP TABLE IF EXISTS `cache`;
@@ -81,6 +97,7 @@ CREATE TABLE IF NOT EXISTS `cache` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.cache: ~0 rows (approximately)
+DELETE FROM `cache`;
 
 -- Dumping structure for table grafika-printing.cache_locks
 DROP TABLE IF EXISTS `cache_locks`;
@@ -92,6 +109,7 @@ CREATE TABLE IF NOT EXISTS `cache_locks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.cache_locks: ~0 rows (approximately)
+DELETE FROM `cache_locks`;
 
 -- Dumping structure for table grafika-printing.estimasi_produks
 DROP TABLE IF EXISTS `estimasi_produks`;
@@ -111,9 +129,17 @@ CREATE TABLE IF NOT EXISTS `estimasi_produks` (
   CONSTRAINT `estimasi_produks_alat_id_foreign` FOREIGN KEY (`alat_id`) REFERENCES `alats` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `estimasi_produks_produk_id_foreign` FOREIGN KEY (`produk_id`) REFERENCES `produks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `estimasi_produks_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.estimasi_produks: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.estimasi_produks: ~6 rows (approximately)
+DELETE FROM `estimasi_produks`;
+INSERT INTO `estimasi_produks` (`id`, `vendor_id`, `produk_id`, `alat_id`, `waktu_persiapan`, `waktu_produksi_per_unit`, `created_at`, `updated_at`) VALUES
+	(1, 1, 1, 1, 0, 120, '2025-03-27 07:26:13', '2025-03-27 07:26:13'),
+	(2, 1, 1, 2, 0, 60, '2025-03-27 07:26:13', '2025-03-27 07:26:13'),
+	(3, 1, 1, 3, 0, 60, '2025-03-27 07:26:13', '2025-03-27 07:26:13'),
+	(4, 1, 2, 1, 0, 120, '2025-03-27 08:18:19', '2025-03-27 08:18:19'),
+	(5, 1, 2, 2, 0, 60, '2025-03-27 08:18:19', '2025-03-27 08:18:19'),
+	(6, 1, 2, 3, 0, 60, '2025-03-27 08:18:19', '2025-03-27 08:18:19');
 
 -- Dumping structure for table grafika-printing.failed_jobs
 DROP TABLE IF EXISTS `failed_jobs`;
@@ -130,6 +156,7 @@ CREATE TABLE IF NOT EXISTS `failed_jobs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.failed_jobs: ~0 rows (approximately)
+DELETE FROM `failed_jobs`;
 
 -- Dumping structure for table grafika-printing.harga_grosir
 DROP TABLE IF EXISTS `harga_grosir`;
@@ -147,9 +174,13 @@ CREATE TABLE IF NOT EXISTS `harga_grosir` (
   KEY `harga_grosir_bahan_id_foreign` (`bahan_id`),
   CONSTRAINT `harga_grosir_bahan_id_foreign` FOREIGN KEY (`bahan_id`) REFERENCES `bahans` (`id`) ON DELETE CASCADE,
   CONSTRAINT `harga_grosir_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.harga_grosir: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.harga_grosir: ~2 rows (approximately)
+DELETE FROM `harga_grosir`;
+INSERT INTO `harga_grosir` (`id`, `vendor_id`, `bahan_id`, `min_quantity`, `max_quantity`, `harga`, `created_at`, `updated_at`) VALUES
+	(1, 1, 1, 1, 100, 45000.00, '2025-03-27 07:19:12', '2025-03-27 07:19:12'),
+	(2, 1, 1, 101, 1000, 40000.00, '2025-03-27 07:19:12', '2025-03-27 07:19:12');
 
 -- Dumping structure for table grafika-printing.jobs
 DROP TABLE IF EXISTS `jobs`;
@@ -166,6 +197,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.jobs: ~0 rows (approximately)
+DELETE FROM `jobs`;
 
 -- Dumping structure for table grafika-printing.job_batches
 DROP TABLE IF EXISTS `job_batches`;
@@ -184,6 +216,7 @@ CREATE TABLE IF NOT EXISTS `job_batches` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.job_batches: ~0 rows (approximately)
+DELETE FROM `job_batches`;
 
 -- Dumping structure for table grafika-printing.kategori_produks
 DROP TABLE IF EXISTS `kategori_produks`;
@@ -197,9 +230,12 @@ CREATE TABLE IF NOT EXISTS `kategori_produks` (
   PRIMARY KEY (`id`),
   KEY `kategori_produks_vendor_id_foreign` (`vendor_id`),
   CONSTRAINT `kategori_produks_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.kategori_produks: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.kategori_produks: ~1 rows (approximately)
+DELETE FROM `kategori_produks`;
+INSERT INTO `kategori_produks` (`id`, `vendor_id`, `nama_kategori`, `slug`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'Banner & Spanduk', 'banner-spanduk', '2025-03-27 07:26:13', '2025-03-27 07:26:13');
 
 -- Dumping structure for table grafika-printing.migrations
 DROP TABLE IF EXISTS `migrations`;
@@ -208,10 +244,11 @@ CREATE TABLE IF NOT EXISTS `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.migrations: ~1 rows (approximately)
-REPLACE INTO `migrations` (`id`, `migration`, `batch`) VALUES
+-- Dumping data for table grafika-printing.migrations: ~17 rows (approximately)
+DELETE FROM `migrations`;
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(1, '0001_01_01_000000_create_users_table', 1),
 	(2, '0001_01_01_000001_create_cache_table', 1),
 	(3, '0001_01_01_000002_create_jobs_table', 1),
@@ -227,7 +264,8 @@ REPLACE INTO `migrations` (`id`, `migration`, `batch`) VALUES
 	(13, '2025_03_13_114405_create_bahans_table', 1),
 	(14, '2025_03_13_114854_create_bahan_spesifikasi_produk_table', 1),
 	(15, '2025_03_13_115008_create_transaksis_table', 1),
-	(16, '2025_03_13_120519_create_notifications_table', 1);
+	(16, '2025_03_13_120519_create_notifications_table', 1),
+	(17, '2025_03_27_222451_add_payment_details_to_transaksis_table', 2);
 
 -- Dumping structure for table grafika-printing.notifications
 DROP TABLE IF EXISTS `notifications`;
@@ -245,6 +283,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.notifications: ~0 rows (approximately)
+DELETE FROM `notifications`;
 
 -- Dumping structure for table grafika-printing.password_reset_tokens
 DROP TABLE IF EXISTS `password_reset_tokens`;
@@ -256,6 +295,7 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.password_reset_tokens: ~0 rows (approximately)
+DELETE FROM `password_reset_tokens`;
 
 -- Dumping structure for table grafika-printing.pelanggans
 DROP TABLE IF EXISTS `pelanggans`;
@@ -274,9 +314,12 @@ CREATE TABLE IF NOT EXISTS `pelanggans` (
   UNIQUE KEY `pelanggans_kode_unique` (`kode`),
   KEY `pelanggans_vendor_id_foreign` (`vendor_id`),
   CONSTRAINT `pelanggans_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.pelanggans: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.pelanggans: ~1 rows (approximately)
+DELETE FROM `pelanggans`;
+INSERT INTO `pelanggans` (`id`, `vendor_id`, `kode`, `nama`, `alamat`, `no_telp`, `email`, `transaksi_terakhir`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'PLG-20250327212854', 'dad', 'dada', '322344', 'admin@gmail.com', '2025-04-07 21:20:02', '2025-03-27 14:28:54', '2025-04-07 21:20:02');
 
 -- Dumping structure for table grafika-printing.produks
 DROP TABLE IF EXISTS `produks`;
@@ -294,9 +337,13 @@ CREATE TABLE IF NOT EXISTS `produks` (
   KEY `produks_kategori_id_foreign` (`kategori_id`),
   CONSTRAINT `produks_kategori_id_foreign` FOREIGN KEY (`kategori_id`) REFERENCES `kategori_produks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `produks_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.produks: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.produks: ~2 rows (approximately)
+DELETE FROM `produks`;
+INSERT INTO `produks` (`id`, `vendor_id`, `gambar`, `nama_produk`, `deskripsi`, `kategori_id`, `created_at`, `updated_at`) VALUES
+	(1, 1, '["produk_gambar/1743060373_67e4fd959e29b.png"]', 'Banner Indoor Full Color', 'Banner berkualitas tinggi untuk indoor dengan gambar resolusi tinggi', 1, '2025-03-27 07:26:13', '2025-03-27 07:26:13'),
+	(2, 1, '[]', 'banner', 'banner bahan flexy', 1, '2025-03-27 08:18:19', '2025-03-27 08:18:19');
 
 -- Dumping structure for table grafika-printing.sessions
 DROP TABLE IF EXISTS `sessions`;
@@ -313,8 +360,9 @@ CREATE TABLE IF NOT EXISTS `sessions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.sessions: ~1 rows (approximately)
-REPLACE INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('hJiryyYKUYquFUlJjaSpsPZ7KGlsiXQ6Z2Ifkhtd', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiMkt5bnl4akNBcGFwVk9CT3I5emc0VlJMRmtxbGpRYURPd2lrS3pnYiI7czozOiJ1cmwiO2E6MDp7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQzOiJodHRwOi8vZ3JhZmlrYS1wcmludGluZy50ZXN0L2Rhc2hib2FyZC9hbGF0Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjE3OiJjdXJyZW50X3ZlbmRvcl9pZCI7aToxO30=', 1742030624);
+DELETE FROM `sessions`;
+INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
+	('1Tv79OUJpoWxcgB27b9iwFm2jE7oiLBj363rbkxY', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiR1lHdzlmSXVTZTVEZ3RqVVNsbWNTTk11U0FCdVo5YWg1ekJyMW12RyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTI6Imh0dHA6Ly9ncmFmaWthLXByaW50aW5nLnRlc3QvZGFzaGJvYXJkL3Bvcy9pbnZvaWNlLzgiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO3M6MTc6ImN1cnJlbnRfdmVuZG9yX2lkIjtpOjE7fQ==', 1744061000);
 
 -- Dumping structure for table grafika-printing.spesifikasis
 DROP TABLE IF EXISTS `spesifikasis`;
@@ -329,9 +377,14 @@ CREATE TABLE IF NOT EXISTS `spesifikasis` (
   PRIMARY KEY (`id`),
   KEY `spesifikasis_vendor_id_foreign` (`vendor_id`),
   CONSTRAINT `spesifikasis_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.spesifikasis: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.spesifikasis: ~3 rows (approximately)
+DELETE FROM `spesifikasis`;
+INSERT INTO `spesifikasis` (`id`, `vendor_id`, `nama_spesifikasi`, `tipe_input`, `satuan`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'Bahan', 'select', '', '2025-03-27 07:22:48', '2025-03-27 07:22:48'),
+	(2, 1, 'Ukuran', 'number', 'meter/persegi', '2025-03-27 07:23:15', '2025-03-27 07:23:15'),
+	(3, 1, 'Finishing', 'select', '', '2025-03-27 07:23:29', '2025-03-27 07:23:29');
 
 -- Dumping structure for table grafika-printing.spesifikasi_produks
 DROP TABLE IF EXISTS `spesifikasi_produks`;
@@ -351,9 +404,17 @@ CREATE TABLE IF NOT EXISTS `spesifikasi_produks` (
   CONSTRAINT `spesifikasi_produks_produk_id_foreign` FOREIGN KEY (`produk_id`) REFERENCES `produks` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `spesifikasi_produks_spesifikasi_id_foreign` FOREIGN KEY (`spesifikasi_id`) REFERENCES `spesifikasis` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `spesifikasi_produks_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.spesifikasi_produks: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.spesifikasi_produks: ~6 rows (approximately)
+DELETE FROM `spesifikasi_produks`;
+INSERT INTO `spesifikasi_produks` (`id`, `vendor_id`, `produk_id`, `spesifikasi_id`, `wajib_diisi`, `pilihan`, `created_at`, `updated_at`) VALUES
+	(1, 1, 1, 1, '1', '[]', '2025-03-27 07:26:13', '2025-03-27 07:26:13'),
+	(2, 1, 1, 2, '1', '[]', '2025-03-27 07:26:13', '2025-03-27 07:26:13'),
+	(3, 1, 1, 3, '1', '[]', '2025-03-27 07:26:13', '2025-03-27 07:29:18'),
+	(4, 1, 2, 1, '1', '["Flexy"]', '2025-03-27 08:18:19', '2025-03-27 08:18:19'),
+	(5, 1, 2, 2, '1', '[]', '2025-03-27 08:18:19', '2025-03-27 08:18:19'),
+	(6, 1, 2, 3, '1', '[]', '2025-03-27 08:18:19', '2025-03-27 08:18:19');
 
 -- Dumping structure for table grafika-printing.transaksis
 DROP TABLE IF EXISTS `transaksis`;
@@ -364,6 +425,8 @@ CREATE TABLE IF NOT EXISTS `transaksis` (
   `user_id` bigint unsigned DEFAULT NULL,
   `pelanggan_id` bigint unsigned NOT NULL,
   `total_harga` decimal(10,2) NOT NULL,
+  `terbayar` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `kembali` decimal(15,2) NOT NULL DEFAULT '0.00',
   `status` enum('pending','completed','cancelled','quality_check','processing') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `payment_method` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `estimasi_selesai` timestamp NOT NULL,
@@ -380,9 +443,17 @@ CREATE TABLE IF NOT EXISTS `transaksis` (
   CONSTRAINT `transaksis_pelanggan_id_foreign` FOREIGN KEY (`pelanggan_id`) REFERENCES `pelanggans` (`id`) ON DELETE CASCADE,
   CONSTRAINT `transaksis_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `transaksis_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.transaksis: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.transaksis: ~6 rows (approximately)
+DELETE FROM `transaksis`;
+INSERT INTO `transaksis` (`id`, `vendor_id`, `kode`, `user_id`, `pelanggan_id`, `total_harga`, `terbayar`, `kembali`, `status`, `payment_method`, `estimasi_selesai`, `tanggal_dibuat`, `progress_percentage`, `catatan`, `created_at`, `updated_at`) VALUES
+	(1, 1, 'TRX-20250327-6414', 2, 1, 582500.00, 0.00, 0.00, 'pending', 'cash', '2025-03-27 18:28:56', '2025-03-27', 0, 'fdfgsdgg', '2025-03-27 14:28:56', '2025-03-27 14:28:56'),
+	(2, 1, 'TRX-20250327-4320', 2, 1, 582500.00, 0.00, 0.00, 'pending', 'cash', '2025-03-27 22:28:56', '2025-03-27', 0, NULL, '2025-03-27 15:22:41', '2025-03-27 15:22:41'),
+	(3, 1, 'TRX-20250327-4454', 2, 1, 582500.00, 582500.00, 0.00, 'pending', 'cash', '2025-03-28 02:28:56', '2025-03-27', 0, NULL, '2025-03-27 15:29:16', '2025-03-27 15:29:16'),
+	(4, 1, 'TRX-20250327-5728', 2, 1, 5467500.00, 5467500.00, 0.00, 'pending', 'cash', '2025-03-28 10:28:56', '2025-03-27', 0, NULL, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(7, 1, 'TRX-20250408-3540', 2, 1, 582500.00, 582500.00, 0.00, 'completed', 'cash', '2025-03-27 17:00:00', '2025-04-08', 100, 'fcsdfsdf', '2025-04-07 18:50:18', '2025-04-07 21:12:52'),
+	(8, 1, 'TRX-20250408-5411', 2, 1, 48930000.00, 48930000.00, 0.00, 'pending', 'cash', '2025-04-11 10:28:56', '2025-04-08', 0, NULL, '2025-04-07 21:20:02', '2025-04-07 21:20:02');
 
 -- Dumping structure for table grafika-printing.transaksi_items
 DROP TABLE IF EXISTS `transaksi_items`;
@@ -402,9 +473,18 @@ CREATE TABLE IF NOT EXISTS `transaksi_items` (
   CONSTRAINT `transaksi_items_produk_id_foreign` FOREIGN KEY (`produk_id`) REFERENCES `produks` (`id`) ON DELETE CASCADE,
   CONSTRAINT `transaksi_items_transaksi_id_foreign` FOREIGN KEY (`transaksi_id`) REFERENCES `transaksis` (`id`) ON DELETE CASCADE,
   CONSTRAINT `transaksi_items_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.transaksi_items: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.transaksi_items: ~7 rows (approximately)
+DELETE FROM `transaksi_items`;
+INSERT INTO `transaksi_items` (`id`, `vendor_id`, `transaksi_id`, `produk_id`, `kuantitas`, `harga_satuan`, `created_at`, `updated_at`) VALUES
+	(1, 1, 1, 1, 1, 582500.00, '2025-03-27 14:28:56', '2025-03-27 14:28:56'),
+	(2, 1, 2, 1, 1, 582500.00, '2025-03-27 15:22:41', '2025-03-27 15:22:41'),
+	(3, 1, 3, 1, 1, 582500.00, '2025-03-27 15:29:16', '2025-03-27 15:29:16'),
+	(4, 1, 4, 1, 1, 582500.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(5, 1, 4, 1, 1, 4885000.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(8, 1, 7, 1, 1, 582500.00, '2025-04-07 18:50:18', '2025-04-07 18:50:18'),
+	(9, 1, 8, 1, 84, 582500.00, '2025-04-07 21:20:02', '2025-04-07 21:20:02');
 
 -- Dumping structure for table grafika-printing.transaksi_item_specifications
 DROP TABLE IF EXISTS `transaksi_item_specifications`;
@@ -428,9 +508,29 @@ CREATE TABLE IF NOT EXISTS `transaksi_item_specifications` (
   CONSTRAINT `transaksi_item_specifications_spesifikasi_produk_id_foreign` FOREIGN KEY (`spesifikasi_produk_id`) REFERENCES `spesifikasi_produks` (`id`) ON DELETE CASCADE,
   CONSTRAINT `transaksi_item_specifications_transaksi_item_id_foreign` FOREIGN KEY (`transaksi_item_id`) REFERENCES `transaksi_items` (`id`) ON DELETE CASCADE,
   CONSTRAINT `transaksi_item_specifications_vendor_id_foreign` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dumping data for table grafika-printing.transaksi_item_specifications: ~0 rows (approximately)
+-- Dumping data for table grafika-printing.transaksi_item_specifications: ~18 rows (approximately)
+DELETE FROM `transaksi_item_specifications`;
+INSERT INTO `transaksi_item_specifications` (`id`, `vendor_id`, `transaksi_item_id`, `spesifikasi_produk_id`, `bahan_id`, `value`, `input_type`, `price`, `created_at`, `updated_at`) VALUES
+	(1, 1, 1, 1, 1, '1', 'select', 45000.00, '2025-03-27 14:28:56', '2025-03-27 14:28:56'),
+	(2, 1, 1, 2, 1, '11.5', 'number', 517500.00, '2025-03-27 14:28:56', '2025-03-27 14:28:56'),
+	(3, 1, 1, 3, 2, '2', 'select', 20000.00, '2025-03-27 14:28:56', '2025-03-27 14:28:56'),
+	(4, 1, 2, 1, 1, '1', 'select', 45000.00, '2025-03-27 15:22:41', '2025-03-27 15:22:41'),
+	(5, 1, 2, 2, 1, '11.5', 'number', 517500.00, '2025-03-27 15:22:41', '2025-03-27 15:22:41'),
+	(6, 1, 2, 3, 2, '2', 'select', 20000.00, '2025-03-27 15:22:41', '2025-03-27 15:22:41'),
+	(7, 1, 3, 1, 1, '1', 'select', 45000.00, '2025-03-27 15:29:16', '2025-03-27 15:29:16'),
+	(8, 1, 3, 2, 1, '11.5', 'number', 517500.00, '2025-03-27 15:29:16', '2025-03-27 15:29:16'),
+	(9, 1, 3, 3, 2, '2', 'select', 20000.00, '2025-03-27 15:29:16', '2025-03-27 15:29:16'),
+	(10, 1, 4, 1, 1, '1', 'select', 45000.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(11, 1, 4, 2, 1, '11.5', 'number', 517500.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(12, 1, 4, 3, 2, '2', 'select', 20000.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(13, 1, 5, 1, 1, '1', 'select', 45000.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(14, 1, 5, 2, 1, '120.5', 'number', 4820000.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(15, 1, 5, 3, 2, '2', 'select', 20000.00, '2025-03-27 15:39:52', '2025-03-27 15:39:52'),
+	(19, 1, 9, 1, 1, '1', 'select', 3780000.00, '2025-04-07 21:20:02', '2025-04-07 21:20:02'),
+	(20, 1, 9, 2, 1, '11.5', 'number', 43470000.00, '2025-04-07 21:20:02', '2025-04-07 21:20:02'),
+	(21, 1, 9, 3, 2, '2', 'select', 1680000.00, '2025-04-07 21:20:02', '2025-04-07 21:20:02');
 
 -- Dumping structure for table grafika-printing.users
 DROP TABLE IF EXISTS `users`;
@@ -449,9 +549,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.users: ~2 rows (approximately)
-REPLACE INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `usertype`, `remember_token`, `created_at`, `updated_at`) VALUES
-	(1, 'Dev', 'dev@gmail.com', '2025-03-15 09:22:44', '$2y$12$DIzXpDUVhVC0iP8.97483O0ybwz5NYb3hwr/SRbOj896DhVVVyoTW', 'dev', 'F4WS3uhENZ', '2025-03-15 09:22:44', '2025-03-15 09:22:44'),
-	(2, 'Vendor', 'vendor@gmail.com', '2025-03-15 09:22:44', '$2y$12$DIzXpDUVhVC0iP8.97483O0ybwz5NYb3hwr/SRbOj896DhVVVyoTW', 'vendor', 'MlhvYC7a4x', '2025-03-15 09:22:44', '2025-03-15 09:22:44');
+DELETE FROM `users`;
+INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `usertype`, `remember_token`, `created_at`, `updated_at`) VALUES
+	(1, 'Dev', 'dev@gmail.com', '2025-03-26 20:31:59', '$2y$12$dm4QsIvNB5X8C3Kf3DVe9.8MW0Sb5kx4uZwOExY9GnvjWa150TZqi', 'dev', 'SiwmZdrEOmg04t0hKNG7KCXnHmnh22XEvnQZOBjtBgCdcWhkspv6sQSQAx0n', '2025-03-26 20:31:59', '2025-03-26 20:31:59'),
+	(2, 'Vendor', 'vendor@gmail.com', '2025-03-26 20:31:59', '$2y$12$dm4QsIvNB5X8C3Kf3DVe9.8MW0Sb5kx4uZwOExY9GnvjWa150TZqi', 'vendor', 'QQFSdGuJVDHEnEfaq9KPMqvvcCYXAg2HdefDFna57txmDHwEVsFittosVazS', '2025-03-26 20:31:59', '2025-03-26 20:31:59');
 
 -- Dumping structure for table grafika-printing.vendors
 DROP TABLE IF EXISTS `vendors`;
@@ -472,8 +573,9 @@ CREATE TABLE IF NOT EXISTS `vendors` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.vendors: ~1 rows (approximately)
-REPLACE INTO `vendors` (`id`, `name`, `email`, `phone`, `address`, `logo`, `website`, `is_active`, `created_at`, `updated_at`) VALUES
-	(1, 'Grafika Printing', 'grafika@gmail.com', '081234567890', 'Jl. Grafika No. 1', NULL, 'grafika-printing.com', 1, '2025-03-15 09:22:44', '2025-03-15 09:22:44');
+DELETE FROM `vendors`;
+INSERT INTO `vendors` (`id`, `name`, `email`, `phone`, `address`, `logo`, `website`, `is_active`, `created_at`, `updated_at`) VALUES
+	(1, 'Grafika Printing', 'grafika@gmail.com', '081234567890', 'Jl. Grafika No. 1', '1743021207.png', 'https://grafika-printing.com', 1, '2025-03-26 20:31:59', '2025-03-26 20:33:27');
 
 -- Dumping structure for table grafika-printing.vendor_user
 DROP TABLE IF EXISTS `vendor_user`;
@@ -491,7 +593,8 @@ CREATE TABLE IF NOT EXISTS `vendor_user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Dumping data for table grafika-printing.vendor_user: ~1 rows (approximately)
-REPLACE INTO `vendor_user` (`id`, `vendor_id`, `user_id`, `created_at`, `updated_at`) VALUES
+DELETE FROM `vendor_user`;
+INSERT INTO `vendor_user` (`id`, `vendor_id`, `user_id`, `created_at`, `updated_at`) VALUES
 	(1, 1, 2, NULL, NULL);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
