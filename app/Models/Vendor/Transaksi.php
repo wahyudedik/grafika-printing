@@ -36,7 +36,7 @@ class Transaksi extends TenantModel
         'terbayar' => 'decimal:2',
         'kembali' => 'decimal:2',
         'status' => 'string',
-        'tanggal_dibuat' => 'datetime',
+        'tanggal_dibuat' => 'datetime', 
         'estimasi_selesai' => 'datetime',
         'progress_percentage' => 'integer'
     ];

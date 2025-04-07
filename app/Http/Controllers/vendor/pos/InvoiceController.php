@@ -22,7 +22,7 @@ class InvoiceController extends Controller
                 'transaksiItem.produk',
                 'transaksiItem.transaksiItemSpecifications.spesifikasiProduk.spesifikasi',
                 'transaksiItem.transaksiItemSpecifications.bahan',
-                'pelanggan',
+                'pelanggan', 
                 'vendor',
             ])->where('vendor_id', $vendor->id)
                 ->findOrFail($transaksi->id);
@@ -81,8 +81,9 @@ class InvoiceController extends Controller
 
             // Let CSS handle the width instead of setting paper size
             $pdf = Pdf::loadView('pos.print-invoice', compact('transaksi', 'logoBase64'))
-                ->setOptions($options);
-
+                ->setOptions($options)
+                ->setPaper([0, 0, 283.46, 283.46], 'portrait');
+                
             return $pdf->download("invoice-{$transaksi->kode}.pdf");
         } catch (\Exception $e) {
             Log::error('Error downloading invoice: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());

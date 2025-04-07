@@ -20,7 +20,7 @@
                                     <path d="M12 4l0 12"></path>
                                 </svg>Download PDF
                             </a>
-                            <a href="#" onclick="window.print()" class="btn btn-outline-secondary ms-2">
+                            <a href="#" id="print-invoice" class="btn btn-outline-secondary ms-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer me-2"
                                     width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -33,11 +33,21 @@
                                     </path>
                                 </svg>Print
                             </a>
+                            <a href="#" id="print-preview" class="btn btn-outline-info ms-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye me-2"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                                </svg>Preview
+                            </a>
                         </div>
                     </div>
                     <div class="card-body">
                         <!-- Invoice yang akan diprint -->
-                        <div class="invoice-print-container mx-auto">
+                        <div id="invoice-container" class="invoice-print-container mx-auto">
+                            <!-- Konten invoice tetap sama seperti sebelumnya -->
                             <div class="header">
                                 @php
                                     $vendorName =
@@ -65,6 +75,7 @@
                                 </div>
                             </div>
 
+                            <!-- Sisa konten invoice tetap sama -->
                             <div class="info d-flex mb-5">
                                 <div class="col-6">
                                     <p>No: {{ $transaksi->kode }}</p>
@@ -103,20 +114,15 @@
                                                             </span>
                                                             <span style="font-weight: 500;">
                                                                 @php
-                                                                    // Debug info
-                                                                    // dd($spec->toArray());
-
                                                                     $hargaSatuan = 0;
                                                                     $totalHarga = $spec->price ?? 0;
                                                                     $nilai = $spec->nilai_spesifikasi ?? null;
 
-                                                                    // Jika nilai_spesifikasi kosong, coba cek field value
                                                                     if (empty($nilai) && isset($spec->value)) {
                                                                         $nilai = $spec->value;
                                                                     }
 
                                                                     if ($spec->input_type == 'select' && $spec->bahan) {
-                                                                        // Untuk tipe select (pilihan bahan)
                                                                         echo $spec->bahan->nama_bahan .
                                                                             ': ' .
                                                                             $item->kuantitas .
@@ -133,7 +139,6 @@
                                                                         $nilai &&
                                                                         $spec->spesifikasiProduk->spesifikasi
                                                                     ) {
-                                                                        // Untuk tipe numerik (ukuran, dll)
                                                                         if ($totalHarga > 0 && $nilai > 0) {
                                                                             $hargaSatuan = $totalHarga / $nilai;
                                                                         }
@@ -158,34 +163,6 @@
                                                 @endforeach
                                             </div>
                                         @endif
-
-                                        <!-- Estimasi Waktu Produksi -->
-                                        {{-- @php
-                                            $estimatedTime = 0;
-                                            if (isset($item->produk) && $item->produk->estimasiProduk) {
-                                                $estimatedTime = $item->produk->getEstimatedProductionTime(
-                                                    $item->kuantitas,
-                                                );
-                                            }
-                                        @endphp
-                                        <div
-                                            style="display: flex; justify-content: space-between; margin-bottom: 3px; border-bottom: 1px dashed #ccc; padding-bottom: 3px;">
-                                            <span style="color: #666;">Estimasi Waktu Produksi</span>
-                                            <span style="font-weight: 500;">{{ $estimatedTime }} menit</span>
-                                        </div> --}}
-
-                                        <!-- Alat Produksi -->
-                                        {{-- <div
-                                            style="display: flex; justify-content: space-between; margin-bottom: 3px; border-bottom: 1px dashed #ccc; padding-bottom: 3px;">
-                                            <span style="color: #666;">Alat Produksi</span>
-                                            <span style="font-weight: 500;">
-                                                @if (isset($item->produk) && $item->produk->estimasiProduk)
-                                                    {{ $item->produk->estimasiProduk->pluck('alat.nama_alat')->filter()->implode(', ') ?: 'Tidak ada alat' }}
-                                                @else
-                                                    Tidak ada alat
-                                                @endif
-                                            </span>
-                                        </div> --}}
 
                                         <!-- Total Harga Item -->
                                         <div
@@ -231,7 +208,6 @@
                                 </table>
                             </div>
 
-
                             <div class="footer">
                                 <p>Terima kasih telah berbelanja!</p>
                                 <p>Estimasi Selesai:
@@ -244,7 +220,26 @@
         </div>
     </div>
 
-    <style>
+    <!-- Modal untuk preview struk -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Preview Struk POS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex justify-content-center">
+                    <div id="preview-container" class="pos-receipt-preview"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" id="print-from-preview">Print</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <style>
         /* Styles untuk tampilan invoice di halaman */
         .invoice-print-container {
             font-family: Arial, sans-serif;
@@ -302,8 +297,33 @@
             padding-top: 5px;
         }
 
+        /* Preview modal styles */
+        .pos-receipt-preview {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            width: 7.5cm;
+            padding: 10px;
+            background: #fff;
+            color: #000;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
         /* Styles khusus untuk print */
         @media print {
+            @page {
+                size: 80mm auto; /* Lebar 80mm (8cm) dan tinggi otomatis */
+                margin: 0mm;
+            }
+            
+            html, body {
+                width: 75mm; /* 7.5cm */
+                margin: 0;
+                padding: 0;
+            }
+            
             body * {
                 visibility: hidden;
             }
@@ -317,9 +337,9 @@
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 7.5cm;
+                width: 75mm; /* 7.5cm */
                 margin: 0;
-                padding: 0.5cm;
+                padding: 5mm;
                 border: none;
                 box-shadow: none;
             }
@@ -328,9 +348,112 @@
             .header-menu,
             .footer-menu,
             .btn,
-            .card-header {
+            .card-header,
+            .modal,
+            .modal-backdrop {
                 display: none !important;
+            }
+            
+            /* Pastikan semua konten muat dalam lebar kertas */
+            .items, .item-details, .total, .footer {
+                width: 100%;
+                max-width: 65mm; /* Sedikit lebih kecil dari lebar kertas */
+            }
+            
+            /* Ukuran font yang lebih kecil untuk print */
+            .header h2 {
+                font-size: 14px;
+                margin: 0;
+            }
+            
+            .header p {
+                font-size: 9px;
+                margin: 1px 0;
+            }
+            
+            .info {
+                font-size: 9px;
+            }
+            
+            .items {
+                font-size: 9px;
+            }
+            
+            .item-details {
+                font-size: 8px;
+            }
+            
+            .footer {
+                font-size: 9px;
             }
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fungsi untuk menampilkan preview dalam modal
+            document.getElementById('print-preview').addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Salin konten invoice ke dalam modal preview
+                const invoiceContent = document.getElementById('invoice-container').cloneNode(true);
+                const previewContainer = document.getElementById('preview-container');
+                
+                // Kosongkan container preview dan tambahkan konten baru
+                previewContainer.innerHTML = '';
+                previewContainer.appendChild(invoiceContent);
+                
+                // Tampilkan modal
+                const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+                previewModal.show();
+            });
+            
+            // Fungsi untuk mencetak dari tombol print biasa
+            document.getElementById('print-invoice').addEventListener('click', function(e) {
+                e.preventDefault();
+                printReceipt();
+            });
+            
+            // Fungsi untuk mencetak dari modal preview
+            document.getElementById('print-from-preview').addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Sembunyikan modal sebelum mencetak
+                const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
+                previewModal.hide();
+                
+                // Tunggu modal hilang sebelum mencetak
+                setTimeout(function() {
+                    printReceipt();
+                }, 500);
+            });
+            
+            // Fungsi utama untuk mencetak
+            function printReceipt() {
+                // Atur pengaturan printer sebelum mencetak
+                const style = document.createElement('style');
+                style.id = 'print-style';
+                style.innerHTML = `
+                    @page {
+                        size: 80mm auto; /* Lebar 80mm (8cm) dan tinggi otomatis */
+                        margin: 0;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // Tunggu sebentar agar style diterapkan
+                setTimeout(function() {
+                    window.print();
+                    // Hapus style setelah mencetak
+                    setTimeout(function() {
+                        const printStyle = document.getElementById('print-style');
+                        if (printStyle) {
+                            document.head.removeChild(printStyle);
+                        }
+                    }, 1000);
+                }, 100);
+            }
+        });
+    </script>
 @endsection
+

@@ -22,7 +22,7 @@ class TransaksiItemSpecifications extends TenantModel
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'price' => 'decimal:2', 
         'vendor_id' => 'integer',
         'transaksi_item_id' => 'integer',
         'spesifikasi_produk_id' => 'integer',

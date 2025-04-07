@@ -11,7 +11,7 @@
             padding: 0;
             width: 7.5cm;
         }
-        
+
         /* Base styles optimized for 7.5cm width */
         body {
             font-family: Arial, sans-serif;
@@ -164,15 +164,17 @@
         <!-- HEADER SECTION -->
         <div class="header">
             @php
-                $vendorName = $transaksi->vendor->name ?? ($transaksi->vendor->nama_vendor ?? 'Bamboo Digital Printing');
-                $vendorAddress = $transaksi->vendor->address ?? ($transaksi->vendor->alamat ?? 'Pesantren Peterongan Jombang');
+                $vendorName =
+                    $transaksi->vendor->name ?? ($transaksi->vendor->nama_vendor ?? 'Bamboo Digital Printing');
+                $vendorAddress =
+                    $transaksi->vendor->address ?? ($transaksi->vendor->alamat ?? 'Pesantren Peterongan Jombang');
                 $vendorPhone = $transaksi->vendor->phone ?? ($transaksi->vendor->telepon ?? '081-515-876-755');
                 $vendorEmail = $transaksi->vendor->email ?? 'infografikaprint@gmail.com';
             @endphp
 
             <div class="text-center">
                 <!-- Logo with base64 encoding -->
-                @if(isset($logoBase64) && $logoBase64)
+                @if (isset($logoBase64) && $logoBase64)
                     <img src="{{ $logoBase64 }}" alt="Logo" class="logo-img">
                 @endif
                 <h2>{{ $vendorName }}</h2>
@@ -301,7 +303,7 @@
             </tr>
             <tr>
                 <td style="text-align: left;">Terbayar</td>
-                                <td style="text-align: right;">
+                <td style="text-align: right;">
                     Rp {{ number_format($transaksi->terbayar, 0, ',', '.') }}
                 </td>
             </tr>
@@ -322,4 +324,3 @@
 </body>
 
 </html>
-_

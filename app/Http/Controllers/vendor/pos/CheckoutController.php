@@ -91,7 +91,7 @@ class CheckoutController extends Controller
                         'vendor_id' => $vendor->id,
                         'spesifikasi_produk_id' => $specId,
                         'bahan_id' => $spec['bahan_id'],
-                        'nilai_spesifikasi' => $spec['value'],
+                        'value' => $spec['value'],  // Ubah dari 'nilai_spesifikasi' menjadi 'value'
                         'input_type' => $spec['input_type'],
                         'price' => $spec['price']
                     ]);
@@ -213,7 +213,7 @@ class CheckoutController extends Controller
                     'success' => false,
                     'message' => 'Failed to create customer: ' . $e->getMessage()
                 ], 500);
-            }
+            } 
 
             return redirect()->back()
                 ->with('toast_error', 'Failed to create customer: ' . $e->getMessage())

@@ -504,7 +504,8 @@ class TransaksiController extends Controller
         ];
 
         $pdf = PDF::loadView('transaksi.invoice', compact('transaksi', 'logoBase64'))
-            ->setOptions($options);
+            ->setOptions($options)
+            ->setPaper([0, 0, 283.46, 283.46], 'portrait');
 
         return $pdf->stream("invoice-{$transaksi->kode}.pdf");
     }

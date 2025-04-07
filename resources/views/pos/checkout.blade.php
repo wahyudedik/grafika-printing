@@ -25,7 +25,7 @@
         </div>
     </div>
 
-    <div class="col-md-12 mt-4">
+    <div class="col-md-12 mt-4"> 
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
                 <form id="checkoutForm" action="{{ route('pos.checkout.process') }}" method="POST" data-no-loading>
