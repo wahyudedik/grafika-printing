@@ -227,7 +227,7 @@
                 // Add estimate row
                 addEstimateButton.addEventListener('click', function() {
                     addEstimateRow();
-                });
+                }); 
 
                 function addSpecificationRow() {
                     const rowId = `spec-row-${specRowCount}`;

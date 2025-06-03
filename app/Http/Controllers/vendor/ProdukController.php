@@ -401,7 +401,7 @@ class ProdukController extends Controller
             foreach ($produk->gambar as $image) {
                 $imagePath = public_path($image);
                 if (file_exists($imagePath)) {
-                    unlink($imagePath);
+                    unlink($imagePath); 
                 }
             }
         }

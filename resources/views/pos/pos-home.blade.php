@@ -148,7 +148,7 @@
                                                             <label class="form-label">
                                                                 {{ $spec->spesifikasi->nama_spesifikasi }}
                                                                 @if ($spec->wajib_diisi)
-                                                                    <span class="text-danger">*</span>
+                                                                    <span class="text-danger">*</span> 
                                                                 @endif
                                                             </label>
 

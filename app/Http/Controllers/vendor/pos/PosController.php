@@ -112,13 +112,20 @@ class PosController extends Controller
                 'product_id' => 'required|exists:produks,id',
                 'quantity' => 'required|integer|min:1',
                 'specifications' => 'required|array',
-                'specifications.*' => 'required'
             ]);
 
             // Dapatkan vendor dari user yang sedang login
             $vendor = Auth::user()->vendorUser->first();
-            $product = Produk::where('vendor_id', $vendor->id)
+            $product = Produk::with('spesifikasiProduk')
+                ->where('vendor_id', $vendor->id)
                 ->findOrFail($request->product_id);
+
+            // Check if required specifications are provided
+            foreach ($product->spesifikasiProduk as $spec) {
+                if ($spec->wajib_diisi && (!isset($request->specifications[$spec->id]) || $request->specifications[$spec->id] === '')) {
+                    return redirect()->back()->with('toast_error', 'Please fill in all required specifications');
+                }
+            }
 
             $quantity = $request->quantity;
             $specifications = $request->specifications;
@@ -194,6 +201,7 @@ class PosController extends Controller
                 ->with('toast_error', 'Failed to add product to cart: ' . $e->getMessage());
         }
     }
+
     // Fungsi untuk menampilkan keranjang
     public function cart()
     {
