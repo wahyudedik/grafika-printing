@@ -21,7 +21,7 @@ use App\Http\Controllers\vendor\KategoriProdukController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::middleware(['auth', 'verified', 'dev'])->group(function () {
     Route::get('/administrator', [UserDashboardController::class, 'devDashboard'])
@@ -97,6 +97,11 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () 
     Route::get('/dashboard/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/dashboard/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/dashboard/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'verified', 'user'])->group(function () {
+    Route::get('/user/dashboard', [UserDashboardController::class, 'userDashboard'])
+        ->name('user.dashboard');
 });
 
 require __DIR__ . '/auth.php';

@@ -191,4 +191,9 @@ class UserDashboardController extends Controller
             return redirect()->back()->with('toast_error', 'Error loading dashboard: ' . $e->getMessage());
         }
     }
+
+    public function userDashboard()
+    {
+        return view('user.dashboard');
+    }
 }
