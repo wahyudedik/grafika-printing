@@ -28,6 +28,12 @@ class DatabaseSeeder extends Seeder
             'usertype' => 'vendor',
         ]);
 
+        User::factory()->create([
+            'name' => 'User',
+            'email' => 'user@gmail.com',
+            'usertype' => 'user',
+        ]);
+
         Vendor::create([
             'name' => 'Grafika Printing',
             'email' => 'grafika@gmail.com',

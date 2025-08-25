@@ -21,7 +21,7 @@ class ProfileController extends Controller
 
         return view('profile.edit', [
             'user' => $user,
-            'vendor' => $vendor,
+            'vendor' => $vendor, 
         ]);
     }
 
