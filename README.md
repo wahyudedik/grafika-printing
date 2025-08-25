@@ -333,20 +333,57 @@
 - [x] Production Estimation
 - [x] Materials & Equipment Management
 - [x] Sales Reporting
-- [] Email Notifications
-- [] Stock Notification
-- [] Switch Multi Vendor Dashboard
-- [] User role dan permission
-- [] profile user
-- [] profile user vendor
+- [ ] Email Notifications
+- [ ] Stock Notification
+- [ ] Switch Multi Vendor Dashboard
+- [ ] User role dan permission
+- [ ] profile user
+- [ ] profile user vendor
 
+### Fitur Lelang
+- [ ] **User Lelang**  
+    Role baru untuk pengguna yang ingin membuat lelang.  
+    Dashboard sederhana khusus user lelang.
+
+- [ ] **Alur Lelang**  
+    User membuat permintaan cetak (spesifikasi, file, deadline).  
+    Vendor dari sistem POS bisa memberikan penawaran harga.  
+    User memilih pemenang (manual/otomatis).
+
+- [ ] **Manajemen Lelang oleh Superadmin**  
+    Superadmin bisa melihat, menyetujui, dan menghapus lelang.  
+    Dapat melihat seluruh penawaran dari vendor.
+
+- [ ] **Manajemen User Lelang oleh Superadmin**  
+    Superadmin dapat melihat daftar user lelang, aktivasi/nonaktif, dan edit data.
+
+- [ ] **Integrasi ke Transaksi POS**  
+    Setelah lelang dimenangkan, order otomatis masuk ke sistem POS vendor.
+
+- [ ] **Tracking Pesanan + COD Ongkos Kirim**  
+    Vendor mengatur status pesanan: Menunggu – Diproses – Dicetak – Dikirim – Selesai.  
+    User bisa melacak pesanan dari dashboard.  
+    Fitur COD ongkir: ongkir dibayar langsung ke kurir.  
+    Ongkir dihitung via RajaOngkir API atau diinput manual.
+
+- [ ] **Wallet Vendor + Withdraw**  
+    Setelah pembayaran diterima dari user, dana otomatis masuk ke wallet vendor.  
+    Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Midtrans).
+
+- [ ] **Payment Gateway (Midtrans)**  
+    Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
+    Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
+    Otomatisasi status pembayaran dan penerusan dana.
+    Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
+    Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
+    Otomatisasi status pembayaran dan penerusan dana.
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)
 - [x] User Statistics
 - [x] Vendor Management
 - [x] User Management
-- [] System Monitoring Laravel Pulse
+- [ ] System Monitoring Laravel Pulse
 
 ### Vendor Dashboard
 - [x] Sales Analytics
