@@ -353,148 +353,74 @@
         <div class="container-fluid px-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="h3 mb-0">PROJEK LELANG</h2>
-                <a href="#" class="btn btn-danger">Lihat Semua</a>
+                @auth
+                    @if(auth()->user()->usertype === 'user')
+                        <a href="{{ route('auctions.index') }}" class="btn btn-danger">Lihat Semua</a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-danger">Login untuk Melihat</a>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-danger">Login untuk Melihat</a>
+                @endauth
             </div>
+            
+            @if($auctions->count() > 0)
             <div class="row g-4">
+                @foreach($auctions as $auction)
                 <div class="col-md-4">
                     <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=220&fit=crop"
-                            alt="Bendera Printing" class="project-image">
+                        <img src="https://images.unsplash.com/photo-{{ rand(1500000000000, 1600000000000) }}?w=400&h=220&fit=crop"
+                            alt="{{ $auction->title }}" class="project-image">
                         <div class="project-details">
-                            <h5 class="card-title">Bendera Printing Bahan Kain Satin Tebal</h5>
+                            <h5 class="card-title">{{ $auction->title }}</h5>
                             <div class="project-status">
-                                <div>Jumlah Produksi: 40.000 pcs</div>
-                                <div>Budget: Rp. 120.000</div>
-                                <div>Deadline Pengerjakan: 10 Hari</div>
+                                <div>Jumlah Produksi: {{ number_format($auction->quantity) }} pcs</div>
+                                <div>Budget: Rp {{ number_format($auction->budget) }}</div>
+                                <div>Deadline: {{ $auction->deadline->format('d M Y') }}</div>
                             </div>
                             <div class="project-status">
-                                <div>Status: Masih Memilih</div>
-                                <div>Batas Penawaran: 25 Februari 2023</div>
-                                <div>Pelamar: 4 Vendor</div>
+                                <div>Status: {{ $auction->status === 'active' ? 'Masih Memilih' : ucfirst($auction->status) }}</div>
+                                <div>Kategori: {{ $auction->category }}</div>
+                                <div>Oleh: {{ $auction->user->name }}</div>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm">PENAWARAN</a>
-                                <a href="#" class="btn btn-secondary btn-sm">DETAIL</a>
+                                @auth
+                                    @if(auth()->user()->usertype === 'user')
+                                        <a href="{{ route('auctions.show', $auction) }}" class="btn btn-success btn-sm">DETAIL</a>
+                                    @else
+                                        <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
+                                    @endif
+                                @else
+                                    <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
+                                @endauth
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=220&fit=crop"
-                            alt="Cetak Amplop Lebaran" class="project-image">
-                        <div class="project-details">
-                            <h5 class="card-title">Cetak Amplop lebaran</h5>
-                            <div class="project-status">
-                                <div>Jumlah Produksi: 40.000 pcs</div>
-                                <div>Budget: Rp. 120.000</div>
-                                <div>Deadline Pengerjakan: 10 Hari</div>
-                            </div>
-                            <div class="project-status">
-                                <div>Status: Masih Memilih</div>
-                                <div>Batas Penawaran: 25 Februari 2023</div>
-                                <div>Pelamar: 4 Vendor</div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm">PENAWARAN</a>
-                                <a href="#" class="btn btn-secondary btn-sm">DETAIL</a>
-                            </div>
-                        </div>
+                @endforeach
+            </div>
+            @else
+            <div class="text-center py-5">
+                <div class="empty">
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128" height="128" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/>
+                            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>
+                        </svg>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=220&fit=crop"
-                            alt="Cetak Kalender 2023" class="project-image">
-                        <div class="project-details">
-                            <h5 class="card-title">Cetak Kalender 2023</h5>
-                            <div class="project-status">
-                                <div>Jumlah Produksi: 40.000 pcs</div>
-                                <div>Budget: Rp. 120.000</div>
-                                <div>Deadline Pengerjakan: 10 Hari</div>
-                            </div>
-                            <div class="project-status">
-                                <div>Status: Masih Memilih</div>
-                                <div>Batas Penawaran: 25 Februari 2023</div>
-                                <div>Pelamar: 4 Vendor</div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm">PENAWARAN</a>
-                                <a href="#" class="btn btn-secondary btn-sm">DETAIL</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=220&fit=crop"
-                            alt="Kaos Partai Pemilu" class="project-image">
-                        <div class="project-details">
-                            <h5 class="card-title">Kaos Partai Pemilu</h5>
-                            <div class="project-status">
-                                <div>Jumlah Produksi: 40.000 pcs</div>
-                                <div>Budget: Rp. 120.000</div>
-                                <div>Deadline Pengerjakan: 10 Hari</div>
-                            </div>
-                            <div class="project-status">
-                                <div>Status: Masih Memilih</div>
-                                <div>Batas Penawaran: 25 Februari 2023</div>
-                                <div>Pelamar: 4 Vendor</div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm">PENAWARAN</a>
-                                <a href="#" class="btn btn-secondary btn-sm">DETAIL</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=220&fit=crop"
-                            alt="Cetak Kaos Konser" class="project-image">
-                        <div class="project-details">
-                            <h5 class="card-title">Cetak Kaos Konser</h5>
-                            <div class="project-status">
-                                <div>Jumlah Produksi: 40.000 pcs</div>
-                                <div>Budget: Rp. 120.000</div>
-                                <div>Deadline Pengerjakan: 10 Hari</div>
-                            </div>
-                            <div class="project-status">
-                                <div>Status: Masih Memilih</div>
-                                <div>Batas Penawaran: 25 Februari 2023</div>
-                                <div>Pelamar: 4 Vendor</div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm">PENAWARAN</a>
-                                <a href="#" class="btn btn-secondary btn-sm">DETAIL</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=220&fit=crop"
-                            alt="Buku Yasin Hardcover Emas" class="project-image">
-                        <div class="project-details">
-                            <h5 class="card-title">Buku Yasin Hardcover emas</h5>
-                            <div class="project-status">
-                                <div>Jumlah Produksi: 40.000 pcs</div>
-                                <div>Budget: Rp. 120.000</div>
-                                <div>Deadline Pengerjakan: 10 Hari</div>
-                            </div>
-                            <div class="project-status">
-                                <div>Status: Masih Memilih</div>
-                                <div>Batas Penawaran: 25 Februari 2023</div>
-                                <div>Pelamar: 4 Vendor</div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="#" class="btn btn-success btn-sm">PENAWARAN</a>
-                                <a href="#" class="btn btn-secondary btn-sm">DETAIL</a>
-                            </div>
-                        </div>
+                    <p class="empty-title">Belum ada proyek lelang</p>
+                    <p class="empty-subtitle text-muted">
+                        Belum ada permintaan cetak yang tersedia saat ini. Daftar sebagai user untuk membuat permintaan pertama!
+                    </p>
+                    <div class="empty-action">
+                        <a href="{{ route('register') }}" class="btn btn-primary">Daftar Sekarang</a>
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </section>
 

@@ -1,4 +1,4 @@
-@extends('layouts.layouts_dashboard')
+@extends('layouts.vendor')
 
 @section('title', 'Detail Pelanggan')
 @section('content')

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             ->alias([
                 'dev' => \App\Http\Middleware\DevMiddleware::class,
                 'vendor' => \App\Http\Middleware\VendorMiddleware::class,
+                'user' => \App\Http\Middleware\UserMiddleware::class,
                 'tenants' => \App\Http\Middleware\SetTenantContext::class,
                 'Tenant' => \App\Facades\Tenant::class,
             ])

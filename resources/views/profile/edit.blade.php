@@ -1,4 +1,4 @@
-@extends('layouts.layouts_dashboard')
+@extends('layouts.user')
 
 @section('title', 'Edit Profile')
 
@@ -21,73 +21,75 @@
                         @csrf
                         @method('patch')
 
-                        <h4 class="mb-3">Vendor Information</h4>
-                        <div class="row mb-4">
-                            <div class="col-md-4 mb-3">
-                                <div class="form-group">
-                                    <label class="form-label">Current Logo</label>
-                                    @if ($vendor->logo)
-                                        <img src="{{ asset('vendors_logo/' . $vendor->logo) }}" alt="Vendor Logo"
-                                            class="img-fluid rounded mb-2" style="max-height: 150px;">
-                                    @else
-                                        <div class="text-muted">No logo uploaded</div>
-                                    @endif
+                        @if (auth()->user()->usertype === 'vendor' && isset($vendor))
+                            <h4 class="mb-3">Vendor Information</h4>
+                            <div class="row mb-4">
+                                <div class="col-md-4 mb-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Current Logo</label>
+                                        @if ($vendor->logo)
+                                            <img src="{{ asset('vendors_logo/' . $vendor->logo) }}" alt="Vendor Logo"
+                                                class="img-fluid rounded mb-2" style="max-height: 150px;">
+                                        @else
+                                            <div class="text-muted">No logo uploaded</div>
+                                        @endif
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="logo">Update Logo</label>
+                                        <input type="file" class="form-control" id="logo" name="logo">
+                                        @error('logo')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label" for="logo">Update Logo</label>
-                                    <input type="file" class="form-control" id="logo" name="logo">
-                                    @error('logo')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
+                                <div class="col-md-8">
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="vendor_name">Company Name</label>
+                                        <input type="text" class="form-control" id="vendor_name" name="vendor_name"
+                                            value="{{ old('vendor_name', $vendor->name) }}" required>
+                                        @error('vendor_name')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="vendor_email">Company Email</label>
+                                        <input type="email" class="form-control" id="vendor_email" name="vendor_email"
+                                            value="{{ old('vendor_email', $vendor->email) }}" required>
+                                        @error('vendor_email')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="phone">Phone Number</label>
+                                        <input type="text" class="form-control" id="phone" name="phone"
+                                            value="{{ old('phone', $vendor->phone) }}" required>
+                                        @error('phone')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="website">Website <span
+                                                class="text-muted">(optional)</span></label>
+                                        <input type="url" class="form-control" id="website" name="website"
+                                            value="{{ old('website', $vendor->website) }}">
+                                        @error('website')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label" for="address">Address</label>
+                                        <textarea class="form-control" id="address" name="address" rows="3" required>{{ old('address', $vendor->address) }}</textarea>
+                                        @error('address')
+                                            <div class="text-danger mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-md-8">
-                                <div class="form-group mb-3">
-                                    <label class="form-label" for="vendor_name">Company Name</label>
-                                    <input type="text" class="form-control" id="vendor_name" name="vendor_name"
-                                        value="{{ old('vendor_name', $vendor->name) }}" required>
-                                    @error('vendor_name')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label class="form-label" for="vendor_email">Company Email</label>
-                                    <input type="email" class="form-control" id="vendor_email" name="vendor_email"
-                                        value="{{ old('vendor_email', $vendor->email) }}" required>
-                                    @error('vendor_email')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label class="form-label" for="phone">Phone Number</label>
-                                    <input type="text" class="form-control" id="phone" name="phone"
-                                        value="{{ old('phone', $vendor->phone) }}" required>
-                                    @error('phone')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label class="form-label" for="website">Website <span
-                                            class="text-muted">(optional)</span></label>
-                                    <input type="url" class="form-control" id="website" name="website"
-                                        value="{{ old('website', $vendor->website) }}">
-                                    @error('website')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group mb-3">
-                                    <label class="form-label" for="address">Address</label>
-                                    <textarea class="form-control" id="address" name="address" rows="3" required>{{ old('address', $vendor->address) }}</textarea>
-                                    @error('address')
-                                        <div class="text-danger mt-1">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+                        @endif
 
                         <h4 class="mb-3">User Information</h4>
                         <div class="row mb-3">

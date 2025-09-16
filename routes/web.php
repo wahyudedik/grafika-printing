@@ -20,7 +20,14 @@ use App\Http\Controllers\vendor\pos\CheckoutController;
 use App\Http\Controllers\vendor\KategoriProdukController;
 
 Route::get('/', function () {
-    return view('welcome');
+    $auctions = \App\Models\Auction::with(['user'])
+        ->where('status', 'active')
+        ->where('deadline', '>', now())
+        ->orderBy('created_at', 'desc')
+        ->limit(6)
+        ->get();
+
+    return view('welcome', compact('auctions'));
 })->name('welcome');
 
 Route::middleware(['auth', 'verified', 'dev'])->group(function () {
@@ -97,11 +104,33 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () 
     Route::get('/dashboard/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/dashboard/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/dashboard/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Auction bid routes for vendor
+    Route::prefix('/dashboard/auctions')->name('vendor.auctions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'index'])->name('index');
+        Route::get('/{auction}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'show'])->name('show');
+        Route::get('/{auction}/bid', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'create'])->name('bid');
+        Route::post('/{auction}/bid', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'store'])->name('store-bid');
+        Route::get('/bids/{bid}/edit', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'edit'])->name('edit-bid');
+        Route::put('/bids/{bid}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'update'])->name('update-bid');
+        Route::delete('/bids/{bid}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'destroy'])->name('destroy-bid');
+        Route::get('/my-bids', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'myBids'])->name('my-bids');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'user'])->group(function () {
     Route::get('/user/dashboard', [UserDashboardController::class, 'userDashboard'])
         ->name('user.dashboard');
+
+    // Profile routes for user
+    Route::get('/user/profile', [ProfileController::class, 'edit'])->name('user.profile.edit');
+    Route::patch('/user/profile', [ProfileController::class, 'update'])->name('user.profile.update');
+    Route::delete('/user/profile', [ProfileController::class, 'destroy'])->name('user.profile.destroy');
+
+    // Auction routes for user
+    Route::resource('auctions', \App\Http\Controllers\AuctionController::class);
+    Route::get('/user/auctions', [\App\Http\Controllers\AuctionController::class, 'myAuctions'])->name('auctions.my');
+    Route::post('/auctions/{auction}/close', [\App\Http\Controllers\AuctionController::class, 'closeAuction'])->name('auctions.close');
 });
 
 require __DIR__ . '/auth.php';

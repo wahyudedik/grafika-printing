@@ -17,11 +17,16 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         $user = $request->user();
-        $vendor = $user->vendorUser()->first();
+        $vendor = null;
+
+        // Only get vendor data if user is a vendor
+        if ($user->usertype === 'vendor') {
+            $vendor = $user->vendorUser()->first();
+        }
 
         return view('profile.edit', [
             'user' => $user,
-            'vendor' => $vendor, 
+            'vendor' => $vendor,
         ]);
     }
 
@@ -31,45 +36,47 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        
+
         // Update user profile
         $user = $request->user();
         $user->name = $validated['name'];
-        
+
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
-        
+
         $user->save();
-        
-        // Update vendor profile
-        $vendor = $user->vendorUser()->first();
-        if ($vendor) {
-            $vendorData = [
-                'name' => $validated['vendor_name'],
-                'email' => $validated['vendor_email'],
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
-                'website' => $validated['website'] ?? null,
-            ];
-            
-            if ($request->hasFile('logo')) {
-                // Delete old logo if exists
-                if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
-                    unlink(public_path('vendors_logo/' . $vendor->logo));
+
+        // Update vendor profile only if user is a vendor
+        if ($user->usertype === 'vendor') {
+            $vendor = $user->vendorUser()->first();
+            if ($vendor) {
+                $vendorData = [
+                    'name' => $validated['vendor_name'],
+                    'email' => $validated['vendor_email'],
+                    'phone' => $validated['phone'],
+                    'address' => $validated['address'],
+                    'website' => $validated['website'] ?? null,
+                ];
+
+                if ($request->hasFile('logo')) {
+                    // Delete old logo if exists
+                    if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
+                        unlink(public_path('vendors_logo/' . $vendor->logo));
+                    }
+
+                    $logo = $request->file('logo');
+                    $logoName = time() . '.' . $logo->getClientOriginalExtension();
+                    $logo->move(public_path('vendors_logo'), $logoName);
+                    $vendorData['logo'] = $logoName;
                 }
 
-                $logo = $request->file('logo');
-                $logoName = time() . '.' . $logo->getClientOriginalExtension();
-                $logo->move(public_path('vendors_logo'), $logoName);
-                $vendorData['logo'] = $logoName;
+                $vendor->update($vendorData);
+
+                return Redirect::route('profile.edit')->with('status', 'vendor-profile-updated');
             }
-            
-            $vendor->update($vendorData);
-            
-            return Redirect::route('profile.edit')->with('status', 'vendor-profile-updated');
         }
-        
+
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

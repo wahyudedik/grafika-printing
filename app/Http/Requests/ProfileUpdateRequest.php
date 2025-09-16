@@ -15,10 +15,10 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             // User profile fields
             'name' => ['required', 'string', 'max:255'],
-            'email' => [ 
+            'email' => [
                 'required',
                 'string',
                 'lowercase',
@@ -26,14 +26,20 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
-            
-            // Vendor profile fields
-            'vendor_name' => ['required', 'string', 'max:255'],
-            'vendor_email' => ['required', 'string', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:20'],
-            'address' => ['required', 'string'],
-            'website' => ['nullable', 'string', 'url', 'max:255'],
-            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
+
+        // Only require vendor fields if user is a vendor
+        if ($this->user()->usertype === 'vendor') {
+            $rules = array_merge($rules, [
+                'vendor_name' => ['required', 'string', 'max:255'],
+                'vendor_email' => ['required', 'string', 'email', 'max:255'],
+                'phone' => ['required', 'string', 'max:20'],
+                'address' => ['required', 'string'],
+                'website' => ['nullable', 'string', 'url', 'max:255'],
+                'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            ]);
+        }
+
+        return $rules;
     }
 }

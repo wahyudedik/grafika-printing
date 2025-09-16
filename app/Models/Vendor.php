@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Vendor\TransaksiItemSpecifications;
+use App\Models\AuctionBid;
+use App\Models\Auction;
 
 class Vendor extends Model
 {
@@ -139,5 +141,21 @@ class Vendor extends Model
     public function transaksiItemSpecifications()
     {
         return $this->hasMany(TransaksiItemSpecifications::class, 'vendor_id');
+    }
+
+    /**
+     * Get all auction bids for this vendor
+     */
+    public function auctionBids()
+    {
+        return $this->hasMany(AuctionBid::class, 'vendor_id');
+    }
+
+    /**
+     * Get auctions where this vendor is the winner
+     */
+    public function wonAuctions()
+    {
+        return $this->hasMany(Auction::class, 'winner_vendor_id');
     }
 }

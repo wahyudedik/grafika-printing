@@ -337,18 +337,18 @@
 - [ ] Stock Notification
 - [ ] Switch Multi Vendor Dashboard
 - [ ] User role dan permission
-- [ ] profile user
-- [ ] profile user vendor
+- [x] profile user
+- [x] profile user vendor
 
 ### Fitur Lelang
-- [ ] **User Lelang**  
+- [x] **User Lelang**  
     Role baru untuk pengguna yang ingin membuat lelang.  
     Dashboard sederhana khusus user lelang.
 
 - [ ] **Alur Lelang**  
     User membuat permintaan cetak (spesifikasi, file, deadline).  
     Vendor dari sistem POS bisa memberikan penawaran harga.  
-    User memilih pemenang (manual/otomatis).
+    User memilih pemenang (manual).
 
 - [ ] **Manajemen Lelang oleh Superadmin**  
     Superadmin bisa melihat, menyetujui, dan menghapus lelang.  
@@ -365,6 +365,7 @@
     User bisa melacak pesanan dari dashboard.  
     Fitur COD ongkir: ongkir dibayar langsung ke kurir.  
     Ongkir dihitung via RajaOngkir API atau diinput manual.
+    jika terkirim dan udah di terima barangnya, user dapat memberikan penilaian bintang dan komentar hasil kerja.
 
 - [ ] **Wallet Vendor + Withdraw**  
     Setelah pembayaran diterima dari user, dana otomatis masuk ke wallet vendor.  
@@ -377,6 +378,9 @@
     Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
     Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
     Otomatisasi status pembayaran dan penerusan dana.
+- [ ] **Tambahan menu atau desain baru**
+    desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
+    menambahkan menu untuk ke landingpage depan.
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)
