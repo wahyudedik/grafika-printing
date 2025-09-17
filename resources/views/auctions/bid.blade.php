@@ -39,7 +39,7 @@
                                             <input type="number"
                                                 class="form-control @error('bid_amount') is-invalid @enderror"
                                                 name="bid_amount" value="{{ old('bid_amount') }}"
-                                                placeholder="Masukkan harga penawaran" min="0" step="1000"
+                                                placeholder="Masukkan harga penawaran" min="0" step="1"
                                                 required>
                                             @error('bid_amount')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -178,6 +178,62 @@
                                         @endif
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendor Profile Card -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3 class="card-title">Profile Vendor</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                @if (auth()->user()->vendorUser->first()->logo)
+                                    <img src="{{ asset('storage/' . auth()->user()->vendorUser->first()->logo) }}"
+                                        alt="{{ auth()->user()->vendorUser->first()->name }}" class="rounded-circle me-3"
+                                        width="50" height="50">
+                                @else
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                        style="width: 50px; height: 50px;">
+                                        <span
+                                            class="text-white fw-bold">{{ substr(auth()->user()->vendorUser->first()->name, 0, 1) }}</span>
+                                    </div>
+                                @endif
+                                <div>
+                                    <div class="fw-bold">{{ auth()->user()->vendorUser->first()->name }}</div>
+                                    <div class="text-muted small">{{ auth()->user()->vendorUser->first()->email }}</div>
+                                </div>
+                            </div>
+
+                            <!-- Rating Display -->
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="me-2">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= floor(auth()->user()->vendorUser->first()->average_rating))
+                                                <i class="fas fa-star text-warning"></i>
+                                            @elseif($i - 0.5 <= auth()->user()->vendorUser->first()->average_rating)
+                                                <i class="fas fa-star-half-alt text-warning"></i>
+                                            @else
+                                                <i class="far fa-star text-warning"></i>
+                                            @endif
+                                        @endfor
+                                    </div>
+                                    <span
+                                        class="fw-bold">{{ number_format(auth()->user()->vendorUser->first()->average_rating, 1) }}</span>
+                                    <span
+                                        class="text-muted small ms-1">({{ auth()->user()->vendorUser->first()->rating_count }}
+                                        rating)</span>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <a href="{{ route('vendor.profile', auth()->user()->vendorUser->first()) }}"
+                                    class="btn btn-outline-primary btn-sm" target="_blank">
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    Lihat Profile Lengkap
+                                </a>
                             </div>
                         </div>
                     </div>

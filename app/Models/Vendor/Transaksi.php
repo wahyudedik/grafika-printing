@@ -14,7 +14,7 @@ use App\Models\Vendor\TransaksiItemSpecifications;
 class Transaksi extends TenantModel
 {
     protected $table = 'transaksis';
-    
+
     protected $fillable = [
         'vendor_id',
         'kode',
@@ -28,7 +28,17 @@ class Transaksi extends TenantModel
         'estimasi_selesai',
         'tanggal_dibuat',
         'progress_percentage',
-        'catatan'
+        'catatan',
+        'tracking_status',
+        'is_cod',
+        'ongkir',
+        'kurir',
+        'no_resi',
+        'alamat_pengiriman',
+        'diproses_at',
+        'dicetak_at',
+        'dikirim_at',
+        'selesai_at'
     ];
 
     protected $casts = [
@@ -36,9 +46,15 @@ class Transaksi extends TenantModel
         'terbayar' => 'decimal:2',
         'kembali' => 'decimal:2',
         'status' => 'string',
-        'tanggal_dibuat' => 'datetime', 
+        'tanggal_dibuat' => 'datetime',
         'estimasi_selesai' => 'datetime',
-        'progress_percentage' => 'integer'
+        'progress_percentage' => 'integer',
+        'is_cod' => 'boolean',
+        'ongkir' => 'decimal:2',
+        'diproses_at' => 'datetime',
+        'dicetak_at' => 'datetime',
+        'dikirim_at' => 'datetime',
+        'selesai_at' => 'datetime'
     ];
 
     public function vendor()
@@ -72,6 +88,14 @@ class Transaksi extends TenantModel
     }
 
     /**
+     * Get the auction associated with this transaction
+     */
+    public function auction()
+    {
+        return $this->belongsTo(\App\Models\Auction::class, 'auction_id');
+    }
+
+    /**
      * Scope a query to filter transactions by status.
      */
     public function scopeWithStatus(Builder $query, string $status): Builder
@@ -87,11 +111,11 @@ class Transaksi extends TenantModel
         if ($startDate) {
             $query->whereDate('tanggal_dibuat', '>=', $startDate);
         }
-        
+
         if ($endDate) {
             $query->whereDate('tanggal_dibuat', '<=', $endDate);
         }
-        
+
         return $query;
     }
 
@@ -117,12 +141,12 @@ class Transaksi extends TenantModel
             if (!$transaksi->tanggal_dibuat) {
                 $transaksi->tanggal_dibuat = now();
             }
-            
+
             // Set default status and progress if not set
             if (!$transaksi->status) {
                 $transaksi->status = 'pending';
             }
-            
+
             if (!$transaksi->progress_percentage) {
                 $transaksi->progress_percentage = 0;
             }
@@ -138,7 +162,7 @@ class Transaksi extends TenantModel
                     'completed' => 100,
                     'cancelled' => 0
                 ];
-                
+
                 $transaksi->progress_percentage = $progressMap[$transaksi->status] ?? 0;
             }
         });
@@ -161,7 +185,7 @@ class Transaksi extends TenantModel
             ])->save();
 
             $this->refresh();
-            
+
             // Only notify if the customer relationship exists
             if ($this->pelanggan) {
                 // Only attempt to notify if the OrderStatusChanged class exists

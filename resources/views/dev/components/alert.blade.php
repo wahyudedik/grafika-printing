@@ -58,15 +58,15 @@
         });
     }
 
-    // Loading state for forms
-    document.querySelectorAll('form').forEach(form => {
+    // Loading state for forms (only for forms with data-loading attribute)
+    document.querySelectorAll('form[data-loading]').forEach(form => {
         form.addEventListener('submit', () => {
             showLoading('Processing...');
         });
     });
 
-    // Loading state for links
-    document.querySelectorAll('a:not([href^="#"])').forEach(link => {
+    // Loading state for links (only for links with data-loading attribute)
+    document.querySelectorAll('a[data-loading]:not([href^="#"])').forEach(link => {
         link.addEventListener('click', () => {
             showLoading('Loading...');
         });

@@ -345,42 +345,47 @@
     Role baru untuk pengguna yang ingin membuat lelang.  
     Dashboard sederhana khusus user lelang.
 
-- [ ] **Alur Lelang**  
+- [x] **Alur Lelang**  
     User membuat permintaan cetak (spesifikasi, file, deadline).  
     Vendor dari sistem POS bisa memberikan penawaran harga.  
     User memilih pemenang (manual).
 
-- [ ] **Manajemen Lelang oleh Superadmin**  
+- [x] **Manajemen Lelang oleh Superadmin**  
     Superadmin bisa melihat, menyetujui, dan menghapus lelang.  
     Dapat melihat seluruh penawaran dari vendor.
 
-- [ ] **Manajemen User Lelang oleh Superadmin**  
+- [x] **Manajemen User Lelang oleh Superadmin**  
     Superadmin dapat melihat daftar user lelang, aktivasi/nonaktif, dan edit data.
 
-- [ ] **Integrasi ke Transaksi POS**  
+- [x] **Integrasi ke Transaksi POS**
     Setelah lelang dimenangkan, order otomatis masuk ke sistem POS vendor.
 
-- [ ] **Tracking Pesanan + COD Ongkos Kirim**  
+- [x] **Tracking Pesanan + COD Ongkos Kirim**  
     Vendor mengatur status pesanan: Menunggu – Diproses – Dicetak – Dikirim – Selesai.  
     User bisa melacak pesanan dari dashboard.  
     Fitur COD ongkir: ongkir dibayar langsung ke kurir.  
     Ongkir dihitung via RajaOngkir API atau diinput manual.
     jika terkirim dan udah di terima barangnya, user dapat memberikan penilaian bintang dan komentar hasil kerja.
 
-- [ ] **Wallet Vendor + Withdraw**  
+- [x] **Wallet Vendor + Withdraw**  
     Setelah pembayaran diterima dari user, dana otomatis masuk ke wallet vendor.  
     Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Midtrans).
 
-- [ ] **Payment Gateway (Midtrans)**  
+- [x] **Payment Gateway (Midtrans)**  
     Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
     Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
     Otomatisasi status pembayaran dan penerusan dana.
     Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
     Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
     Otomatisasi status pembayaran dan penerusan dana.
+
 - [ ] **Tambahan menu atau desain baru**
     desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
-    menambahkan menu untuk ke landingpage depan.
+    menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
+    perbaikan welcome.blade.php 
+
+- [ ] **Berbaikan Bug, tambah fitur dan flow**
+    Perbaikan flow pembayaran budget lelang
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)

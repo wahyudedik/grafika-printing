@@ -1,0 +1,233 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
+
+class VendorWithdrawal extends Model
+{
+    protected $fillable = [
+        'vendor_id',
+        'vendor_wallet_id',
+        'withdrawal_code',
+        'amount',
+        'fee',
+        'net_amount',
+        'status',
+        'method',
+        'account_number',
+        'account_name',
+        'bank_name',
+        'notes',
+        'admin_notes',
+        'processed_by',
+        'processed_at',
+        'completed_at',
+        'payment_proof'
+    ];
+
+    protected $casts = [
+        'amount' => 'decimal:2',
+        'fee' => 'decimal:2',
+        'net_amount' => 'decimal:2',
+        'payment_proof' => 'array',
+        'processed_at' => 'datetime',
+        'completed_at' => 'datetime'
+    ];
+
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+
+    public function vendorWallet(): BelongsTo
+    {
+        return $this->belongsTo(VendorWallet::class);
+    }
+
+    public function processedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
+
+    /**
+     * Create withdrawal request
+     */
+    public static function createRequest($vendorId, $amount, $method, $accountNumber, $accountName, $bankName = null, $notes = null)
+    {
+        return DB::transaction(function () use ($vendorId, $amount, $method, $accountNumber, $accountName, $bankName, $notes) {
+            $wallet = VendorWallet::getOrCreate($vendorId);
+
+            // Check if vendor has sufficient balance
+            if (!$wallet->hasSufficientBalance($amount)) {
+                throw new \Exception('Saldo tidak mencukupi');
+            }
+
+            // Calculate fee (you can customize this logic)
+            $fee = static::calculateFee($amount, $method);
+            $netAmount = $amount - $fee;
+
+            // Create withdrawal request
+            $withdrawal = static::create([
+                'vendor_id' => $vendorId,
+                'vendor_wallet_id' => $wallet->id,
+                'withdrawal_code' => 'WD-' . date('YmdHis') . '-' . strtoupper(substr(md5(uniqid()), 0, 6)),
+                'amount' => $amount,
+                'fee' => $fee,
+                'net_amount' => $netAmount,
+                'status' => 'pending',
+                'method' => $method,
+                'account_number' => $accountNumber,
+                'account_name' => $accountName,
+                'bank_name' => $bankName,
+                'notes' => $notes
+            ]);
+
+            return $withdrawal;
+        });
+    }
+
+    /**
+     * Calculate withdrawal fee
+     */
+    public static function calculateFee($amount, $method)
+    {
+        // Customize fee calculation based on method
+        switch ($method) {
+            case 'bank_transfer':
+                return min(5000, $amount * 0.01); // 1% or max 5000
+            case 'e_wallet':
+                return min(3000, $amount * 0.005); // 0.5% or max 3000
+            case 'cash':
+                return 0; // No fee for cash
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Approve withdrawal
+     */
+    public function approve($adminId, $adminNotes = null)
+    {
+        return DB::transaction(function () use ($adminId, $adminNotes) {
+            if ($this->status !== 'pending') {
+                throw new \Exception('Withdrawal request is not pending');
+            }
+
+            $this->update([
+                'status' => 'approved',
+                'processed_by' => $adminId,
+                'processed_at' => now(),
+                'admin_notes' => $adminNotes
+            ]);
+
+            return $this;
+        });
+    }
+
+    /**
+     * Reject withdrawal
+     */
+    public function reject($adminId, $adminNotes = null)
+    {
+        return DB::transaction(function () use ($adminId, $adminNotes) {
+            if ($this->status !== 'pending') {
+                throw new \Exception('Withdrawal request is not pending');
+            }
+
+            $this->update([
+                'status' => 'rejected',
+                'processed_by' => $adminId,
+                'processed_at' => now(),
+                'admin_notes' => $adminNotes
+            ]);
+
+            return $this;
+        });
+    }
+
+    /**
+     * Complete withdrawal
+     */
+    public function complete($paymentProof = null)
+    {
+        return DB::transaction(function () use ($paymentProof) {
+            if ($this->status !== 'approved') {
+                throw new \Exception('Withdrawal request is not approved');
+            }
+
+            // Deduct from wallet
+            $this->vendorWallet->addDebit(
+                $this->amount,
+                'withdrawal',
+                'Penarikan dana - ' . $this->withdrawal_code,
+                $this->id,
+                'withdrawal'
+            );
+
+            // Update total withdrawn
+            $this->vendorWallet->update([
+                'total_withdrawn' => $this->vendorWallet->total_withdrawn + $this->amount
+            ]);
+
+            $this->update([
+                'status' => 'completed',
+                'completed_at' => now(),
+                'payment_proof' => $paymentProof
+            ]);
+
+            return $this;
+        });
+    }
+
+    /**
+     * Get status label
+     */
+    public function getStatusLabelAttribute()
+    {
+        $labels = [
+            'pending' => 'Menunggu',
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak',
+            'processing' => 'Diproses',
+            'completed' => 'Selesai',
+            'failed' => 'Gagal'
+        ];
+
+        return $labels[$this->status] ?? ucfirst($this->status);
+    }
+
+    /**
+     * Get status color class
+     */
+    public function getStatusColorAttribute()
+    {
+        $colors = [
+            'pending' => 'warning',
+            'approved' => 'info',
+            'rejected' => 'danger',
+            'processing' => 'primary',
+            'completed' => 'success',
+            'failed' => 'danger'
+        ];
+
+        return $colors[$this->status] ?? 'secondary';
+    }
+
+    /**
+     * Get method label
+     */
+    public function getMethodLabelAttribute()
+    {
+        $labels = [
+            'bank_transfer' => 'Transfer Bank',
+            'e_wallet' => 'E-Wallet',
+            'cash' => 'Tunai'
+        ];
+
+        return $labels[$this->method] ?? ucfirst(str_replace('_', ' ', $this->method));
+    }
+}

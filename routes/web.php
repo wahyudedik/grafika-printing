@@ -30,6 +30,7 @@ Route::get('/', function () {
     return view('welcome', compact('auctions'));
 })->name('welcome');
 
+
 Route::middleware(['auth', 'verified', 'dev'])->group(function () {
     Route::get('/administrator', [UserDashboardController::class, 'devDashboard'])
         ->name('dev.dashboard');
@@ -39,6 +40,30 @@ Route::middleware(['auth', 'verified', 'dev'])->group(function () {
 
     // vendors routes resource
     Route::resource('/administrator/vendors', VendorController::class);
+
+    // Auction management routes for admin
+    Route::prefix('/administrator/auctions')->name('admin.auctions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'index'])->name('index');
+        Route::get('/statistics', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'statistics'])->name('statistics');
+        Route::get('/{auction}', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'show'])->name('show');
+        Route::get('/{auction}/edit', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'edit'])->name('edit');
+        Route::put('/{auction}', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'update'])->name('update');
+        Route::get('/{auction}/bids', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'bids'])->name('bids');
+        Route::post('/{auction}/approve', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'approve'])->name('approve');
+        Route::post('/{auction}/reject', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'reject'])->name('reject');
+        Route::post('/{auction}/close', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'close'])->name('close');
+        Route::delete('/{auction}', [\App\Http\Controllers\Admin\AuctionManagementController::class, 'destroy'])->name('destroy');
+    });
+
+    // Withdrawal management routes for admin
+    Route::prefix('/administrator/withdrawals')->name('admin.withdrawals.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'index'])->name('index');
+        Route::get('/statistics', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'statistics'])->name('statistics');
+        Route::get('/{withdrawal}', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'show'])->name('show');
+        Route::post('/{withdrawal}/approve', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'approve'])->name('approve');
+        Route::post('/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'reject'])->name('reject');
+        Route::post('/{withdrawal}/complete', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'complete'])->name('complete');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () {
@@ -108,13 +133,30 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () 
     // Auction bid routes for vendor
     Route::prefix('/dashboard/auctions')->name('vendor.auctions.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'index'])->name('index');
+        Route::get('/my-bids', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'myBids'])->name('my-bids');
         Route::get('/{auction}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'show'])->name('show');
         Route::get('/{auction}/bid', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'create'])->name('bid');
         Route::post('/{auction}/bid', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'store'])->name('store-bid');
         Route::get('/bids/{bid}/edit', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'edit'])->name('edit-bid');
         Route::put('/bids/{bid}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'update'])->name('update-bid');
         Route::delete('/bids/{bid}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'destroy'])->name('destroy-bid');
-        Route::get('/my-bids', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'myBids'])->name('my-bids');
+    });
+
+    // Order tracking routes for vendor
+    Route::prefix('/dashboard/tracking')->name('vendor.tracking.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'vendorIndex'])->name('index');
+        Route::put('/{transaksi}', [\App\Http\Controllers\OrderTrackingController::class, 'updateStatus'])->name('update');
+    });
+
+    // Wallet routes for vendor
+    Route::prefix('/dashboard/wallet')->name('vendor.wallet.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VendorWalletController::class, 'index'])->name('index');
+        Route::get('/transactions', [\App\Http\Controllers\VendorWalletController::class, 'transactions'])->name('transactions');
+        Route::get('/withdrawals', [\App\Http\Controllers\VendorWalletController::class, 'withdrawals'])->name('withdrawals');
+        Route::get('/withdrawals/create', [\App\Http\Controllers\VendorWalletController::class, 'createWithdrawal'])->name('create-withdrawal');
+        Route::post('/withdrawals', [\App\Http\Controllers\VendorWalletController::class, 'storeWithdrawal'])->name('store-withdrawal');
+        Route::get('/withdrawals/{withdrawal}', [\App\Http\Controllers\VendorWalletController::class, 'showWithdrawal'])->name('show-withdrawal');
+        Route::post('/withdrawals/{withdrawal}/cancel', [\App\Http\Controllers\VendorWalletController::class, 'cancelWithdrawal'])->name('cancel-withdrawal');
     });
 });
 
@@ -131,6 +173,27 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
     Route::resource('auctions', \App\Http\Controllers\AuctionController::class);
     Route::get('/user/auctions', [\App\Http\Controllers\AuctionController::class, 'myAuctions'])->name('auctions.my');
     Route::post('/auctions/{auction}/close', [\App\Http\Controllers\AuctionController::class, 'closeAuction'])->name('auctions.close');
+
+    // Order tracking routes for user
+    Route::prefix('/user/tracking')->name('user.tracking.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('index');
+        Route::get('/{auction}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('show');
+    });
+
+    // Vendor rating routes for user
+    Route::prefix('/vendor/ratings')->name('vendor.ratings.')->group(function () {
+        Route::get('/{auction}', [\App\Http\Controllers\VendorRatingController::class, 'create'])->name('create');
+        Route::post('/{auction}', [\App\Http\Controllers\VendorRatingController::class, 'store'])->name('store');
+    });
 });
+
+// API routes for RajaOngkir integration
+Route::prefix('/api')->group(function () {
+    Route::post('/calculate-shipping', [\App\Http\Controllers\OrderTrackingController::class, 'calculateShipping'])->name('api.calculate-shipping');
+    Route::post('/track-shipment', [\App\Http\Controllers\OrderTrackingController::class, 'trackShipment'])->name('api.track-shipment');
+});
+
+// Public vendor profile route
+Route::get('/vendor/{vendor}', [\App\Http\Controllers\VendorRatingController::class, 'show'])->name('vendor.profile');
 
 require __DIR__ . '/auth.php';

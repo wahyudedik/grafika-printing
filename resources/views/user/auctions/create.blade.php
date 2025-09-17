@@ -141,6 +141,63 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <!-- Informasi Pengiriman -->
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Informasi Pengiriman</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="alamat_pengiriman" class="form-label">Alamat Pengiriman <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea class="form-control @error('alamat_pengiriman') is-invalid @enderror" id="alamat_pengiriman"
+                                                name="alamat_pengiriman" rows="3" placeholder="Masukkan alamat lengkap untuk pengiriman" required>{{ old('alamat_pengiriman') }}</textarea>
+                                            @error('alamat_pengiriman')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="no_telp" class="form-label">No. Telepon <span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="tel"
+                                                        class="form-control @error('no_telp') is-invalid @enderror"
+                                                        id="no_telp" name="no_telp" value="{{ old('no_telp') }}"
+                                                        placeholder="08xxxxxxxxxx" required>
+                                                    @error('no_telp')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="email_pengiriman" class="form-label">Email untuk
+                                                        Notifikasi</label>
+                                                    <input type="email"
+                                                        class="form-control @error('email_pengiriman') is-invalid @enderror"
+                                                        id="email_pengiriman" name="email_pengiriman"
+                                                        value="{{ old('email_pengiriman', auth()->user()->email) }}"
+                                                        placeholder="email@example.com">
+                                                    @error('email_pengiriman')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="catatan_khusus" class="form-label">Catatan Khusus</label>
+                                            <textarea class="form-control @error('catatan_khusus') is-invalid @enderror" id="catatan_khusus"
+                                                name="catatan_khusus" rows="2" placeholder="Catatan khusus untuk vendor (opsional)">{{ old('catatan_khusus') }}</textarea>
+                                            @error('catatan_khusus')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="col-md-4">

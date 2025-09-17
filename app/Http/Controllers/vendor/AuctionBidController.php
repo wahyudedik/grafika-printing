@@ -10,11 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AuctionBidController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('vendor');
-    }
-
     /**
      * Display a listing of available auctions for bidding
      */
@@ -26,7 +21,7 @@ class AuctionBidController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(12);
 
-        return view('vendor.auctions.index', compact('auctions'));
+        return view('auctions.index', compact('auctions'));
     }
 
     /**
@@ -41,16 +36,22 @@ class AuctionBidController extends Controller
         }
 
         // Check if vendor already bid on this auction
-        $existingBid = AuctionBid::where('auction_id', $auction->id)
-            ->where('vendor_id', Auth::user()->vendorUser->first()->vendor_id)
-            ->first();
+        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorId = $vendorUser ? $vendorUser->id : null;
+
+        $existingBid = null;
+        if ($vendorId) {
+            $existingBid = AuctionBid::where('auction_id', $auction->id)
+                ->where('vendor_id', $vendorId)
+                ->first();
+        }
 
         if ($existingBid) {
             return redirect()->route('vendor.auctions.show', $auction)
                 ->with('info', 'Anda sudah memberikan penawaran untuk lelang ini');
         }
 
-        return view('vendor.auctions.bid', compact('auction'));
+        return view('auctions.bid', compact('auction'));
     }
 
     /**
@@ -70,7 +71,15 @@ class AuctionBidController extends Controller
         ]);
 
         // Get vendor ID
-        $vendorId = Auth::user()->vendorUser->first()->vendor_id;
+        $user = Auth::user();
+        $vendorUser = $user->vendorUser->first();
+
+        if (!$vendorUser) {
+            return redirect()->route('vendor.auctions.index')
+                ->with('error', 'Anda tidak memiliki akses vendor. Silakan hubungi administrator.');
+        }
+
+        $vendorId = $vendorUser->id; // Use vendor's ID directly
 
         // Check if vendor already bid on this auction
         $existingBid = AuctionBid::where('auction_id', $auction->id)
@@ -103,12 +112,17 @@ class AuctionBidController extends Controller
         $auction->load(['user', 'bids.vendor', 'winnerVendor']);
 
         // Get vendor's bid for this auction
-        $vendorId = Auth::user()->vendorUser->first()->vendor_id;
-        $myBid = AuctionBid::where('auction_id', $auction->id)
-            ->where('vendor_id', $vendorId)
-            ->first();
+        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorId = $vendorUser ? $vendorUser->id : null;
 
-        return view('vendor.auctions.show', compact('auction', 'myBid'));
+        $myBid = null;
+        if ($vendorId) {
+            $myBid = AuctionBid::where('auction_id', $auction->id)
+                ->where('vendor_id', $vendorId)
+                ->first();
+        }
+
+        return view('auctions.show', compact('auction', 'myBid'));
     }
 
     /**
@@ -117,7 +131,12 @@ class AuctionBidController extends Controller
     public function edit(AuctionBid $bid)
     {
         // Check if bid belongs to current vendor
-        $vendorId = Auth::user()->vendorUser->first()->vendor_id;
+        $vendorUser = Auth::user()->vendorUser->first();
+        if (!$vendorUser) {
+            abort(403, 'Anda tidak memiliki akses vendor.');
+        }
+
+        $vendorId = $vendorUser->id;
         if ($bid->vendor_id !== $vendorId) {
             abort(403);
         }
@@ -128,7 +147,7 @@ class AuctionBidController extends Controller
                 ->with('error', 'Lelang sudah tidak aktif, tidak bisa mengedit penawaran');
         }
 
-        return view('vendor.auctions.edit-bid', compact('bid'));
+        return view('auctions.edit-bid', compact('bid'));
     }
 
     /**
@@ -137,7 +156,12 @@ class AuctionBidController extends Controller
     public function update(Request $request, AuctionBid $bid)
     {
         // Check if bid belongs to current vendor
-        $vendorId = Auth::user()->vendorUser->first()->vendor_id;
+        $vendorUser = Auth::user()->vendorUser->first();
+        if (!$vendorUser) {
+            abort(403, 'Anda tidak memiliki akses vendor.');
+        }
+
+        $vendorId = $vendorUser->id;
         if ($bid->vendor_id !== $vendorId) {
             abort(403);
         }
@@ -168,7 +192,12 @@ class AuctionBidController extends Controller
     public function destroy(AuctionBid $bid)
     {
         // Check if bid belongs to current vendor
-        $vendorId = Auth::user()->vendorUser->first()->vendor_id;
+        $vendorUser = Auth::user()->vendorUser->first();
+        if (!$vendorUser) {
+            abort(403, 'Anda tidak memiliki akses vendor.');
+        }
+
+        $vendorId = $vendorUser->id;
         if ($bid->vendor_id !== $vendorId) {
             abort(403);
         }
@@ -191,13 +220,18 @@ class AuctionBidController extends Controller
      */
     public function myBids()
     {
-        $vendorId = Auth::user()->vendorUser->first()->vendor_id;
+        $vendorUser = Auth::user()->vendorUser->first();
+        if (!$vendorUser) {
+            abort(403, 'Anda tidak memiliki akses vendor.');
+        }
+
+        $vendorId = $vendorUser->id;
 
         $bids = AuctionBid::with(['auction.user', 'auction.bids'])
             ->where('vendor_id', $vendorId)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return view('vendor.auctions.my-bids', compact('bids'));
+        return view('auctions.my-bids', compact('bids'));
     }
 }

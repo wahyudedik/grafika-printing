@@ -20,21 +20,21 @@ class SetTenantContext
     public function handle(Request $request, Closure $next)
     {
         if (Auth::check()) {
-            $user = Auth::user()->vendorUser;
+            $user = Auth::user();
 
-            // Get the first vendor associated with the user
-            $vendor = $user->first();
+            // Only set tenant context for vendor users
+            if ($user->usertype === 'vendor') {
+                $vendorUser = $user->vendorUser->first();
 
-            if ($vendor) {
-                // Set the tenant context
-                Tenant::setVendor($vendor);
-            } else if ($user->usertype === 'dev') {
-                // Developers might not have a specific vendor context
-                // You could handle this differently if needed
-            } else {
-                // No vendor context available
-                abort(403, 'No vendor context available for this user');
+                if ($vendorUser) {
+                    // Set the tenant context
+                    Tenant::setVendor($vendorUser);
+                } else {
+                    // No vendor context available
+                    abort(403, 'No vendor context available for this user');
+                }
             }
+            // For dev and user types, no tenant context needed
         }
 
         return $next($request);

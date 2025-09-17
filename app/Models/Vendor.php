@@ -158,4 +158,52 @@ class Vendor extends Model
     {
         return $this->hasMany(Auction::class, 'winner_vendor_id');
     }
+
+    /**
+     * Get ratings for this vendor
+     */
+    public function ratings()
+    {
+        return $this->hasMany(VendorRating::class, 'vendor_id');
+    }
+
+    /**
+     * Get average rating for this vendor
+     */
+    public function getAverageRatingAttribute()
+    {
+        return $this->ratings()->where('is_verified', true)->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get total rating count for this vendor
+     */
+    public function getRatingCountAttribute()
+    {
+        return $this->ratings()->where('is_verified', true)->count();
+    }
+
+    /**
+     * Get verified ratings for this vendor
+     */
+    public function verifiedRatings()
+    {
+        return $this->ratings()->where('is_verified', true);
+    }
+
+    /**
+     * Get vendor wallet
+     */
+    public function wallet()
+    {
+        return $this->hasOne(VendorWallet::class, 'vendor_id');
+    }
+
+    /**
+     * Get or create wallet for this vendor
+     */
+    public function getOrCreateWallet()
+    {
+        return VendorWallet::getOrCreate($this->id);
+    }
 }

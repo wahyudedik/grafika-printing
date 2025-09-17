@@ -10,6 +10,7 @@ class Auction extends Model
 {
     protected $fillable = [
         'user_id',
+        'kode',
         'title',
         'description',
         'category',
@@ -20,14 +21,27 @@ class Auction extends Model
         'status',
         'winner_vendor_id',
         'winning_bid',
-        'specifications'
+        'specifications',
+        'alamat_pengiriman',
+        'no_telp',
+        'email_pengiriman',
+        'catatan_khusus',
+        'metode_pembayaran',
+        'estimasi_selesai',
+        'progress_percentage',
+        'catatan_vendor',
+        'transaksi_id',
+        'pos_integrated'
     ];
 
     protected $casts = [
         'deadline' => 'date',
         'budget' => 'decimal:2',
         'winning_bid' => 'decimal:2',
-        'quantity' => 'integer'
+        'quantity' => 'integer',
+        'estimasi_selesai' => 'datetime',
+        'progress_percentage' => 'integer',
+        'pos_integrated' => 'boolean'
     ];
 
     public function user(): BelongsTo
@@ -43,6 +57,11 @@ class Auction extends Model
     public function bids(): HasMany
     {
         return $this->hasMany(AuctionBid::class);
+    }
+
+    public function transaksi(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Vendor\Transaksi::class, 'transaksi_id');
     }
 
     public function isActive(): bool
