@@ -64,6 +64,14 @@ Route::middleware(['auth', 'verified', 'dev'])->group(function () {
         Route::post('/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'reject'])->name('reject');
         Route::post('/{withdrawal}/complete', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'complete'])->name('complete');
     });
+
+    // Pulse monitoring routes for admin
+    Route::prefix('/administrator/pulse')->name('admin.pulse.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PulseController::class, 'index'])->name('index');
+        Route::get('/statistics', [\App\Http\Controllers\Admin\PulseController::class, 'statistics'])->name('statistics');
+        Route::get('/performance', [\App\Http\Controllers\Admin\PulseController::class, 'performance'])->name('performance');
+        Route::get('/activity', [\App\Http\Controllers\Admin\PulseController::class, 'activity'])->name('activity');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () {
@@ -212,5 +220,10 @@ Route::prefix('/xendit')->name('xendit.')->group(function () {
 
 // Public vendor profile route
 Route::get('/vendor/{vendor}', [\App\Http\Controllers\VendorRatingController::class, 'show'])->name('vendor.profile');
+
+// Pulse dashboard route (public access for embedded iframe)
+Route::get('/pulse/dashboard', function () {
+    return view('vendor.pulse.dashboard');
+})->name('pulse.dashboard');
 
 require __DIR__ . '/auth.php';

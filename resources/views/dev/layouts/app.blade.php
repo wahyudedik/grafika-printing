@@ -154,6 +154,65 @@
                                 </a>
                             </div>
                         </li>
+                        <li class="nav-item dropdown {{ request()->routeIs('admin.pulse.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-pulse"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8z" />
+                                        <path d="M15 13l-3 -3l-3 3" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title">Statistik Server</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('admin.pulse.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                    </svg>
+                                    Dashboard
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.pulse.statistics') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8z" />
+                                        <path d="M15 13l-3 -3l-3 3" />
+                                    </svg>
+                                    Server Statistics
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.pulse.performance') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 13a3 3 0 1 0 0 -6a3 3 0 0 0 0 6z" />
+                                        <path d="M12 1v6" />
+                                        <path d="M12 17v6" />
+                                    </svg>
+                                    Performance
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.pulse.activity') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                    </svg>
+                                    User Activity
+                                </a>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>

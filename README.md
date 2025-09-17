@@ -381,7 +381,7 @@
 
 - [x] **Tambahan menu atau desain baru**
     desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
-    menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
+    [x] menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
     perbaikan welcome.blade.php 
 
 - [ ] **Berbaikan Bug, tambah fitur dan flow**
@@ -393,7 +393,8 @@
 - [x] User Statistics
 - [x] Vendor Management
 - [x] User Management
-- [ ] System Monitoring Laravel Pulse
+- [x] Daftar Lelang
+- [x] System Monitoring Laravel Pulse
 
 ### Vendor Dashboard
 - [x] Sales Analytics
