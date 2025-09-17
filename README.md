@@ -385,7 +385,10 @@
     perbaikan welcome.blade.php 
 
 - [ ] **Berbaikan Bug, tambah fitur dan flow**
-    Perbaikan flow pembayaran budget lelang
+    Perbaikan flow pembayaran budget lelang : 
+        1. kalau user sudah memilih vendor
+        2. maka user harus bayar dl ke grafika
+        3. habis itu system menginformasikan bahwa pekerjaan bisa di proses
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)
