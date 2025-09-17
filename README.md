@@ -379,16 +379,14 @@
     Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
     Otomatisasi status pembayaran dan penerusan dana.  
 
-- [ ] **Tambahan menu atau desain baru**
+- [x] **Tambahan menu atau desain baru**
     desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
     menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
     perbaikan welcome.blade.php 
 
 - [ ] **Berbaikan Bug, tambah fitur dan flow**
-    Perbaikan flow pembayaran budget lelang : 
-        1. kalau user sudah memilih vendor
-        2. maka user harus bayar dl ke grafika
-        3. habis itu system menginformasikan bahwa pekerjaan bisa di proses
+    [ ] Perbaikan flow pembayaran budget lelang : 
+        1. kalau user sudah memilih vendor, maka user harus bayar dl ke grafika, habis itu system menginformasikan bahwa pekerjaan bisa di proses
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)

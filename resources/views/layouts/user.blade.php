@@ -18,7 +18,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <a href="#">
+                <a href="{{ route('welcome') }}">
                     @php
                         $appName = 'Grafika Printing';
                         if (auth()->check() && auth()->user()->usertype === 'user') {
@@ -72,8 +72,8 @@
             <div class="navbar navbar-light">
                 <div class="container-xl">
                     <ul class="navbar-nav">
-                        <li class="nav-item {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('user.dashboard') }}">
+                        <li class="nav-item {{ request()->routeIs('welcome') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('welcome') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -84,15 +84,31 @@
                                         <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
                                     </svg>
                                 </span>
+                                <span class="nav-link-title">Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('user.dashboard') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <line x1="16" y1="2" x2="16" y2="6" />
+                                        <line x1="8" y1="2" x2="8" y2="6" />
+                                        <line x1="3" y1="10" x2="21" y2="10" />
+                                    </svg>
+                                </span>
                                 <span class="nav-link-title">Dashboard</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('auctions.index') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('auctions.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                         <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
                                         <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />

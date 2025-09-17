@@ -229,14 +229,30 @@
                 <div class="d-flex align-items-center">
                     <nav class="navbar-nav me-4">
                         <ul class="navbar-nav d-flex align-items-center mb-0">
-                            <li class="nav-item"><a class="nav-link text-dark px-3" href="#">Projek Cetak</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark px-3" href="#projects">Projek Cetak</a>
+                            </li>
                             <li class="nav-item"><span class="text-muted mx-2">|</span></li>
-                            <li class="nav-item"><a class="nav-link text-dark px-3" href="#">Layanan</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark px-3" href="#services">Layanan</a></li>
                             <li class="nav-item"><span class="text-muted mx-2">|</span></li>
-                            <li class="nav-item"><a class="nav-link text-dark px-3" href="#">Cara Kerja</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark px-3" href="#how-it-works">Cara Kerja</a>
+                            </li>
                         </ul>
                     </nav>
-                    <a href="{{ route('login') }}" class="btn btn-pink">LOGIN</a>
+                    @auth
+                        @if (auth()->user()->usertype === 'vendor')
+                            <a href="{{ route('dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
+                        @elseif(auth()->user()->usertype === 'user')
+                            <a href="{{ route('user.dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
+                        @elseif(auth()->user()->usertype === 'dev')
+                            <a href="{{ route('dev.dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
+                        @endif
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-secondary">LOGOUT</button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-pink">LOGIN</a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -349,12 +365,12 @@
     </section>
 
     <!-- Auction Projects Section -->
-    <section class="bg-light py-5">
+    <section id="projects" class="bg-light py-5">
         <div class="container-fluid px-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="h3 mb-0">PROJEK LELANG</h2>
                 @auth
-                    @if(auth()->user()->usertype === 'user')
+                    @if (auth()->user()->usertype === 'user')
                         <a href="{{ route('auctions.index') }}" class="btn btn-danger">Lihat Semua</a>
                     @else
                         <a href="{{ route('login') }}" class="btn btn-danger">Login untuk Melihat</a>
@@ -363,64 +379,211 @@
                     <a href="{{ route('login') }}" class="btn btn-danger">Login untuk Melihat</a>
                 @endauth
             </div>
-            
-            @if($auctions->count() > 0)
-            <div class="row g-4">
-                @foreach($auctions as $auction)
-                <div class="col-md-4">
-                    <div class="project-card">
-                        <img src="https://images.unsplash.com/photo-{{ rand(1500000000000, 1600000000000) }}?w=400&h=220&fit=crop"
-                            alt="{{ $auction->title }}" class="project-image">
-                        <div class="project-details">
-                            <h5 class="card-title">{{ $auction->title }}</h5>
-                            <div class="project-status">
-                                <div>Jumlah Produksi: {{ number_format($auction->quantity) }} pcs</div>
-                                <div>Budget: Rp {{ number_format($auction->budget) }}</div>
-                                <div>Deadline: {{ $auction->deadline->format('d M Y') }}</div>
+
+            @if ($auctions->count() > 0)
+                <div class="row g-4">
+                    @foreach ($auctions as $auction)
+                        <div class="col-md-4">
+                            <div class="project-card">
+                                <img src="https://images.unsplash.com/photo-{{ rand(1500000000000, 1600000000000) }}?w=400&h=220&fit=crop"
+                                    alt="{{ $auction->title }}" class="project-image">
+                                <div class="project-details">
+                                    <h5 class="card-title">{{ $auction->title }}</h5>
+                                    <div class="project-status">
+                                        <div>Jumlah Produksi: {{ number_format($auction->quantity) }} pcs</div>
+                                        <div>Budget: Rp {{ number_format($auction->budget) }}</div>
+                                        <div>Deadline: {{ $auction->deadline->format('d M Y') }}</div>
+                                    </div>
+                                    <div class="project-status">
+                                        <div>Status:
+                                            {{ $auction->status === 'active' ? 'Masih Memilih' : ucfirst($auction->status) }}
+                                        </div>
+                                        <div>Kategori: {{ $auction->category }}</div>
+                                        <div>Oleh: {{ $auction->user->name }}</div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        @auth
+                                            @if (auth()->user()->usertype === 'user')
+                                                <a href="{{ route('auctions.show', $auction) }}"
+                                                    class="btn btn-success btn-sm">DETAIL</a>
+                                            @else
+                                                <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
+                                            @endif
+                                        @else
+                                            <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
+                                        @endauth
+                                    </div>
+                                </div>
                             </div>
-                            <div class="project-status">
-                                <div>Status: {{ $auction->status === 'active' ? 'Masih Memilih' : ucfirst($auction->status) }}</div>
-                                <div>Kategori: {{ $auction->category }}</div>
-                                <div>Oleh: {{ $auction->user->name }}</div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                @auth
-                                    @if(auth()->user()->usertype === 'user')
-                                        <a href="{{ route('auctions.show', $auction) }}" class="btn btn-success btn-sm">DETAIL</a>
-                                    @else
-                                        <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
-                                    @endif
-                                @else
-                                    <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
-                                @endauth
-                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-5">
+                    <div class="empty">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128" height="128"
+                                viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                            </svg>
+                        </div>
+                        <p class="empty-title">Belum ada proyek lelang</p>
+                        <p class="empty-subtitle text-muted">
+                            Belum ada permintaan cetak yang tersedia saat ini. Daftar sebagai user untuk membuat
+                            permintaan pertama!
+                        </p>
+                        <div class="empty-action">
+                            <a href="{{ route('register') }}" class="btn btn-primary">Daftar Sekarang</a>
                         </div>
                     </div>
                 </div>
-                @endforeach
+            @endif
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-5 bg-light">
+        <div class="container-fluid px-4">
+            <div class="text-center mb-5">
+                <h2 class="h3 mb-3">Cara Kerja Sistem Lelang Cetak</h2>
+                <p class="text-muted">Proses sederhana untuk mendapatkan hasil cetak terbaik dengan harga kompetitif
+                </p>
             </div>
-            @else
-            <div class="text-center py-5">
-                <div class="empty">
-                    <div class="empty-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128" height="128" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/>
-                            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/>
-                        </svg>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 60px; height: 60px;">
+                                <span class="fw-bold fs-4">1</span>
+                            </div>
+                            <h5 class="card-title">Buat Permintaan</h5>
+                            <p class="card-text text-muted">User membuat permintaan cetak dengan spesifikasi detail,
+                                file, dan deadline</p>
+                        </div>
                     </div>
-                    <p class="empty-title">Belum ada proyek lelang</p>
-                    <p class="empty-subtitle text-muted">
-                        Belum ada permintaan cetak yang tersedia saat ini. Daftar sebagai user untuk membuat permintaan pertama!
-                    </p>
-                    <div class="empty-action">
-                        <a href="{{ route('register') }}" class="btn btn-primary">Daftar Sekarang</a>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 60px; height: 60px;">
+                                <span class="fw-bold fs-4">2</span>
+                            </div>
+                            <h5 class="card-title">Vendor Menawar</h5>
+                            <p class="card-text text-muted">Vendor dari sistem POS memberikan penawaran harga terbaik
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 60px; height: 60px;">
+                                <span class="fw-bold fs-4">3</span>
+                            </div>
+                            <h5 class="card-title">Pilih Pemenang</h5>
+                            <p class="card-text text-muted">User memilih vendor pemenang berdasarkan penawaran terbaik
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 60px; height: 60px;">
+                                <span class="fw-bold fs-4">4</span>
+                            </div>
+                            <h5 class="card-title">Proses & Kirim</h5>
+                            <p class="card-text text-muted">Vendor memproses pesanan dan mengirim hasil cetak</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            @endif
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-5">
+        <div class="container-fluid px-4">
+            <div class="text-center mb-5">
+                <h2 class="h3 mb-3">Layanan Kami</h2>
+                <p class="text-muted">Solusi lengkap untuk kebutuhan cetak Anda</p>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 80px; height: 80px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="40" height="40"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                                    <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                </svg>
+                            </div>
+                            <h5 class="card-title">Sistem Lelang</h5>
+                            <p class="card-text text-muted">Dapatkan harga terbaik melalui sistem lelang yang
+                                transparan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 80px; height: 80px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="40" height="40"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                    <path
+                                        d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                                    <path d="M9 12l2 2l4 -4" />
+                                </svg>
+                            </div>
+                            <h5 class="card-title">Tracking Pesanan</h5>
+                            <p class="card-text text-muted">Pantau status pesanan Anda dari proses hingga pengiriman
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                                style="width: 80px; height: 80px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="40" height="40"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path
+                                        d="M17 8v-2a2 2 0 0 0 -2 -2h-4a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2 -2z" />
+                                    <path d="M12 8v13" />
+                                    <path d="M19 12v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-7" />
+                                    <path d="M7 12v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                            </div>
+                            <h5 class="card-title">Pembayaran Aman</h5>
+                            <p class="card-text text-muted">Sistem pembayaran terintegrasi dengan Xendit untuk keamanan
+                                transaksi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
