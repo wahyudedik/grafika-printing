@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AuctionController extends Controller
 {
@@ -49,9 +50,14 @@ class AuctionController extends Controller
             'specifications' => 'nullable|string',
             'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
             'alamat_pengiriman' => 'required|string',
-            'no_telp' => 'required|string|max:20',
+            'no_telp' => 'required|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]+$/',
             'email_pengiriman' => 'nullable|email',
             'catatan_khusus' => 'nullable|string'
+        ], [
+            'no_telp.regex' => 'Format nomor telepon tidak valid. Gunakan format: 08123456789, +628123456789, atau (0812) 345-6789',
+            'deadline.after' => 'Deadline harus setelah hari ini',
+            'budget.min' => 'Budget harus lebih dari 0',
+            'quantity.min' => 'Jumlah produksi harus minimal 1'
         ]);
 
         $data = $request->all();
@@ -194,35 +200,17 @@ class AuctionController extends Controller
 
         $winnerBid = AuctionBid::findOrFail($request->winner_bid_id);
 
+        // Update auction status to waiting for payment
         $auction->update([
-            'status' => 'closed',
+            'status' => 'waiting_payment',
             'winner_vendor_id' => $winnerBid->vendor_id,
             'winning_bid' => $winnerBid->bid_amount
         ]);
 
         $winnerBid->update(['status' => 'accepted']);
 
-        // Integrate with POS system
-        try {
-            $auctionToPosService = new AuctionToPosService();
-            $transaction = $auctionToPosService->createTransactionFromAuction($auction, $winnerBid);
-
-            Log::info("Auction closed and POS transaction created", [
-                'auction_id' => $auction->id,
-                'transaction_id' => $transaction->id,
-                'vendor_id' => $winnerBid->vendor_id
-            ]);
-        } catch (\Exception $e) {
-            Log::error("Failed to create POS transaction from auction", [
-                'auction_id' => $auction->id,
-                'error' => $e->getMessage()
-            ]);
-
-            // Don't fail the auction closing, just log the error
-            // The auction is still closed successfully
-        }
-
-        return redirect()->route('auctions.show', $auction)
-            ->with('success', 'Lelang berhasil ditutup dan pemenang dipilih! Order otomatis masuk ke sistem POS vendor.');
+        // Redirect to payment page
+        return redirect()->route('xendit.payment.create', ['auction' => $auction->id])
+            ->with('success', 'Pemenang telah dipilih! Silakan lakukan pembayaran untuk melanjutkan proses.');
     }
 }

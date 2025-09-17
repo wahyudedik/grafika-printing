@@ -111,6 +111,16 @@
                                             </button>
                                         </div>
                                     @endif
+
+                                    @if ($auction->status === 'waiting_payment')
+                                        <div class="d-flex justify-content-end mt-3">
+                                            <a href="{{ route('xendit.payment.show-page', $auction->id) }}"
+                                                class="btn btn-primary">
+                                                <i class="fas fa-credit-card me-2"></i>
+                                                Bayar Sekarang
+                                            </a>
+                                        </div>
+                                    @endif
                                 </form>
                             </div>
                         </div>
@@ -169,8 +179,22 @@
                                     <div class="d-flex justify-content-between">
                                         <span class="text-muted">Status:</span>
                                         <span
-                                            class="badge bg-{{ $auction->status === 'active' ? 'green' : ($auction->status === 'closed' ? 'blue' : 'red') }}-lt">
-                                            {{ ucfirst($auction->status) }}
+                                            class="badge bg-{{ $auction->status === 'active'
+                                                ? 'green'
+                                                : ($auction->status === 'waiting_payment'
+                                                    ? 'yellow'
+                                                    : ($auction->status === 'paid'
+                                                        ? 'blue'
+                                                        : ($auction->status === 'closed'
+                                                            ? 'blue'
+                                                            : 'red'))) }}-lt">
+                                            @if ($auction->status === 'waiting_payment')
+                                                Menunggu Pembayaran
+                                            @elseif($auction->status === 'paid')
+                                                Terbayar
+                                            @else
+                                                {{ ucfirst($auction->status) }}
+                                            @endif
                                         </span>
                                     </div>
                                 </div>

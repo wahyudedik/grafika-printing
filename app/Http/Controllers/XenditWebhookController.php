@@ -180,7 +180,7 @@ class XenditWebhookController extends Controller
 
                     // Find winning bid
                     $winningBid = $auction->bids()
-                        ->where('is_winner', true)
+                        ->where('status', 'accepted')
                         ->first();
 
                     if ($winningBid) {
@@ -189,6 +189,13 @@ class XenditWebhookController extends Controller
 
                         // Add funds to vendor wallet
                         $this->addToVendorWallet($winningBid->vendor_id, (float) $payment->amount);
+
+                        Log::info('Auction payment processed successfully', [
+                            'auction_id' => $auction->id,
+                            'payment_id' => $payment->id,
+                            'vendor_id' => $winningBid->vendor_id,
+                            'amount' => $payment->amount
+                        ]);
                     }
                 }
             }

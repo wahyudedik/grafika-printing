@@ -83,4 +83,20 @@ class Auction extends Model
     {
         return $this->bids()->where('status', 'pending')->count();
     }
+
+    /**
+     * Relasi dengan XenditPayment
+     */
+    public function xenditPayments()
+    {
+        return $this->hasMany(XenditPayment::class);
+    }
+
+    /**
+     * Get the latest payment for this auction
+     */
+    public function latestPayment()
+    {
+        return $this->hasOne(XenditPayment::class)->latest();
+    }
 }

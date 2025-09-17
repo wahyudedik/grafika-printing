@@ -27,6 +27,7 @@ class XenditPayment extends Model
         'expires_at',
         'paid_at',
         'webhook_data',
+        'auction_id',
     ];
 
     protected $casts = [
@@ -85,5 +86,13 @@ class XenditPayment extends Model
     public function isPending()
     {
         return $this->status === 'pending';
+    }
+
+    /**
+     * Relasi dengan Auction
+     */
+    public function auction()
+    {
+        return $this->belongsTo(Auction::class);
     }
 }

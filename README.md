@@ -335,7 +335,6 @@
 - [x] Sales Reporting
 - [ ] Email Notifications
 - [ ] Stock Notification
-- [ ] Switch Multi Vendor Dashboard
 - [ ] User role dan permission
 - [x] profile user
 - [x] profile user vendor
@@ -384,8 +383,12 @@
     [x] menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
     perbaikan welcome.blade.php 
 
-- [ ] **Berbaikan Bug, tambah fitur dan flow**
-    [ ] Perbaikan flow pembayaran budget lelang : 
+- [x] **Berbaikan Bug, tambah fitur dan flow**
+    [x] Perbaikan validasi nomor telepon pada form lelang: 
+        - Menerima format: 08123456789, +628123456789, atau (0812) 345-6789
+        - Pesan error yang lebih jelas
+        - Placeholder dan help text yang informatif
+    [x] Perbaikan flow pembayaran budget lelang : 
         1. kalau user sudah memilih vendor, maka user harus bayar dl ke grafika, habis itu system menginformasikan bahwa pekerjaan bisa di proses
 
 ## Dashboard Features

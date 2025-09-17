@@ -7,7 +7,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Buat Permintaan Cetak Baru</h3>
+                    <h3 class="card-title">Buat Permintaan Cetak Baru</h3><br>
                     <div class="card-subtitle">Buat permintaan cetak dan biarkan vendor memberikan penawaran terbaik</div>
                 </div>
                 <div class="card-body">
@@ -166,7 +166,10 @@
                                                     <input type="tel"
                                                         class="form-control @error('no_telp') is-invalid @enderror"
                                                         id="no_telp" name="no_telp" value="{{ old('no_telp') }}"
-                                                        placeholder="08xxxxxxxxxx" required>
+                                                        placeholder="08123456789, +628123456789, atau (0812) 345-6789"
+                                                        required>
+                                                    <div class="form-text">Format: 08123456789, +628123456789, atau (0812)
+                                                        345-6789</div>
                                                     @error('no_telp')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -218,19 +221,19 @@
                                     <div class="card-body">
                                         <h6 class="card-title">Alur Kerja</h6>
                                         <div class="d-flex align-items-center mb-2">
-                                            <span class="badge bg-primary me-2">1</span>
+                                            <span class="badge bg-primary text-white me-2">1</span>
                                             <small>Buat permintaan</small>
                                         </div>
                                         <div class="d-flex align-items-center mb-2">
-                                            <span class="badge bg-primary me-2">2</span>
+                                            <span class="badge bg-primary text-white me-2">2</span>
                                             <small>Vendor memberikan penawaran</small>
                                         </div>
                                         <div class="d-flex align-items-center mb-2">
-                                            <span class="badge bg-primary me-2">3</span>
+                                            <span class="badge bg-primary text-white me-2">3</span>
                                             <small>Pilih vendor terbaik</small>
                                         </div>
                                         <div class="d-flex align-items-center">
-                                            <span class="badge bg-primary me-2">4</span>
+                                            <span class="badge bg-primary text-white me-2">4</span>
                                             <small>Proses pengerjaan</small>
                                         </div>
                                     </div>

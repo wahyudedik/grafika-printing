@@ -210,6 +210,7 @@ Route::prefix('/xendit')->name('xendit.')->group(function () {
 
     // Payment routes (auth required)
     Route::middleware(['auth', 'verified'])->group(function () {
+        Route::get('/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'showPaymentPage'])->name('payment.show-page');
         Route::post('/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'createPaymentLink'])->name('payment.create');
         Route::get('/payments/{payment}/status', [\App\Http\Controllers\XenditPaymentController::class, 'getPaymentStatus'])->name('payment.status');
         Route::get('/payments/{payment}', [\App\Http\Controllers\XenditPaymentController::class, 'showPayment'])->name('payment.show');

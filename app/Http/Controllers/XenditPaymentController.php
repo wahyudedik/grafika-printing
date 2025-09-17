@@ -19,24 +19,53 @@ class XenditPaymentController extends Controller
     }
 
     /**
+     * Show payment page for auction
+     */
+    public function showPaymentPage(Auction $auction)
+    {
+        // Check if auction is waiting for payment
+        if ($auction->status !== 'waiting_payment') {
+            return redirect()->route('auctions.show', $auction)
+                ->with('error', 'Lelang ini tidak memerlukan pembayaran.');
+        }
+
+        // Check if user is the auction owner
+        if ($auction->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('payments.auction-payment', compact('auction'));
+    }
+
+    /**
      * Create payment link for auction
      */
     public function createPaymentLink(Request $request, Auction $auction): JsonResponse
     {
         try {
+            // Check if auction is waiting for payment
+            if ($auction->status !== 'waiting_payment') {
+                return response()->json(['error' => 'Lelang ini tidak memerlukan pembayaran.'], 400);
+            }
+
+            // Check if user is the auction owner
+            if ($auction->user_id !== auth()->id()) {
+                return response()->json(['error' => 'Unauthorized.'], 403);
+            }
+
             $request->validate([
-                'amount' => 'required|numeric|min:0',
                 'payment_type' => 'required|in:payment_link,xenpayment',
                 'customer' => 'nullable|array',
                 'items' => 'nullable|array'
             ]);
 
             $externalId = 'auction_' . $auction->id . '_' . time();
+            $amount = $auction->winning_bid; // Use winning bid amount
 
             $paymentData = [
                 'external_id' => $externalId,
-                'amount' => $request->amount,
-                'description' => 'Payment for auction: ' . $auction->title,
+                'amount' => $amount,
+                'description' => 'Pembayaran Lelang: ' . $auction->title,
                 'customer' => $request->customer ?? [
                     'given_names' => auth()->user()?->name ?? 'Customer',
                     'email' => auth()->user()?->email ?? 'customer@example.com'
@@ -44,8 +73,8 @@ class XenditPaymentController extends Controller
                 'items' => $request->items ?? [
                     [
                         'name' => $auction->title,
-                        'quantity' => 1,
-                        'price' => $request->amount,
+                        'quantity' => $auction->quantity,
+                        'price' => $amount,
                         'category' => 'Printing Service'
                     ]
                 ],
@@ -84,7 +113,7 @@ class XenditPaymentController extends Controller
                 'external_id' => $externalId,
                 'xendit_id' => $response['id'] ?? null,
                 'type' => $request->payment_type,
-                'amount' => $request->amount,
+                'amount' => $amount,
                 'description' => $paymentData['description'],
                 'status' => 'pending',
                 'customer' => $paymentData['customer'],
@@ -92,7 +121,8 @@ class XenditPaymentController extends Controller
                 'checkout_url' => $response['checkout_url'] ?? null,
                 'success_redirect_url' => $paymentData['success_redirect_url'],
                 'failure_redirect_url' => $paymentData['failure_redirect_url'],
-                'expires_at' => now()->addHours(24)
+                'expires_at' => now()->addHours(24),
+                'auction_id' => $auction->id
             ]);
 
             return response()->json([
