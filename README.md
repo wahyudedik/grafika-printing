@@ -369,15 +369,15 @@
 
 - [x] **Wallet Vendor + Withdraw**  
     Setelah pembayaran diterima dari user, dana otomatis masuk ke wallet vendor.  
-    Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Midtrans).
+    Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Xendit).
 
-- [x] **Payment Gateway (Midtrans)**  
+- [x] **Payment Gateway (Xendit)** 
     Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
     Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
     Otomatisasi status pembayaran dan penerusan dana.
     Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
     Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
-    Otomatisasi status pembayaran dan penerusan dana.
+    Otomatisasi status pembayaran dan penerusan dana.  
 
 - [ ] **Tambahan menu atau desain baru**
     desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.

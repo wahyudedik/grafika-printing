@@ -36,4 +36,12 @@ return [
         'base_url' => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
     ],
 
+    'xendit' => [
+        'api_key' => env('XENDIT_API_KEY'),
+        'public_key' => env('XENDIT_PUBLIC_KEY'),
+        'webhook_token' => env('XENDIT_WEBHOOK_TOKEN'),
+        'base_url' => env('XENDIT_BASE_URL', 'https://api.xendit.co'),
+        'callback_url' => env('XENDIT_CALLBACK_URL'),
+    ],
+
 ];
