@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Vendor\TenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AuctionBid extends Model
+class AuctionBid extends TenantModel
 {
     protected $fillable = [
         'auction_id',

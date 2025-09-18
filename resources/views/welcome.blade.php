@@ -10,6 +10,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
     <script src="https://unpkg.com/@tabler/core@latest/dist/js/tabler.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .logo-container {
             background: #000;
@@ -206,6 +207,112 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
             line-height: 0.9;
         }
+
+        /* Auction Section Styles */
+        .auction-card {
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .auction-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .auction-card .card-img-top {
+            transition: all 0.3s ease;
+        }
+
+        .auction-card:hover .card-img-top {
+            transform: scale(1.05);
+        }
+
+        .status-badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .auction-detail-icon {
+            transition: all 0.3s ease;
+        }
+
+        .auction-card:hover .auction-detail-icon {
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auction-section-header {
+            animation: fadeInDown 1s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auction-card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .auction-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .auction-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .auction-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .auction-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .auction-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .auction-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
     </style>
 </head>
 
@@ -365,52 +472,158 @@
     </section>
 
     <!-- Auction Projects Section -->
-    <section id="projects" class="bg-light py-5">
+    <section id="projects" class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="container-fluid px-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h3 mb-0">PROJEK LELANG</h2>
+            <!-- Section Header -->
+            <div class="text-center mb-5 auction-section-header">
+                <h2 class="display-4 fw-bold text-white mb-3">
+                    <i class="fas fa-gavel me-3"></i>PROJEK LELANG
+                </h2>
+                <p class="lead text-white-50 mb-4">
+                    Dapatkan harga terbaik untuk proyek cetak Anda melalui sistem lelang yang transparan
+                </p>
                 @auth
                     @if (auth()->user()->usertype === 'user')
-                        <a href="{{ route('auctions.index') }}" class="btn btn-danger">Lihat Semua</a>
+                        <a href="{{ route('auctions.index') }}"
+                            class="btn btn-light btn-lg px-4 py-2 rounded-pill shadow">
+                            <i class="fas fa-eye me-2"></i>Lihat Semua Proyek
+                        </a>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-danger">Login untuk Melihat</a>
+                        <a href="{{ route('login') }}" class="btn btn-warning btn-lg px-4 py-2 rounded-pill shadow">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
+                        </a>
                     @endif
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-danger">Login untuk Melihat</a>
+                    <a href="{{ route('login') }}" class="btn btn-warning btn-lg px-4 py-2 rounded-pill shadow">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
+                    </a>
                 @endauth
             </div>
 
             @if ($auctions->count() > 0)
                 <div class="row g-4">
                     @foreach ($auctions as $auction)
-                        <div class="col-md-4">
-                            <div class="project-card">
-                                <img src="https://images.unsplash.com/photo-{{ rand(1500000000000, 1600000000000) }}?w=400&h=220&fit=crop"
-                                    alt="{{ $auction->title }}" class="project-image">
-                                <div class="project-details">
-                                    <h5 class="card-title">{{ $auction->title }}</h5>
-                                    <div class="project-status">
-                                        <div>Jumlah Produksi: {{ number_format($auction->quantity) }} pcs</div>
-                                        <div>Budget: Rp {{ number_format($auction->budget) }}</div>
-                                        <div>Deadline: {{ $auction->deadline->format('d M Y') }}</div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card h-100 border-0 shadow-lg auction-card"
+                                style="border-radius: 20px; overflow: hidden;">
+                                <!-- Auction Image -->
+                                <div class="position-relative">
+                                    {{-- <img src="https://images.unsplash.com/photo-{{ rand(1500000000000, 1600000000000) }}?w=400&h=220&fit=crop"
+                                        alt="{{ $auction->title }}" class="card-img-top"
+                                        style="height: 200px; object-fit: cover;"> --}}
+
+                                    <!-- Status Badge -->
+                                    <div class="position-absolute top-0 end-0 m-3">
+                                        @if ($auction->status === 'active')
+                                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill status-badge">
+                                                <i class="fas fa-clock me-1"></i>Masih Memilih
+                                            </span>
+                                        @elseif($auction->status === 'waiting_payment')
+                                            <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill">
+                                                <i class="fas fa-credit-card me-1"></i>Menunggu Pembayaran
+                                            </span>
+                                        @elseif($auction->status === 'paid')
+                                            <span class="badge bg-info fs-6 px-3 py-2 rounded-pill">
+                                                <i class="fas fa-check me-1"></i>Dibayar
+                                            </span>
+                                        @elseif($auction->status === 'completed')
+                                            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                                                <i class="fas fa-check-circle me-1"></i>Selesai
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary fs-6 px-3 py-2 rounded-pill">
+                                                {{ ucfirst($auction->status) }}
+                                            </span>
+                                        @endif
                                     </div>
-                                    <div class="project-status">
-                                        <div>Status:
-                                            {{ $auction->status === 'active' ? 'Masih Memilih' : ucfirst($auction->status) }}
+
+                                    <!-- Category Badge -->
+                                    <div class="position-absolute top-0 start-0 m-3">
+                                        <span class="badge bg-dark fs-6 px-3 py-2 rounded-pill">
+                                            <i class="fas fa-tag me-1"></i>{{ ucfirst($auction->category) }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Card Body -->
+                                <div class="card-body p-4">
+                                    <h5 class="card-title fw-bold text-dark mb-3">{{ $auction->title }}</h5>
+
+                                    <!-- Project Details -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="bg-primary bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
+                                                    <i class="fas fa-box text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold text-dark">
+                                                        {{ number_format($auction->quantity) }} pcs</div>
+                                                    <small class="text-muted">Jumlah Produksi</small>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>Kategori: {{ $auction->category }}</div>
-                                        <div>Oleh: {{ $auction->user->name }}</div>
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="bg-success bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
+                                                    <i class="fas fa-money-bill-wave text-success"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold text-dark">Rp
+                                                        {{ number_format($auction->budget) }}</div>
+                                                    <small class="text-muted">Budget</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="bg-warning bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
+                                                    <i class="fas fa-calendar-alt text-warning"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold text-dark">
+                                                        {{ $auction->deadline->format('d M Y') }}</div>
+                                                    <small class="text-muted">Deadline</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="d-flex align-items-center">
+                                                <div
+                                                    class="bg-info bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
+                                                    <i class="fas fa-user text-info"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold text-dark">{{ $auction->user->name }}
+                                                    </div>
+                                                    <small class="text-muted">Oleh</small>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="d-flex gap-2">
+
+                                    <!-- Action Button -->
+                                    <div class="d-grid">
                                         @auth
                                             @if (auth()->user()->usertype === 'user')
                                                 <a href="{{ route('auctions.show', $auction) }}"
-                                                    class="btn btn-success btn-sm">DETAIL</a>
+                                                    class="btn btn-primary btn-lg rounded-pill">
+                                                    <i class="fas fa-eye me-2"></i>Lihat Detail
+                                                </a>
                                             @else
-                                                <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
+                                                <a href="{{ route('login') }}"
+                                                    class="btn btn-outline-primary btn-lg rounded-pill">
+                                                    <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
+                                                </a>
                                             @endif
                                         @else
-                                            <a href="{{ route('login') }}" class="btn btn-success btn-sm">LOGIN</a>
+                                            <a href="{{ route('login') }}"
+                                                class="btn btn-outline-primary btn-lg rounded-pill">
+                                                <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
+                                            </a>
                                         @endauth
                                     </div>
                                 </div>
@@ -418,27 +631,42 @@
                         </div>
                     @endforeach
                 </div>
+
+                <!-- View More Button -->
+                <div class="text-center mt-5">
+                    @auth
+                        @if (auth()->user()->usertype === 'user')
+                            <a href="{{ route('auctions.index') }}"
+                                class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow">
+                                <i class="fas fa-arrow-right me-2"></i>Lihat Semua Proyek Lelang
+                            </a>
+                        @endif
+                    @endauth
+                </div>
             @else
+                <!-- Empty State -->
                 <div class="text-center py-5">
-                    <div class="empty">
-                        <div class="empty-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128" height="128"
-                                viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                            </svg>
+                    <div class="empty-state">
+                        <div class="empty-icon mb-4">
+                            <div class="bg-white bg-opacity-20 rounded-circle d-inline-flex align-items-center justify-content-center"
+                                style="width: 120px; height: 120px;">
+                                <i class="fas fa-gavel text-white" style="font-size: 3rem;"></i>
+                            </div>
                         </div>
-                        <p class="empty-title">Belum ada proyek lelang</p>
-                        <p class="empty-subtitle text-muted">
-                            Belum ada permintaan cetak yang tersedia saat ini. Daftar sebagai user untuk membuat
-                            permintaan pertama!
+                        <h3 class="text-white mb-3">Belum ada proyek lelang</h3>
+                        <p class="text-white-50 mb-4 lead">
+                            Belum ada permintaan cetak yang tersedia saat ini.<br>
+                            Daftar sebagai user untuk membuat permintaan pertama!
                         </p>
-                        <div class="empty-action">
-                            <a href="{{ route('register') }}" class="btn btn-primary">Daftar Sekarang</a>
+                        <div class="d-flex gap-3 justify-content-center">
+                            <a href="{{ route('register') }}"
+                                class="btn btn-light btn-lg px-4 py-2 rounded-pill shadow">
+                                <i class="fas fa-user-plus me-2"></i>Daftar Sekarang
+                            </a>
+                            <a href="{{ route('login') }}"
+                                class="btn btn-outline-light btn-lg px-4 py-2 rounded-pill">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </a>
                         </div>
                     </div>
                 </div>

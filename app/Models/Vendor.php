@@ -41,14 +41,35 @@ class Vendor extends Model
         'auto_withdrawal_method',
         'auto_withdrawal_account_number',
         'auto_withdrawal_account_name',
-        'auto_withdrawal_bank_name'
+        'auto_withdrawal_bank_name',
+        // Primary Bank Account Details
+        'primary_bank_name',
+        'primary_account_number',
+        'primary_account_name',
+        'primary_bank_code',
+        // Secondary Bank Account Details
+        'secondary_bank_name',
+        'secondary_account_number',
+        'secondary_account_name',
+        'secondary_bank_code',
+        // E-Wallet Details
+        'ewallet_provider',
+        'ewallet_number',
+        'ewallet_name',
+        // Additional Details
+        'bank_notes',
+        'bank_verified',
+        'bank_verified_at',
+        'bank_verified_by'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'auto_withdrawal_enabled' => 'boolean',
         'auto_withdrawal_date' => 'integer',
-        'auto_withdrawal_amount' => 'decimal:2'
+        'auto_withdrawal_amount' => 'decimal:2',
+        'bank_verified' => 'boolean',
+        'bank_verified_at' => 'datetime'
     ];
 
     /**
@@ -249,5 +270,132 @@ class Vendor extends Model
     public function withdrawals()
     {
         return $this->hasMany(VendorWithdrawal::class, 'vendor_id');
+    }
+
+    /**
+     * Get primary bank account details
+     */
+    public function getPrimaryBankAccount()
+    {
+        return [
+            'bank_name' => $this->primary_bank_name,
+            'account_number' => $this->primary_account_number,
+            'account_name' => $this->primary_account_name,
+            'bank_code' => $this->primary_bank_code
+        ];
+    }
+
+    /**
+     * Get secondary bank account details
+     */
+    public function getSecondaryBankAccount()
+    {
+        return [
+            'bank_name' => $this->secondary_bank_name,
+            'account_number' => $this->secondary_account_number,
+            'account_name' => $this->secondary_account_name,
+            'bank_code' => $this->secondary_bank_code
+        ];
+    }
+
+    /**
+     * Get e-wallet details
+     */
+    public function getEwalletAccount()
+    {
+        return [
+            'provider' => $this->ewallet_provider,
+            'number' => $this->ewallet_number,
+            'name' => $this->ewallet_name
+        ];
+    }
+
+    /**
+     * Get all bank accounts
+     */
+    public function getAllBankAccounts()
+    {
+        $accounts = [];
+
+        if ($this->primary_bank_name && $this->primary_account_number) {
+            $accounts[] = [
+                'type' => 'primary',
+                'bank_name' => $this->primary_bank_name,
+                'account_number' => $this->primary_account_number,
+                'account_name' => $this->primary_account_name,
+                'bank_code' => $this->primary_bank_code
+            ];
+        }
+
+        if ($this->secondary_bank_name && $this->secondary_account_number) {
+            $accounts[] = [
+                'type' => 'secondary',
+                'bank_name' => $this->secondary_bank_name,
+                'account_number' => $this->secondary_account_number,
+                'account_name' => $this->secondary_account_name,
+                'bank_code' => $this->secondary_bank_code
+            ];
+        }
+
+        if ($this->ewallet_provider && $this->ewallet_number) {
+            $accounts[] = [
+                'type' => 'ewallet',
+                'provider' => $this->ewallet_provider,
+                'number' => $this->ewallet_number,
+                'name' => $this->ewallet_name
+            ];
+        }
+
+        return $accounts;
+    }
+
+    /**
+     * Check if vendor has verified bank account
+     */
+    public function hasVerifiedBankAccount()
+    {
+        return $this->bank_verified &&
+            ($this->primary_bank_name || $this->secondary_bank_name || $this->ewallet_provider);
+    }
+
+    /**
+     * Get default withdrawal account
+     */
+    public function getDefaultWithdrawalAccount()
+    {
+        // Priority: Primary bank > Secondary bank > E-wallet
+        if ($this->primary_bank_name && $this->primary_account_number) {
+            return [
+                'type' => 'bank',
+                'method' => 'bank_transfer',
+                'bank_name' => $this->primary_bank_name,
+                'account_number' => $this->primary_account_number,
+                'account_name' => $this->primary_account_name,
+                'bank_code' => $this->primary_bank_code
+            ];
+        }
+
+        if ($this->secondary_bank_name && $this->secondary_account_number) {
+            return [
+                'type' => 'bank',
+                'method' => 'bank_transfer',
+                'bank_name' => $this->secondary_bank_name,
+                'account_number' => $this->secondary_account_number,
+                'account_name' => $this->secondary_account_name,
+                'bank_code' => $this->secondary_bank_code
+            ];
+        }
+
+        if ($this->ewallet_provider && $this->ewallet_number) {
+            return [
+                'type' => 'ewallet',
+                'method' => 'e_wallet',
+                'provider' => $this->ewallet_provider,
+                'number' => $this->ewallet_number,
+                'name' => $this->ewallet_name
+            ];
+        }
+
+        return null;
     }
 }

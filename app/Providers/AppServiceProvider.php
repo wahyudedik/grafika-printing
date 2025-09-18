@@ -12,7 +12,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register TenantManager as singleton
+        $this->app->singleton('tenant', function ($app) {
+            return new \App\Services\TenantManager();
+        });
     }
 
     /**

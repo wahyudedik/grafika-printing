@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Vendor\TenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class VendorWalletTransaction extends Model
+class VendorWalletTransaction extends TenantModel
 {
     protected $fillable = [
         'vendor_wallet_id',

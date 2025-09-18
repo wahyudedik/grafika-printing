@@ -294,4 +294,21 @@ Route::get('/pulse/dashboard', function () {
     return view('vendor.pulse.dashboard');
 })->name('pulse.dashboard');
 
+// Vendor Bank Account Management Routes
+Route::middleware(['auth', 'vendor'])->prefix('/vendor/bank-accounts')->name('vendor.bank-accounts.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\VendorBankAccountController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\VendorBankAccountController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\VendorBankAccountController::class, 'store'])->name('store');
+    Route::get('/{type}/edit', [\App\Http\Controllers\VendorBankAccountController::class, 'edit'])->name('edit');
+    Route::put('/{type}', [\App\Http\Controllers\VendorBankAccountController::class, 'update'])->name('update');
+    Route::delete('/{type}', [\App\Http\Controllers\VendorBankAccountController::class, 'destroy'])->name('destroy');
+});
+
+// API Routes for Bank Account Management
+Route::prefix('/api/vendor')->middleware(['auth', 'vendor'])->group(function () {
+    Route::get('/banks', [\App\Http\Controllers\VendorBankAccountController::class, 'getBanks'])->name('api.vendor.banks');
+    Route::get('/ewallet-providers', [\App\Http\Controllers\VendorBankAccountController::class, 'getEwalletProviders'])->name('api.vendor.ewallet-providers');
+    Route::get('/account-details', [\App\Http\Controllers\VendorBankAccountController::class, 'getAccountDetails'])->name('api.vendor.account-details');
+});
+
 require __DIR__ . '/auth.php';

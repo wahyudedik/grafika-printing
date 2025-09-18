@@ -371,26 +371,27 @@
     [x]Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Xendit). jadi kalau manual itu vendor dapat menarik dana nya sesuai keinginan asal di atas syarat yang sudah di tentukan oleh superadmin/dev contoh dev menetapkan di dashboardnya minimal withdraw 50 ribu maka dana yang dimiliki vendor harus ada di 50 ribu atau lebih, jika mau otomatiis maka tiap bulan tanggalnya akan di set oleh dashboard superadmin itu akan otomatis di transfer ke rekening mereka.
 
 - [x] **Payment Gateway (Xendit)** 
-    Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
-    Integrasi API xendit untuk pembayaran otomatis.  
-    Otomatisasi status pembayaran dan penerusan dana.
+    [x]Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
+    [x]Integrasi API xendit untuk pembayaran otomatis.  
+    [x]Otomatisasi status pembayaran dan penerusan dana.
 
 - [x] **Tambahan menu atau desain baru**
-    desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
+    [x]desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
+
     [x] menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
-    perbaikan welcome.blade.php .
-    Perbaikan desain landing page pada section lelang
+
+    [x]Perbaikan desain landing page pada section lelang pada welcome.blade.php .
 
 - [x] **Berbaikan Bug, tambah fitur dan flow**
     [x] Perbaikan validasi nomor telepon pada form lelang: 
         - Menerima format: 08123456789, +628123456789, atau (0812) 345-6789
         - Pesan error yang lebih jelas
         - Placeholder dan help text yang informatif
-    [x] Perbaikan flow pembayaran budget lelang : kalau user sudah memilih vendor, maka user harus bayar dl ke grafika, habis itu system menginformasikan bahwa pekerjaan bisa di proses.
+    [x] Perbaikan flow pembayaran budget lelang : kalau user sudah memilih vendor, maka user harus bayar dulu ke grafika, habis itu system menginformasikan bahwa pekerjaan bisa di proses.
 
-    menambahkan link detail nomer rekening untuk vendor supaya penarikan dan pembayaran dana withdraw mudah.
+    [x]menambahkan data/kolom detail nomer rekening untuk vendor supaya penarikan dan pembayaran dana withdraw mudah.
     
-    membuat fitur biaya admin aplikasi (flownya jika saya membuat lelang 50 ribu maka di dashboard atau akun dari vendor akan bertambah sesuai setingan yang ada di dashboard superadmin/dev, jadi jika di superadmin di set 5000/10persen maka harga lelang yang di akun vendor 50 ribu di tambah biaya admin aplikasi yang udah di setting pada akun superadmin, kemudian jika vendor menawar dari 55 plus biaya admin maka vendor mencoba menawar 100 ribu maka di dalam akun user akan muncul 105 ribu karena di tambah admin 5ribu dan ketika user udah memilih vendor yang tepat maka akan melakukan pembayaran dengan xendit payment gateway sesuai harga yang udah di tambahkan oleh biaya aplikasi dan biaya penggunaan akun misal akun va admin dari xendit dua ribu maka yang di tranfer adalah nominal lelang di tambah nominal biaya admin aplikasi dan di tambah biaya admin payment gateway xendit).
+    [x]membuat fitur biaya admin aplikasi (flownya jika saya membuat lelang 50 ribu maka di dashboard atau akun dari vendor akan bertambah sesuai setingan yang ada di dashboard superadmin/dev, jadi jika di superadmin di set 5000/10persen maka harga lelang yang di akun vendor 50 ribu di tambah biaya admin aplikasi yang udah di setting pada akun superadmin, kemudian jika vendor menawar dari 55 plus biaya admin maka vendor mencoba menawar 100 ribu maka di dalam akun user akan muncul 105 ribu karena di tambah admin 5ribu dan ketika user udah memilih vendor yang tepat maka akan melakukan pembayaran dengan xendit payment gateway sesuai harga yang udah di tambahkan oleh biaya aplikasi dan biaya penggunaan akun misal akun va admin dari xendit dua ribu maka yang di tranfer adalah nominal lelang di tambah nominal biaya admin aplikasi dan di tambah biaya admin payment gateway xendit).
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)
@@ -428,11 +429,11 @@
 
 ## Troubleshooting
 ### Multi-Tenant Issues
-1. Ensure models extend `TenantModel`
-2. Verify tenant middleware is properly configured
-3. Check model relationships for correct tenant scoping
-4. Debug tenant context using `Tenant::getVendorId()`
-5. Review bulk operations for proper tenant scoping
+[x]1. Ensure models extend `TenantModel`
+[x]2. Verify tenant middleware is properly configured
+[x]3. Check model relationships for correct tenant scoping
+[x]4. Debug tenant context using `Tenant::getVendorId()`
+[x]5. Review bulk operations for proper tenant scoping
 
 ## Contributing
 1. Fork the repository

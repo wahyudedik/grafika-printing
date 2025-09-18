@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Vendor\TenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
-class VendorWithdrawal extends Model
+class VendorWithdrawal extends TenantModel
 {
     protected $fillable = [
         'vendor_id',
