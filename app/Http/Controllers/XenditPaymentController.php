@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Models\XenditPayment;
 use App\Models\Auction;
 use App\Services\XenditService;
@@ -30,7 +31,7 @@ class XenditPaymentController extends Controller
         }
 
         // Check if user is the auction owner
-        if ($auction->user_id !== auth()->id()) {
+        if ($auction->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -49,13 +50,15 @@ class XenditPaymentController extends Controller
             }
 
             // Check if user is the auction owner
-            if ($auction->user_id !== auth()->id()) {
+            if ($auction->user_id !== Auth::id()) {
                 return response()->json(['error' => 'Unauthorized.'], 403);
             }
 
             $request->validate([
                 'payment_type' => 'required|in:payment_link,xenpayment',
                 'customer' => 'nullable|array',
+                'customer.given_names' => 'required_with:customer|string|max:255',
+                'customer.email' => 'required_with:customer|email|max:255',
                 'items' => 'nullable|array'
             ]);
 
@@ -67,8 +70,8 @@ class XenditPaymentController extends Controller
                 'amount' => $amount,
                 'description' => 'Pembayaran Lelang: ' . $auction->title,
                 'customer' => $request->customer ?? [
-                    'given_names' => auth()->user()?->name ?? 'Customer',
-                    'email' => auth()->user()?->email ?? 'customer@example.com'
+                    'given_names' => Auth::user()->name ?? 'Customer',
+                    'email' => Auth::user()->email ?? 'customer@example.com'
                 ],
                 'items' => $request->items ?? [
                     [
@@ -78,8 +81,8 @@ class XenditPaymentController extends Controller
                         'category' => 'Printing Service'
                     ]
                 ],
-                'success_redirect_url' => route('auctions.show', $auction) . '?payment=success',
-                'failure_redirect_url' => route('auctions.show', $auction) . '?payment=failed',
+                'success_redirect_url' => 'https://e0e0c1473a98.ngrok-free.app' . route('auctions.show', $auction, false) . '?payment=success',
+                'failure_redirect_url' => 'https://e0e0c1473a98.ngrok-free.app' . route('auctions.show', $auction, false) . '?payment=failed',
                 'invoice_duration' => 86400, // 24 hours
                 'payment_methods' => [
                     'BCA',
@@ -99,12 +102,17 @@ class XenditPaymentController extends Controller
 
             $response = null;
             if ($request->payment_type === 'payment_link') {
+                Log::info('Creating payment link with data:', $paymentData);
                 $response = $this->xenditService->createPaymentLink($paymentData);
+                Log::info('Payment link response:', $response);
             } else {
+                Log::info('Creating XenPayment with data:', $paymentData);
                 $response = $this->xenditService->createXenPayment($paymentData);
+                Log::info('XenPayment response:', $response);
             }
 
             if (!$response) {
+                Log::error('Failed to create payment - response is null');
                 return response()->json(['error' => 'Failed to create payment'], 500);
             }
 
@@ -128,7 +136,7 @@ class XenditPaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'payment' => $payment,
-                'checkout_url' => $response['checkout_url'] ?? null,
+                'checkout_url' => $response['invoice_url'] ?? null,
                 'xenpayment_id' => $response['id'] ?? null
             ]);
         } catch (\Exception $e) {
@@ -235,7 +243,7 @@ class XenditPaymentController extends Controller
     public function showPayment(Request $request, XenditPayment $payment)
     {
         // Check if user has access to this payment
-        if (!auth()->check()) {
+        if (!Auth::check()) {
             abort(403, 'Unauthorized access to payment');
         }
 

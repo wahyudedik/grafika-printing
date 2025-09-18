@@ -12,6 +12,7 @@ class VendorWithdrawal extends Model
         'vendor_id',
         'vendor_wallet_id',
         'withdrawal_code',
+        'batch_id',
         'amount',
         'fee',
         'net_amount',
@@ -25,7 +26,8 @@ class VendorWithdrawal extends Model
         'processed_by',
         'processed_at',
         'completed_at',
-        'payment_proof'
+        'payment_proof',
+        'webhook_data'
     ];
 
     protected $casts = [
@@ -33,6 +35,7 @@ class VendorWithdrawal extends Model
         'fee' => 'decimal:2',
         'net_amount' => 'decimal:2',
         'payment_proof' => 'array',
+        'webhook_data' => 'array',
         'processed_at' => 'datetime',
         'completed_at' => 'datetime'
     ];

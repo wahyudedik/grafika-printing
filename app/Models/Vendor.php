@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Models\Vendor\TransaksiItemSpecifications;
 use App\Models\AuctionBid;
 use App\Models\Auction;
+use App\Models\VendorRating;
+use App\Models\VendorWallet;
+use App\Models\VendorWithdrawal;
 
 class Vendor extends Model
 {
@@ -31,11 +34,21 @@ class Vendor extends Model
         'address',
         'logo',
         'website',
-        'is_active'
+        'is_active',
+        'auto_withdrawal_enabled',
+        'auto_withdrawal_date',
+        'auto_withdrawal_amount',
+        'auto_withdrawal_method',
+        'auto_withdrawal_account_number',
+        'auto_withdrawal_account_name',
+        'auto_withdrawal_bank_name'
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'auto_withdrawal_enabled' => 'boolean',
+        'auto_withdrawal_date' => 'integer',
+        'auto_withdrawal_amount' => 'decimal:2'
     ];
 
     /**
@@ -160,6 +173,29 @@ class Vendor extends Model
     }
 
     /**
+     * Get all auctions where this vendor has participated (through bids)
+     */
+    public function auctions()
+    {
+        return $this->hasManyThrough(
+            Auction::class,
+            AuctionBid::class,
+            'vendor_id', // Foreign key on auction_bids table
+            'id', // Foreign key on auctions table
+            'id', // Local key on vendors table
+            'auction_id' // Local key on auction_bids table
+        );
+    }
+
+    /**
+     * Get completed auctions for this vendor
+     */
+    public function completedAuctions()
+    {
+        return $this->auctions()->where('auctions.status', 'completed');
+    }
+
+    /**
      * Get ratings for this vendor
      */
     public function ratings()
@@ -205,5 +241,13 @@ class Vendor extends Model
     public function getOrCreateWallet()
     {
         return VendorWallet::getOrCreate($this->id);
+    }
+
+    /**
+     * Get vendor withdrawals
+     */
+    public function withdrawals()
+    {
+        return $this->hasMany(VendorWithdrawal::class, 'vendor_id');
     }
 }

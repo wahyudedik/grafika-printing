@@ -127,16 +127,26 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const createPaymentBtn = document.getElementById('create_payment_btn');
-            const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+            const paymentTypeSelect = document.getElementById('payment_type');
+            const paymentModal = document.getElementById('paymentModal');
+            const paymentContent = document.getElementById('payment_content');
 
             createPaymentBtn.addEventListener('click', function() {
-                const paymentType = document.getElementById('payment_type').value;
+                const paymentType = paymentTypeSelect.value;
 
-                // Show loading
-                createPaymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+                if (!paymentType) {
+                    alert('Pilih metode pembayaran terlebih dahulu');
+                    return;
+                }
+
+                // Show loading state
                 createPaymentBtn.disabled = true;
+                createPaymentBtn.innerHTML =
+                    '<i class="fas fa-spinner fa-spin me-2"></i>Membuat Pembayaran...';
 
                 // Create payment
+                console.log('Creating payment with type:', paymentType);
+
                 fetch(`{{ route('xendit.payment.create', $auction->id) }}`, {
                         method: 'POST',
                         headers: {
@@ -145,61 +155,92 @@
                                 .getAttribute('content')
                         },
                         body: JSON.stringify({
-                            payment_type: paymentType
+                            payment_type: paymentType,
+                            customer: {
+                                given_names: '{{ auth()->user()->name }}',
+                                email: '{{ auth()->user()->email }}'
+                            }
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Payment response:', data);
+
                         if (data.success) {
-                            // Show payment options
-                            let paymentContent = '';
-
                             if (data.checkout_url) {
-                                paymentContent = `
-                        <div class="text-center">
-                            <h5>Pembayaran Berhasil Dibuat!</h5>
-                            <p>Silakan klik tombol di bawah untuk melakukan pembayaran:</p>
-                            <a href="${data.checkout_url}" target="_blank" class="btn btn-primary btn-lg">
-                                <i class="fas fa-external-link-alt me-2"></i>
-                                Bayar Sekarang
-                            </a>
-                            <div class="mt-3">
-                                <small class="text-muted">
-                                    Link pembayaran akan berlaku selama 24 jam.
-                                </small>
-                            </div>
-                        </div>
-                    `;
+                                console.log('Redirecting to:', data.checkout_url);
+                                // Redirect to payment page
+                                window.location.href = data.checkout_url;
                             } else if (data.xenpayment_id) {
-                                paymentContent = `
-                        <div class="text-center">
-                            <h5>Pembayaran XenPayment Dibuat!</h5>
-                            <p>ID Pembayaran: <strong>${data.xenpayment_id}</strong></p>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Silakan gunakan ID pembayaran di atas untuk melakukan pembayaran melalui aplikasi e-wallet Anda.
-                            </div>
-                        </div>
-                    `;
+                                // Show XenPayment widget
+                                showXenPaymentWidget(data.xenpayment_id);
+                            } else {
+                                console.error('No checkout_url or xenpayment_id in response');
+                                alert('Error: Tidak ada URL pembayaran yang dihasilkan');
                             }
-
-                            document.getElementById('payment_content').innerHTML = paymentContent;
-                            paymentModal.show();
                         } else {
+                            console.error('Payment creation failed:', data);
                             alert('Error: ' + (data.error || 'Gagal membuat pembayaran'));
                         }
                     })
                     .catch(error => {
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan saat membuat pembayaran');
+                        console.error('Fetch error:', error);
+                        alert('Terjadi kesalahan saat membuat pembayaran: ' + error.message);
                     })
                     .finally(() => {
-                        // Reset button
+                        createPaymentBtn.disabled = false;
                         createPaymentBtn.innerHTML =
                             '<i class="fas fa-credit-card me-2"></i>Buat Link Pembayaran';
-                        createPaymentBtn.disabled = false;
                     });
             });
+
+            function showXenPaymentWidget(xenPaymentId) {
+                paymentContent.innerHTML = `
+                    <div class="text-center">
+                        <h5>XenPayment Widget</h5>
+                        <div id="xenpayment-widget" class="min-h-[400px] border rounded p-4">
+                            <p class="text-muted">Loading payment widget...</p>
+                        </div>
+                    </div>
+                `;
+
+                paymentModal.show();
+
+                // Load XenPayment widget
+                if (typeof Xendit !== 'undefined') {
+                    const xendit = new Xendit({
+                        publicKey: '{{ config('services.xendit.public_key') }}'
+                    });
+
+                    const xenPayment = xendit.createXenPayment({
+                        id: xenPaymentId,
+                        onSuccess: function(result) {
+                            console.log('Payment successful:', result);
+                            paymentModal.hide();
+                            location.reload();
+                        },
+                        onError: function(error) {
+                            console.error('Payment error:', error);
+                            alert('Terjadi kesalahan pada pembayaran');
+                        }
+                    });
+
+                    xenPayment.mount('#xenpayment-widget');
+                } else {
+                    paymentContent.innerHTML = `
+                        <div class="text-center">
+                            <h5>XenPayment Widget</h5>
+                            <p class="text-muted">Widget tidak dapat dimuat. Silakan coba lagi.</p>
+                        </div>
+                    `;
+                }
+            }
         });
     </script>
+
+    <!-- Load Xendit SDK for XenPayment -->
+    <script src="https://js.xendit.co/v1/xendit.min.js"></script>
 @endsection

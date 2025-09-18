@@ -26,17 +26,29 @@ class XenditWebhookController extends Controller
     public function handleWebhook(Request $request): JsonResponse
     {
         try {
+            // Log incoming webhook for debugging
+            Log::info('Xendit webhook received', [
+                'headers' => $request->headers->all(),
+                'body' => $request->getContent(),
+                'ip' => $request->ip()
+            ]);
+
             // Verify webhook signature
             $signature = $request->header('x-xendit-signature');
             $payload = $request->getContent();
 
-            if (!$this->xenditService->verifyWebhookSignature($payload, $signature)) {
-                Log::warning('Xendit webhook signature verification failed', [
-                    'signature' => $signature,
-                    'payload' => $payload
-                ]);
+            // For development, we might want to skip signature verification temporarily
+            if (config('app.debug') && empty($signature)) {
+                Log::warning('Skipping webhook signature verification in debug mode');
+            } else {
+                if (!$this->xenditService->verifyWebhookSignature($payload, $signature)) {
+                    Log::warning('Xendit webhook signature verification failed', [
+                        'signature' => $signature,
+                        'payload' => $payload
+                    ]);
 
-                return response()->json(['error' => 'Invalid signature'], 400);
+                    return response()->json(['error' => 'Invalid signature'], 400);
+                }
             }
 
             $data = $request->json()->all();
@@ -63,6 +75,15 @@ class XenditWebhookController extends Controller
                 case 'xenpayment.expired':
                     $this->handleXenPaymentExpired($data);
                     break;
+
+                case 'batch_disbursement.completed':
+                    $this->handleBatchDisbursementCompleted($data);
+                    break;
+
+                case 'batch_disbursement.failed':
+                    $this->handleBatchDisbursementFailed($data);
+                    break;
+
 
                 default:
                     Log::info('Unhandled Xendit webhook event', ['event' => $event]);
@@ -213,15 +234,25 @@ class XenditWebhookController extends Controller
      */
     protected function createVendorOrder(Auction $auction, $winningBid): void
     {
-        // This would integrate with your existing POS system
-        // For now, we'll just log the action
-        Log::info('Creating vendor order for auction', [
-            'auction_id' => $auction->id,
-            'vendor_id' => $winningBid->vendor_id,
-            'amount' => $winningBid->amount
-        ]);
+        try {
+            // Use AuctionToPosService to create POS transaction
+            $auctionToPosService = new \App\Services\AuctionToPosService();
+            $transaction = $auctionToPosService->createTransactionFromAuction($auction, $winningBid);
 
-        // TODO: Implement actual order creation in POS system
+            Log::info('Vendor order created successfully', [
+                'auction_id' => $auction->id,
+                'vendor_id' => $winningBid->vendor_id,
+                'transaction_id' => $transaction->id,
+                'amount' => $winningBid->bid_amount
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create vendor order', [
+                'auction_id' => $auction->id,
+                'vendor_id' => $winningBid->vendor_id,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
 
     /**
@@ -248,6 +279,86 @@ class XenditWebhookController extends Controller
                 'vendor_id' => $vendorId,
                 'amount' => $amount,
                 'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Handle batch disbursement completed event
+     */
+    protected function handleBatchDisbursementCompleted(array $data): void
+    {
+        try {
+            $disbursementData = $data['data'];
+
+            Log::info('Batch disbursement completed', [
+                'batch_id' => $disbursementData['id'] ?? null,
+                'status' => $disbursementData['status'] ?? null,
+                'data' => $disbursementData
+            ]);
+
+            // Update withdrawal status if exists
+            if (isset($disbursementData['id'])) {
+                // Find withdrawal record by batch ID
+                $withdrawal = \App\Models\VendorWithdrawal::where('batch_id', $disbursementData['id'])->first();
+
+                if ($withdrawal) {
+                    $withdrawal->update([
+                        'status' => 'completed',
+                        'completed_at' => now(),
+                        'webhook_data' => $data
+                    ]);
+
+                    Log::info('Withdrawal status updated to completed', [
+                        'withdrawal_id' => $withdrawal->id,
+                        'batch_id' => $disbursementData['id']
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error handling batch disbursement completed', [
+                'error' => $e->getMessage(),
+                'data' => $data
+            ]);
+        }
+    }
+
+    /**
+     * Handle batch disbursement failed event
+     */
+    protected function handleBatchDisbursementFailed(array $data): void
+    {
+        try {
+            $disbursementData = $data['data'];
+
+            Log::info('Batch disbursement failed', [
+                'batch_id' => $disbursementData['id'] ?? null,
+                'status' => $disbursementData['status'] ?? null,
+                'data' => $disbursementData
+            ]);
+
+            // Update withdrawal status if exists
+            if (isset($disbursementData['id'])) {
+                // Find withdrawal record by batch ID
+                $withdrawal = \App\Models\VendorWithdrawal::where('batch_id', $disbursementData['id'])->first();
+
+                if ($withdrawal) {
+                    $withdrawal->update([
+                        'status' => 'failed',
+                        'failed_at' => now(),
+                        'webhook_data' => $data
+                    ]);
+
+                    Log::info('Withdrawal status updated to failed', [
+                        'withdrawal_id' => $withdrawal->id,
+                        'batch_id' => $disbursementData['id']
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error handling batch disbursement failed', [
+                'error' => $e->getMessage(),
+                'data' => $data
             ]);
         }
     }

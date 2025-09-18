@@ -18,9 +18,9 @@ class OrderTrackingController extends Controller
     {
         $user = Auth::user();
 
-        // Get auctions where user is the creator and has been won
+        // Get auctions where user is the creator and has been paid
         $auctions = Auction::where('user_id', $user->id)
-            ->where('status', 'closed')
+            ->where('status', 'paid')
             ->whereNotNull('transaksi_id')
             ->with(['transaksi', 'winnerVendor'])
             ->orderBy('created_at', 'desc')
@@ -93,6 +93,11 @@ class OrderTrackingController extends Controller
 
         // Update timestamps based on status
         $this->updateTrackingTimestamps($transaksi, $request->tracking_status);
+
+        // Send notification if order is completed
+        if ($request->tracking_status === 'selesai') {
+            $this->sendOrderCompletedNotification($transaksi);
+        }
 
         return redirect()->back()
             ->with('success', 'Status tracking berhasil diperbarui!');
@@ -202,6 +207,33 @@ class OrderTrackingController extends Controller
             case 'selesai':
                 $transaksi->update(['selesai_at' => $now]);
                 break;
+        }
+    }
+
+    /**
+     * Send order completed notification to user
+     */
+    private function sendOrderCompletedNotification(Transaksi $transaksi)
+    {
+        try {
+            // Get the auction associated with this transaction
+            $auction = Auction::where('transaksi_id', $transaksi->id)->first();
+
+            if ($auction && $auction->user) {
+                // Send notification to user
+                $auction->user->notify(new \App\Notifications\OrderCompletedNotification($auction));
+
+                Log::info('Order completed notification sent', [
+                    'auction_id' => $auction->id,
+                    'user_id' => $auction->user_id,
+                    'vendor_id' => $transaksi->vendor_id
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send order completed notification', [
+                'transaction_id' => $transaksi->id,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

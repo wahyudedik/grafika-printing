@@ -72,6 +72,15 @@ Route::middleware(['auth', 'verified', 'dev'])->group(function () {
         Route::get('/performance', [\App\Http\Controllers\Admin\PulseController::class, 'performance'])->name('performance');
         Route::get('/activity', [\App\Http\Controllers\Admin\PulseController::class, 'activity'])->name('activity');
     });
+
+    // Vendor revenue routes for admin
+    Route::prefix('/administrator/vendor-revenue')->name('admin.vendor-revenue.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\VendorRevenueController::class, 'index'])->name('index');
+        Route::get('/{vendor}', [\App\Http\Controllers\Admin\VendorRevenueController::class, 'show'])->name('show');
+        Route::get('/api/statistics', [\App\Http\Controllers\Admin\VendorRevenueController::class, 'statistics'])->name('statistics');
+        Route::get('/api/monthly-data', [\App\Http\Controllers\Admin\VendorRevenueController::class, 'monthlyData'])->name('monthly-data');
+        Route::get('/api/vendor/{vendor}', [\App\Http\Controllers\Admin\VendorRevenueController::class, 'vendorData'])->name('vendor-data');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () {
@@ -188,6 +197,22 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
         Route::get('/{auction}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('show');
     });
 
+    // Shipping invoice routes for user
+    Route::prefix('/shipping')->name('shipping.')->group(function () {
+        Route::post('/invoice/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'generateShippingInvoice'])->name('generate-invoice');
+        Route::post('/payment/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'handleCODPayment'])->name('handle-payment');
+        Route::post('/calculate', [\App\Http\Controllers\ShippingInvoiceController::class, 'calculateShippingCost'])->name('calculate-cost');
+    });
+
+    // Shipping calculator routes for vendor
+    Route::prefix('/vendor/shipping')->name('vendor.shipping.')->group(function () {
+        Route::get('/calculator', [\App\Http\Controllers\ShippingCalculatorController::class, 'index'])->name('calculator');
+        Route::post('/calculate', [\App\Http\Controllers\ShippingCalculatorController::class, 'calculate'])->name('calculate');
+        Route::get('/couriers', [\App\Http\Controllers\ShippingCalculatorController::class, 'getCouriers'])->name('couriers');
+        Route::post('/service-types', [\App\Http\Controllers\ShippingCalculatorController::class, 'getServiceTypes'])->name('service-types');
+        Route::post('/save/{transaksi}', [\App\Http\Controllers\ShippingCalculatorController::class, 'saveShipping'])->name('save');
+    });
+
     // Vendor rating routes for user
     Route::prefix('/vendor/ratings')->name('vendor.ratings.')->group(function () {
         Route::get('/{auction}', [\App\Http\Controllers\VendorRatingController::class, 'create'])->name('create');
@@ -199,6 +224,27 @@ Route::middleware(['auth', 'verified', 'user'])->group(function () {
 Route::prefix('/api')->group(function () {
     Route::post('/calculate-shipping', [\App\Http\Controllers\OrderTrackingController::class, 'calculateShipping'])->name('api.calculate-shipping');
     Route::post('/track-shipment', [\App\Http\Controllers\OrderTrackingController::class, 'trackShipment'])->name('api.track-shipment');
+
+    // Enhanced shipping calculator API
+    Route::post('/shipping/calculate', [\App\Http\Controllers\ShippingCalculatorController::class, 'calculate'])->name('api.shipping.calculate');
+    Route::get('/shipping/couriers', [\App\Http\Controllers\ShippingCalculatorController::class, 'getCouriers'])->name('api.shipping.couriers');
+    Route::post('/shipping/service-types', [\App\Http\Controllers\ShippingCalculatorController::class, 'getServiceTypes'])->name('api.shipping.service-types');
+
+    // Vendor withdrawal API
+    Route::post('/withdrawal/calculate-fee', [\App\Http\Controllers\VendorWithdrawalController::class, 'calculateFee'])->name('api.withdrawal.calculate-fee');
+
+    // Xendit API routes for testing
+    Route::get('/xendit/test', function () {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Xendit API is working',
+            'config' => [
+                'api_key_set' => !empty(config('services.xendit.api_key')),
+                'webhook_token_set' => !empty(config('services.xendit.webhook_token')),
+                'base_url' => config('services.xendit.base_url')
+            ]
+        ]);
+    })->name('api.xendit.test');
 });
 
 // Xendit Payment routes
@@ -221,6 +267,27 @@ Route::prefix('/xendit')->name('xendit.')->group(function () {
 
 // Public vendor profile route
 Route::get('/vendor/{vendor}', [\App\Http\Controllers\VendorRatingController::class, 'show'])->name('vendor.profile');
+
+// Vendor withdrawal routes
+Route::middleware(['auth', 'vendor'])->prefix('/vendor/withdrawal')->name('vendor.withdrawal.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\VendorWithdrawalController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\VendorWithdrawalController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\VendorWithdrawalController::class, 'store'])->name('store');
+    Route::get('/{withdrawal}', [\App\Http\Controllers\VendorWithdrawalController::class, 'show'])->name('show');
+    Route::post('/{withdrawal}/cancel', [\App\Http\Controllers\VendorWithdrawalController::class, 'cancel'])->name('cancel');
+    Route::get('/history', [\App\Http\Controllers\VendorWithdrawalController::class, 'history'])->name('history');
+});
+
+// Admin withdrawal management routes
+Route::middleware(['auth', 'admin'])->prefix('/admin/withdrawal')->name('admin.withdrawal.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'index'])->name('index');
+    Route::get('/{withdrawal}', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'show'])->name('show');
+    Route::post('/{withdrawal}/approve', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'approve'])->name('approve');
+    Route::post('/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'reject'])->name('reject');
+    Route::post('/{withdrawal}/complete', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'complete'])->name('complete');
+    Route::post('/bulk-approve', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'bulkApprove'])->name('bulk-approve');
+    Route::get('/statistics', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'statistics'])->name('statistics');
+});
 
 // Pulse dashboard route (public access for embedded iframe)
 Route::get('/pulse/dashboard', function () {

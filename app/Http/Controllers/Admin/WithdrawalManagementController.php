@@ -4,32 +4,46 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\VendorWithdrawal;
-use App\Models\VendorWallet;
+use App\Models\Vendor;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class WithdrawalManagementController extends Controller
 {
     /**
-     * Display withdrawal requests for admin
+     * Display all withdrawal requests
      */
-    public function index()
+    public function index(Request $request)
     {
-        $withdrawals = VendorWithdrawal::with(['vendor', 'processedBy'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(20);
+        $query = VendorWithdrawal::with(['vendor', 'processedBy']);
 
-        $stats = [
-            'pending' => VendorWithdrawal::where('status', 'pending')->count(),
-            'approved' => VendorWithdrawal::where('status', 'approved')->count(),
-            'completed' => VendorWithdrawal::where('status', 'completed')->count(),
-            'rejected' => VendorWithdrawal::where('status', 'rejected')->count(),
-            'total_pending_amount' => VendorWithdrawal::where('status', 'pending')->sum('amount'),
-            'total_approved_amount' => VendorWithdrawal::where('status', 'approved')->sum('amount')
-        ];
+        // Filter by status
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
 
-        return view('dev.withdrawals.index', compact('withdrawals', 'stats'));
+        // Filter by vendor
+        if ($request->has('vendor_id') && $request->vendor_id !== '') {
+            $query->where('vendor_id', $request->vendor_id);
+        }
+
+        // Filter by date range
+        if ($request->has('date_from') && $request->date_from !== '') {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && $request->date_to !== '') {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $withdrawals = $query->orderBy('created_at', 'desc')->paginate(20);
+        $vendors = Vendor::orderBy('name')->get();
+        $statuses = ['pending', 'approved', 'rejected', 'processing', 'completed', 'failed'];
+
+        return view('admin.withdrawal.index', compact('withdrawals', 'vendors', 'statuses'));
     }
 
     /**
@@ -39,7 +53,7 @@ class WithdrawalManagementController extends Controller
     {
         $withdrawal->load(['vendor', 'processedBy', 'vendorWallet']);
 
-        return view('dev.withdrawals.show', compact('withdrawal'));
+        return view('admin.withdrawal.show', compact('withdrawal'));
     }
 
     /**
@@ -54,11 +68,23 @@ class WithdrawalManagementController extends Controller
         try {
             $withdrawal->approve(Auth::id(), $request->admin_notes);
 
-            return redirect()->route('admin.withdrawals.show', $withdrawal)
-                ->with('success', 'Penarikan berhasil disetujui!');
-        } catch (\Exception $e) {
+            Log::info('Withdrawal approved by admin', [
+                'withdrawal_id' => $withdrawal->id,
+                'admin_id' => Auth::id(),
+                'amount' => $withdrawal->amount
+            ]);
+
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('toast_success', 'Penarikan berhasil disetujui');
+        } catch (\Exception $e) {
+            Log::error('Withdrawal approval failed', [
+                'withdrawal_id' => $withdrawal->id,
+                'admin_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('toast_error', 'Gagal menyetujui penarikan: ' . $e->getMessage());
         }
     }
 
@@ -74,16 +100,29 @@ class WithdrawalManagementController extends Controller
         try {
             $withdrawal->reject(Auth::id(), $request->admin_notes);
 
-            return redirect()->route('admin.withdrawals.show', $withdrawal)
-                ->with('success', 'Penarikan berhasil ditolak!');
-        } catch (\Exception $e) {
+            Log::info('Withdrawal rejected by admin', [
+                'withdrawal_id' => $withdrawal->id,
+                'admin_id' => Auth::id(),
+                'amount' => $withdrawal->amount,
+                'reason' => $request->admin_notes
+            ]);
+
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('toast_success', 'Penarikan berhasil ditolak');
+        } catch (\Exception $e) {
+            Log::error('Withdrawal rejection failed', [
+                'withdrawal_id' => $withdrawal->id,
+                'admin_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('toast_error', 'Gagal menolak penarikan: ' . $e->getMessage());
         }
     }
 
     /**
-     * Complete withdrawal (after payment is made)
+     * Complete withdrawal request
      */
     public function complete(Request $request, VendorWithdrawal $withdrawal)
     {
@@ -95,20 +134,37 @@ class WithdrawalManagementController extends Controller
         try {
             $paymentProof = null;
             if ($request->hasFile('payment_proof')) {
-                $proofs = [];
+                $paymentProof = [];
                 foreach ($request->file('payment_proof') as $file) {
-                    $proofs[] = $file->store('withdrawal-proofs', 'public');
+                    $path = $file->store('withdrawal-proofs', 'public');
+                    $paymentProof[] = [
+                        'filename' => $file->getClientOriginalName(),
+                        'path' => $path,
+                        'size' => $file->getSize(),
+                        'mime_type' => $file->getMimeType()
+                    ];
                 }
-                $paymentProof = $proofs;
             }
 
             $withdrawal->complete($paymentProof);
 
-            return redirect()->route('admin.withdrawals.show', $withdrawal)
-                ->with('success', 'Penarikan berhasil diselesaikan!');
-        } catch (\Exception $e) {
+            Log::info('Withdrawal completed by admin', [
+                'withdrawal_id' => $withdrawal->id,
+                'admin_id' => Auth::id(),
+                'amount' => $withdrawal->amount
+            ]);
+
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('toast_success', 'Penarikan berhasil diselesaikan');
+        } catch (\Exception $e) {
+            Log::error('Withdrawal completion failed', [
+                'withdrawal_id' => $withdrawal->id,
+                'admin_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('toast_error', 'Gagal menyelesaikan penarikan: ' . $e->getMessage());
         }
     }
 
@@ -118,39 +174,62 @@ class WithdrawalManagementController extends Controller
     public function statistics()
     {
         $stats = [
-            'total_withdrawals' => VendorWithdrawal::count(),
-            'total_amount' => VendorWithdrawal::sum('amount'),
-            'total_fees' => VendorWithdrawal::sum('fee'),
-            'total_net_amount' => VendorWithdrawal::sum('net_amount'),
-            'pending_count' => VendorWithdrawal::where('status', 'pending')->count(),
-            'approved_count' => VendorWithdrawal::where('status', 'approved')->count(),
-            'completed_count' => VendorWithdrawal::where('status', 'completed')->count(),
-            'rejected_count' => VendorWithdrawal::where('status', 'rejected')->count()
+            'total_pending' => VendorWithdrawal::where('status', 'pending')->count(),
+            'total_approved' => VendorWithdrawal::where('status', 'approved')->count(),
+            'total_completed' => VendorWithdrawal::where('status', 'completed')->count(),
+            'total_rejected' => VendorWithdrawal::where('status', 'rejected')->count(),
+            'total_amount_pending' => VendorWithdrawal::where('status', 'pending')->sum('amount'),
+            'total_amount_completed' => VendorWithdrawal::where('status', 'completed')->sum('amount'),
+            'total_fees' => VendorWithdrawal::where('status', 'completed')->sum('fee')
         ];
 
-        // Monthly statistics
-        $monthlyStats = VendorWithdrawal::selectRaw('
-                DATE_FORMAT(created_at, "%Y-%m") as month,
-                COUNT(*) as count,
-                SUM(amount) as total_amount,
-                SUM(fee) as total_fee,
-                SUM(net_amount) as total_net_amount
-            ')
-            ->where('status', 'completed')
-            ->groupBy('month')
-            ->orderBy('month', 'desc')
-            ->limit(12)
-            ->get();
+        return response()->json($stats);
+    }
 
-        // Method statistics
-        $methodStats = VendorWithdrawal::selectRaw('
-                method,
-                COUNT(*) as count,
-                SUM(amount) as total_amount
-            ')
-            ->groupBy('method')
-            ->get();
+    /**
+     * Bulk approve withdrawals
+     */
+    public function bulkApprove(Request $request)
+    {
+        $request->validate([
+            'withdrawal_ids' => 'required|array',
+            'withdrawal_ids.*' => 'exists:vendor_withdrawals,id'
+        ]);
 
-        return view('dev.withdrawals.statistics', compact('stats', 'monthlyStats', 'methodStats'));
+        try {
+            $withdrawals = VendorWithdrawal::whereIn('id', $request->withdrawal_ids)
+                ->where('status', 'pending')
+                ->get();
+
+            $approvedCount = 0;
+            foreach ($withdrawals as $withdrawal) {
+                try {
+                    $withdrawal->approve(Auth::id(), 'Bulk approval');
+                    $approvedCount++;
+                } catch (\Exception $e) {
+                    Log::error('Bulk approval failed for withdrawal', [
+                        'withdrawal_id' => $withdrawal->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            Log::info('Bulk withdrawal approval', [
+                'admin_id' => Auth::id(),
+                'requested_count' => count($request->withdrawal_ids),
+                'approved_count' => $approvedCount
+            ]);
+
+            return redirect()->back()
+                ->with('toast_success', "Berhasil menyetujui {$approvedCount} penarikan");
+        } catch (\Exception $e) {
+            Log::error('Bulk approval failed', [
+                'admin_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('toast_error', 'Gagal melakukan bulk approval: ' . $e->getMessage());
+        }
     }
 }

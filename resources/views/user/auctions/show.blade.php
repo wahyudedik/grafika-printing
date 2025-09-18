@@ -82,13 +82,48 @@
                                                 <div class="card border {{ $loop->first ? 'border-primary' : '' }}">
                                                     <div class="card-body">
                                                         <div class="d-flex justify-content-between align-items-start mb-2">
-                                                            <h6 class="card-title mb-0">{{ $bid->vendor->name }}</h6>
+                                                            <div>
+                                                                <h6 class="card-title mb-0">
+                                                                    <a href="{{ route('vendor.profile', $bid->vendor->id) }}"
+                                                                        class="text-decoration-none text-primary fw-bold"
+                                                                        target="_blank">
+                                                                        {{ $bid->vendor->name }}
+                                                                        <i class="fas fa-external-link-alt ms-1"
+                                                                            style="font-size: 0.8em;"></i>
+                                                                    </a>
+                                                                </h6>
+                                                                <p class="text-muted small mb-1">{{ $bid->vendor->email }}
+                                                                </p>
+                                                                @if ($bid->vendor->average_rating > 0)
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="me-2">
+                                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                                @if ($i <= floor($bid->vendor->average_rating))
+                                                                                    <i class="fas fa-star text-warning"
+                                                                                        style="font-size: 0.8em;"></i>
+                                                                                @elseif($i - 0.5 <= $bid->vendor->average_rating)
+                                                                                    <i class="fas fa-star-half-alt text-warning"
+                                                                                        style="font-size: 0.8em;"></i>
+                                                                                @else
+                                                                                    <i class="far fa-star text-warning"
+                                                                                        style="font-size: 0.8em;"></i>
+                                                                                @endif
+                                                                            @endfor
+                                                                        </div>
+                                                                        <span class="text-muted small">
+                                                                            {{ number_format($bid->vendor->average_rating, 1) }}
+                                                                            ({{ $bid->vendor->rating_count }} rating)
+                                                                        </span>
+                                                                    </div>
+                                                                @else
+                                                                    <span class="text-muted small">Belum ada rating</span>
+                                                                @endif
+                                                            </div>
                                                             <span class="badge bg-green-lt">Rp
                                                                 {{ number_format($bid->bid_amount) }}</span>
                                                         </div>
-                                                        <p class="text-muted small mb-2">{{ $bid->vendor->email }}</p>
                                                         @if ($bid->message)
-                                                            <p class="small mb-2">{{ $bid->message }}</p>
+                                                            <p class="small mb-2 mt-2">{{ $bid->message }}</p>
                                                         @endif
                                                         <div class="form-check">
                                                             <input class="form-check-input" type="radio"
@@ -121,6 +156,7 @@
                                             </a>
                                         </div>
                                     @endif
+
                                 </form>
                             </div>
                         </div>

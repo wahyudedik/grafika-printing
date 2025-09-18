@@ -22,6 +22,12 @@ return new class extends Migration
             $table->string('no_resi')->nullable()->after('kurir');
             $table->text('alamat_pengiriman')->nullable()->after('no_resi');
 
+            // Shipping payment fields
+            $table->string('shipping_payment_link')->nullable()->after('alamat_pengiriman');
+            $table->string('shipping_payment_id')->nullable()->after('shipping_payment_link');
+            $table->enum('shipping_payment_status', ['pending', 'paid_cash', 'paid_app', 'expired'])->default('pending')->after('shipping_payment_id');
+            $table->timestamp('shipping_payment_date')->nullable()->after('shipping_payment_status');
+
             // Timestamps untuk tracking
             $table->timestamp('diproses_at')->nullable()->after('alamat_pengiriman');
             $table->timestamp('dicetak_at')->nullable()->after('diproses_at');

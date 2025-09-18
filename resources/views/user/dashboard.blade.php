@@ -45,14 +45,14 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="subheader">Pesanan Saya</div>
+                        <div class="subheader">Tracking Pesanan</div>
                     </div>
                     <div class="d-flex align-items-baseline">
-                        <div class="h1 mb-0 me-2">📋</div>
+                        <div class="h1 mb-0 me-2">📦</div>
                     </div>
                     <div class="mt-3">
-                        <p class="text-muted">Kelola pesanan dan transaksi Anda</p>
-                        <a href="#" class="btn btn-outline-primary btn-sm">Lihat Pesanan</a>
+                        <p class="text-muted">Lacak status pesanan dari lelang yang Anda menangkan</p>
+                        <a href="{{ route('user.tracking.index') }}" class="btn btn-primary btn-sm">Lacak Pesanan</a>
                     </div>
                 </div>
             </div>
@@ -149,11 +149,12 @@
                         <div class="col-md-4">
                             <div class="d-flex align-items-center mb-3">
                                 <div class="me-3">
-                                    <span class="avatar bg-yellow-lt">📦</span>
+                                    <span class="avatar bg-green-lt">⭐</span>
                                 </div>
                                 <div>
-                                    <div class="font-weight-medium">Tracking Pesanan</div>
-                                    <div class="text-muted">Lacak status pesanan dari pemesanan hingga pengiriman</div>
+                                    <div class="font-weight-medium">Rating Vendor</div>
+                                    <div class="text-muted">Beri rating dan review untuk vendor setelah pesanan selesai
+                                    </div>
                                 </div>
                             </div>
                         </div>

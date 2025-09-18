@@ -4,6 +4,9 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Xendit\Configuration;
+use Xendit\Invoice\InvoiceApi;
+use Xendit\Invoice\CreateInvoiceRequest;
 
 class XenditService
 {
@@ -18,34 +21,34 @@ class XenditService
         $this->baseUrl = config('services.xendit.base_url');
         $this->publicKey = config('services.xendit.public_key');
         $this->webhookToken = config('services.xendit.webhook_token');
+
+        // Configure Xendit SDK
+        Configuration::setXenditKey($this->apiKey);
     }
 
     /**
-     * Create a payment link
+     * Create a payment link using direct HTTP call
      */
     public function createPaymentLink(array $data)
     {
         try {
-            $response = Http::withHeaders([
-                'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
-                'Content-Type' => 'application/json',
-            ])->post($this->baseUrl . '/v2/payment-links', [
+            // Use direct HTTP call for better reliability
+            $url = $this->baseUrl . '/v2/invoices';
+            
+            $payload = [
                 'external_id' => $data['external_id'],
                 'amount' => $data['amount'],
                 'description' => $data['description'],
-                'invoice_duration' => $data['invoice_duration'] ?? 86400, // 24 hours default
-                'customer' => $data['customer'] ?? null,
-                'customer_notification_preference' => [
-                    'invoice_created' => ['email'],
-                    'invoice_reminder' => ['email'],
-                    'invoice_paid' => ['email'],
-                    'invoice_expired' => ['email']
+                'invoice_duration' => $data['invoice_duration'] ?? 86400, // 24 hours
+                'customer' => $data['customer'] ?? [
+                    'given_names' => 'Customer',
+                    'email' => 'customer@example.com'
                 ],
                 'success_redirect_url' => $data['success_redirect_url'] ?? null,
                 'failure_redirect_url' => $data['failure_redirect_url'] ?? null,
                 'payment_methods' => $data['payment_methods'] ?? [
                     'BCA',
-                    'BNI',
+                    'BNI', 
                     'BRI',
                     'BSI',
                     'MANDIRI',
@@ -62,22 +65,47 @@ class XenditService
                 'fees' => $data['fees'] ?? null,
                 'reminder_time' => $data['reminder_time'] ?? 1,
                 'locale' => $data['locale'] ?? 'id'
-            ]);
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])->post($url, $payload);
 
             if ($response->successful()) {
-                return $response->json();
+                $result = $response->json();
+                
+                Log::info('Xendit Invoice Created Successfully', [
+                    'external_id' => $data['external_id'],
+                    'invoice_id' => $result['id'] ?? null,
+                    'checkout_url' => $result['invoice_url'] ?? null,
+                    'full_response' => $result
+                ]);
+
+                return [
+                    'id' => $result['id'] ?? null,
+                    'external_id' => $result['external_id'] ?? null,
+                    'checkout_url' => $result['invoice_url'] ?? null,
+                    'amount' => $result['amount'] ?? null,
+                    'status' => $result['status'] ?? null,
+                    'created' => $result['created'] ?? null,
+                    'expires_at' => $result['expiry_date'] ?? null
+                ];
+            } else {
+                Log::error('Xendit API Error', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'data' => $data,
+                    'headers' => $response->headers()
+                ]);
+                return null;
             }
-
-            Log::error('Xendit Payment Link Creation Failed', [
-                'status' => $response->status(),
-                'response' => $response->json()
-            ]);
-
-            return null;
         } catch (\Exception $e) {
-            Log::error('Xendit Service Error', [
+            Log::error('Xendit Invoice Creation Error', [
                 'message' => $e->getMessage(),
-                'data' => $data
+                'data' => $data,
+                'trace' => $e->getTraceAsString()
             ]);
             return null;
         }
@@ -137,24 +165,36 @@ class XenditService
     }
 
     /**
-     * Get payment link by ID
+     * Get payment link by ID using Xendit Invoice SDK
      */
     public function getPaymentLink($paymentLinkId)
     {
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
-            ])->get($this->baseUrl . '/v2/payment-links/' . $paymentLinkId);
+            ])->get($this->baseUrl . '/v2/invoices/' . $paymentLinkId);
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+                return [
+                    'id' => $data['id'] ?? null,
+                    'external_id' => $data['external_id'] ?? null,
+                    'checkout_url' => $data['invoice_url'] ?? null,
+                    'amount' => $data['amount'] ?? null,
+                    'status' => $data['status'] ?? null,
+                    'created' => $data['created'] ?? null,
+                    'expires_at' => $data['expiry_date'] ?? null,
+                    'paid_at' => $data['paid_at'] ?? null,
+                    'payment_method' => $data['payment_method'] ?? null
+                ];
             }
 
             return null;
         } catch (\Exception $e) {
-            Log::error('Xendit Get Payment Link Error', [
+            Log::error('Xendit Get Invoice Error', [
                 'message' => $e->getMessage(),
-                'payment_link_id' => $paymentLinkId
+                'invoice_id' => $paymentLinkId,
+                'trace' => $e->getTraceAsString()
             ]);
             return null;
         }
@@ -185,24 +225,30 @@ class XenditService
     }
 
     /**
-     * Expire payment link
+     * Expire payment link using Xendit Invoice SDK
      */
     public function expirePaymentLink($paymentLinkId)
     {
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
-            ])->post($this->baseUrl . '/v2/payment-links/' . $paymentLinkId . '/expire');
+            ])->post($this->baseUrl . '/v2/invoices/' . $paymentLinkId . '/expire');
 
             if ($response->successful()) {
-                return $response->json();
+                $data = $response->json();
+                return [
+                    'id' => $data['id'] ?? null,
+                    'status' => $data['status'] ?? null,
+                    'expires_at' => $data['expiry_date'] ?? null
+                ];
             }
 
             return null;
         } catch (\Exception $e) {
-            Log::error('Xendit Expire Payment Link Error', [
+            Log::error('Xendit Expire Invoice Error', [
                 'message' => $e->getMessage(),
-                'payment_link_id' => $paymentLinkId
+                'invoice_id' => $paymentLinkId,
+                'trace' => $e->getTraceAsString()
             ]);
             return null;
         }
@@ -213,7 +259,23 @@ class XenditService
      */
     public function verifyWebhookSignature($payload, $signature)
     {
+        if (empty($this->webhookToken) || empty($signature)) {
+            Log::warning('Xendit webhook verification failed: missing token or signature', [
+                'has_token' => !empty($this->webhookToken),
+                'has_signature' => !empty($signature)
+            ]);
+            return false;
+        }
+
         $expectedSignature = hash_hmac('sha256', $payload, $this->webhookToken);
+
+        // Log for debugging
+        Log::info('Xendit webhook signature verification', [
+            'expected' => $expectedSignature,
+            'received' => $signature,
+            'match' => hash_equals($expectedSignature, $signature)
+        ]);
+
         return hash_equals($expectedSignature, $signature);
     }
 
@@ -240,13 +302,6 @@ class XenditService
             'retail_outlet' => [
                 'ALFAMART',
                 'INDOMARET'
-            ],
-            'paylater' => [
-                'KREDIVO',
-                'AKULAKU'
-            ],
-            'qr_code' => [
-                'QRIS'
             ]
         ];
     }

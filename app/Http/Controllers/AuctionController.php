@@ -210,7 +210,7 @@ class AuctionController extends Controller
         $winnerBid->update(['status' => 'accepted']);
 
         // Redirect to payment page
-        return redirect()->route('xendit.payment.create', ['auction' => $auction->id])
+        return redirect()->route('xendit.payment.show-page', ['auction' => $auction->id])
             ->with('success', 'Pemenang telah dipilih! Silakan lakukan pembayaran untuk melanjutkan proses.');
     }
 }

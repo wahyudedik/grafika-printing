@@ -341,55 +341,56 @@
 
 ### Fitur Lelang
 - [x] **User Lelang**  
-    Role baru untuk pengguna yang ingin membuat lelang.  
-    Dashboard sederhana khusus user lelang.
+    [x]Role baru untuk pengguna yang ingin membuat lelang.  
+    [x]Dashboard sederhana khusus user lelang.
 
 - [x] **Alur Lelang**  
-    User membuat permintaan cetak (spesifikasi, file, deadline).  
-    Vendor dari sistem POS bisa memberikan penawaran harga.  
-    User memilih pemenang (manual).
+    [x]User membuat permintaan cetak (spesifikasi, file, deadline).  
+    [x]Vendor dari sistem POS bisa memberikan penawaran harga.  
+    [x]User memilih pemenang (manual).
 
 - [x] **Manajemen Lelang oleh Superadmin**  
-    Superadmin bisa melihat, menyetujui, dan menghapus lelang.  
-    Dapat melihat seluruh penawaran dari vendor.
+    [x]Superadmin bisa melihat, menyetujui, dan menghapus lelang.  
+    [x]Dapat melihat seluruh penawaran dari vendor.
 
 - [x] **Manajemen User Lelang oleh Superadmin**  
-    Superadmin dapat melihat daftar user lelang, aktivasi/nonaktif, dan edit data.
+    [x]Superadmin dapat melihat daftar user lelang, aktivasi/nonaktif, dan edit data.
 
 - [x] **Integrasi ke Transaksi POS**
-    Setelah lelang dimenangkan, order otomatis masuk ke sistem POS vendor.
+    [x]Setelah lelang dimenangkan, order otomatis masuk ke sistem POS vendor.
 
 - [x] **Tracking Pesanan + COD Ongkos Kirim**  
-    Vendor mengatur status pesanan: Menunggu – Diproses – Dicetak – Dikirim – Selesai.  
-    User bisa melacak pesanan dari dashboard.  
-    Fitur COD ongkir: ongkir dibayar langsung ke kurir.  
-    Ongkir dihitung via RajaOngkir API atau diinput manual.
-    jika terkirim dan udah di terima barangnya, user dapat memberikan penilaian bintang dan komentar hasil kerja.
+    [x]Vendor mengatur status pesanan: Menunggu – Diproses – Dicetak – Dikirim – Selesai.  
+    [x]User bisa melacak pesanan dari dashboard.  
+    [x]Fitur COD ongkir: ongkir dibayar langsung ke kurir oleh user lelang dari app atau cash (jadi flownya ketika lelang sudah selesai dan vendor udah selesai mencetak maka vendor akan mengirimkan sesuai resi yang ada di aplikasi, tapi vendor tidak membayar biaya pengiriman, yang membayar adalah user yang membuat lelang dan itu bisa dilakukan cash ketika barang udah sampai istilahnya cod biaya pengiriman, jika tidak bisa seperti itu maka user mendapatkan email notifikasi untuk melakukan pembayaran dengan aplikasi ini, istilahnya mendapatkan invoice pengiriman, untuk detail harganya akan di input oleh vendor dan alamatnya juga akan di input oleh vendor, kemudian otomatis akan membuat invoice dengan jumlah biaya pengiriman yang sesuai, karena yang mengirimkan adalah vendor jadi vendor harus tau berat dan alamat user lelang yang di tuju sehingga sistem tracking dari raja ongkir atau rekomendasikan yang lain gpp itu dapat membaca data jumlah biaya pengiriman dengan tepat dan menghindari penipuan harga oleh kurir, contoh harusnya harganya 50 ribu di jadikan oleh kurir jadi 59 ribu jika tidak ada informasi yang sesuai dan ketepatan dalam pengoperasian aplikasi ini).
+    [x]Ongkir dihitung via RajaOngkir API atau diinput manual. sesuaikan dengan sistem nya supaya aplikasi ini dapat menjadi userfriendly dan tentunya bagus dan keren, saya mengikuti saran yang terbaik
+    [x]jika terkirim dan udah di terima barangnya, user dapat memberikan penilaian bintang dan komentar hasil kerja.
 
 - [x] **Wallet Vendor + Withdraw**  
-    Setelah pembayaran diterima dari user, dana otomatis masuk ke wallet vendor.  
-    Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Xendit).
+    [x]Setelah pembayaran diterima dari user, dana otomatis masuk ke wallet vendor.  
+    [x]Vendor bisa ajukan penarikan dana ke admin (manual/otomatis tergantung Xendit). jadi kalau manual itu vendor dapat menarik dana nya sesuai keinginan asal di atas syarat yang sudah di tentukan oleh superadmin/dev contoh dev menetapkan di dashboardnya minimal withdraw 50 ribu maka dana yang dimiliki vendor harus ada di 50 ribu atau lebih, jika mau otomatiis maka tiap bulan tanggalnya akan di set oleh dashboard superadmin itu akan otomatis di transfer ke rekening mereka.
 
 - [x] **Payment Gateway (Xendit)** 
     Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
-    Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
+    Integrasi API xendit untuk pembayaran otomatis.  
     Otomatisasi status pembayaran dan penerusan dana.
-    Pembayaran lelang dibayar user ke admin saat pemenang dipilih.  
-    Integrasi API Midtrans (Snap/VT Web) untuk pembayaran otomatis.  
-    Otomatisasi status pembayaran dan penerusan dana.  
 
 - [x] **Tambahan menu atau desain baru**
     desain profile vendor untuk hasil lelang dengan fitur bintang dan komentar yang udah diberikan oleh user.
     [x] menambahkan menu untuk ke landingpage depan ke dashboard dan dari dashboard ke landingpage untuk user,vendor, dan superadmin pada layoutnya masing masing.
-    perbaikan welcome.blade.php 
+    perbaikan welcome.blade.php .
+    Perbaikan desain landing page pada section lelang
 
 - [x] **Berbaikan Bug, tambah fitur dan flow**
     [x] Perbaikan validasi nomor telepon pada form lelang: 
         - Menerima format: 08123456789, +628123456789, atau (0812) 345-6789
         - Pesan error yang lebih jelas
         - Placeholder dan help text yang informatif
-    [x] Perbaikan flow pembayaran budget lelang : 
-        1. kalau user sudah memilih vendor, maka user harus bayar dl ke grafika, habis itu system menginformasikan bahwa pekerjaan bisa di proses
+    [x] Perbaikan flow pembayaran budget lelang : kalau user sudah memilih vendor, maka user harus bayar dl ke grafika, habis itu system menginformasikan bahwa pekerjaan bisa di proses.
+
+    menambahkan link detail nomer rekening untuk vendor supaya penarikan dan pembayaran dana withdraw mudah.
+    
+    membuat fitur biaya admin aplikasi (flownya jika saya membuat lelang 50 ribu maka di dashboard atau akun dari vendor akan bertambah sesuai setingan yang ada di dashboard superadmin/dev, jadi jika di superadmin di set 5000/10persen maka harga lelang yang di akun vendor 50 ribu di tambah biaya admin aplikasi yang udah di setting pada akun superadmin, kemudian jika vendor menawar dari 55 plus biaya admin maka vendor mencoba menawar 100 ribu maka di dalam akun user akan muncul 105 ribu karena di tambah admin 5ribu dan ketika user udah memilih vendor yang tepat maka akan melakukan pembayaran dengan xendit payment gateway sesuai harga yang udah di tambahkan oleh biaya aplikasi dan biaya penggunaan akun misal akun va admin dari xendit dua ribu maka yang di tranfer adalah nominal lelang di tambah nominal biaya admin aplikasi dan di tambah biaya admin payment gateway xendit).
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)
@@ -398,6 +399,7 @@
 - [x] User Management
 - [x] Daftar Lelang
 - [x] System Monitoring Laravel Pulse
+- [x] Data Pendapatan Vendor
 
 ### Vendor Dashboard
 - [x] Sales Analytics

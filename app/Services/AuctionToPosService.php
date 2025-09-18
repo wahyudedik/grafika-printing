@@ -109,11 +109,9 @@ class AuctionToPosService
         // Create new product
         return Produk::create([
             'vendor_id' => $vendor->id,
-            'kategori_produk_id' => $this->getOrCreateAuctionCategory($vendor),
+            'kategori_id' => $this->getOrCreateAuctionCategory($vendor),
             'nama_produk' => 'Lelang: ' . $auction->title,
-            'deskripsi' => $auction->description,
-            'harga' => $auction->budget / $auction->quantity, // Price per unit
-            'status' => 'active'
+            'deskripsi' => $auction->description
         ]);
     }
 
@@ -122,9 +120,21 @@ class AuctionToPosService
      */
     private function getOrCreateAuctionCategory(Vendor $vendor)
     {
-        // This would need to be implemented based on your KategoriProduk model
-        // For now, return a default category ID or create one
-        return 1; // Default category ID - adjust as needed
+        // Try to find existing "Lelang" category for this vendor
+        $category = \App\Models\Vendor\KategoriProduk::where('vendor_id', $vendor->id)
+            ->where('nama_kategori', 'Lelang')
+            ->first();
+
+        if (!$category) {
+            // Create new "Lelang" category
+            $category = \App\Models\Vendor\KategoriProduk::create([
+                'vendor_id' => $vendor->id,
+                'nama_kategori' => 'Lelang',
+                'slug' => 'lelang'
+            ]);
+        }
+
+        return $category->id;
     }
 
     /**
@@ -160,7 +170,7 @@ class AuctionToPosService
         ]);
 
         // Add payment to vendor wallet
-        $this->addPaymentToVendorWallet($auction, $winnerBid, $transaction);
+        $this->addPaymentToVendorWallet($auction, $winningBid, $transaction);
 
         return $transaction;
     }

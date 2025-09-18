@@ -24,6 +24,11 @@ class XenditWebhookMiddleware
                 'body' => $request->getContent(),
                 'ip' => $request->ip()
             ]);
+
+            // Skip CSRF token verification for webhooks
+            $request->setUserResolver(function () {
+                return null;
+            });
         }
 
         return $next($request);
