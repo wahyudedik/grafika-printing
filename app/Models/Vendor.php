@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\VendorWallet;
 use App\Models\Vendor\Alat;
 use App\Models\Vendor\Bahan;
 use App\Models\Vendor\Produk;
@@ -20,7 +21,6 @@ use App\Models\Vendor\TransaksiItemSpecifications;
 use App\Models\AuctionBid;
 use App\Models\Auction;
 use App\Models\VendorRating;
-use App\Models\VendorWallet;
 use App\Models\VendorWithdrawal;
 
 class Vendor extends Model
@@ -259,7 +259,7 @@ class Vendor extends Model
     /**
      * Get or create wallet for this vendor
      */
-    public function getOrCreateWallet()
+    public function getOrCreateWallet(): VendorWallet
     {
         return VendorWallet::getOrCreate($this->id);
     }

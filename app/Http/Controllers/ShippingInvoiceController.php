@@ -177,7 +177,7 @@ class ShippingInvoiceController extends Controller
                 ]);
             } else {
                 // App payment - verify with Xendit
-                $paymentStatus = $this->xenditService->getPaymentStatus($transaksi->shipping_payment_id);
+                $paymentStatus = $this->xenditService->getPaymentLink($transaksi->shipping_payment_id);
 
                 if ($paymentStatus && $paymentStatus['status'] === 'PAID') {
                     $transaksi->update([

@@ -311,4 +311,17 @@ Route::prefix('/api/vendor')->middleware(['auth', 'vendor'])->group(function () 
     Route::get('/account-details', [\App\Http\Controllers\VendorBankAccountController::class, 'getAccountDetails'])->name('api.vendor.account-details');
 });
 
+// CMS Management Routes (Admin/Dev only)
+Route::prefix('/admin/cms')->middleware(['auth', 'dev'])->name('admin.cms.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\CmsController::class, 'index'])->name('index');
+    Route::get('/{category}', [\App\Http\Controllers\Admin\CmsController::class, 'show'])->name('show');
+    Route::post('/', [\App\Http\Controllers\Admin\CmsController::class, 'store'])->name('store');
+    Route::put('/', [\App\Http\Controllers\Admin\CmsController::class, 'update'])->name('update');
+    Route::put('/setting/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'updateSetting'])->name('update-setting');
+    Route::delete('/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'destroy'])->name('destroy');
+    Route::post('/toggle/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'toggle'])->name('toggle');
+    Route::post('/upload-image', [\App\Http\Controllers\Admin\CmsController::class, 'uploadImage'])->name('upload-image');
+    Route::get('/api/settings/{category?}', [\App\Http\Controllers\Admin\CmsController::class, 'getSettings'])->name('api.settings');
+});
+
 require __DIR__ . '/auth.php';

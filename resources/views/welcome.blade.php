@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="{{ asset('img/favicon.png') }}">
-    <title>Grafika Printing - Smart Printing Management System</title>
+    <title>{{ \App\Models\CmsSetting::get('site_name', 'Grafika Printing') }} -
+        {{ \App\Models\CmsSetting::get('site_tagline', 'Smart Printing Management System') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
@@ -212,15 +213,23 @@
         .auction-card {
             transition: all 0.3s ease;
             background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
 
         .auction-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2) !important;
         }
 
         .auction-card .card-img-top {
             transition: all 0.3s ease;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .auction-card:hover .card-img-top {
@@ -229,6 +238,8 @@
 
         .status-badge {
             animation: pulse 2s infinite;
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
         }
 
         @keyframes pulse {
@@ -247,6 +258,11 @@
 
         .auction-detail-icon {
             transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .auction-card:hover .auction-detail-icon {
@@ -313,6 +329,216 @@
         .auction-card:nth-child(6) {
             animation-delay: 0.6s;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auction-card {
+                margin-bottom: 1.5rem;
+            }
+
+            .auction-card .card-body {
+                padding: 1.5rem;
+            }
+
+            .auction-detail-icon {
+                width: 35px;
+                height: 35px;
+            }
+
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .auction-card {
+                margin-bottom: 1rem;
+            }
+
+            .auction-card .card-body {
+                padding: 1rem;
+            }
+
+            .auction-detail-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .status-badge {
+                font-size: 0.6rem;
+                padding: 0.3rem 0.6rem;
+            }
+        }
+
+        /* Card Grid Layout */
+        .auction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .auction-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem 0;
+            }
+        }
+
+        /* Card Content Styling */
+        .auction-card .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2d3748;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .auction-card .card-text {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .auction-card .btn {
+            border-radius: 25px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .auction-card .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Additional Card Improvements */
+        .auction-card .card-body {
+            background: white;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .auction-card .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .auction-card .fw-semibold {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .auction-card .text-muted {
+            font-size: 0.75rem;
+            color: #6b7280 !important;
+        }
+
+        /* Badge Improvements */
+        .auction-card .badge {
+            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-weight: 500;
+        }
+
+        /* Grid Responsive Improvements */
+        @media (max-width: 1200px) {
+            .auction-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .auction-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.25rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .auction-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1rem 0;
+            }
+
+            .auction-card {
+                margin: 0 auto;
+                max-width: 400px;
+            }
+        }
+
+        /* Card Hover Effects */
+        .auction-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .auction-card:hover .card-title {
+            color: #1a202c;
+        }
+
+        .auction-card:hover .auction-detail-icon {
+            transform: scale(1.1);
+        }
+
+        /* Status Badge Animations */
+        .status-badge {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Card Loading Animation */
+        .auction-card {
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .auction-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .auction-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .auction-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .auction-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .auction-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .auction-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
     </style>
 </head>
 
@@ -331,7 +557,8 @@
         <div class="container-fluid px-4">
             <div class="d-flex align-items-center justify-content-between w-100">
                 <div class="logo-container">
-                    <span class="text-white fw-bold">GRAFIKA PRINTING</span>
+                    <span
+                        class="text-white fw-bold">{{ \App\Models\CmsSetting::get('site_name', 'GRAFIKA PRINTING') }}</span>
                 </div>
                 <div class="d-flex align-items-center">
                     <nav class="navbar-nav me-4">
@@ -385,18 +612,17 @@
 
                 <!-- Content -->
                 <div class="banner-text">
-                    <div class="text-dark fw-bold fs-4">Bahan HVS. NCR</div>
-                    <div class="text-dark fw-bold fs-4">Sudah termasuk</div>
-                    <div class="text-dark fw-bold fs-4">porforasi & potong</div>
+                    <div class="text-dark fw-bold fs-4">
+                        {{ \App\Models\CmsSetting::get('hero_subtitle', 'Bahan HVS. NCR Sudah termasuk porforasi & potong') }}
+                    </div>
                 </div>
                 <div class="receipt-stack">
                     <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=300&fit=crop"
                         alt="Receipt Books" class="w-100 h-100 object-fit-cover">
                 </div>
                 <div class="overlay-text">
-                    <div class="gradient-text">NOTA</div>
-                    <div class="gradient-text">ONLINE</div>
-                    <div class="gradient-text">SHOP</div>
+                    <div class="gradient-text">{{ \App\Models\CmsSetting::get('hero_title', 'NOTA ONLINE SHOP') }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -501,131 +727,124 @@
             </div>
 
             @if ($auctions->count() > 0)
-                <div class="row g-4">
+                <div class="auction-grid">
                     @foreach ($auctions as $auction)
-                        <div class="col-lg-4 col-md-6">
-                            <div class="card h-100 border-0 shadow-lg auction-card"
-                                style="border-radius: 20px; overflow: hidden;">
-                                <!-- Auction Image -->
-                                <div class="position-relative">
-                                    {{-- <img src="https://images.unsplash.com/photo-{{ rand(1500000000000, 1600000000000) }}?w=400&h=220&fit=crop"
-                                        alt="{{ $auction->title }}" class="card-img-top"
-                                        style="height: 200px; object-fit: cover;"> --}}
-
-                                    <!-- Status Badge -->
-                                    <div class="position-absolute top-0 end-0 m-3">
-                                        @if ($auction->status === 'active')
-                                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill status-badge">
-                                                <i class="fas fa-clock me-1"></i>Masih Memilih
-                                            </span>
-                                        @elseif($auction->status === 'waiting_payment')
-                                            <span class="badge bg-warning fs-6 px-3 py-2 rounded-pill">
-                                                <i class="fas fa-credit-card me-1"></i>Menunggu Pembayaran
-                                            </span>
-                                        @elseif($auction->status === 'paid')
-                                            <span class="badge bg-info fs-6 px-3 py-2 rounded-pill">
-                                                <i class="fas fa-check me-1"></i>Dibayar
-                                            </span>
-                                        @elseif($auction->status === 'completed')
-                                            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
-                                                <i class="fas fa-check-circle me-1"></i>Selesai
-                                            </span>
-                                        @else
-                                            <span class="badge bg-secondary fs-6 px-3 py-2 rounded-pill">
-                                                {{ ucfirst($auction->status) }}
-                                            </span>
-                                        @endif
-                                    </div>
-
-                                    <!-- Category Badge -->
-                                    <div class="position-absolute top-0 start-0 m-3">
-                                        <span class="badge bg-dark fs-6 px-3 py-2 rounded-pill">
-                                            <i class="fas fa-tag me-1"></i>{{ ucfirst($auction->category) }}
-                                        </span>
+                        <div class="auction-card">
+                            <!-- Auction Image -->
+                            <div class="position-relative">
+                                <div class="card-img-top"
+                                    style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                                    <div class="text-center text-white">
+                                        <i class="fas fa-gavel" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                        <h4 class="fw-bold">{{ $auction->title }}</h4>
                                     </div>
                                 </div>
 
-                                <!-- Card Body -->
-                                <div class="card-body p-4">
-                                    <h5 class="card-title fw-bold text-dark mb-3">{{ $auction->title }}</h5>
+                                <!-- Status Badge -->
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    @if ($auction->status === 'active')
+                                        <span class="badge bg-success status-badge">
+                                            <i class="fas fa-clock me-1"></i>Masih Memilih
+                                        </span>
+                                    @elseif($auction->status === 'waiting_payment')
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-credit-card me-1"></i>Menunggu Pembayaran
+                                        </span>
+                                    @elseif($auction->status === 'paid')
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-check me-1"></i>Dibayar
+                                        </span>
+                                    @elseif($auction->status === 'completed')
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-check-circle me-1"></i>Selesai
+                                        </span>
+                                    @else
+                                        <span class="badge bg-secondary">
+                                            {{ ucfirst($auction->status) }}
+                                        </span>
+                                    @endif
+                                </div>
 
-                                    <!-- Project Details -->
-                                    <div class="row g-3 mb-4">
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <div
-                                                    class="bg-primary bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
-                                                    <i class="fas fa-box text-primary"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold text-dark">
-                                                        {{ number_format($auction->quantity) }} pcs</div>
-                                                    <small class="text-muted">Jumlah Produksi</small>
-                                                </div>
+                                <!-- Category Badge -->
+                                <div class="position-absolute top-0 start-0 m-3">
+                                    <span class="badge bg-dark">
+                                        <i class="fas fa-tag me-1"></i>{{ ucfirst($auction->category) }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body p-4">
+                                <h5 class="card-title">{{ $auction->title }}</h5>
+
+                                <!-- Project Details -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="auction-detail-icon bg-primary bg-opacity-10 rounded-circle">
+                                                <i class="fas fa-box text-primary"></i>
                                             </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <div
-                                                    class="bg-success bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
-                                                    <i class="fas fa-money-bill-wave text-success"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold text-dark">Rp
-                                                        {{ number_format($auction->budget) }}</div>
-                                                    <small class="text-muted">Budget</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <div
-                                                    class="bg-warning bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
-                                                    <i class="fas fa-calendar-alt text-warning"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold text-dark">
-                                                        {{ $auction->deadline->format('d M Y') }}</div>
-                                                    <small class="text-muted">Deadline</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <div
-                                                    class="bg-info bg-opacity-10 rounded-circle p-2 me-3 auction-detail-icon">
-                                                    <i class="fas fa-user text-info"></i>
-                                                </div>
-                                                <div>
-                                                    <div class="fw-semibold text-dark">{{ $auction->user->name }}
-                                                    </div>
-                                                    <small class="text-muted">Oleh</small>
-                                                </div>
+                                            <div class="ms-3">
+                                                <div class="fw-semibold text-dark">
+                                                    {{ number_format($auction->quantity) }} pcs</div>
+                                                <small class="text-muted">Jumlah Produksi</small>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="auction-detail-icon bg-success bg-opacity-10 rounded-circle">
+                                                <i class="fas fa-money-bill-wave text-success"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <div class="fw-semibold text-dark">Rp
+                                                    {{ number_format($auction->budget) }}</div>
+                                                <small class="text-muted">Budget</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="auction-detail-icon bg-warning bg-opacity-10 rounded-circle">
+                                                <i class="fas fa-calendar-alt text-warning"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <div class="fw-semibold text-dark">
+                                                    {{ $auction->deadline->format('d M Y') }}</div>
+                                                <small class="text-muted">Deadline</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="auction-detail-icon bg-info bg-opacity-10 rounded-circle">
+                                                <i class="fas fa-user text-info"></i>
+                                            </div>
+                                            <div class="ms-3">
+                                                <div class="fw-semibold text-dark">{{ $auction->user->name }}</div>
+                                                <small class="text-muted">Oleh</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <!-- Action Button -->
-                                    <div class="d-grid">
-                                        @auth
-                                            @if (auth()->user()->usertype === 'user')
-                                                <a href="{{ route('auctions.show', $auction) }}"
-                                                    class="btn btn-primary btn-lg rounded-pill">
-                                                    <i class="fas fa-eye me-2"></i>Lihat Detail
-                                                </a>
-                                            @else
-                                                <a href="{{ route('login') }}"
-                                                    class="btn btn-outline-primary btn-lg rounded-pill">
-                                                    <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
-                                                </a>
-                                            @endif
+                                <!-- Action Button -->
+                                <div class="d-grid">
+                                    @auth
+                                        @if (auth()->user()->usertype === 'user')
+                                            <a href="{{ route('auctions.show', $auction) }}" class="btn btn-primary">
+                                                <i class="fas fa-eye me-2"></i>Lihat Detail
+                                            </a>
                                         @else
-                                            <a href="{{ route('login') }}"
-                                                class="btn btn-outline-primary btn-lg rounded-pill">
+                                            <a href="{{ route('login') }}" class="btn btn-outline-primary">
                                                 <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
                                             </a>
-                                        @endauth
-                                    </div>
+                                        @endif
+                                    @else
+                                        <a href="{{ route('login') }}" class="btn btn-outline-primary">
+                                            <i class="fas fa-sign-in-alt me-2"></i>Login untuk Melihat
+                                        </a>
+                                    @endauth
                                 </div>
                             </div>
                         </div>
@@ -658,7 +877,7 @@
                             Belum ada permintaan cetak yang tersedia saat ini.<br>
                             Daftar sebagai user untuk membuat permintaan pertama!
                         </p>
-                        <div class="d-flex gap-3 justify-content-center">
+                        <div class="d-flex gap-3 justify-content-center flex-wrap">
                             <a href="{{ route('register') }}"
                                 class="btn btn-light btn-lg px-4 py-2 rounded-pill shadow">
                                 <i class="fas fa-user-plus me-2"></i>Daftar Sekarang
@@ -820,33 +1039,48 @@
         <div class="container-fluid px-4">
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <h3 class="h5 mb-2">GRAFIKA PRINTING</h3>
-                    <div>081515876755</div>
-                    <div>Pesantren Peterongan Jombang</div>
-                    <div>info@grafikaprinting.com</div>
+                    <h3 class="h5 mb-2">{{ \App\Models\CmsSetting::get('site_name', 'GRAFIKA PRINTING') }}</h3>
+                    <div>{{ \App\Models\CmsSetting::get('contact_phone', '081515876755') }}</div>
+                    <div>{{ \App\Models\CmsSetting::get('contact_address', 'Pesantren Peterongan Jombang') }}</div>
+                    <div>{{ \App\Models\CmsSetting::get('contact_email', 'info@grafikaprinting.com') }}</div>
                     <div class="mt-2">
-                        <a href="#" class="text-muted me-2">f</a>
-                        <a href="#" class="text-muted me-2">🐦</a>
-                        <a href="#" class="text-muted me-2">G+</a>
-                        <a href="#" class="text-muted">📷</a>
+                        @php
+                            $socialMedia = \App\Models\CmsSetting::getSocialMedia();
+                        @endphp
+                        @foreach ($socialMedia as $social)
+                            @if ($social->key === 'social_facebook')
+                                <a href="{{ $social->value }}" class="text-muted me-2">f</a>
+                            @elseif($social->key === 'social_twitter')
+                                <a href="{{ $social->value }}" class="text-muted me-2">🐦</a>
+                            @elseif($social->key === 'social_instagram')
+                                <a href="{{ $social->value }}" class="text-muted me-2">📷</a>
+                            @elseif($social->key === 'social_linkedin')
+                                <a href="{{ $social->value }}" class="text-muted me-2">in</a>
+                            @endif
+                        @endforeach
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h3 class="h5 mb-2">Link Terkait</h3>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="link-primary">Tentang Grafika</a></li>
-                        <li><a href="#" class="link-primary">Aturan Penggunaan</a></li>
-                        <li><a href="#" class="link-primary">Kebijakan Privasi</a></li>
+                        <li><a href="{{ \App\Models\CmsSetting::get('footer_about', '#') }}"
+                                class="link-primary">Tentang Grafika</a></li>
+                        <li><a href="{{ \App\Models\CmsSetting::get('footer_terms', '#') }}"
+                                class="link-primary">Aturan Penggunaan</a></li>
+                        <li><a href="{{ \App\Models\CmsSetting::get('footer_privacy', '#') }}"
+                                class="link-primary">Kebijakan Privasi</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h3 class="h5 mb-2">Jam Pelayanan</h3>
-                    <div>Senin - Jum'at : 09:00 - 17:00 WIB</div>
-                    <div>Sabtu - Minggu : 09:00 - 15:00 WIB</div>
+                    <div>
+                        {{ \App\Models\CmsSetting::get('contact_hours', 'Senin - Jum\'at : 09:00 - 17:00 WIB, Sabtu - Minggu : 09:00 - 15:00 WIB') }}
+                    </div>
                 </div>
             </div>
-            <div class="text-center text-muted mt-3">©2025 Grafika Printing. Hak Cipta Terpelihara CV. Grafika Digital
-                Solution</div>
+            <div class="text-center text-muted mt-3">
+                {{ \App\Models\CmsSetting::get('footer_copyright', '©2025 Grafika Printing. Hak Cipta Terpelihara CV. Grafika Digital Solution') }}
+            </div>
         </div>
     </footer>
 

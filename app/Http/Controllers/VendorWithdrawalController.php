@@ -91,19 +91,19 @@ class VendorWithdrawalController extends Controller
         try {
             $withdrawal = VendorWithdrawal::createRequest(
                 $vendor->id,
-                $request->amount,
-                $request->method,
-                $request->account_number,
-                $request->account_name,
-                $request->bank_name,
-                $request->notes
+                $request->input('amount'),
+                $request->input('method'),
+                $request->input('account_number'),
+                $request->input('account_name'),
+                $request->input('bank_name'),
+                $request->input('notes')
             );
 
             Log::info('Withdrawal request created', [
                 'vendor_id' => $vendor->id,
                 'withdrawal_id' => $withdrawal->id,
-                'amount' => $request->amount,
-                'method' => $request->method
+                'amount' => $request->input('amount'),
+                'method' => $request->input('method')
             ]);
 
             return redirect()->route('vendor.withdrawal.index')
@@ -181,12 +181,12 @@ class VendorWithdrawalController extends Controller
             'method' => 'required|in:bank_transfer,e_wallet,cash'
         ]);
 
-        $fee = VendorWithdrawal::calculateFee($request->amount, $request->method);
-        $netAmount = $request->amount - $fee;
+        $fee = VendorWithdrawal::calculateFee($request->input('amount'), $request->input('method'));
+        $netAmount = $request->input('amount') - $fee;
 
         return response()->json([
             'success' => true,
-            'amount' => $request->amount,
+            'amount' => $request->input('amount'),
             'fee' => $fee,
             'net_amount' => $netAmount
         ]);

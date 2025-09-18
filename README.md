@@ -393,6 +393,8 @@
     
     [x]membuat fitur biaya admin aplikasi (flownya jika saya membuat lelang 50 ribu maka di dashboard atau akun dari vendor akan bertambah sesuai setingan yang ada di dashboard superadmin/dev, jadi jika di superadmin di set 5000/10persen maka harga lelang yang di akun vendor 50 ribu di tambah biaya admin aplikasi yang udah di setting pada akun superadmin, kemudian jika vendor menawar dari 55 plus biaya admin maka vendor mencoba menawar 100 ribu maka di dalam akun user akan muncul 105 ribu karena di tambah admin 5ribu dan ketika user udah memilih vendor yang tepat maka akan melakukan pembayaran dengan xendit payment gateway sesuai harga yang udah di tambahkan oleh biaya aplikasi dan biaya penggunaan akun misal akun va admin dari xendit dua ribu maka yang di tranfer adalah nominal lelang di tambah nominal biaya admin aplikasi dan di tambah biaya admin payment gateway xendit).
 
+    [x] penambahan fitur landingpage itu aku mau bisa di edit sesuka hati jadi ngeditnya ada di menu superadmin/dev ada satu menu tambahakn yaitu cms untuk mengedit logo, gambar scroll hero, terus membuat link lainnya seperti di footer itu ada kayak kontak, privacy policy dan lainnya, kemudian ada isian link sosial media lengkap pokoknya, bisa di atur di dashboard superadmin/dev
+
 ## Dashboard Features
 ### Admin Dashboard (Developer)
 - [x] User Statistics

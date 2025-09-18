@@ -137,7 +137,7 @@ class VendorWallet extends TenantModel
     /**
      * Get or create wallet for vendor
      */
-    public static function getOrCreate($vendorId)
+    public static function getOrCreate($vendorId): VendorWallet
     {
         return static::firstOrCreate(
             ['vendor_id' => $vendorId],

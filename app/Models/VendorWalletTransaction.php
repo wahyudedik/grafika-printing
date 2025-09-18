@@ -46,7 +46,7 @@ class VendorWalletTransaction extends TenantModel
     public function getFormattedAmountAttribute()
     {
         $sign = $this->type === 'credit' ? '+' : '-';
-        return $sign . 'Rp ' . number_format($this->amount);
+        return $sign . 'Rp ' . number_format((float) $this->amount, 0, ',', '.');
     }
 
     /**

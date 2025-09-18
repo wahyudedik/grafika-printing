@@ -53,7 +53,7 @@ class ProcessAutomaticWithdrawals extends Command
 
                     // Check if vendor has sufficient balance
                     if ($wallet->balance < $minWithdrawal) {
-                        $this->warn("Vendor {$vendor->name} has insufficient balance: Rp " . number_format($wallet->balance, 0, ',', '.'));
+                        $this->warn("Vendor {$vendor->name} has insufficient balance: Rp " . number_format((float) $wallet->balance, 0, ',', '.'));
                         continue;
                     }
 
@@ -89,7 +89,7 @@ class ProcessAutomaticWithdrawals extends Command
                     $processedCount++;
                     $totalAmount += $autoWithdrawalAmount;
 
-                    $this->info("Created automatic withdrawal for {$vendor->name}: Rp " . number_format($autoWithdrawalAmount, 0, ',', '.'));
+                    $this->info("Created automatic withdrawal for {$vendor->name}: Rp " . number_format((float) $autoWithdrawalAmount, 0, ',', '.'));
 
                     Log::info('Automatic withdrawal created', [
                         'vendor_id' => $vendor->id,
