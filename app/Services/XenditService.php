@@ -32,6 +32,9 @@ class XenditService
     public function createPaymentLink(array $data)
     {
         try {
+            // Validate required fields
+            $this->validatePaymentData($data);
+            
             // Use direct HTTP call for better reliability
             $url = $this->baseUrl . '/v2/invoices';
 
@@ -305,5 +308,27 @@ class XenditService
                 'INDOMARET'
             ]
         ];
+    }
+
+    /**
+     * Validate payment data before sending to Xendit
+     */
+    private function validatePaymentData(array $data)
+    {
+        $required = ['external_id', 'amount', 'description'];
+        
+        foreach ($required as $field) {
+            if (!isset($data[$field]) || empty($data[$field])) {
+                throw new \InvalidArgumentException("Field '{$field}' is required");
+            }
+        }
+
+        if (!is_numeric($data['amount']) || $data['amount'] <= 0) {
+            throw new \InvalidArgumentException("Amount must be a positive number");
+        }
+
+        if (strlen($data['external_id']) > 255) {
+            throw new \InvalidArgumentException("External ID must be less than 255 characters");
+        }
     }
 }

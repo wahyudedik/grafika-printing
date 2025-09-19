@@ -445,4 +445,4 @@
 5. Create a Pull Request
 
 ## License
-Copyright © 2023 Grafika Printing. All rights reserved.
+Copyright © 2025 Grafika Printing. All rights reserved.

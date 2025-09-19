@@ -44,6 +44,14 @@ class XenditPaymentController extends Controller
     public function createPaymentLink(Request $request, Auction $auction): JsonResponse
     {
         try {
+            // Validate request
+            $request->validate([
+                'payment_type' => 'required|string|in:bank_transfer,ewallet,credit_card',
+                'customer' => 'sometimes|array',
+                'customer.given_names' => 'required_with:customer|string|max:255',
+                'customer.email' => 'required_with:customer|email|max:255'
+            ]);
+
             // Check if auction is waiting for payment
             if ($auction->status !== 'waiting_payment') {
                 return response()->json(['error' => 'Lelang ini tidak memerlukan pembayaran.'], 400);
@@ -139,6 +147,12 @@ class XenditPaymentController extends Controller
                 'checkout_url' => $response['invoice_url'] ?? $response['checkout_url'] ?? null,
                 'xenpayment_id' => $response['id'] ?? null
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning('Xendit payment validation failed', [
+                'auction_id' => $auction->id,
+                'errors' => $e->errors()
+            ]);
+            return response()->json(['error' => 'Data tidak valid.', 'details' => $e->errors()], 422);
         } catch (\Exception $e) {
             Log::error('Error creating Xendit payment', [
                 'auction_id' => $auction->id,
@@ -146,7 +160,7 @@ class XenditPaymentController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json(['error' => 'Internal server error'], 500);
+            return response()->json(['error' => 'Gagal membuat pembayaran. Silakan coba lagi.'], 500);
         }
     }
 
