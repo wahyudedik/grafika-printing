@@ -247,22 +247,10 @@ Route::prefix('/api')->group(function () {
     })->name('api.xendit.test');
 });
 
-// Xendit Payment routes
-Route::prefix('/xendit')->name('xendit.')->group(function () {
-    // Webhook route (no auth required, skip CSRF)
-    Route::post('/webhook', [\App\Http\Controllers\XenditWebhookController::class, 'handleWebhook'])
-        ->middleware([\App\Http\Middleware\XenditWebhookMiddleware::class])
-        ->name('webhook');
-
-    // Payment routes (auth required)
-    Route::middleware(['auth', 'verified'])->group(function () {
-        Route::get('/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'showPaymentPage'])->name('payment.show-page');
-        Route::post('/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'createPaymentLink'])->name('payment.create');
-        Route::get('/payments/{payment}/status', [\App\Http\Controllers\XenditPaymentController::class, 'getPaymentStatus'])->name('payment.status');
-        Route::get('/payments/{payment}', [\App\Http\Controllers\XenditPaymentController::class, 'showPayment'])->name('payment.show');
-        Route::post('/payments/{payment}/expire', [\App\Http\Controllers\XenditPaymentController::class, 'expirePayment'])->name('payment.expire');
-        Route::get('/payment-methods', [\App\Http\Controllers\XenditPaymentController::class, 'getPaymentMethods'])->name('payment.methods');
-    });
+// Xendit Payment routes (moved to API routes)
+// Payment page route (still in web for view rendering)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/xendit/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'showPaymentPage'])->name('xendit.payment.show-page');
 });
 
 // Public vendor profile route
