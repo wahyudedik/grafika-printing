@@ -149,14 +149,14 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->group(function () 
 
     // Auction bid routes for vendor
     Route::prefix('/dashboard/auctions')->name('vendor.auctions.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'index'])->name('index');
-        Route::get('/my-bids', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'myBids'])->name('my-bids');
-        Route::get('/{auction}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'show'])->name('show');
-        Route::get('/{auction}/bid', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'create'])->name('bid');
-        Route::post('/{auction}/bid', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'store'])->name('store-bid');
-        Route::get('/bids/{bid}/edit', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'edit'])->name('edit-bid');
-        Route::put('/bids/{bid}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'update'])->name('update-bid');
-        Route::delete('/bids/{bid}', [\App\Http\Controllers\Vendor\AuctionBidController::class, 'destroy'])->name('destroy-bid');
+        Route::get('/', [\App\Http\Controllers\vendor\AuctionBidController::class, 'index'])->name('index');
+        Route::get('/my-bids', [\App\Http\Controllers\vendor\AuctionBidController::class, 'myBids'])->name('my-bids');
+        Route::get('/{auction}', [\App\Http\Controllers\vendor\AuctionBidController::class, 'show'])->name('show');
+        Route::get('/{auction}/bid', [\App\Http\Controllers\vendor\AuctionBidController::class, 'create'])->name('bid');
+        Route::post('/{auction}/bid', [\App\Http\Controllers\vendor\AuctionBidController::class, 'store'])->name('store-bid');
+        Route::get('/bids/{bid}/edit', [\App\Http\Controllers\vendor\AuctionBidController::class, 'edit'])->name('edit-bid');
+        Route::put('/bids/{bid}', [\App\Http\Controllers\vendor\AuctionBidController::class, 'update'])->name('update-bid');
+        Route::delete('/bids/{bid}', [\App\Http\Controllers\vendor\AuctionBidController::class, 'destroy'])->name('destroy-bid');
     });
 
     // Order tracking routes for vendor

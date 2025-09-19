@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Vendor;
+namespace App\Http\Controllers\vendor;
 
 use App\Models\User;
 use App\Models\Vendor;
@@ -142,7 +142,7 @@ class TransaksiController extends Controller
 
             // Ambil jumlah pembayaran dari request
             $terbayar = $request->input('terbayar', $totalPrice);
-            
+
             // Hitung kembalian
             $kembali = max(0, $terbayar - $totalPrice);
 
@@ -328,7 +328,7 @@ class TransaksiController extends Controller
             if ($request->has('terbayar')) {
                 $terbayar = $request->input('terbayar');
                 $kembali = max(0, $terbayar - $transaksi->total_harga);
-                
+
                 $transaksi->terbayar = $terbayar;
                 $transaksi->kembali = $kembali;
             }
