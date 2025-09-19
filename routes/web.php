@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -290,7 +291,7 @@ Route::prefix('/api')->group(function () {
                     'id' => $auction->id,
                     'status' => $auction->status,
                     'user_id' => $auction->user_id,
-                    'auth_id' => auth()->id(),
+                    'auth_id' => Auth::id(),
                     'bids_count' => $auction->bids->count(),
                     'pending_bids' => $auction->bids->where('status', 'pending')->count()
                 ],
@@ -338,8 +339,8 @@ Route::prefix('/api')->group(function () {
                     'status' => $auction->status,
                     'winning_bid' => $auction->winning_bid,
                     'user_id' => $auction->user_id,
-                    'auth_user_id' => auth()->id(),
-                    'can_access' => $auction->user_id === auth()->id() && $auction->status === 'waiting_payment'
+                    'auth_user_id' => Auth::id(),
+                    'can_access' => $auction->user_id === Auth::id() && $auction->status === 'waiting_payment'
                 ],
                 'payment_route' => route('xendit.payment.create', $auction->id),
                 'xendit_config' => [
@@ -363,7 +364,7 @@ Route::prefix('/api')->group(function () {
             'success' => true,
             'message' => 'Test route working',
             'timestamp' => now(),
-            'user' => auth()->user() ? auth()->user()->name : 'Not authenticated'
+            'user' => Auth::user() ? Auth::user()->name : 'Not authenticated'
         ]);
     })->name('debug.test');
 });
