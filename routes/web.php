@@ -324,6 +324,38 @@ Route::prefix('/api')->group(function () {
             ]);
         }
     })->name('debug.webhook');
+
+    // Debug route untuk test payment creation
+    Route::post('/debug/payment/{auction}', function (Request $request, $auction) {
+        try {
+            $auction = \App\Models\Auction::findOrFail($auction);
+
+            return response()->json([
+                'success' => true,
+                'auction' => [
+                    'id' => $auction->id,
+                    'title' => $auction->title,
+                    'status' => $auction->status,
+                    'winning_bid' => $auction->winning_bid,
+                    'user_id' => $auction->user_id,
+                    'auth_user_id' => auth()->id(),
+                    'can_access' => $auction->user_id === auth()->id() && $auction->status === 'waiting_payment'
+                ],
+                'payment_route' => route('xendit.payment.create', $auction->id),
+                'xendit_config' => [
+                    'api_key_set' => !empty(config('services.xendit.api_key')),
+                    'base_url' => config('services.xendit.base_url'),
+                    'redirect_url' => config('services.xendit.redirect_url')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    })->name('debug.payment');
 });
 
 // Xendit Webhook route (no auth required, skip CSRF)

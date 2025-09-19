@@ -146,6 +146,10 @@
 
                 // Create payment
                 console.log('Creating payment with type:', paymentType);
+                console.log('Auction ID:', {{ $auction->id }});
+                console.log('Payment route:', '{{ route('xendit.payment.create', $auction->id) }}');
+                console.log('CSRF Token:', document.querySelector('meta[name="csrf-token"]').getAttribute(
+                    'content'));
 
                 fetch(`{{ route('xendit.payment.create', $auction->id) }}`, {
                         method: 'POST',
@@ -164,6 +168,12 @@
                     })
                     .then(response => {
                         console.log('Response status:', response.status);
+                        console.log('Response headers:', response.headers);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
                         return response.json();
                     })
                     .then(data => {
@@ -188,6 +198,11 @@
                     })
                     .catch(error => {
                         console.error('Fetch error:', error);
+                        console.error('Error details:', {
+                            name: error.name,
+                            message: error.message,
+                            stack: error.stack
+                        });
                         alert('Terjadi kesalahan saat membuat pembayaran: ' + error.message);
                     })
                     .finally(() => {
