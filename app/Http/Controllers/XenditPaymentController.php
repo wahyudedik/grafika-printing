@@ -81,8 +81,8 @@ class XenditPaymentController extends Controller
                         'category' => 'Printing Service'
                     ]
                 ],
-                'success_redirect_url' => 'https://e0e0c1473a98.ngrok-free.app' . route('auctions.show', $auction, false) . '?payment=success',
-                'failure_redirect_url' => 'https://e0e0c1473a98.ngrok-free.app' . route('auctions.show', $auction, false) . '?payment=failed',
+                'success_redirect_url' => config('services.xendit.redirect_url') . route('auctions.show', $auction, false) . '?payment=success',
+                'failure_redirect_url' => config('services.xendit.redirect_url') . route('auctions.show', $auction, false) . '?payment=failed',
                 'invoice_duration' => 86400, // 24 hours
                 'payment_methods' => [
                     'BCA',
