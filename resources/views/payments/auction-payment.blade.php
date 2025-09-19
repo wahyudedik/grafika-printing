@@ -126,18 +126,46 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Payment Page');
+            
             const createPaymentBtn = document.getElementById('create_payment_btn');
             const paymentTypeSelect = document.getElementById('payment_type');
             const paymentModal = document.getElementById('paymentModal');
             const paymentContent = document.getElementById('payment_content');
 
+            console.log('Elements found:', {
+                createPaymentBtn: createPaymentBtn,
+                paymentTypeSelect: paymentTypeSelect,
+                paymentModal: paymentModal,
+                paymentContent: paymentContent
+            });
+
+            if (!createPaymentBtn) {
+                console.error('Create Payment Button not found!');
+                return;
+            }
+
             createPaymentBtn.addEventListener('click', function() {
+                console.log('Create Payment Button clicked!');
                 const paymentType = paymentTypeSelect.value;
+
+                console.log('Payment type selected:', paymentType);
 
                 if (!paymentType) {
                     alert('Pilih metode pembayaran terlebih dahulu');
                     return;
                 }
+
+                // Test simple fetch first
+                console.log('Testing simple fetch to debug route...');
+                fetch('/debug/test')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Debug test response:', data);
+                    })
+                    .catch(error => {
+                        console.error('Debug test error:', error);
+                    });
 
                 // Show loading state
                 createPaymentBtn.disabled = true;

@@ -329,7 +329,7 @@ Route::prefix('/api')->group(function () {
     Route::post('/debug/payment/{auction}', function (Request $request, $auction) {
         try {
             $auction = \App\Models\Auction::findOrFail($auction);
-
+            
             return response()->json([
                 'success' => true,
                 'auction' => [
@@ -356,6 +356,16 @@ Route::prefix('/api')->group(function () {
             ]);
         }
     })->name('debug.payment');
+    
+    // Simple test route untuk debug JavaScript
+    Route::get('/debug/test', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'Test route working',
+            'timestamp' => now(),
+            'user' => auth()->user() ? auth()->user()->name : 'Not authenticated'
+        ]);
+    })->name('debug.test');
 });
 
 // Xendit Webhook route (no auth required, skip CSRF)
