@@ -136,7 +136,7 @@ class XenditPaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'payment' => $payment,
-                'checkout_url' => $response['invoice_url'] ?? null,
+                'checkout_url' => $response['invoice_url'] ?? $response['checkout_url'] ?? null,
                 'xenpayment_id' => $response['id'] ?? null
             ]);
         } catch (\Exception $e) {

@@ -34,7 +34,7 @@ class XenditService
         try {
             // Use direct HTTP call for better reliability
             $url = $this->baseUrl . '/v2/invoices';
-            
+
             $payload = [
                 'external_id' => $data['external_id'],
                 'amount' => $data['amount'],
@@ -48,7 +48,7 @@ class XenditService
                 'failure_redirect_url' => $data['failure_redirect_url'] ?? null,
                 'payment_methods' => $data['payment_methods'] ?? [
                     'BCA',
-                    'BNI', 
+                    'BNI',
                     'BRI',
                     'BSI',
                     'MANDIRI',
@@ -75,7 +75,7 @@ class XenditService
 
             if ($response->successful()) {
                 $result = $response->json();
-                
+
                 Log::info('Xendit Invoice Created Successfully', [
                     'external_id' => $data['external_id'],
                     'invoice_id' => $result['id'] ?? null,
@@ -86,6 +86,7 @@ class XenditService
                 return [
                     'id' => $result['id'] ?? null,
                     'external_id' => $result['external_id'] ?? null,
+                    'invoice_url' => $result['invoice_url'] ?? null,
                     'checkout_url' => $result['invoice_url'] ?? null,
                     'amount' => $result['amount'] ?? null,
                     'status' => $result['status'] ?? null,
