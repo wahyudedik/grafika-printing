@@ -209,6 +209,14 @@ class AuctionController extends Controller
 
         $winnerBid->update(['status' => 'accepted']);
 
+        // Log untuk debug
+        Log::info('Auction closed and winner selected', [
+            'auction_id' => $auction->id,
+            'winner_vendor_id' => $winnerBid->vendor_id,
+            'winning_bid' => $winnerBid->bid_amount,
+            'redirect_url' => route('xendit.payment.show-page', ['auction' => $auction->id])
+        ]);
+
         // Redirect to payment page
         return redirect()->route('xendit.payment.show-page', ['auction' => $auction->id])
             ->with('success', 'Pemenang telah dipilih! Silakan lakukan pembayaran untuk melanjutkan proses.');

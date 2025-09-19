@@ -28,6 +28,17 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
     Route::get('/user', [\App\Http\Controllers\Api\AuthController::class, 'user'])->middleware('auth:sanctum')->name('user');
 });
 
+// Debug route untuk test authentication
+Route::get('/debug/auth', function (Request $request) {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user' => auth()->user(),
+        'guard' => auth()->getDefaultDriver(),
+        'token' => $request->bearerToken(),
+        'session' => session()->all()
+    ]);
+});
+
 // Xendit API Routes
 Route::prefix('xendit')->name('api.xendit.')->group(function () {
     // Webhook route (no auth required, skip CSRF)
@@ -36,7 +47,7 @@ Route::prefix('xendit')->name('api.xendit.')->group(function () {
         ->name('webhook');
 
     // Payment routes (auth required - supports both web session and API token)
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum,web'])->group(function () {
         Route::get('/auctions/{auction}/payment', [XenditPaymentController::class, 'showPaymentPage'])->name('payment.show-page');
         Route::post('/auctions/{auction}/payment', [XenditPaymentController::class, 'createPaymentLink'])->name('payment.create');
         Route::get('/payments/{payment}/status', [XenditPaymentController::class, 'getPaymentStatus'])->name('payment.status');

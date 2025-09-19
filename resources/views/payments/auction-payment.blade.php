@@ -147,7 +147,7 @@
                 // Create payment
                 console.log('Creating payment with type:', paymentType);
 
-                fetch(`/api/xendit/auctions/{{ $auction->id }}/payment`, {
+                fetch(`{{ route('xendit.payment.create', $auction->id) }}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

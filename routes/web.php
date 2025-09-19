@@ -245,12 +245,107 @@ Route::prefix('/api')->group(function () {
             ]
         ]);
     })->name('api.xendit.test');
+
+    // Debug route untuk test payment creation
+    Route::post('/xendit/debug/payment', function (Request $request) {
+        try {
+            $xenditService = app(\App\Services\XenditService::class);
+
+            $testData = [
+                'external_id' => 'test_' . time(),
+                'amount' => 10000,
+                'description' => 'Test Payment',
+                'customer' => [
+                    'given_names' => 'Test User',
+                    'email' => 'test@example.com'
+                ],
+                'success_redirect_url' => 'https://grafika.noteds.com',
+                'failure_redirect_url' => 'https://grafika.noteds.com'
+            ];
+
+            $result = $xenditService->createPaymentLink($testData);
+
+            return response()->json([
+                'success' => true,
+                'result' => $result,
+                'test_data' => $testData
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    })->name('xendit.debug.payment');
+
+    // Debug route untuk test auction close
+    Route::post('/debug/auction/{auction}/close', function (Request $request, $auction) {
+        try {
+            $auction = \App\Models\Auction::findOrFail($auction);
+
+            return response()->json([
+                'success' => true,
+                'auction' => [
+                    'id' => $auction->id,
+                    'status' => $auction->status,
+                    'user_id' => $auction->user_id,
+                    'auth_id' => auth()->id(),
+                    'bids_count' => $auction->bids->count(),
+                    'pending_bids' => $auction->bids->where('status', 'pending')->count()
+                ],
+                'redirect_url' => route('xendit.payment.show-page', ['auction' => $auction->id])
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
+    })->name('debug.auction.close');
+
+    // Debug route untuk test webhook
+    Route::post('/debug/webhook', function (Request $request) {
+        try {
+            $webhookController = app(\App\Http\Controllers\XenditWebhookController::class);
+            $result = $webhookController->handleWebhook($request);
+
+            return response()->json([
+                'success' => true,
+                'webhook_response' => $result->getContent(),
+                'status_code' => $result->getStatusCode(),
+                'headers' => $result->headers->all()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    })->name('debug.webhook');
 });
+
+// Xendit Webhook route (no auth required, skip CSRF)
+Route::post('/xendit/webhook', [\App\Http\Controllers\XenditWebhookController::class, 'handleWebhook'])
+    ->middleware([\App\Http\Middleware\XenditWebhookMiddleware::class])
+    ->name('xendit.webhook');
+
+// Test webhook endpoint
+Route::get('/xendit/webhook/test', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Xendit webhook endpoint is accessible',
+        'url' => route('xendit.webhook'),
+        'timestamp' => now()
+    ]);
+})->name('xendit.webhook.test');
 
 // Xendit Payment routes (moved to API routes)
 // Payment page route (still in web for view rendering)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/xendit/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'showPaymentPage'])->name('xendit.payment.show-page');
+    Route::post('/xendit/auctions/{auction}/payment', [\App\Http\Controllers\XenditPaymentController::class, 'createPaymentLink'])->name('xendit.payment.create');
 });
 
 // Public vendor profile route

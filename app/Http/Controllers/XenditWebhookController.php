@@ -47,7 +47,8 @@ class XenditWebhookController extends Controller
                         'payload' => $payload
                     ]);
 
-                    return response()->json(['error' => 'Invalid signature'], 400);
+                    // Return 200 to prevent retries, but log the issue
+                    return response()->json(['status' => 'ignored', 'reason' => 'Invalid signature']);
                 }
             }
 
@@ -97,7 +98,8 @@ class XenditWebhookController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            return response()->json(['error' => 'Internal server error'], 500);
+            // Return 200 to prevent retries, but log the error
+            return response()->json(['status' => 'error', 'message' => 'Processing failed but acknowledged']);
         }
     }
 
