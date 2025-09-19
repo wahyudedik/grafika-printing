@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('transaksis', function (Blueprint $table) {
-            // Shipping payment fields
-            $table->string('shipping_payment_link')->nullable()->after('alamat_pengiriman');
-            $table->string('shipping_payment_id')->nullable()->after('shipping_payment_link');
-            $table->enum('shipping_payment_status', ['pending', 'paid_cash', 'paid_app', 'expired'])->default('pending')->after('shipping_payment_id');
-            $table->timestamp('shipping_payment_date')->nullable()->after('shipping_payment_status');
-        });
+        // This migration is no longer needed as the shipping payment fields
+        // are already defined in the earlier migration: 2025_09_17_133734_add_tracking_fields_to_transaksis_table.php
+        // The fields were added in that migration to avoid duplicate column errors.
     }
 
     /**
@@ -25,13 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('transaksis', function (Blueprint $table) {
-            $table->dropColumn([
-                'shipping_payment_link',
-                'shipping_payment_id',
-                'shipping_payment_status',
-                'shipping_payment_date'
-            ]);
-        });
+        // This migration is no longer needed as the shipping payment fields
+        // are already defined in the earlier migration: 2025_09_17_133734_add_tracking_fields_to_transaksis_table.php
+        // No rollback needed since no changes were made in this migration.
     }
 };

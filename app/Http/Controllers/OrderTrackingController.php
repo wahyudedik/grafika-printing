@@ -41,7 +41,7 @@ class OrderTrackingController extends Controller
         }
 
         // Get transactions from auctions where this vendor is the winner
-        $transaksis = \App\Models\Vendor\Transaksi::where('vendor_id', $vendor->id)
+        $transaksis = Transaksi::where('vendor_id', $vendor->id)
             ->whereNotNull('auction_id')
             ->with(['auction', 'pelanggan'])
             ->orderBy('created_at', 'desc')
