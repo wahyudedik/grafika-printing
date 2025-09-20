@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware
             ->alias([
+                'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
+                'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
                 'dev' => \App\Http\Middleware\DevMiddleware::class,
                 'vendor' => \App\Http\Middleware\VendorMiddleware::class,
                 'user' => \App\Http\Middleware\UserMiddleware::class,

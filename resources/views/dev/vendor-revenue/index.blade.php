@@ -158,7 +158,7 @@
                                         </td>
                                         <td>
                                             <div class="btn-list flex-nowrap">
-                                                <a href="{{ route('admin.vendor-revenue.show', $vendor['id']) }}"
+                                                <a href="{{ route('admin.analytics.vendor-revenue.show', $vendor['id']) }}"
                                                     class="btn btn-sm btn-outline-primary">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                         height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -216,4 +216,3 @@
         }, 30000);
     </script>
 @endsection
-

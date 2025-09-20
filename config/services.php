@@ -41,7 +41,8 @@ return [
         'public_key' => env('XENDIT_PUBLIC_KEY'),
         'webhook_token' => env('XENDIT_WEBHOOK_TOKEN'),
         'base_url' => env('XENDIT_BASE_URL', 'https://api.xendit.co'),
-        'redirect_url' => env('APP_URL'),
+        'redirect_url' => env('APP_URL', 'https://332deb15a4e6.ngrok-free.app'),
+        'webhook_url' => env('WEBHOOK_URL', 'https://332deb15a4e6.ngrok-free.app/contoh-xendit/webhook'),
     ],
 
 ];

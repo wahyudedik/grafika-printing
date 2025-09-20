@@ -34,7 +34,7 @@ class XenditService
         try {
             // Validate required fields
             $this->validatePaymentData($data);
-            
+
             // Use direct HTTP call for better reliability
             $url = $this->baseUrl . '/v2/invoices';
 
@@ -47,8 +47,8 @@ class XenditService
                     'given_names' => 'Customer',
                     'email' => 'customer@example.com'
                 ],
-                'success_redirect_url' => $data['success_redirect_url'] ?? null,
-                'failure_redirect_url' => $data['failure_redirect_url'] ?? null,
+                'success_redirect_url' => $data['success_redirect_url'] ?? config('app.url') . '/payment/success',
+                'failure_redirect_url' => $data['failure_redirect_url'] ?? config('app.url') . '/payment/failed',
                 'payment_methods' => $data['payment_methods'] ?? [
                     'BCA',
                     'BNI',
@@ -64,8 +64,14 @@ class XenditService
                     'SHOPEEPAY'
                 ],
                 'currency' => $data['currency'] ?? 'IDR',
-                'items' => $data['items'] ?? null,
-                'fees' => $data['fees'] ?? null,
+                'items' => $data['items'] ?? [
+                    [
+                        'name' => $data['description'] ?? 'Payment Item',
+                        'quantity' => 1,
+                        'price' => $data['amount']
+                    ]
+                ],
+                'fees' => $data['fees'] ?? [],
                 'reminder_time' => $data['reminder_time'] ?? 1,
                 'locale' => $data['locale'] ?? 'id'
             ];
@@ -316,7 +322,7 @@ class XenditService
     private function validatePaymentData(array $data)
     {
         $required = ['external_id', 'amount', 'description'];
-        
+
         foreach ($required as $field) {
             if (!isset($data[$field]) || empty($data[$field])) {
                 throw new \InvalidArgumentException("Field '{$field}' is required");

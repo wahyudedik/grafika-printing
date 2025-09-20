@@ -26,5 +26,10 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('decimal', function ($expression) {
             return "<?php echo number_format($expression, 2, ',', '.'); ?>";
         });
+
+        // Force HTTPS for ngrok development
+        if (str_contains(config('app.url'), 'ngrok-free.app')) {
+            \URL::forceScheme('https');
+        }
     }
 }

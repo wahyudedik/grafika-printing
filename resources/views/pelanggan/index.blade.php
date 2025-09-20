@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Pelanggan</h3>
                 </div>
                 <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('pelanggan.index') }}" method="GET" class="flex-grow-1" data-no-loading>
+                    <form action="{{ route('vendor.customers.index') }}" method="GET" class="flex-grow-1" data-no-loading>
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -31,14 +31,14 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('pelanggan.index', array_merge(request()->except('status'), ['status' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.customers.index', array_merge(request()->except('status'), ['status' => ''])) }}">Semua</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('pelanggan.index', array_merge(request()->except('status'), ['status' => 'active'])) }}">Aktif</a>
+                                href="{{ route('vendor.customers.index', array_merge(request()->except('status'), ['status' => 'active'])) }}">Aktif</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('pelanggan.index', array_merge(request()->except('status'), ['status' => 'inactive'])) }}">Non-Aktif</a>
+                                href="{{ route('vendor.customers.index', array_merge(request()->except('status'), ['status' => 'inactive'])) }}">Non-Aktif</a>
                         </div>
                     </div>
-                    <a href="{{ route('pelanggan.create') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.customers.create') }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -89,8 +89,8 @@
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('pelanggan.show', $item->id) }}" class="btn btn-icon btn-ghost-info"
-                                        data-bs-toggle="tooltip" title="View">
+                                    <a href="{{ route('vendor.customers.show', $item->id) }}"
+                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none">
@@ -100,7 +100,7 @@
                                                 d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('pelanggan.edit', $item->id) }}"
+                                    <a href="{{ route('vendor.customers.edit', $item->id) }}"
                                         class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -147,7 +147,7 @@
                                         Silahkan tambahkan pelanggan baru atau ubah filter pencarian
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('pelanggan.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.customers.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"
@@ -201,7 +201,7 @@
                             if (result.isConfirmed) {
                                 showLoading('Menghapus...');
                                 deleteForm.action =
-                                    `{{ route('pelanggan.destroy', '') }}/${id}`;
+                                    `{{ route('vendor.customers.destroy', '') }}/${id}`;
                                 deleteForm.submit();
                             }
                         });

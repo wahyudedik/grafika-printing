@@ -1,4 +1,4 @@
-@extends('layouts.layouts_dashboard')
+@extends('layouts.vendor')
 
 @section('title', 'Detail Produk')
 @section('content')
@@ -167,7 +167,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ route('produk.edit', $produk->id) }}" class="btn btn-primary">
+                        <a href="{{ route('vendor.products.edit', $produk->id) }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -179,7 +179,7 @@
                             Edit
                         </a>
 
-                        <a href="{{ route('produk.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.products.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

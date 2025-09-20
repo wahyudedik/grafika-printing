@@ -20,7 +20,7 @@
                         Laravel Pulse Dashboard
                     </h3>
                     <div class="card-actions">
-                        <a href="{{ route('admin.pulse.statistics') }}" class="btn btn-primary btn-sm">
+                        <a href="{{ route('admin.analytics.pulse.statistics') }}" class="btn btn-primary btn-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -155,8 +155,9 @@
 
                                         <!-- Pulse Dashboard akan di-embed di sini -->
                                         <div class="pulse-dashboard">
-                                            <iframe src="{{ route('pulse.dashboard') }}" width="100%" height="800"
-                                                frameborder="0" style="border: 1px solid #e9ecef; border-radius: 8px;">
+                                            <iframe src="{{ route('admin.analytics.pulse') }}" width="100%"
+                                                height="800" frameborder="0"
+                                                style="border: 1px solid #e9ecef; border-radius: 8px;">
                                             </iframe>
                                         </div>
                                     </div>
@@ -174,7 +175,7 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.pulse.statistics') }}"
+                                                <a href="{{ route('admin.analytics.pulse.statistics') }}"
                                                     class="btn btn-outline-primary w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
                                                         width="24" height="24" viewBox="0 0 24 24"
@@ -189,7 +190,7 @@
                                                 </a>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.pulse.performance') }}"
+                                                <a href="{{ route('admin.analytics.pulse.performance') }}"
                                                     class="btn btn-outline-success w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
                                                         width="24" height="24" viewBox="0 0 24 24"
@@ -204,7 +205,7 @@
                                                 </a>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.pulse.activity') }}"
+                                                <a href="{{ route('admin.analytics.pulse.activity') }}"
                                                     class="btn btn-outline-warning w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
                                                         width="24" height="24" viewBox="0 0 24 24"
@@ -218,7 +219,7 @@
                                                 </a>
                                             </div>
                                             <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.pulse.index') }}"
+                                                <a href="{{ route('admin.analytics.pulse') }}"
                                                     class="btn btn-outline-info w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
                                                         width="24" height="24" viewBox="0 0 24 24"

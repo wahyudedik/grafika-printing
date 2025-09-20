@@ -193,6 +193,106 @@ class CmsSettingSeeder extends Seeder
                 'label' => 'Copyright Text',
                 'description' => 'Copyright notice text',
                 'sort_order' => 4
+            ],
+
+            // Additional Hero Settings
+            [
+                'key' => 'hero_button_text',
+                'value' => 'Mulai Sekarang',
+                'type' => 'text',
+                'category' => 'hero',
+                'label' => 'Hero Button Text',
+                'description' => 'Text for the main call-to-action button',
+                'sort_order' => 4
+            ],
+            [
+                'key' => 'hero_button_url',
+                'value' => '/register',
+                'type' => 'url',
+                'category' => 'hero',
+                'label' => 'Hero Button URL',
+                'description' => 'URL for the main call-to-action button',
+                'sort_order' => 5
+            ],
+
+            // SEO Settings
+            [
+                'key' => 'seo_title',
+                'value' => 'Grafika Printing - Smart Printing Management System',
+                'type' => 'text',
+                'category' => 'seo',
+                'label' => 'SEO Title',
+                'description' => 'Main SEO title for the website',
+                'sort_order' => 1
+            ],
+            [
+                'key' => 'seo_description',
+                'value' => 'Sistem manajemen printing yang cerdas untuk bisnis Anda. Kelola pesanan, inventory, dan pelanggan dengan mudah.',
+                'type' => 'textarea',
+                'category' => 'seo',
+                'label' => 'SEO Description',
+                'description' => 'Meta description for SEO',
+                'sort_order' => 2
+            ],
+            [
+                'key' => 'seo_keywords',
+                'value' => 'printing, manajemen, bisnis, sistem, grafika',
+                'type' => 'text',
+                'category' => 'seo',
+                'label' => 'SEO Keywords',
+                'description' => 'Keywords for SEO optimization',
+                'sort_order' => 3
+            ],
+
+            // Features Section
+            [
+                'key' => 'features_title',
+                'value' => 'Fitur Unggulan',
+                'type' => 'text',
+                'category' => 'features',
+                'label' => 'Features Section Title',
+                'description' => 'Title for features section',
+                'sort_order' => 1
+            ],
+            [
+                'key' => 'features_subtitle',
+                'value' => 'Kemudahan dalam mengelola bisnis printing Anda',
+                'type' => 'textarea',
+                'category' => 'features',
+                'label' => 'Features Section Subtitle',
+                'description' => 'Subtitle for features section',
+                'sort_order' => 2
+            ],
+
+            // Testimonials Section
+            [
+                'key' => 'testimonials_title',
+                'value' => 'Apa Kata Pelanggan Kami',
+                'type' => 'text',
+                'category' => 'testimonials',
+                'label' => 'Testimonials Section Title',
+                'description' => 'Title for testimonials section',
+                'sort_order' => 1
+            ],
+
+            // Newsletter Section
+            [
+                'key' => 'newsletter_title',
+                'value' => 'Dapatkan Update Terbaru',
+                'type' => 'text',
+                'category' => 'newsletter',
+                'label' => 'Newsletter Title',
+                'description' => 'Title for newsletter subscription',
+                'sort_order' => 1
+            ],
+            [
+                'key' => 'newsletter_subtitle',
+                'value' => 'Berlangganan untuk mendapatkan tips dan update terbaru',
+                'type' => 'textarea',
+                'category' => 'newsletter',
+                'label' => 'Newsletter Subtitle',
+                'description' => 'Subtitle for newsletter subscription',
+                'sort_order' => 2
             ]
         ];
 

@@ -64,7 +64,7 @@ class PosController extends Controller
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
             Log::error('Error in POS category: ' . $e->getMessage());
-            return redirect()->route('pos.index')
+            return redirect()->route('vendor.pos.index')
                 ->with('error', 'Failed to load category: ' . $e->getMessage());
         }
     }
@@ -98,7 +98,7 @@ class PosController extends Controller
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
             Log::error('Error in POS search: ' . $e->getMessage());
-            return redirect()->route('pos.index')
+            return redirect()->route('vendor.pos.index')
                 ->with('error', 'Search failed: ' . $e->getMessage());
         }
     }
@@ -149,7 +149,7 @@ class PosController extends Controller
                 if ($spesifikasiProduk->spesifikasi->tipe_input === 'select') {
                     $bahan = Bahan::with('wholesalePrice')->find($value);
                     if ($bahan) {
-                        $finalPrice = $wholesalePrice->calculateFinalPrice($bahan->hpp, $quantity, $bahan->id);
+                        $finalPrice = $wholesalePrice->calculateFinalPrice((float) $bahan->hpp, $quantity, $bahan->id);
                         $specPrice = $finalPrice * $quantity;
 
                         $specDetails[$specId] = [
@@ -164,7 +164,7 @@ class PosController extends Controller
                     $inputValue = (float)$value;
                     $bahan = $spesifikasiProduk->bahans->first();
                     if ($bahan) {
-                        $pricePerUnit = $wholesalePrice->calculateFinalPrice($bahan->hpp, $inputValue, $bahan->id);
+                        $pricePerUnit = $wholesalePrice->calculateFinalPrice((float) $bahan->hpp, $inputValue, $bahan->id);
                         $specPrice = $pricePerUnit * $inputValue * $quantity;
 
                         $specDetails[$specId] = [
@@ -193,7 +193,7 @@ class PosController extends Controller
             $cart[] = $cartItem;
             session()->put('cart', $cart);
 
-            return redirect()->route('pos.cart')
+            return redirect()->route('vendor.pos.cart')
                 ->with('toast_success', 'Product added to cart successfully');
         } catch (\Exception $e) {
             Log::error('Error adding to cart: ' . $e->getMessage());
@@ -221,11 +221,11 @@ class PosController extends Controller
                     $wholesalePrice = new WholesalePrice();
 
                     if ($spec['input_type'] === 'select' && $bahan) {
-                        $finalPrice = $wholesalePrice->calculateFinalPrice($bahan->hpp, $quantity, $bahan->id);
+                        $finalPrice = $wholesalePrice->calculateFinalPrice((float) $bahan->hpp, $quantity, $bahan->id);
                         $specPrice = $finalPrice * $quantity;
                     } elseif ($bahan) {
                         $inputValue = (float)$spec['value'];
-                        $pricePerUnit = $wholesalePrice->calculateFinalPrice($bahan->hpp, $inputValue, $bahan->id);
+                        $pricePerUnit = $wholesalePrice->calculateFinalPrice((float) $bahan->hpp, $inputValue, $bahan->id);
                         $specPrice = $pricePerUnit * $inputValue * $quantity;
                     } else {
                         $specPrice = $spec['price'] ?? 0;
@@ -241,7 +241,7 @@ class PosController extends Controller
             return view('pos.cart', compact('cartItems', 'products'));
         } catch (\Exception $e) {
             Log::error('Error in cart view: ' . $e->getMessage());
-            return redirect()->route('pos.index')
+            return redirect()->route('vendor.pos.index')
                 ->with('error', 'Failed to load cart: ' . $e->getMessage());
         }
     }
@@ -258,11 +258,11 @@ class PosController extends Controller
                 session()->put('cart', $cart);
             }
 
-            return redirect()->route('pos.cart')
+            return redirect()->route('vendor.pos.cart')
                 ->with('success', 'Item removed successfully');
         } catch (\Exception $e) {
             Log::error('Error removing item: ' . $e->getMessage());
-            return redirect()->route('pos.cart')
+            return redirect()->route('vendor.pos.cart')
                 ->with('error', 'Failed to remove item: ' . $e->getMessage());
         }
     }
@@ -272,17 +272,17 @@ class PosController extends Controller
     {
         try {
             session()->forget('cart');
-            return redirect()->route('pos.cart')
+            return redirect()->route('vendor.pos.cart')
                 ->with('success', 'Cart cleared successfully');
         } catch (\Exception $e) {
             Log::error('Error clearing cart: ' . $e->getMessage());
-            return redirect()->route('pos.cart')
+            return redirect()->route('vendor.pos.cart')
                 ->with('error', 'Failed to clear cart: ' . $e->getMessage());
         }
     }
 
     // Fungsi untuk memeriksa harga
-    public function checkPrice(Request $request) 
+    public function checkPrice(Request $request)
     {
         try {
             // Dapatkan vendor dari user yang sedang login
@@ -307,7 +307,7 @@ class PosController extends Controller
                 if ($spesifikasiProduk->spesifikasi->tipe_input === 'select') {
                     $bahan = Bahan::with('wholesalePrice')->find($value);
                     if ($bahan) {
-                        $finalPrice = $wholesalePrice->calculateFinalPrice($bahan->hpp, $quantity, $bahan->id);
+                        $finalPrice = $wholesalePrice->calculateFinalPrice((float) $bahan->hpp, $quantity, $bahan->id);
                         $total += $finalPrice * $quantity;
 
                         $specificationDetails[] = [
@@ -320,7 +320,7 @@ class PosController extends Controller
                     $inputValue = (float)$value;
                     $bahan = $spesifikasiProduk->bahans->first();
                     if ($bahan) {
-                        $pricePerUnit = $wholesalePrice->calculateFinalPrice($bahan->hpp, $inputValue, $bahan->id);
+                        $pricePerUnit = $wholesalePrice->calculateFinalPrice((float) $bahan->hpp, $inputValue, $bahan->id);
                         $materialCost = $pricePerUnit * $inputValue; // Multiply by input value
                         $total += $materialCost * $quantity;
 

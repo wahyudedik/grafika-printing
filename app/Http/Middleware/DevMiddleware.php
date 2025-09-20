@@ -16,15 +16,22 @@ class DevMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()){
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $userType = $request->user()->usertype;
         if ($userType === 'dev') {
             return $next($request);
-        }else{
-            return redirect()->back();
+        } else {
+            // Redirect to appropriate dashboard based on user type
+            if ($userType === 'vendor') {
+                return redirect()->route('vendor.dashboard');
+            } elseif ($userType === 'user') {
+                return redirect()->route('user.dashboard');
+            } else {
+                return redirect()->route('welcome')->with('error', 'Akses ditolak. Hanya developer yang dapat mengakses halaman ini.');
+            }
         }
     }
 }

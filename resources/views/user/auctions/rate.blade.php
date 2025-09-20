@@ -123,7 +123,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('auctions.show', $auction) }}" class="btn btn-secondary">Batal</a>
+                            <a href="{{ route('user.auctions.show', $auction) }}" class="btn btn-secondary">Batal</a>
                             <button type="submit" class="btn btn-primary">Kirim Rating</button>
                         </div>
                     </form>

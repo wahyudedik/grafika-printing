@@ -94,7 +94,7 @@ class Bahan extends TenantModel
             ->orderBy('min_quantity', 'desc')
             ->first();
 
-        return $wholesalePrice ? $wholesalePrice->harga : $this->hpp;
+        return $wholesalePrice ? (float) $wholesalePrice->harga : (float) $this->hpp;
     }
 
     public function getStockStatusAttribute(): string

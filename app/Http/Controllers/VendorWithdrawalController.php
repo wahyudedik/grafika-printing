@@ -20,7 +20,7 @@ class VendorWithdrawalController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan');
         }
 
@@ -42,7 +42,7 @@ class VendorWithdrawalController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan');
         }
 
@@ -69,7 +69,7 @@ class VendorWithdrawalController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan');
         }
 
@@ -200,7 +200,7 @@ class VendorWithdrawalController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan');
         }
 

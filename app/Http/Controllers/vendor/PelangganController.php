@@ -81,7 +81,7 @@ class PelangganController extends Controller
 
         $pelanggan = Pelanggan::create($validated);
 
-        return redirect()->route('pelanggan.index')
+        return redirect()->route('vendor.customers.index')
             ->with('toast_success', 'Pelanggan berhasil ditambahkan.');
     }
 
@@ -122,7 +122,7 @@ class PelangganController extends Controller
         // Ensure we don't change the vendor_id
         $pelanggan->update($validated);
 
-        return redirect()->route('pelanggan.index')
+        return redirect()->route('vendor.customers.index')
             ->with('toast_success', 'Pelanggan berhasil diperbarui.');
     }
 
@@ -135,13 +135,13 @@ class PelangganController extends Controller
 
         // Check if the customer has any transactions
         if ($pelanggan->transaksi()->count() > 0) {
-            return redirect()->route('pelanggan.index')
+            return redirect()->route('vendor.customers.index')
                 ->with('toast_error', 'Pelanggan tidak dapat dihapus karena memiliki transaksi.');
         }
 
         $pelanggan->delete();
 
-        return redirect()->route('pelanggan.index')
+        return redirect()->route('vendor.customers.index')
             ->with('toast_success', 'Pelanggan berhasil dihapus.');
     }
 }

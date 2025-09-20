@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Bahan</h3>
                 </div>
                 <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('bahan.index') }}" method="GET" class="flex-grow-1">
+                    <form action="{{ route('vendor.materials.index') }}" method="GET" class="flex-grow-1">
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -31,14 +31,14 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('stok'), ['stok' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('stok'), ['stok' => ''])) }}">Semua</a>
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('stok'), ['stok' => 'available'])) }}">Tersedia</a>
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('stok'), ['stok' => 'available'])) }}">Tersedia</a>
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('stok'), ['stok' => 'low'])) }}">Stok
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('stok'), ['stok' => 'low'])) }}">Stok
                                 Rendah</a>
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('stok'), ['stok' => 'out'])) }}">Habis</a>
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('stok'), ['stok' => 'out'])) }}">Habis</a>
                         </div>
                     </div>
 
@@ -49,16 +49,16 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('has_wholesale'), ['has_wholesale' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('has_wholesale'), ['has_wholesale' => ''])) }}">Semua</a>
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('has_wholesale'), ['has_wholesale' => 'yes'])) }}">Ada</a>
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('has_wholesale'), ['has_wholesale' => 'yes'])) }}">Ada</a>
                             <a class="dropdown-item"
-                                href="{{ route('bahan.index', array_merge(request()->except('has_wholesale'), ['has_wholesale' => 'no'])) }}">Tidak
+                                href="{{ route('vendor.materials.index', array_merge(request()->except('has_wholesale'), ['has_wholesale' => 'no'])) }}">Tidak
                                 Ada</a>
                         </div>
                     </div>
 
-                    <a href="{{ route('bahan.create') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.materials.create') }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -101,8 +101,8 @@
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('bahan.show', $item->id) }}" class="btn btn-icon btn-ghost-info"
-                                        data-bs-toggle="tooltip" title="View">
+                                    <a href="{{ route('vendor.materials.show', $item->id) }}"
+                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none">
@@ -112,8 +112,8 @@
                                                 d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('bahan.edit', $item->id) }}" class="btn btn-icon btn-ghost-warning"
-                                        data-bs-toggle="tooltip" title="Edit">
+                                    <a href="{{ route('vendor.materials.edit', $item->id) }}"
+                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none">
@@ -159,7 +159,7 @@
                                         Silahkan tambahkan bahan baru atau ubah filter pencarian
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('bahan.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.materials.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"
@@ -201,7 +201,7 @@
                         const id = this.getAttribute('data-id');
                         // Use the global confirmDelete function from alert.blade.php
                         confirmDelete('delete-form');
-                        deleteForm.action = `{{ route('bahan.destroy', '') }}/${id}`;
+                        deleteForm.action = `{{ route('vendor.materials.destroy', '') }}/${id}`;
                     });
                 });
             });

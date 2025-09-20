@@ -43,7 +43,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Tanggal Pembelian</label>
-                                    <div class="form-control-plaintext">{{ $alat->tanggal_pembelian->format('d M Y') }}</div>
+                                    <div class="form-control-plaintext">{{ $alat->tanggal_pembelian->format('d M Y') }}
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -63,7 +64,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ route('alat.edit', $alat->id) }}" class="btn btn-primary">
+                        <a href="{{ route('vendor.tools.edit', $alat->id) }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -75,7 +76,7 @@
                             Edit
                         </a>
 
-                        <a href="{{ route('alat.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.tools.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

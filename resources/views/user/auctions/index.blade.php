@@ -10,7 +10,7 @@
                     <h2 class="h3 mb-1">Daftar Lelang Aktif</h2>
                     <p class="text-muted">Temukan proyek cetak yang sesuai dengan kebutuhan Anda</p>
                 </div>
-                <a href="{{ route('auctions.create') }}" class="btn btn-primary">
+                <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -103,12 +103,12 @@
                                     </div>
 
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('auctions.show', $auction) }}"
+                                        <a href="{{ route('user.auctions.show', $auction) }}"
                                             class="btn btn-primary btn-sm flex-fill">
                                             Lihat Detail
                                         </a>
                                         @if ($auction->user_id === auth()->id())
-                                            <a href="{{ route('auctions.edit', $auction) }}"
+                                            <a href="{{ route('user.auctions.edit', $auction) }}"
                                                 class="btn btn-outline-secondary btn-sm">
                                                 Edit
                                             </a>
@@ -141,7 +141,7 @@
                         Belum ada permintaan cetak yang tersedia saat ini. Coba lagi nanti atau buat permintaan baru.
                     </p>
                     <div class="empty-action">
-                        <a href="{{ route('auctions.create') }}" class="btn btn-primary">
+                        <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">

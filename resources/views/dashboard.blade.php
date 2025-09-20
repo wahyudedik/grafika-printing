@@ -21,7 +21,7 @@
                             <span class="status-dot status-dot-animated bg-green d-block"></span>
                         </div>
                         <div class="col">
-                            <a href="{{ route('pengguna.index') }}" class="text-decoration-none">Manage Users</a>
+                            <a href="{{ route('vendor.users.index') }}" class="text-decoration-none">Manage Users</a>
                         </div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                             <span class="status-dot status-dot-animated bg-purple d-block"></span>
                         </div>
                         <div class="col">
-                            <a href="{{ route('produk.index') }}" class="text-decoration-none">Manage Products</a>
+                            <a href="{{ route('vendor.products.index') }}" class="text-decoration-none">Manage Products</a>
                         </div>
                     </div>
                 </div>
@@ -112,7 +112,8 @@
                             <span class="status-dot status-dot-animated bg-orange d-block"></span>
                         </div>
                         <div class="col">
-                            <a href="{{ route('transaksi.index') }}" class="text-decoration-none">View Transactions</a>
+                            <a href="{{ route('vendor.transactions.index') }}" class="text-decoration-none">View
+                                Transactions</a>
                         </div>
                     </div>
                 </div>
@@ -249,7 +250,8 @@
                             <span class="status-dot status-dot-animated bg-yellow d-block"></span>
                         </div>
                         <div class="col">
-                            <a href="{{ route('transaksi.index') }}" class="text-decoration-none">View Monthly Report</a>
+                            <a href="{{ route('vendor.transactions.index') }}" class="text-decoration-none">View Monthly
+                                Report</a>
                         </div>
                     </div>
                 </div>
@@ -292,7 +294,7 @@
                             <span class="status-dot status-dot-animated bg-teal d-block"></span>
                         </div>
                         <div class="col">
-                            <a href="{{ route('laporan.penjualan-bulanan') }}" class="text-decoration-none">View
+                            <a href="{{ route('vendor.laporan.penjualan-bulanan') }}" class="text-decoration-none">View
                                 Financial Report</a>
                         </div>
                     </div>
@@ -336,7 +338,7 @@
                             <span class="status-dot status-dot-animated bg-cyan d-block"></span>
                         </div>
                         <div class="col">
-                            <a href="{{ route('laporan.penjualan-harian') }}" class="text-decoration-none">View
+                            <a href="{{ route('vendor.laporan.penjualan-harian') }}" class="text-decoration-none">View
                                 Analytics</a>
                         </div>
                     </div>
@@ -351,7 +353,7 @@
             <div class="card-header">
                 <h3 class="card-title">Recent Transactions</h3>
                 <div class="card-actions">
-                    <a href="{{ route('transaksi.index') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.transactions.index') }}" class="btn btn-primary">
                         View All
                     </a>
                 </div>
@@ -399,9 +401,9 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('transaksi.generateInvoice', $transaction->id) }}"
+                                    <a href="{{ route('vendor.transactions.invoice', $transaction->id) }}"
                                         class="btn btn-sm btn-outline-primary">Invoice</a>
-                                    <a href="{{ route('transaksi.show', $transaction->id) }}"
+                                    <a href="{{ route('vendor.transactions.show', $transaction->id) }}"
                                         class="btn btn-sm btn-outline-primary">Detail</a>
                                 </td>
                             </tr>

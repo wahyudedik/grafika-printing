@@ -45,7 +45,7 @@ class VendorRatingController extends Controller
             ->first();
 
         if ($existingRating) {
-            return redirect()->route('auctions.show', $auction)
+            return redirect()->route('user.auctions.show', $auction)
                 ->with('info', 'Anda sudah memberikan rating untuk lelang ini');
         }
 
@@ -84,7 +84,7 @@ class VendorRatingController extends Controller
             ->first();
 
         if ($existingRating) {
-            return redirect()->route('auctions.show', $auction)
+            return redirect()->route('user.auctions.show', $auction)
                 ->with('error', 'Anda sudah memberikan rating untuk lelang ini');
         }
 
@@ -103,7 +103,7 @@ class VendorRatingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('auctions.show', $auction)
+            return redirect()->route('user.auctions.show', $auction)
                 ->with('success', 'Rating berhasil dikirim! Rating akan ditampilkan setelah diverifikasi admin.');
         } catch (\Exception $e) {
             DB::rollBack();

@@ -133,7 +133,7 @@
                         <p class="text-gray-600 mb-4">
                             Your payment has been processed successfully. You will receive a confirmation email shortly.
                         </p>
-                        <a href="{{ route('auctions.show', $payment->external_id) }}"
+                        <a href="{{ route('user.auctions.show', $payment->external_id) }}"
                             class="bg-green-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                             View Auction Details
                         </a>
@@ -198,11 +198,10 @@
             const xenPayment = xendit.createXenPayment({
                 id: '{{ $payment->xendit_id }}',
                 onSuccess: function(result) {
-                    console.log('Payment successful:', result);
                     checkPaymentStatus();
                 },
                 onError: function(error) {
-                    console.error('Payment error:', error);
+                    alert('Terjadi kesalahan pada pembayaran');
                 }
             });
 
@@ -236,7 +235,7 @@
 
         function createNewPayment() {
             // This would redirect to create a new payment
-            window.location.href = '{{ route('auctions.show', $payment->external_id) }}';
+            window.location.href = '{{ route('user.auctions.show', $payment->external_id) }}';
         }
     </script>
 @endsection

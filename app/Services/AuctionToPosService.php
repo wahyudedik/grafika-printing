@@ -144,6 +144,13 @@ class AuctionToPosService
     {
         $transactionCode = 'AUCTION-' . date('Ymd') . '-' . strtoupper(Str::random(5));
 
+        // Get payment method from Xendit payment
+        $paymentMethod = 'bank_transfer'; // Default
+        $xenditPayment = $auction->xenditPayments()->latest()->first();
+        if ($xenditPayment && isset($xenditPayment->webhook_data['payment_method'])) {
+            $paymentMethod = $this->mapXenditPaymentMethod($xenditPayment->webhook_data['payment_method']);
+        }
+
         $transaction = Transaksi::create([
             'vendor_id' => $vendor->id,
             'kode' => $transactionCode,
@@ -153,7 +160,7 @@ class AuctionToPosService
             'terbayar' => $winningBid->bid_amount,
             'kembali' => 0,
             'status' => 'pending',
-            'payment_method' => 'auction_win',
+            'payment_method' => $paymentMethod,
             'estimasi_selesai' => $auction->deadline,
             'tanggal_dibuat' => now(),
             'progress_percentage' => 0,
@@ -173,6 +180,35 @@ class AuctionToPosService
         $this->addPaymentToVendorWallet($auction, $winningBid, $transaction);
 
         return $transaction;
+    }
+
+    /**
+     * Map Xendit payment method to internal payment method
+     */
+    private function mapXenditPaymentMethod($xenditMethod)
+    {
+        $mapping = [
+            'BANK_TRANSFER' => 'bank_transfer',
+            'CREDIT_CARD' => 'credit_card',
+            'DEBIT_CARD' => 'debit_card',
+            'EWALLET' => 'ewallet',
+            'RETAIL_OUTLET' => 'retail_outlet',
+            'QRIS' => 'qris',
+            'OVO' => 'ewallet',
+            'DANA' => 'ewallet',
+            'LINKAJA' => 'ewallet',
+            'SHOPEEPAY' => 'ewallet',
+            'BCA' => 'bank_transfer',
+            'BNI' => 'bank_transfer',
+            'BRI' => 'bank_transfer',
+            'MANDIRI' => 'bank_transfer',
+            'BSI' => 'bank_transfer',
+            'PERMATA' => 'bank_transfer',
+            'ALFAMART' => 'retail_outlet',
+            'INDOMARET' => 'retail_outlet'
+        ];
+
+        return $mapping[$xenditMethod] ?? 'bank_transfer';
     }
 
     /**

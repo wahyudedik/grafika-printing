@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Kategori Produk</h3>
                 </div>
                 <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('kategori-produk.index') }}" method="GET" class="flex-grow-1">
+                    <form action="{{ route('vendor.categories.index') }}" method="GET" class="flex-grow-1">
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -31,19 +31,19 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
-                                href="{{ route('kategori-produk.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'nama_kategori', 'order' => 'asc'])) }}">Nama
+                                href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'nama_kategori', 'order' => 'asc'])) }}">Nama
                                 (A-Z)</a>
                             <a class="dropdown-item"
-                                href="{{ route('kategori-produk.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'nama_kategori', 'order' => 'desc'])) }}">Nama
+                                href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'nama_kategori', 'order' => 'desc'])) }}">Nama
                                 (Z-A)</a>
                             <a class="dropdown-item"
-                                href="{{ route('kategori-produk.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'created_at', 'order' => 'desc'])) }}">Terbaru</a>
+                                href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'created_at', 'order' => 'desc'])) }}">Terbaru</a>
                             <a class="dropdown-item"
-                                href="{{ route('kategori-produk.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'created_at', 'order' => 'asc'])) }}">Terlama</a>
+                                href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'created_at', 'order' => 'asc'])) }}">Terlama</a>
                         </div>
                     </div>
 
-                    <a href="{{ route('kategori-produk.create') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.categories.create') }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -77,7 +77,7 @@
                             <td>{{ $item->created_at->format('d M Y, H:i') }}</td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('kategori-produk.show', $item->id) }}"
+                                    <a href="{{ route('vendor.categories.show', $item->id) }}"
                                         class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -88,12 +88,11 @@
                                                 d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('kategori-produk.edit', $item->id) }}"
+                                    <a href="{{ route('vendor.categories.edit', $item->id) }}"
                                         class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-edit" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
+                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                            stroke="currentColor" fill="none">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
                                             <path
@@ -102,10 +101,9 @@
                                     </a>
                                     <button type="button" class="btn btn-icon btn-ghost-danger delete-btn"
                                         data-id="{{ $item->id }}" data-bs-toggle="tooltip" title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash"
+                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                            stroke="currentColor" fill="none">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M4 7l16 0" />
                                             <path d="M10 11l0 6" />
@@ -123,9 +121,8 @@
                                 <div class="empty">
                                     <div class="empty-img">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128"
-                                            height="128" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none" stroke-linecap="round"
-                                            stroke-linejoin="round">
+                                            height="128" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                             <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                                             <path d="M9 10l.01 0" />
@@ -138,7 +135,7 @@
                                         Silahkan tambahkan kategori produk baru atau ubah filter pencarian
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('kategori-produk.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.categories.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"
@@ -196,7 +193,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             showLoading('Menghapus...');
-                            deleteForm.action = `{{ route('kategori-produk.destroy', '') }}/${id}`;
+                            deleteForm.action = `{{ route('vendor.categories.destroy', '') }}/${id}`;
                             deleteForm.submit();
                         }
                     });

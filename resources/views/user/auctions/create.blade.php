@@ -17,7 +17,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('auctions.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('user.auctions.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row">
@@ -242,7 +242,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('auctions.index') }}" class="btn btn-secondary">Batal</a>
+                            <a href="{{ route('user.auctions.index') }}" class="btn btn-secondary">Batal</a>
                             <button type="submit" class="btn btn-primary">Buat Permintaan</button>
                         </div>
                     </form>

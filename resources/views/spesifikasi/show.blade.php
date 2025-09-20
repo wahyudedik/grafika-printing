@@ -22,7 +22,8 @@
                                 <div class="mb-3">
                                     <label class="form-label">Tipe Input</label>
                                     <div>
-                                        <span class="badge bg-{{ $spesifikasi->isNumeric() ? 'blue' : ($spesifikasi->isSelect() ? 'purple' : 'green') }}-lt">
+                                        <span
+                                            class="badge bg-{{ $spesifikasi->isNumeric() ? 'blue' : ($spesifikasi->isSelect() ? 'purple' : 'green') }}-lt">
                                             {{ $spesifikasi->tipe_input }}
                                         </span>
                                     </div>
@@ -36,33 +37,33 @@
                                 </div>
                             </div>
 
-                            @if($spesifikasi->spesifikasiProduk->count() > 0)
-                            <div class="col-12 mt-4">
-                                <h4>Produk yang Menggunakan Spesifikasi Ini</h4>
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Nama Produk</th>
-                                                <th>Nilai</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($spesifikasi->spesifikasiProduk as $spek)
-                                            <tr>
-                                                <td>{{ $spek->produk->nama_produk }}</td>
-                                                <td>{{ $spek->nilai }}</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                            @if ($spesifikasi->spesifikasiProduk->count() > 0)
+                                <div class="col-12 mt-4">
+                                    <h4>Produk yang Menggunakan Spesifikasi Ini</h4>
+                                    <div class="table-responsive">
+                                        <table class="table table-vcenter table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nama Produk</th>
+                                                    <th>Nilai</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($spesifikasi->spesifikasiProduk as $spek)
+                                                    <tr>
+                                                        <td>{{ $spek->produk->nama_produk }}</td>
+                                                        <td>{{ $spek->nilai }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
                             @endif
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ route('spesifikasi.edit', $spesifikasi->id) }}" class="btn btn-primary">
+                        <a href="{{ route('vendor.specifications.edit', $spesifikasi->id) }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -74,7 +75,7 @@
                             Edit
                         </a>
 
-                        <a href="{{ route('spesifikasi.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.specifications.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

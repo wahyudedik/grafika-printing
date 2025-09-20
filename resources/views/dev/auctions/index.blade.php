@@ -3,143 +3,113 @@
 @section('title', 'Manajemen Lelang')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h3 mb-1">Manajemen Lelang</h2>
-                    <p class="text-muted">Kelola semua lelang dan penawaran dari vendor</p>
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        Manajemen Lelang
+                    </h2>
+                    <div class="text-muted mt-1">Kelola semua lelang dan moderasi konten</div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.auctions.statistics') }}" class="btn btn-outline-info">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                        </svg>
-                        Statistik
-                    </a>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <a href="{{ route('admin.auctions.statistics') }}" class="btn btn-outline-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M3 3v18h18" />
+                                <path d="M18.7 17l-5.1-5.2l-2.8 3.3l-2.2-2.2l-6.6 8" />
+                            </svg>
+                            Statistik
+                        </a>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
 
+    <div class="page-body">
+        <div class="container-xl">
             <!-- Filter Tabs -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request('status') == null ? 'active' : '' }}"
-                                href="{{ route('admin.auctions.index') }}">
-                                Semua
-                                <span class="badge bg-secondary ms-1">{{ $auctions->total() }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request('status') == 'pending' ? 'active' : '' }}"
-                                href="{{ route('admin.auctions.index', ['status' => 'pending']) }}">
-                                Menunggu Persetujuan
-                                <span
-                                    class="badge bg-warning ms-1">{{ $auctions->where('status', 'pending')->count() }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request('status') == 'active' ? 'active' : '' }}"
-                                href="{{ route('admin.auctions.index', ['status' => 'active']) }}">
-                                Aktif
-                                <span
-                                    class="badge bg-success ms-1">{{ $auctions->where('status', 'active')->count() }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request('status') == 'closed' ? 'active' : '' }}"
-                                href="{{ route('admin.auctions.index', ['status' => 'closed']) }}">
-                                Ditutup
-                                <span class="badge bg-info ms-1">{{ $auctions->where('status', 'closed')->count() }}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request('status') == 'rejected' ? 'active' : '' }}"
-                                href="{{ route('admin.auctions.index', ['status' => 'rejected']) }}">
-                                Ditolak
-                                <span
-                                    class="badge bg-danger ms-1">{{ $auctions->where('status', 'rejected')->count() }}</span>
-                            </a>
-                        </li>
-                    </ul>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="btn-group w-100" role="group">
+                        <a href="{{ route('admin.auctions.index', ['status' => '']) }}"
+                            class="btn {{ request('status') == '' ? 'btn-primary' : 'btn-outline-primary' }}">
+                            Semua ({{ \App\Models\Auction::count() }})
+                        </a>
+                        <a href="{{ route('admin.auctions.index', ['status' => 'pending']) }}"
+                            class="btn {{ request('status') == 'pending' ? 'btn-warning' : 'btn-outline-warning' }}">
+                            Pending ({{ \App\Models\Auction::where('status', 'pending')->count() }})
+                        </a>
+                        <a href="{{ route('admin.auctions.index', ['status' => 'active']) }}"
+                            class="btn {{ request('status') == 'active' ? 'btn-success' : 'btn-outline-success' }}">
+                            Aktif ({{ \App\Models\Auction::where('status', 'active')->count() }})
+                        </a>
+                        <a href="{{ route('admin.auctions.index', ['status' => 'rejected']) }}"
+                            class="btn {{ request('status') == 'rejected' ? 'btn-danger' : 'btn-outline-danger' }}">
+                            Ditolak ({{ \App\Models\Auction::where('status', 'rejected')->count() }})
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Auctions List -->
             <div class="row">
                 @forelse($auctions as $auction)
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card h-100">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card">
                             <div class="card-header">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="card-title mb-0">{{ Str::limit($auction->title, 30) }}</h5>
+                                    <h3 class="card-title">{{ Str::limit($auction->title, 30) }}</h3>
                                     <span
-                                        class="badge 
-                                    @if ($auction->status === 'pending') bg-warning
-                                    @elseif($auction->status === 'active') bg-success
-                                    @elseif($auction->status === 'closed') bg-info
-                                    @elseif($auction->status === 'rejected') bg-danger
-                                    @else bg-secondary @endif">
+                                        class="badge bg-{{ $auction->status == 'pending' ? 'warning' : ($auction->status == 'active' ? 'success' : ($auction->status == 'rejected' ? 'danger' : 'secondary')) }}">
                                         {{ ucfirst($auction->status) }}
                                     </span>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <div class="text-muted small">Oleh</div>
-                                            <div class="fw-bold">{{ $auction->user->name }}</div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-muted small">Budget</div>
-                                            <div class="fw-bold text-success">Rp {{ number_format($auction->budget) }}
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-muted small">Jumlah</div>
-                                            <div class="fw-bold">{{ number_format($auction->quantity) }} pcs</div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="text-muted small">Deadline</div>
-                                            <div class="fw-bold">{{ $auction->deadline->format('d M Y') }}</div>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="text-muted">User</div>
+                                        <div class="fw-bold">{{ $auction->user->name }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-muted">Budget</div>
+                                        <div class="fw-bold">Rp {{ number_format($auction->budget, 0, ',', '.') }}</div>
                                     </div>
                                 </div>
-
-                                <div class="mb-3">
-                                    <div class="text-muted small">Kategori</div>
-                                    <div class="fw-bold">{{ $auction->category }}</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="text-muted small">Penawaran</div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="fw-bold">{{ $auction->bids->count() }} penawaran</span>
-                                        @if ($auction->bids->count() > 0)
-                                            <span class="text-success small">
-                                                Terendah: Rp {{ number_format($auction->bids->min('bid_amount')) }}
-                                            </span>
-                                        @endif
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <div class="text-muted">Kategori</div>
+                                        <div>{{ $auction->category }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-muted">Quantity</div>
+                                        <div>{{ $auction->quantity }} pcs</div>
                                     </div>
                                 </div>
-
-                                <div class="text-muted small">
-                                    Dibuat: {{ $auction->created_at->format('d M Y H:i') }}
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <div class="text-muted">Deadline</div>
+                                        <div>{{ $auction->deadline->format('d M Y H:i') }}</div>
+                                    </div>
                                 </div>
+                                @if ($auction->status == 'rejected' && $auction->rejection_reason)
+                                    <div class="row mt-2">
+                                        <div class="col-12">
+                                            <div class="text-muted">Alasan Ditolak</div>
+                                            <div class="text-danger">{{ $auction->rejection_reason }}</div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                             <div class="card-footer">
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('admin.auctions.show', $auction) }}"
-                                        class="btn btn-outline-primary btn-sm">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
+                                <div class="btn-group w-100">
+                                    <a href="{{ route('admin.auctions.show', $auction) }}" class="btn btn-outline-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                             stroke-linecap="round" stroke-linejoin="round">
                                             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -149,28 +119,14 @@
                                         </svg>
                                         Detail
                                     </a>
-                                    <a href="{{ route('admin.auctions.edit', $auction) }}"
-                                        class="btn btn-outline-warning btn-sm">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                            <path d="M16 5l3 3" />
-                                        </svg>
-                                        Edit
-                                    </a>
-
-                                    @if ($auction->status === 'pending')
+                                    @if ($auction->status == 'pending')
                                         <form action="{{ route('admin.auctions.approve', $auction) }}" method="POST"
                                             class="d-inline">
                                             @csrf
-                                            <button type="submit" class="btn btn-success btn-sm"
+                                            <button type="submit" class="btn btn-success"
                                                 onclick="return confirm('Setujui lelang ini?')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                                    height="16" viewBox="0 0 24 24" stroke-width="2"
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
                                                     stroke="currentColor" fill="none" stroke-linecap="round"
                                                     stroke-linejoin="round">
                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -179,85 +135,71 @@
                                                 Setujui
                                             </button>
                                         </form>
-
-                                        <form action="{{ route('admin.auctions.reject', $auction) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Tolak lelang ini?')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                                    height="16" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M18 6l-12 12" />
-                                                    <path d="M6 6l12 12" />
-                                                </svg>
-                                                Tolak
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    @if ($auction->status === 'active')
-                                        <form action="{{ route('admin.auctions.close', $auction) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-warning btn-sm"
-                                                onclick="return confirm('Tutup lelang ini?')">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                                    height="16" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M18 6l-12 12" />
-                                                    <path d="M6 6l12 12" />
-                                                </svg>
-                                                Tutup
-                                            </button>
-                                        </form>
-                                    @endif
-
-                                    <form action="{{ route('admin.auctions.destroy', $auction) }}" method="POST"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                                height="16" viewBox="0 0 24 24" stroke-width="2"
+                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                            data-bs-target="#rejectModal{{ $auction->id }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"
                                                 stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 7l16 0" />
-                                                <path d="M10 11l0 6" />
-                                                <path d="M14 11l0 6" />
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                <path d="M18 6l-12 12" />
+                                                <path d="M6 6l12 12" />
                                             </svg>
-                                            Hapus
+                                            Tolak
                                         </button>
-                                    </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Reject Modal -->
+                    @if ($auction->status == 'pending')
+                        <div class="modal modal-blur fade" id="rejectModal{{ $auction->id }}" tabindex="-1"
+                            role="dialog" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <form action="{{ route('admin.auctions.reject', $auction) }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Tolak Lelang</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Alasan Penolakan</label>
+                                                <textarea class="form-control" name="rejection_reason" rows="4"
+                                                    placeholder="Masukkan alasan penolakan lelang..." required></textarea>
+                                                <div class="form-hint">Alasan ini akan dikirim ke user yang membuat lelang.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-danger">Tolak Lelang</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @empty
                     <div class="col-12">
                         <div class="empty">
                             <div class="empty-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128" height="128"
-                                    viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none"
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                     stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                    <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                    <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                    <path d="M3 3v18h18" />
+                                    <path d="M18.7 17l-5.1-5.2l-2.8 3.3l-2.2-2.2l-6.6 8" />
                                 </svg>
                             </div>
-                            <p class="empty-title">Belum ada lelang</p>
+                            <p class="empty-title">Tidak ada lelang</p>
                             <p class="empty-subtitle text-muted">
-                                Belum ada lelang yang tersedia saat ini.
+                                Belum ada lelang yang sesuai dengan filter yang dipilih.
                             </p>
                         </div>
                     </div>
@@ -265,11 +207,9 @@
             </div>
 
             <!-- Pagination -->
-            @if ($auctions->hasPages())
-                <div class="d-flex justify-content-center">
-                    {{ $auctions->links() }}
-                </div>
-            @endif
+            <div class="d-flex justify-content-center mt-4">
+                {{ $auctions->links() }}
+            </div>
         </div>
     </div>
 @endsection

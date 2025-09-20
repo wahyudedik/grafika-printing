@@ -238,6 +238,14 @@ class AdminFeeController extends Controller
     }
 
     /**
+     * Show fee preview page
+     */
+    public function preview()
+    {
+        return view('dev.admin-fees.preview');
+    }
+
+    /**
      * Get vendor fee statistics
      */
     public function getVendorStatistics(Request $request)

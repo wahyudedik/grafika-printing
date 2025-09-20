@@ -12,11 +12,29 @@
                 </div>
                 <div class="d-flex gap-2">
                     @if ($auction->user_id === auth()->id())
-                        <a href="{{ route('auctions.edit', $auction) }}" class="btn btn-outline-primary">
-                            Edit
-                        </a>
+                        @if ($auction->status === 'paid' || $auction->status === 'completed')
+                            <button class="btn btn-outline-secondary" disabled
+                                title="Lelang sudah dibayar, tidak dapat diedit">
+                                <i class="fas fa-lock me-2"></i>Edit (Dikunci)
+                            </button>
+                        @else
+                            <a href="{{ route('user.auctions.edit', $auction) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit me-2"></i>Edit
+                            </a>
+                        @endif
+
+                        @if ($auction->status === 'paid' && !$auction->hasDeliveryConfirmation())
+                            <a href="{{ route('user.delivery-confirmation.create', $auction) }}" class="btn btn-success">
+                                <i class="fas fa-check-circle me-2"></i>Konfirmasi Barang
+                            </a>
+                        @elseif ($auction->hasDeliveryConfirmation())
+                            @php $confirmation = $auction->deliveryConfirmation; @endphp
+                            <span class="badge bg-{{ $confirmation->status_color }}">
+                                {{ $confirmation->status_label }}
+                            </span>
+                        @endif
                     @endif
-                    <a href="{{ route('auctions.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('user.auctions.index') }}" class="btn btn-secondary">
                         Kembali
                     </a>
                 </div>
@@ -27,6 +45,39 @@
                     {{ session('success') }}
                 </div>
             @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- Status Indicator -->
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>
+                        <strong>Status Lelang:</strong>
+                        @if ($auction->status === 'active')
+                            <span class="badge bg-warning">Aktif</span>
+                        @elseif ($auction->status === 'waiting_payment')
+                            <span class="badge bg-warning">Menunggu Pembayaran</span>
+                        @elseif ($auction->status === 'paid')
+                            <span class="badge bg-success">Sudah Dibayar</span>
+                        @elseif ($auction->status === 'completed')
+                            <span class="badge bg-success">Selesai</span>
+                        @else
+                            <span class="badge bg-secondary">{{ ucfirst($auction->status) }}</span>
+                        @endif
+
+                        @if ($auction->status === 'paid' || $auction->status === 'completed')
+                            <span class="ms-2 text-muted">
+                                <i class="fas fa-lock me-1"></i>Lelang sudah dibayar, tidak dapat diedit
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            </div>
 
             <div class="row">
                 <div class="col-md-8">
@@ -74,7 +125,7 @@
                                 <h4 class="card-title">Penawaran dari Vendor</h4>
                             </div>
                             <div class="card-body">
-                                <form method="POST" action="{{ route('auctions.close', $auction) }}">
+                                <form method="POST" action="{{ route('user.auctions.close', $auction) }}">
                                     @csrf
                                     <div class="row">
                                         @foreach ($auction->bids->where('status', 'pending') as $bid)
@@ -149,11 +200,14 @@
 
                                     @if ($auction->status === 'waiting_payment')
                                         <div class="d-flex justify-content-end mt-3">
-                                            <a href="{{ route('xendit.payment.show-page', $auction->id) }}"
-                                                class="btn btn-primary">
-                                                <i class="fas fa-credit-card me-2"></i>
-                                                Bayar Sekarang
-                                            </a>
+                                            <form action="{{ route('user.auctions.payment', $auction) }}" method="POST"
+                                                class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-credit-card me-2"></i>
+                                                    Bayar Sekarang
+                                                </button>
+                                            </form>
                                         </div>
                                     @endif
 
@@ -205,6 +259,29 @@
                                         <span class="fw-bold">Rp {{ number_format($auction->budget) }}</span>
                                     </div>
                                 </div>
+                                @if ($auction->fees_calculated && $auction->admin_fee_amount > 0)
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Biaya Admin:</span>
+                                            <span class="fw-bold text-warning">+ Rp
+                                                {{ number_format($auction->admin_fee_amount) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between">
+                                            <span class="text-muted">Biaya Payment Gateway:</span>
+                                            <span class="fw-bold text-warning">+ Rp
+                                                {{ number_format($auction->payment_gateway_fee) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="d-flex justify-content-between border-top pt-2">
+                                            <span class="text-muted fw-bold">Total Pembayaran:</span>
+                                            <span class="fw-bold text-primary">Rp
+                                                {{ number_format($auction->total_amount_with_fees) }}</span>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="col-12">
                                     <div class="d-flex justify-content-between">
                                         <span class="text-muted">Deadline:</span>

@@ -12,11 +12,11 @@
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
-                        </ul> 
+                        </ul>
                     </div>
                 @endif
 
-                <form action="{{ route('kategori-produk.store') }}" method="POST" class="card"
+                <form action="{{ route('vendor.categories.store') }}" method="POST" class="card"
                     onsubmit="showLoading('Menambahkan kategori...')">
                     @csrf
                     <div class="card-header">
@@ -28,7 +28,8 @@
                                 <div class="form-group mb-3">
                                     <label class="form-label required">Nama Kategori</label>
                                     <input type="text" class="form-control @error('nama_kategori') is-invalid @enderror"
-                                        name="nama_kategori" value="{{ old('nama_kategori') }}" placeholder="Masukkan nama kategori">
+                                        name="nama_kategori" value="{{ old('nama_kategori') }}"
+                                        placeholder="Masukkan nama kategori">
                                     @error('nama_kategori')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -49,7 +50,7 @@
                             Simpan
                         </button>
 
-                        <a href="{{ route('kategori-produk.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.categories.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">

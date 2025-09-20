@@ -574,11 +574,11 @@
                     </nav>
                     @auth
                         @if (auth()->user()->usertype === 'vendor')
-                            <a href="{{ route('dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
+                            <a href="{{ route('vendor.dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
                         @elseif(auth()->user()->usertype === 'user')
                             <a href="{{ route('user.dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
                         @elseif(auth()->user()->usertype === 'dev')
-                            <a href="{{ route('dev.dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-pink me-2">DASHBOARD</a>
                         @endif
                         <form action="{{ route('logout') }}" method="POST" class="d-inline">
                             @csrf
@@ -710,7 +710,7 @@
                 </p>
                 @auth
                     @if (auth()->user()->usertype === 'user')
-                        <a href="{{ route('auctions.index') }}"
+                        <a href="{{ route('user.auctions.index') }}"
                             class="btn btn-light btn-lg px-4 py-2 rounded-pill shadow">
                             <i class="fas fa-eye me-2"></i>Lihat Semua Proyek
                         </a>
@@ -832,7 +832,8 @@
                                 <div class="d-grid">
                                     @auth
                                         @if (auth()->user()->usertype === 'user')
-                                            <a href="{{ route('auctions.show', $auction) }}" class="btn btn-primary">
+                                            <a href="{{ route('user.auctions.show', $auction) }}"
+                                                class="btn btn-primary">
                                                 <i class="fas fa-eye me-2"></i>Lihat Detail
                                             </a>
                                         @else
@@ -855,7 +856,7 @@
                 <div class="text-center mt-5">
                     @auth
                         @if (auth()->user()->usertype === 'user')
-                            <a href="{{ route('auctions.index') }}"
+                            <a href="{{ route('user.auctions.index') }}"
                                 class="btn btn-light btn-lg px-5 py-3 rounded-pill shadow">
                                 <i class="fas fa-arrow-right me-2"></i>Lihat Semua Proyek Lelang
                             </a>

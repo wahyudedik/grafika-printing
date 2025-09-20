@@ -65,10 +65,10 @@ class WholesalePrice extends TenantModel
 
         // If a wholesale price tier is found, use that price
         if ($wholesalePricing) {
-            return $wholesalePricing->harga;
+            return (float) $wholesalePricing->harga;
         }
 
         // Otherwise, return the base price
-        return $basePrice;
+        return (float) $basePrice;
     }
 }

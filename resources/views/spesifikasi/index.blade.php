@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Spesifikasi</h3>
                 </div>
                 <div class="d-flex gap-2 flex-grow-1 justify-content-end ">
-                    <form action="{{ route('spesifikasi.index') }}" method="GET" class="flex-grow-1">
+                    <form action="{{ route('vendor.specifications.index') }}" method="GET" class="flex-grow-1">
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -30,16 +30,16 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
-                                href="{{ route('spesifikasi.index', array_merge(request()->except('tipe_input'), ['tipe_input' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => ''])) }}">Semua</a>
                             <a class="dropdown-item"
-                                href="{{ route('spesifikasi.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'number'])) }}">Number</a>
+                                href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'number'])) }}">Number</a>
                             <a class="dropdown-item"
-                                href="{{ route('spesifikasi.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'select'])) }}">Select</a>
+                                href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'select'])) }}">Select</a>
                             <a class="dropdown-item"
-                                href="{{ route('spesifikasi.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'text'])) }}">Text</a>
+                                href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'text'])) }}">Text</a>
                         </div>
                     </div>
-                    <a href="{{ route('spesifikasi.create') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.specifications.create') }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -76,7 +76,7 @@
                             <td>{{ $item->satuan ?? '-' }}</td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('spesifikasi.show', $item->id) }}"
+                                    <a href="{{ route('vendor.specifications.show', $item->id) }}"
                                         class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="Show">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -87,7 +87,7 @@
                                                 d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('spesifikasi.edit', $item->id) }}"
+                                    <a href="{{ route('vendor.specifications.edit', $item->id) }}"
                                         class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -98,7 +98,7 @@
                                                 d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
                                         </svg>
                                     </a>
-                                    <form action="{{ route('spesifikasi.destroy', $item->id) }}" method="POST"
+                                    <form action="{{ route('vendor.specifications.destroy', $item->id) }}" method="POST"
                                         class="inline" id="delete-form-{{ $item->id }}">
                                         @csrf
                                         @method('DELETE')
@@ -150,7 +150,7 @@
                                         Tidak ada data spesifikasi yang tersedia.
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('spesifikasi.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.specifications.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"

@@ -10,7 +10,7 @@
                     <div class="card-header d-flex justify-content-between">
                         <h3 class="card-title">Invoice #{{ $transaksi->kode }}</h3>
                         <div>
-                            <a href="{{ route('pos.invoice.download', $transaksi->id) }}" class="btn btn-primary">
+                            <a href="{{ route('vendor.pos.invoice.print', $transaksi->id) }}" class="btn btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download me-2"
                                     width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -39,7 +39,9 @@
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                     <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
+                                    <path
+                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6">
+                                    </path>
                                 </svg>Preview
                             </a>
                         </div>
@@ -239,7 +241,7 @@
         </div>
     </div>
 
-        <style>
+    <style>
         /* Styles untuk tampilan invoice di halaman */
         .invoice-print-container {
             font-family: Arial, sans-serif;
@@ -314,16 +316,19 @@
         /* Styles khusus untuk print */
         @media print {
             @page {
-                size: 80mm auto; /* Lebar 80mm (8cm) dan tinggi otomatis */
+                size: 80mm auto;
+                /* Lebar 80mm (8cm) dan tinggi otomatis */
                 margin: 0mm;
             }
-            
-            html, body {
-                width: 75mm; /* 7.5cm */
+
+            html,
+            body {
+                width: 75mm;
+                /* 7.5cm */
                 margin: 0;
                 padding: 0;
             }
-            
+
             body * {
                 visibility: hidden;
             }
@@ -337,7 +342,8 @@
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 75mm; /* 7.5cm */
+                width: 75mm;
+                /* 7.5cm */
                 margin: 0;
                 padding: 5mm;
                 border: none;
@@ -353,36 +359,40 @@
             .modal-backdrop {
                 display: none !important;
             }
-            
+
             /* Pastikan semua konten muat dalam lebar kertas */
-            .items, .item-details, .total, .footer {
+            .items,
+            .item-details,
+            .total,
+            .footer {
                 width: 100%;
-                max-width: 65mm; /* Sedikit lebih kecil dari lebar kertas */
+                max-width: 65mm;
+                /* Sedikit lebih kecil dari lebar kertas */
             }
-            
+
             /* Ukuran font yang lebih kecil untuk print */
             .header h2 {
                 font-size: 14px;
                 margin: 0;
             }
-            
+
             .header p {
                 font-size: 9px;
                 margin: 1px 0;
             }
-            
+
             .info {
                 font-size: 9px;
             }
-            
+
             .items {
                 font-size: 9px;
             }
-            
+
             .item-details {
                 font-size: 8px;
             }
-            
+
             .footer {
                 font-size: 9px;
             }
@@ -394,40 +404,40 @@
             // Fungsi untuk menampilkan preview dalam modal
             document.getElementById('print-preview').addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 // Salin konten invoice ke dalam modal preview
                 const invoiceContent = document.getElementById('invoice-container').cloneNode(true);
                 const previewContainer = document.getElementById('preview-container');
-                
+
                 // Kosongkan container preview dan tambahkan konten baru
                 previewContainer.innerHTML = '';
                 previewContainer.appendChild(invoiceContent);
-                
+
                 // Tampilkan modal
                 const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
                 previewModal.show();
             });
-            
+
             // Fungsi untuk mencetak dari tombol print biasa
             document.getElementById('print-invoice').addEventListener('click', function(e) {
                 e.preventDefault();
                 printReceipt();
             });
-            
+
             // Fungsi untuk mencetak dari modal preview
             document.getElementById('print-from-preview').addEventListener('click', function(e) {
                 e.preventDefault();
-                
+
                 // Sembunyikan modal sebelum mencetak
                 const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
                 previewModal.hide();
-                
+
                 // Tunggu modal hilang sebelum mencetak
                 setTimeout(function() {
                     printReceipt();
                 }, 500);
             });
-            
+
             // Fungsi utama untuk mencetak
             function printReceipt() {
                 // Atur pengaturan printer sebelum mencetak
@@ -440,7 +450,7 @@
                     }
                 `;
                 document.head.appendChild(style);
-                
+
                 // Tunggu sebentar agar style diterapkan
                 setTimeout(function() {
                     window.print();
@@ -456,4 +466,3 @@
         });
     </script>
 @endsection
-

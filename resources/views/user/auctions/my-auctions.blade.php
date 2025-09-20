@@ -10,7 +10,7 @@
                     <h2 class="h3 mb-1">Lelang Saya</h2>
                     <p class="text-muted">Kelola permintaan cetak yang telah Anda buat</p>
                 </div>
-                <a href="{{ route('auctions.create') }}" class="btn btn-primary">
+                <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -37,8 +37,8 @@
                                     <div class="d-flex justify-content-between align-items-start mb-2">
                                         <span class="badge bg-blue-lt">{{ $auction->category }}</span>
                                         <span
-                                            class="badge bg-{{ $auction->status === 'active' ? 'green' : ($auction->status === 'closed' ? 'blue' : 'red') }}-lt">
-                                            {{ ucfirst($auction->status) }}
+                                            class="badge bg-{{ $auction->status === 'active' ? 'green' : ($auction->status === 'closed' ? 'blue' : ($auction->status === 'pending' ? 'yellow' : ($auction->status === 'rejected' ? 'red' : 'gray'))) }}-lt">
+                                            {{ $auction->status === 'pending' ? 'Menunggu Verifikasi' : ucfirst($auction->status) }}
                                         </span>
                                     </div>
 
@@ -105,7 +105,20 @@
                                         </div>
                                     </div>
 
-                                    @if ($auction->status === 'closed' && $auction->winnerVendor)
+                                    @if ($auction->status === 'pending')
+                                        <div class="alert alert-warning small mb-3">
+                                            <strong>⏳ Menunggu Verifikasi</strong><br>
+                                            Lelang Anda sedang dalam proses verifikasi oleh admin. Anda akan mendapat
+                                            notifikasi setelah lelang disetujui atau ditolak.
+                                        </div>
+                                    @elseif ($auction->status === 'rejected')
+                                        <div class="alert alert-danger small mb-3">
+                                            <strong>❌ Lelang Ditolak</strong><br>
+                                            @if ($auction->rejection_reason)
+                                                <strong>Alasan:</strong> {{ $auction->rejection_reason }}
+                                            @endif
+                                        </div>
+                                    @elseif ($auction->status === 'closed' && $auction->winnerVendor)
                                         <div class="alert alert-success small mb-3">
                                             <strong>Pemenang:</strong> {{ $auction->winnerVendor->name }}<br>
                                             <strong>Harga:</strong> Rp {{ number_format($auction->winning_bid) }}
@@ -113,12 +126,12 @@
                                     @endif
 
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('auctions.show', $auction) }}"
+                                        <a href="{{ route('user.auctions.show', $auction) }}"
                                             class="btn btn-primary btn-sm flex-fill">
                                             Lihat Detail
                                         </a>
                                         @if ($auction->status === 'active')
-                                            <a href="{{ route('auctions.edit', $auction) }}"
+                                            <a href="{{ route('user.auctions.edit', $auction) }}"
                                                 class="btn btn-outline-secondary btn-sm">
                                                 Edit
                                             </a>
@@ -151,7 +164,7 @@
                         Anda belum membuat permintaan cetak. Buat permintaan pertama Anda sekarang!
                     </p>
                     <div class="empty-action">
-                        <a href="{{ route('auctions.create') }}" class="btn btn-primary">
+                        <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">

@@ -33,13 +33,14 @@
                     {{-- category --}}
                     <div class="col-12 col-lg-5">
                         <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('pos.index') }}" data-no-loading
-                                class="btn {{ request()->routeIs('pos.index') && !request()->has('search') ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill px-4 py-2">
+                            <a href="{{ route('vendor.pos.index') }}" data-no-loading
+                                class="btn {{ request()->routeIs('vendor.pos.index') && !request()->has('search') ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill px-4 py-2">
                                 <i class="fas fa-th-large me-2"></i>All Products
                             </a>
                             @foreach ($categories as $category)
                                 @if ($category)
-                                    <a href="{{ route('pos.category', ['slug' => $category->slug]) }}" data-no-loading
+                                    <a href="{{ route('vendor.pos.category', ['slug' => $category->slug]) }}"
+                                        data-no-loading
                                         class="btn {{ request()->is('*/pos/category/' . $category->slug) ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill px-4 py-2">
                                         <i class="fas fa-tag me-2"></i>{{ $category->nama_kategori }}
                                     </a>
@@ -50,7 +51,7 @@
 
                     {{-- search --}}
                     <div class="col-12 col-lg-5">
-                        <form action="{{ route('pos.search') }}" method="GET" class="d-flex gap-2" data-no-loading>
+                        <form action="{{ route('vendor.pos.search') }}" method="GET" class="d-flex gap-2" data-no-loading>
                             <div class="input-group input-group-merge shadow-sm rounded-pill">
                                 <span class="input-group-text border-0 bg-transparent">
                                     <i class="fas fa-search text-muted"></i>
@@ -60,8 +61,8 @@
                                     style="border-radius: 20px;">
                                 @if (request('search'))
                                     <span class="input-group-text border-0 bg-transparent">
-                                        <a href="{{ route('pos.index') }}" class="text-muted hover-danger" data-no-loading
-                                            style="text-decoration: none">
+                                        <a href="{{ route('vendor.pos.index') }}" class="text-muted hover-danger"
+                                            data-no-loading style="text-decoration: none">
                                             <i class="fas fa-times"></i>
                                         </a>
                                     </span>
@@ -72,7 +73,7 @@
 
                     {{-- cart --}}
                     <div class="col-12 col-lg-2">
-                        <a href="{{ route('pos.cart') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100">
+                        <a href="{{ route('vendor.pos.cart') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100">
                             <i class="fas fa-shopping-cart me-2"></i>Cart
                             <span class="badge bg-light text-primary ms-2">{{ count(session('cart', [])) }}</span>
                         </a>
@@ -93,7 +94,7 @@
                         <p class="text-muted">
                             {{ request('search') ? 'Try a different search term' : 'No products available in this category' }}
                         </p>
-                        <a href="{{ route('pos.index') }}" class="btn btn-primary mt-3">
+                        <a href="{{ route('vendor.pos.index') }}" class="btn btn-primary mt-3">
                             <i class="fas fa-arrow-left me-2"></i>Back to All Products
                         </a>
                     </div>
@@ -132,7 +133,8 @@
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                     aria-label="Close"></button>
                                             </div>
-                                            <form action="{{ route('pos.addToCart') }}" method="POST" data-no-loading>
+                                            <form action="{{ route('vendor.pos.addToCart') }}" method="POST"
+                                                data-no-loading>
                                                 @csrf
                                                 <div class="modal-body">
                                                     <input type="hidden" name="product_id" value="{{ $product->id }}">
@@ -148,7 +150,7 @@
                                                             <label class="form-label">
                                                                 {{ $spec->spesifikasi->nama_spesifikasi }}
                                                                 @if ($spec->wajib_diisi)
-                                                                    <span class="text-danger">*</span> 
+                                                                    <span class="text-danger">*</span>
                                                                 @endif
                                                             </label>
 
@@ -282,7 +284,7 @@
                     }
                 });
 
-                fetch(`{{ route('pos.checkPrice') }}`, {
+                fetch(`{{ route('vendor.pos.checkPrice') }}`, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector(

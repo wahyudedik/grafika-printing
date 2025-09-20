@@ -8,6 +8,49 @@
     <title>Grafika Printing</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <style>
+        /* Responsive navbar improvements */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .navbar-nav .nav-item {
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem;
+                text-align: left;
+                border-radius: 0.375rem;
+            }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .navbar-nav .dropdown-menu {
+                position: static !important;
+                transform: none !important;
+                box-shadow: none;
+                border: none;
+                background-color: rgba(0, 0, 0, 0.02);
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-link-title {
+                font-size: 0.875rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -33,7 +76,7 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a>
+                        <a class="dropdown-item" href="{{ route('user.profile.edit') }}">Profile</a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -48,7 +91,7 @@
         <div class="collapse navbar-collapse" id="navbar-menu">
             <div class="navbar navbar-light">
                 <div class="container-xl">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav flex-wrap">
                         <li class="nav-item {{ request()->routeIs('welcome') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('welcome') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -64,8 +107,8 @@
                                 <span class="nav-link-title">Home</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('dev.dashboard') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('dev.dashboard') }}">
+                        <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.dashboard') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -77,11 +120,12 @@
                                         <line x1="3" y1="10" x2="21" y2="10" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Dashboard</span>
+                                <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
+                                <span class="nav-link-title d-sm-none">Dash</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('vendors.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('vendors.index') }}">
+                        <li class="nav-item {{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.vendors.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -92,11 +136,12 @@
                                         <path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Vendors</span>
+                                <span class="nav-link-title d-none d-sm-inline">Vendors</span>
+                                <span class="nav-link-title d-sm-none">Vendor</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('users.index') }}">
+                        <li class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.users.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -108,7 +153,8 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Users</span>
+                                <span class="nav-link-title d-none d-sm-inline">Users</span>
+                                <span class="nav-link-title d-sm-none">User</span>
                             </a>
                         </li>
                         <li class="nav-item dropdown {{ request()->routeIs('admin.auctions.*') ? 'active' : '' }}">
@@ -126,7 +172,8 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Lelang</span>
+                                <span class="nav-link-title d-none d-sm-inline">Lelang</span>
+                                <span class="nav-link-title d-sm-none">Lelang</span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{{ route('admin.auctions.index') }}">
@@ -168,10 +215,11 @@
                                         <path d="M15 13l-3 -3l-3 3" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Statistik Server</span>
+                                <span class="nav-link-title d-none d-sm-inline">Statistik Server</span>
+                                <span class="nav-link-title d-sm-none">Stats</span>
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.pulse.index') }}">
+                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -181,7 +229,7 @@
                                     </svg>
                                     Dashboard
                                 </a>
-                                <a class="dropdown-item" href="{{ route('admin.pulse.statistics') }}">
+                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse.statistics') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -191,7 +239,7 @@
                                     </svg>
                                     Server Statistics
                                 </a>
-                                <a class="dropdown-item" href="{{ route('admin.pulse.performance') }}">
+                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse.performance') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -202,7 +250,7 @@
                                     </svg>
                                     Performance
                                 </a>
-                                <a class="dropdown-item" href="{{ route('admin.pulse.activity') }}">
+                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse.activity') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -215,8 +263,9 @@
                             </div>
                         </li>
 
-                        <li class="nav-item {{ request()->routeIs('admin.vendor-revenue.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.vendor-revenue.index') }}">
+                        <li
+                            class="nav-item {{ request()->routeIs('admin.analytics.vendor-revenue.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.analytics.vendor-revenue') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -228,7 +277,24 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Data Pendapatan Vendor</span>
+                                <span class="nav-link-title d-none d-sm-inline">Data Pendapatan Vendor</span>
+                                <span class="nav-link-title d-sm-none">Revenue</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('admin.admin-fees.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.admin-fees.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M17 8v-3a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-3" />
+                                        <path d="M14 12h7l-3 -3m0 6l3 -3" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Biaya Admin</span>
+                                <span class="nav-link-title d-sm-none">Admin Fee</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
@@ -244,7 +310,8 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">CMS Management</span>
+                                <span class="nav-link-title d-none d-sm-inline">CMS Management</span>
+                                <span class="nav-link-title d-sm-none">CMS</span>
                             </a>
                         </li>
                     </ul>

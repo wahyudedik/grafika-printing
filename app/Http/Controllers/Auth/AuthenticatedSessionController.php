@@ -29,15 +29,23 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Update last login time
+        $request->user()->update(['last_login_at' => now()]);
+
         $userType = $request->user()->usertype;
 
         if ($userType === 'dev') {
-            return redirect()->intended(route('dev.dashboard', absolute: false));
+            return redirect()->route('admin.dashboard');
         }
         if ($userType === 'user') {
             return redirect()->intended(route('user.dashboard', absolute: false));
         }
-        return redirect()->intended(route('dashboard', absolute: false));
+        if ($userType === 'vendor') {
+            return redirect()->intended(route('vendor.dashboard', absolute: false));
+        }
+
+        // Fallback for unknown user types
+        return redirect()->intended('/');
     }
 
     /**

@@ -1,4 +1,4 @@
-@extends('layouts.layouts_dashboard')
+@extends('layouts.vendor')
 
 @section('title', 'User Details')
 @section('content')
@@ -60,7 +60,7 @@
                             Edit
                         </a> --}}
 
-                        <a href="{{ route('pengguna.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.users.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

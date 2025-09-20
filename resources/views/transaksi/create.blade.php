@@ -16,7 +16,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('transaksi.store') }}" method="POST" class="card" id="transaction-form"
+                <form action="{{ route('vendor.transactions.store') }}" method="POST" class="card" id="transaction-form"
                     onsubmit="return validateForm()">
                     @csrf
                     <div class="card-header">
@@ -39,7 +39,7 @@
                                                 </option>
                                             @endforeach
                                         </select>
-                                        <a href="{{ route('pelanggan.create') }}" class="btn btn-outline-secondary"
+                                        <a href="{{ route('vendor.customers.create') }}" class="btn btn-outline-secondary"
                                             target="_blank" data-bs-toggle="tooltip" title="Tambah Pelanggan Baru">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -157,7 +157,7 @@
                             Simpan
                         </button>
 
-                        <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.transactions.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

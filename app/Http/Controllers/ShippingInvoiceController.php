@@ -24,23 +24,41 @@ class ShippingInvoiceController extends Controller
     }
 
     /**
-     * Generate shipping invoice for COD payment
+     * Generate shipping invoice for auction
      */
-    public function generateShippingInvoice(Request $request, Transaksi $transaksi)
+    public function generateShippingInvoice(Request $request, Auction $auction)
     {
+        // Debug logging
+        \Log::info('Shipping invoice request', [
+            'auction_id' => $auction->id,
+            'request_data' => $request->all(),
+            'user_id' => auth()->id()
+        ]);
+
         $request->validate([
-            'shipping_cost' => 'required|numeric|min:0',
             'weight' => 'required|numeric|min:1',
             'destination_city' => 'required|string',
             'destination_address' => 'required|string',
             'courier' => 'required|string',
-            'service_type' => 'required|string'
+            'service' => 'required|string',
+            'origin_city' => 'required|string',
+            'origin_address' => 'required|string',
+            'notes' => 'nullable|string'
         ]);
 
         try {
+            // Get vendor info
+            $vendor = $auction->winnerVendor;
+            if (!$vendor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vendor pemenang tidak ditemukan'
+                ], 400);
+            }
+
             // Calculate shipping cost via RajaOngkir API
             $shippingData = $this->rajaOngkirService->calculateShipping([
-                'origin' => $transaksi->vendor->city_id ?? '151', // Default Jakarta
+                'origin' => $vendor->city_id ?? '151', // Default Jakarta
                 'destination' => $request->destination_city,
                 'weight' => $request->weight,
                 'courier' => $request->courier
@@ -53,100 +71,137 @@ class ShippingInvoiceController extends Controller
                 ], 400);
             }
 
-            // Get the lowest cost from RajaOngkir
-            $calculatedCost = $shippingData['data']['costs'][0]['cost'][0]['value'] ?? $request->shipping_cost;
+            // Create shipping invoice using ShippingTrackingService
+            $shippingTrackingService = new \App\Services\ShippingTrackingService($this->rajaOngkirService);
 
-            // Validate cost difference (prevent fraud)
-            $costDifference = abs($calculatedCost - $request->shipping_cost);
-            $maxDifference = $calculatedCost * 0.1; // 10% tolerance
-
-            if ($costDifference > $maxDifference) {
-                Log::warning('Shipping cost mismatch detected', [
-                    'calculated_cost' => $calculatedCost,
-                    'vendor_input' => $request->shipping_cost,
-                    'difference' => $costDifference,
-                    'max_difference' => $maxDifference,
-                    'transaction_id' => $transaksi->id
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Biaya pengiriman tidak sesuai dengan perhitungan sistem. Silakan periksa kembali.',
-                    'calculated_cost' => $calculatedCost,
-                    'vendor_input' => $request->shipping_cost
-                ], 400);
+            // Get shipping cost from calculation or use default
+            $shippingCost = 0;
+            if ($shippingData['success'] && isset($shippingData['services'])) {
+                // Use the first service cost
+                $shippingCost = $shippingData['services'][0]['cost'] ?? 25000;
+            } else {
+                // Default shipping cost if API fails
+                $shippingCost = 25000;
             }
 
-            // Update transaction with shipping details
-            $transaksi->update([
-                'ongkir' => $calculatedCost,
-                'kurir' => $request->courier,
-                'alamat_pengiriman' => $request->destination_address,
-                'is_cod' => true,
-                'tracking_status' => 'dikirim'
-            ]);
-
-            // Create shipping invoice
-            $invoiceData = [
-                'external_id' => 'shipping_' . $transaksi->id . '_' . time(),
-                'amount' => $calculatedCost,
-                'description' => 'Biaya Pengiriman - ' . $transaksi->kode,
-                'customer' => [
-                    'given_names' => $transaksi->pelanggan->nama,
-                    'email' => $transaksi->pelanggan->email
-                ],
-                'success_redirect_url' => route('user.tracking.show', $transaksi->auction),
-                'failure_redirect_url' => route('user.tracking.show', $transaksi->auction),
-                'items' => [
-                    [
-                        'name' => 'Biaya Pengiriman',
-                        'quantity' => 1,
-                        'price' => $calculatedCost,
-                        'category' => 'Shipping'
-                    ]
-                ]
+            $shippingInvoiceData = [
+                'courier' => $request->courier,
+                'service' => $request->service,
+                'weight' => $request->weight,
+                'shipping_cost' => $shippingCost,
+                'origin_city' => $request->origin_city,
+                'destination_city' => $request->destination_city,
+                'origin_address' => $request->origin_address,
+                'destination_address' => $request->destination_address,
+                'notes' => $request->notes ?? null
             ];
 
-            // Create Xendit payment link
-            $paymentLink = $this->xenditService->createPaymentLink($invoiceData);
-
-            if (!$paymentLink) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal membuat invoice pengiriman'
-                ], 500);
-            }
-
-            // Store payment link in transaction
-            $transaksi->update([
-                'shipping_payment_link' => $paymentLink['invoice_url'],
-                'shipping_payment_id' => $paymentLink['id']
-            ]);
-
-            // Send email notification to user
-            Mail::to($transaksi->pelanggan->email)->send(new ShippingInvoiceMail($transaksi, $paymentLink));
-
-            Log::info('Shipping invoice generated successfully', [
-                'transaction_id' => $transaksi->id,
-                'shipping_cost' => $calculatedCost,
-                'payment_link' => $paymentLink['invoice_url']
-            ]);
+            $shippingInvoice = $shippingTrackingService->createShippingInvoice($auction, $shippingInvoiceData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Invoice pengiriman berhasil dibuat',
-                'payment_link' => $paymentLink['invoice_url'],
-                'shipping_cost' => $calculatedCost
+                'message' => 'Shipping invoice berhasil dibuat',
+                'shipping_invoice' => $shippingInvoice
             ]);
         } catch (\Exception $e) {
             Log::error('Error generating shipping invoice', [
-                'transaction_id' => $transaksi->id,
+                'auction_id' => $auction->id,
                 'error' => $e->getMessage()
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat membuat invoice pengiriman'
+            ], 500);
+        }
+    }
+
+    /**
+     * Update shipping status
+     */
+    public function updateShippingStatus(Request $request, Auction $auction)
+    {
+        $request->validate([
+            'shipping_status' => 'required|in:pending,processing,shipped,delivered,failed',
+            'waybill_number' => 'nullable|string',
+            'notes' => 'nullable|string'
+        ]);
+
+        try {
+            $shippingInvoice = $auction->shippingInvoice;
+            if (!$shippingInvoice) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Shipping invoice tidak ditemukan'
+                ], 400);
+            }
+
+            $shippingInvoice->update([
+                'shipping_status' => $request->shipping_status,
+                'waybill_number' => $request->waybill_number,
+                'notes' => $request->notes
+            ]);
+
+            // Update auction transaction status
+            if ($auction->transaksi) {
+                $trackingStatus = match ($request->shipping_status) {
+                    'pending' => 'menunggu',
+                    'processing' => 'diproses',
+                    'shipped' => 'dikirim',
+                    'delivered' => 'selesai',
+                    'failed' => 'gagal',
+                    default => 'menunggu'
+                };
+
+                $auction->transaksi->update([
+                    'tracking_status' => $trackingStatus
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pengiriman berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error updating shipping status', [
+                'auction_id' => $auction->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui status pengiriman'
+            ], 500);
+        }
+    }
+
+    /**
+     * Track shipment
+     */
+    public function trackShipment(Auction $auction)
+    {
+        try {
+            $shippingInvoice = $auction->shippingInvoice;
+            if (!$shippingInvoice) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Shipping invoice tidak ditemukan'
+                ], 400);
+            }
+
+            $shippingTrackingService = new \App\Services\ShippingTrackingService($this->rajaOngkirService);
+            $trackingResult = $shippingTrackingService->trackShipment($shippingInvoice);
+
+            return response()->json($trackingResult);
+        } catch (\Exception $e) {
+            Log::error('Error tracking shipment', [
+                'auction_id' => $auction->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat melacak pengiriman'
             ], 500);
         }
     }

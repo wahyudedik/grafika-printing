@@ -14,33 +14,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->command->info('🚀 Starting database seeding...');
 
-        User::factory()->create([
-            'name' => 'Dev',
-            'email' => 'dev@gmail.com',
-            'usertype' => 'dev',
+        // Run basic dummy data seeders
+        $this->call([
+            BasicDummyDataSeeder::class,     // Users, Vendors, Admin Fee Settings, Wallets
+            AuctionDataSeeder::class,        // Auctions, Bids, Delivery Confirmations
         ]);
 
-        User::factory()->create([
-            'name' => 'Vendor',
-            'email' => 'vendor@gmail.com',
-            'usertype' => 'vendor',
-        ]);
-
-        User::factory()->create([
-            'name' => 'User',
-            'email' => 'user@gmail.com',
-            'usertype' => 'user',
-        ]);
-
-        Vendor::create([
-            'name' => 'Grafika Printing',
-            'email' => 'grafika@gmail.com',
-            'phone' => '081234567890',
-            'address' => 'Jl. Grafika No. 1',
-            'website' => 'grafika-printing.com',
-            'is_active' => true
-        ])->vendorUser()->attach(2);
+        $this->command->info('✅ All dummy data created successfully!');
+        $this->command->info('📊 Summary:');
+        $this->command->info('   - Users: ' . \App\Models\User::count());
+        $this->command->info('   - Vendors: ' . \App\Models\Vendor::count());
+        $this->command->info('   - Auctions: ' . \App\Models\Auction::count());
+        $this->command->info('   - Transactions: ' . \App\Models\Vendor\Transaksi::count());
+        $this->command->info('   - Withdrawals: ' . \App\Models\VendorWithdrawal::count());
+        $this->command->info('   - Delivery Confirmations: ' . \App\Models\DeliveryConfirmation::count());
+        $this->command->info('   - Admin Fee Transactions: ' . \App\Models\AdminFeeTransaction::count());
+        $this->command->info('   - Xendit Payments: ' . \App\Models\XenditPayment::count());
     }
 }

@@ -40,14 +40,20 @@ class OrderTrackingController extends Controller
             abort(403, 'Anda tidak memiliki akses vendor');
         }
 
-        // Get transactions from auctions where this vendor is the winner
-        $transaksis = Transaksi::where('vendor_id', $vendor->id)
-            ->whereNotNull('auction_id')
-            ->with(['auction', 'pelanggan'])
+        // Get auctions where this vendor is the winner and need tracking
+        $auctions = Auction::where('winner_vendor_id', $vendor->id)
+            ->whereIn('status', ['paid', 'completed'])
+            ->with(['user', 'transaksi', 'shippingInvoice'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('vendor.tracking.index', compact('transaksis'));
+        // Get shipping invoices for this vendor
+        $shippingInvoices = \App\Models\ShippingInvoice::where('vendor_id', $vendor->id)
+            ->with(['auction', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('vendor.tracking.index', compact('auctions', 'shippingInvoices'));
     }
 
     /**
@@ -90,6 +96,20 @@ class OrderTrackingController extends Controller
             'is_cod' => $request->is_cod ?? false,
             'alamat_pengiriman' => $request->alamat_pengiriman ?? $transaksi->alamat_pengiriman
         ]);
+
+        // Update auction status if it exists
+        if ($transaksi->auction) {
+            $auctionStatus = match ($request->tracking_status) {
+                'menunggu' => 'paid',
+                'diproses' => 'paid',
+                'dicetak' => 'paid',
+                'dikirim' => 'paid',
+                'selesai' => 'completed',
+                default => 'paid'
+            };
+
+            $transaksi->auction->update(['status' => $auctionStatus]);
+        }
 
         // Update timestamps based on status
         $this->updateTrackingTimestamps($transaksi, $request->tracking_status);

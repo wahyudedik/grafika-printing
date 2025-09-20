@@ -25,10 +25,10 @@
         </div>
     </div>
 
-    <div class="col-md-12 mt-4"> 
+    <div class="col-md-12 mt-4">
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
-                <form id="checkoutForm" action="{{ route('pos.checkout.process') }}" method="POST" data-no-loading>
+                <form id="checkoutForm" action="{{ route('vendor.pos.checkout') }}" method="POST" data-no-loading>
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
@@ -63,10 +63,12 @@
                                 <label class="form-label">Jumlah Pembayaran</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
-                                    <input type="number" name="payment_amount" id="paymentAmount" class="form-control" placeholder="Masukkan jumlah pembayaran">
+                                    <input type="number" name="payment_amount" id="paymentAmount" class="form-control"
+                                        placeholder="Masukkan jumlah pembayaran">
                                 </div>
                                 <div class="mt-2">
-                                    <span class="text-muted">Total: Rp <span id="totalAmountDisplay">{{ number_format($totalAmount, 0, ',', '.') }}</span></span>
+                                    <span class="text-muted">Total: Rp <span
+                                            id="totalAmountDisplay">{{ number_format($totalAmount, 0, ',', '.') }}</span></span>
                                 </div>
                                 <div class="mt-2" id="changeContainer" style="display: none;">
                                     <span class="fw-bold">Kembalian: Rp <span id="changeAmount">0</span></span>
@@ -77,64 +79,70 @@
                             <div class="mb-3" id="paymentShortcutsContainer" style="display: none;">
                                 <label class="form-label">Shortcut Pembayaran</label>
                                 <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="{{ $totalAmount }}">Uang Pas</button>
-                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="{{ $totalAmount + 10000 }}">+10rb</button>
-                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="{{ $totalAmount + 50000 }}">+50rb</button>
-                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="100000">100rb</button>
-                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="200000">200rb</button>
-                                    <button type="button" class="btn btn-outline-primary payment-shortcut" data-amount="500000">500rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut"
+                                        data-amount="{{ $totalAmount }}">Uang Pas</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut"
+                                        data-amount="{{ $totalAmount + 10000 }}">+10rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut"
+                                        data-amount="{{ $totalAmount + 50000 }}">+50rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut"
+                                        data-amount="100000">100rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut"
+                                        data-amount="200000">200rb</button>
+                                    <button type="button" class="btn btn-outline-primary payment-shortcut"
+                                        data-amount="500000">500rb</button>
                                 </div>
                             </div>
 
                             <!-- Tambahkan script untuk menangani tampilan input pembayaran -->
                             <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const paymentMethodSelect = document.getElementById('paymentMethodSelect');
-                                const paymentAmountContainer = document.getElementById('paymentAmountContainer');
-                                const paymentShortcutsContainer = document.getElementById('paymentShortcutsContainer');
-                                const paymentAmount = document.getElementById('paymentAmount');
-                                const changeContainer = document.getElementById('changeContainer');
-                                const changeAmount = document.getElementById('changeAmount');
-                                const totalAmount = {{ $totalAmount }};
-                                
-                                // Fungsi untuk menghitung kembalian
-                                function calculateChange() {
-                                    const amount = parseFloat(paymentAmount.value) || 0;
-                                    const change = amount - totalAmount;
-                                    
-                                    if (change >= 0) {
-                                        changeAmount.textContent = change.toLocaleString('id-ID');
-                                        changeContainer.style.display = 'block';
-                                    } else {
-                                        changeContainer.style.display = 'none';
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const paymentMethodSelect = document.getElementById('paymentMethodSelect');
+                                    const paymentAmountContainer = document.getElementById('paymentAmountContainer');
+                                    const paymentShortcutsContainer = document.getElementById('paymentShortcutsContainer');
+                                    const paymentAmount = document.getElementById('paymentAmount');
+                                    const changeContainer = document.getElementById('changeContainer');
+                                    const changeAmount = document.getElementById('changeAmount');
+                                    const totalAmount = {{ $totalAmount }};
+
+                                    // Fungsi untuk menghitung kembalian
+                                    function calculateChange() {
+                                        const amount = parseFloat(paymentAmount.value) || 0;
+                                        const change = amount - totalAmount;
+
+                                        if (change >= 0) {
+                                            changeAmount.textContent = change.toLocaleString('id-ID');
+                                            changeContainer.style.display = 'block';
+                                        } else {
+                                            changeContainer.style.display = 'none';
+                                        }
                                     }
-                                }
-                                
-                                // Event listener untuk perubahan metode pembayaran
-                                paymentMethodSelect.addEventListener('change', function() {
-                                    if (this.value === 'cash') {
-                                        paymentAmountContainer.style.display = 'block';
-                                        paymentShortcutsContainer.style.display = 'block';
-                                    } else {
-                                        paymentAmountContainer.style.display = 'none';
-                                        paymentShortcutsContainer.style.display = 'none';
-                                    }
-                                });
-                                
-                                // Event listener untuk input jumlah pembayaran
-                                paymentAmount.addEventListener('input', calculateChange);
-                                
-                                // Event listener untuk tombol shortcut pembayaran
-                                document.querySelectorAll('.payment-shortcut').forEach(button => {
-                                    button.addEventListener('click', function() {
-                                        paymentAmount.value = this.dataset.amount;
-                                        calculateChange();
+
+                                    // Event listener untuk perubahan metode pembayaran
+                                    paymentMethodSelect.addEventListener('change', function() {
+                                        if (this.value === 'cash') {
+                                            paymentAmountContainer.style.display = 'block';
+                                            paymentShortcutsContainer.style.display = 'block';
+                                        } else {
+                                            paymentAmountContainer.style.display = 'none';
+                                            paymentShortcutsContainer.style.display = 'none';
+                                        }
                                     });
+
+                                    // Event listener untuk input jumlah pembayaran
+                                    paymentAmount.addEventListener('input', calculateChange);
+
+                                    // Event listener untuk tombol shortcut pembayaran
+                                    document.querySelectorAll('.payment-shortcut').forEach(button => {
+                                        button.addEventListener('click', function() {
+                                            paymentAmount.value = this.dataset.amount;
+                                            calculateChange();
+                                        });
+                                    });
+
+                                    // Trigger change event untuk menampilkan/menyembunyikan input pembayaran sesuai metode awal
+                                    paymentMethodSelect.dispatchEvent(new Event('change'));
                                 });
-                                
-                                // Trigger change event untuk menampilkan/menyembunyikan input pembayaran sesuai metode awal
-                                paymentMethodSelect.dispatchEvent(new Event('change'));
-                            });
                             </script>
 
                             <div class="mb-3">
@@ -149,7 +157,8 @@
                             @foreach ($cartItems as $index => $item)
                                 <div class="card shadow-sm border-0 rounded-4 mb-3">
                                     <div class="card-body">
-                                        <h5 class="fw-bold mb-3">{{ $item['product_name'] }} (x{{ $item['quantity'] }})</h5>
+                                        <h5 class="fw-bold mb-3">{{ $item['product_name'] }} (x{{ $item['quantity'] }})
+                                        </h5>
 
                                         <!-- Specifications -->
                                         @foreach ($item['specifications'] as $specId => $spec)
@@ -281,7 +290,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a href="{{ route('pos.cart') }}" class="btn btn-outline-primary rounded-pill px-4"
+                            <a href="{{ route('vendor.pos.cart') }}" class="btn btn-outline-primary rounded-pill px-4"
                                 data-no-loading>
                                 <i class="fas fa-arrow-left me-2"></i>Back to Cart
                             </a>
@@ -303,7 +312,8 @@
                     <h5 class="modal-title">Add New Customer</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form action="{{ route('pos.customer.create') }}" method="POST" id="newCustomerForm" data-no-loading>
+                <form action="{{ route('vendor.customers.store') }}" method="POST" id="newCustomerForm"
+                    data-no-loading>
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">

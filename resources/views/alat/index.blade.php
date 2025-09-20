@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Alat</h3>
                 </div>
                 <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('alat.index') }}" method="GET" class="flex-grow-1" data-no-loading>
+                    <form action="{{ route('vendor.tools.index') }}" method="GET" class="flex-grow-1" data-no-loading>
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -31,13 +31,13 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('status'), ['status' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => ''])) }}">Semua</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('status'), ['status' => 'aktif'])) }}">Aktif</a>
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => 'aktif'])) }}">Aktif</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('status'), ['status' => 'maintenance'])) }}">Maintenance</a>
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => 'maintenance'])) }}">Maintenance</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('status'), ['status' => 'rusak'])) }}">Rusak</a>
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => 'rusak'])) }}">Rusak</a>
                         </div>
                     </div>
 
@@ -48,16 +48,16 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('tersedia'), ['tersedia' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => ''])) }}">Semua</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('tersedia'), ['tersedia' => 'yes'])) }}">Tersedia</a>
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => 'yes'])) }}">Tersedia</a>
                             <a class="dropdown-item" data-no-loading
-                                href="{{ route('alat.index', array_merge(request()->except('tersedia'), ['tersedia' => 'no'])) }}">Tidak
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => 'no'])) }}">Tidak
                                 Tersedia</a>
                         </div>
                     </div>
 
-                    <a href="{{ route('alat.create') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.tools.create') }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -99,8 +99,8 @@
                             <td>{!! $item->availability_label !!}</td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('alat.show', $item->id) }}" class="btn btn-icon btn-ghost-info"
-                                        data-bs-toggle="tooltip" title="View">
+                                    <a href="{{ route('vendor.tools.show', $item->id) }}"
+                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none">
@@ -110,8 +110,8 @@
                                                 d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('alat.edit', $item->id) }}" class="btn btn-icon btn-ghost-warning"
-                                        data-bs-toggle="tooltip" title="Edit">
+                                    <a href="{{ route('vendor.tools.edit', $item->id) }}"
+                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none">
@@ -157,7 +157,7 @@
                                         Silahkan tambahkan alat baru atau ubah filter pencarian
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('alat.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.tools.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"
@@ -215,7 +215,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             showLoading('Menghapus...');
-                            deleteForm.action = `{{ route('alat.destroy', '') }}/${id}`;
+                            deleteForm.action = `{{ route('vendor.tools.destroy', '') }}/${id}`;
                             deleteForm.submit();
                         }
                     });

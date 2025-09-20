@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('budget', 15, 2);
             $table->date('deadline');
             $table->string('file_path')->nullable();
-            $table->string('status')->default('active'); // active, closed, completed
+            $table->string('status')->default('pending'); // pending, active, closed, completed, rejected
             $table->foreignId('winner_vendor_id')->nullable()->constrained('vendors');
             $table->decimal('winning_bid', 15, 2)->nullable();
             $table->text('specifications')->nullable();

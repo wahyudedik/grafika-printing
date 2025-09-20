@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'usertype', //dev, vendor, user
+        'last_login_at',
     ];
 
     /**
@@ -45,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -73,10 +75,5 @@ class User extends Authenticatable implements MustVerifyEmail
         return $query->whereHas('vendorUser', function ($q) use ($vendorId) {
             $q->where('vendor_id', $vendorId);
         });
-    }
-
-    public function profiles()
-    {
-        return $this->hasMany(Profile::class, 'user_id');
     }
 }

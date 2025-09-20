@@ -12,10 +12,10 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <div class="mb-3"> 
+                                <div class="mb-3">
                                     <label class="form-label">Nama Kategori</label>
                                     <div class="form-control-plaintext">{{ $kategoriProduk->nama_kategori }}</div>
-                                </div> 
+                                </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Slug</label>
@@ -26,75 +26,81 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Tanggal Dibuat</label>
-                                    <div class="form-control-plaintext">{{ $kategoriProduk->created_at->format('d M Y, H:i') }}</div>
+                                    <div class="form-control-plaintext">
+                                        {{ $kategoriProduk->created_at->format('d M Y, H:i') }}</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Terakhir Diperbarui</label>
-                                    <div class="form-control-plaintext">{{ $kategoriProduk->updated_at->format('d M Y, H:i') }}</div>
+                                    <div class="form-control-plaintext">
+                                        {{ $kategoriProduk->updated_at->format('d M Y, H:i') }}</div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Related Products Section -->
                         <div class="mt-4">
                             <h4 class="mb-3">Produk dalam Kategori Ini</h4>
-                            
-                            @if($kategoriProduk->produk && $kategoriProduk->produk->count() > 0)
-                            <div class="table-responsive">
-                                <table class="table table-vcenter card-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Nama Produk</th>
-                                            {{-- <th>Harga</th>
+
+                            @if ($kategoriProduk->produk && $kategoriProduk->produk->count() > 0)
+                                <div class="table-responsive">
+                                    <table class="table table-vcenter card-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Produk</th>
+                                                {{-- <th>Harga</th>
                                             <th>Status</th> --}}
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($kategoriProduk->produk as $produk)
-                                        <tr>
-                                            <td>{{ $produk->nama_produk }}</td>
-                                            {{-- <td>Rp {{ number_format($produk->harga, 0, ',', '.') }}</td> --}}
-                                            {{-- <td>
-                                                @if($produk->is_active)
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($kategoriProduk->produk as $produk)
+                                                <tr>
+                                                    <td>{{ $produk->nama_produk }}</td>
+                                                    {{-- <td>Rp {{ number_format($produk->harga, 0, ',', '.') }}</td> --}}
+                                                    {{-- <td>
+                                                @if ($produk->is_active)
                                                     <span class="badge bg-success ">Aktif</span>
                                                 @else
                                                     <span class="badge bg-danger">Nonaktif</span>
                                                 @endif
                                             </td> --}}
-                                            <td>
-                                                <a href="{{ route('produk.show', $produk->id) }}" class="btn btn-sm btn-primary">
-                                                    Lihat
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                                    <td>
+                                                        <a href="{{ route('vendor.products.show', $produk->id) }}"
+                                                            class="btn btn-sm btn-primary">
+                                                            Lihat
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             @else
-                            <div class="alert alert-info mt-3">
-                                <div class="d-flex">
-                                    <div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M12 9h.01"></path>
-                                            <path d="M11 12h1v4h1"></path>
-                                            <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="alert-title">Tidak ada produk dalam kategori ini</h4>
-                                        <div class="text-muted">Kategori ini belum memiliki produk yang terkait.</div>
+                                <div class="alert alert-info mt-3">
+                                    <div class="d-flex">
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24"
+                                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M12 9h.01"></path>
+                                                <path d="M11 12h1v4h1"></path>
+                                                <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="alert-title">Tidak ada produk dalam kategori ini</h4>
+                                            <div class="text-muted">Kategori ini belum memiliki produk yang terkait.</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
                             @endif
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ route('kategori-produk.edit', $kategoriProduk->id) }}" class="btn btn-primary">
+                        <a href="{{ route('vendor.categories.edit', $kategoriProduk->id) }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -106,7 +112,7 @@
                             Edit
                         </a>
 
-                        <a href="{{ route('kategori-produk.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.categories.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

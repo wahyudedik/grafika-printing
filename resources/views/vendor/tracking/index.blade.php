@@ -32,44 +32,62 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($transaksis as $transaksi)
+                                @forelse($auctions as $auction)
                                     <tr>
-                                        <td>{{ $transaksi->kode }}</td>
+                                        <td>{{ $auction->transaksi->kode ?? $auction->kode }}</td>
                                         <td>
                                             <div>
-                                                <strong>{{ $transaksi->auction->title ?? 'N/A' }}</strong><br>
-                                                <small class="text-muted">Kode:
-                                                    {{ $transaksi->auction->kode ?? 'N/A' }}</small>
+                                                <strong>{{ $auction->title }}</strong><br>
+                                                <small class="text-muted">Kode: {{ $auction->kode }}</small>
                                             </div>
                                         </td>
                                         <td>
                                             <div>
-                                                <strong>{{ $transaksi->pelanggan->nama }}</strong><br>
-                                                <small class="text-muted">{{ $transaksi->pelanggan->email }}</small>
+                                                <strong>{{ $auction->user->name }}</strong><br>
+                                                <small class="text-muted">{{ $auction->user->email }}</small>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="badge bg-{{ $this->getStatusColor($transaksi->tracking_status) }}">
-                                                {{ ucfirst($transaksi->tracking_status) }}
+                                            <span
+                                                class="badge bg-{{ getStatusColor($auction->transaksi->tracking_status ?? 'menunggu') }}">
+                                                {{ ucfirst($auction->transaksi->tracking_status ?? 'menunggu') }}
                                             </span>
                                         </td>
-                                        <td>Rp {{ number_format($transaksi->total_harga) }}</td>
+                                        <td>Rp {{ number_format($auction->winning_bid) }}</td>
                                         <td>
-                                            @if ($transaksi->ongkir > 0)
-                                                Rp {{ number_format($transaksi->ongkir) }}
-                                                @if ($transaksi->is_cod)
-                                                    <span class="badge bg-info ms-1">COD</span>
+                                            @if ($auction->shippingInvoice)
+                                                Rp {{ number_format($auction->shippingInvoice->shipping_cost) }}
+                                                @if ($auction->shippingInvoice->payment_status === 'pending')
+                                                    <span class="badge bg-warning ms-1">Belum Bayar</span>
+                                                @elseif($auction->shippingInvoice->payment_status === 'paid')
+                                                    <span class="badge bg-success ms-1">Lunas</span>
                                                 @endif
                                             @else
-                                                -
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    onclick="createShippingInvoice({{ $auction->id }})">
+                                                    Buat Invoice
+                                                </button>
                                             @endif
                                         </td>
-                                        <td>{{ $transaksi->no_resi ?? '-' }}</td>
+                                        <td>{{ $auction->shippingInvoice->waybill_number ?? '-' }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary"
-                                                onclick="updateTracking({{ $transaksi->id }}, '{{ $transaksi->tracking_status }}', '{{ $transaksi->no_resi }}', '{{ $transaksi->kurir }}', {{ $transaksi->ongkir }}, {{ $transaksi->is_cod ? 'true' : 'false' }})">
-                                                Update Status
-                                            </button>
+                                            <div class="btn-group">
+                                                @if ($auction->shippingInvoice)
+                                                    <button class="btn btn-sm btn-primary"
+                                                        onclick="updateShippingStatus({{ $auction->id }})">
+                                                        Update Status
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info"
+                                                        onclick="trackShipment({{ $auction->id }})">
+                                                        Track
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-sm btn-success"
+                                                        onclick="createShippingInvoice({{ $auction->id }})">
+                                                        Setup Shipping
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -104,73 +122,130 @@
         </div>
     </div>
 
-    <!-- Update Tracking Modal -->
-    <div class="modal fade" id="updateTrackingModal" tabindex="-1">
+    <!-- Create Shipping Invoice Modal -->
+    <div class="modal fade" id="createShippingInvoiceModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Update Status Tracking</h5>
+                    <h5 class="modal-title">Buat Shipping Invoice</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form id="updateTrackingForm" method="POST">
+                <form id="createShippingInvoiceForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Kurir</label>
+                                    <select name="courier" class="form-control" required>
+                                        <option value="">Pilih Kurir</option>
+                                        <option value="jne">JNE</option>
+                                        <option value="tiki">TIKI</option>
+                                        <option value="pos">POS Indonesia</option>
+                                        <option value="jnt">J&T Express</option>
+                                        <option value="sicepat">SiCepat</option>
+                                        <option value="ninja">Ninja Xpress</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Layanan</label>
+                                    <select name="service" class="form-control" required>
+                                        <option value="">Pilih Layanan</option>
+                                        <option value="reg">Regular</option>
+                                        <option value="eco">Economy</option>
+                                        <option value="ons">Overnight</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Berat (gram)</label>
+                                    <input type="number" name="weight" class="form-control" min="1" required
+                                        placeholder="1000">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Kota Asal</label>
+                                    <input type="text" name="origin_city" class="form-control" required
+                                        placeholder="Jakarta">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Kota Tujuan</label>
+                                    <input type="text" name="destination_city" class="form-control" required
+                                        placeholder="Bandung">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Alamat Asal</label>
+                                    <textarea name="origin_address" class="form-control" rows="2" required placeholder="Alamat vendor"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Alamat Tujuan</label>
+                            <textarea name="destination_address" class="form-control" rows="3" required
+                                placeholder="Alamat pengiriman user"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan</label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Catatan pengiriman (opsional)"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Buat Invoice</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Shipping Status Modal -->
+    <div class="modal fade" id="updateShippingStatusModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Status Pengiriman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="updateShippingStatusForm" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Status Tracking</label>
-                                    <select name="tracking_status" class="form-control" required>
-                                        <option value="menunggu">Menunggu</option>
-                                        <option value="diproses">Diproses</option>
-                                        <option value="dicetak">Dicetak</option>
-                                        <option value="dikirim">Dikirim</option>
-                                        <option value="selesai">Selesai</option>
+                                    <label class="form-label">Status Pengiriman</label>
+                                    <select name="shipping_status" class="form-control" required>
+                                        <option value="pending">Pending</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="shipped">Shipped</option>
+                                        <option value="delivered">Delivered</option>
+                                        <option value="failed">Failed</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Kurir</label>
-                                    <select name="kurir" class="form-control">
-                                        <option value="">Pilih Kurir</option>
-                                        <option value="jne">JNE</option>
-                                        <option value="tiki">TIKI</option>
-                                        <option value="pos">POS Indonesia</option>
-                                        <option value="jnt">J&T</option>
-                                        <option value="sicepat">SiCepat</option>
-                                        <option value="ninja">Ninja Xpress</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">No. Resi</label>
-                                    <input type="text" name="no_resi" class="form-control"
+                                    <input type="text" name="waybill_number" class="form-control"
                                         placeholder="Masukkan nomor resi">
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Ongkir (Rp)</label>
-                                    <input type="number" name="ongkir" class="form-control" min="0" step="0.01"
-                                        placeholder="0">
-                                </div>
-                            </div>
                         </div>
                         <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" name="is_cod" class="form-check-input" id="is_cod">
-                                <label class="form-check-label" for="is_cod">
-                                    COD (Cash on Delivery)
-                                </label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Alamat Pengiriman</label>
-                            <textarea name="alamat_pengiriman" class="form-control" rows="3" placeholder="Alamat lengkap pengiriman"></textarea>
+                            <label class="form-label">Catatan</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Catatan status pengiriman"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -183,22 +258,117 @@
     </div>
 
     <script>
-        function updateTracking(transaksiId, currentStatus, currentResi, currentKurir, currentOngkir, currentCod) {
-            const modal = new bootstrap.Modal(document.getElementById('updateTrackingModal'));
-            const form = document.getElementById('updateTrackingForm');
+        function createShippingInvoice(auctionId) {
+            const modal = new bootstrap.Modal(document.getElementById('createShippingInvoiceModal'));
+            const form = document.getElementById('createShippingInvoiceForm');
 
             // Set form action
-            form.action = `/dashboard/tracking/${transaksiId}`;
-
-            // Set current values
-            form.querySelector('select[name="tracking_status"]').value = currentStatus;
-            form.querySelector('input[name="no_resi"]').value = currentResi || '';
-            form.querySelector('select[name="kurir"]').value = currentKurir || '';
-            form.querySelector('input[name="ongkir"]').value = currentOngkir || '';
-            form.querySelector('input[name="is_cod"]').checked = currentCod;
+            form.action = `/dashboard/tracking/${auctionId}/shipping-invoice`;
 
             modal.show();
         }
+
+        function updateShippingStatus(auctionId) {
+            const modal = new bootstrap.Modal(document.getElementById('updateShippingStatusModal'));
+            const form = document.getElementById('updateShippingStatusForm');
+
+            // Set form action
+            form.action = `/dashboard/tracking/${auctionId}/shipping-status`;
+
+            modal.show();
+        }
+
+        function trackShipment(auctionId) {
+            // Redirect to tracking page or open tracking modal
+            window.open(`/dashboard/tracking/${auctionId}/track`, '_blank');
+        }
+
+        // Handle form submissions with AJAX
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create Shipping Invoice Form
+            const createForm = document.getElementById('createShippingInvoiceForm');
+            if (createForm) {
+                createForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Membuat Invoice...';
+
+                    fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Shipping invoice berhasil dibuat!');
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat membuat invoice');
+                        })
+                        .finally(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        });
+                });
+            }
+
+            // Update Shipping Status Form
+            const updateForm = document.getElementById('updateShippingStatusForm');
+            if (updateForm) {
+                updateForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Memperbarui Status...';
+
+                    fetch(this.action, {
+                            method: 'PUT',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Status pengiriman berhasil diperbarui!');
+                                location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat memperbarui status');
+                        })
+                        .finally(() => {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        });
+                });
+            }
+        });
     </script>
 @endsection
 

@@ -127,7 +127,7 @@ class VendorWalletController extends Controller
             $withdrawal = VendorWithdrawal::createRequest(
                 $vendor->id,
                 $request->amount,
-                $request->method,
+                $request->input('method'),
                 $request->account_number,
                 $request->account_name,
                 $request->bank_name,

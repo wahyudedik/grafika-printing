@@ -134,4 +134,137 @@ class CmsSetting extends Model
             ->orderBy('sort_order')
             ->get();
     }
+
+    /**
+     * Get all settings as key-value pairs
+     */
+    public static function getAllAsArray()
+    {
+        return static::where('is_active', true)
+            ->pluck('value', 'key')
+            ->toArray();
+    }
+
+    /**
+     * Get settings by multiple categories
+     */
+    public static function getByCategories(array $categories)
+    {
+        return static::whereIn('category', $categories)
+            ->where('is_active', true)
+            ->orderBy('category')
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('category');
+    }
+
+    /**
+     * Search settings by label or key
+     */
+    public static function search($query)
+    {
+        return static::where('is_active', true)
+            ->where(function ($q) use ($query) {
+                $q->where('label', 'like', "%{$query}%")
+                    ->orWhere('key', 'like', "%{$query}%")
+                    ->orWhere('description', 'like', "%{$query}%");
+            })
+            ->orderBy('category')
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    /**
+     * Get settings statistics
+     */
+    public static function getStatistics()
+    {
+        return [
+            'total' => static::count(),
+            'active' => static::where('is_active', true)->count(),
+            'inactive' => static::where('is_active', false)->count(),
+            'by_category' => static::selectRaw('category, COUNT(*) as count')
+                ->groupBy('category')
+                ->pluck('count', 'category'),
+            'by_type' => static::selectRaw('type, COUNT(*) as count')
+                ->groupBy('type')
+                ->pluck('count', 'type')
+        ];
+    }
+
+    /**
+     * Bulk update settings
+     */
+    public static function bulkUpdate(array $settings)
+    {
+        $updated = 0;
+
+        foreach ($settings as $key => $value) {
+            $setting = static::where('key', $key)->first();
+            if ($setting) {
+                $setting->update(['value' => $value]);
+                $updated++;
+            }
+        }
+
+        // Clear cache
+        static::clearCache();
+
+        return $updated;
+    }
+
+    /**
+     * Get settings for specific page/section
+     */
+    public static function getForPage($page)
+    {
+        $pageSettings = [
+            'home' => ['hero', 'general'],
+            'about' => ['contact', 'general'],
+            'contact' => ['contact', 'social'],
+            'footer' => ['footer', 'social', 'contact']
+        ];
+
+        $categories = $pageSettings[$page] ?? ['general'];
+
+        return static::getByCategories($categories);
+    }
+
+    /**
+     * Validate setting value based on type
+     */
+    public function validateValue($value)
+    {
+        switch ($this->type) {
+            case 'email':
+                return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+            case 'url':
+                return filter_var($value, FILTER_VALIDATE_URL) !== false;
+            case 'phone':
+                return preg_match('/^[\+]?[0-9\s\-\(\)]+$/', $value);
+            case 'image':
+                return file_exists(storage_path('app/public/' . $value));
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Get formatted value for display
+     */
+    public function getFormattedValue()
+    {
+        switch ($this->type) {
+            case 'image':
+                return $this->value ? asset('storage/' . $this->value) : null;
+            case 'url':
+                return $this->value ?: '#';
+            case 'email':
+                return $this->value ? 'mailto:' . $this->value : null;
+            case 'phone':
+                return $this->value ? 'tel:' . $this->value : null;
+            default:
+                return $this->value;
+        }
+    }
 }

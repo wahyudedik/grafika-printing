@@ -13,11 +13,16 @@ class AuctionManagementController extends Controller
     /**
      * Display a listing of all auctions
      */
-    public function index()
+    public function index(Request $request)
     {
-        $auctions = Auction::with(['user', 'bids.vendor', 'winnerVendor'])
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Auction::with(['user', 'bids.vendor', 'winnerVendor']);
+
+        // Filter by status
+        if ($request->has('status') && $request->status !== '') {
+            $query->where('status', $request->status);
+        }
+
+        $auctions = $query->orderBy('created_at', 'desc')->paginate(15);
 
         return view('dev.auctions.index', compact('auctions'));
     }
@@ -41,7 +46,14 @@ class AuctionManagementController extends Controller
     public function approve(Auction $auction)
     {
         if ($auction->status === 'pending') {
-            $auction->update(['status' => 'active']);
+            $auction->update([
+                'status' => 'active',
+                'approved_by' => Auth::id(),
+                'approved_at' => now()
+            ]);
+
+            // Send notification to user
+            $auction->user->notify(new \App\Notifications\AuctionApproved($auction));
 
             return redirect()->route('admin.auctions.index')
                 ->with('success', 'Lelang berhasil disetujui dan diaktifkan!');
@@ -54,10 +66,22 @@ class AuctionManagementController extends Controller
     /**
      * Reject an auction
      */
-    public function reject(Auction $auction)
+    public function reject(Request $request, Auction $auction)
     {
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500'
+        ]);
+
         if ($auction->status === 'pending') {
-            $auction->update(['status' => 'rejected']);
+            $auction->update([
+                'status' => 'rejected',
+                'rejection_reason' => $request->rejection_reason,
+                'rejected_by' => Auth::id(),
+                'rejected_at' => now()
+            ]);
+
+            // Send notification to user
+            $auction->user->notify(new \App\Notifications\AuctionRejected($auction, $request->rejection_reason));
 
             return redirect()->route('admin.auctions.index')
                 ->with('success', 'Lelang berhasil ditolak!');

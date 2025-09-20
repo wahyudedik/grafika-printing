@@ -31,7 +31,8 @@
                 {{-- Cart Details --}}
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="fw-bold text-black mb-0">Cart Details</h3>
-                    <a href="{{ route('pos.index') }}" data-no-loading class="btn btn-outline-primary rounded-pill px-4">
+                    <a href="{{ route('vendor.pos.index') }}" data-no-loading
+                        class="btn btn-outline-primary rounded-pill px-4">
                         <i class="fas fa-arrow-left me-2"></i>Back to Products
                     </a>
                 </div>
@@ -41,7 +42,7 @@
                         <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
                         <h4>Your Cart is Empty</h4>
                         <p class="text-muted">Add some products to your cart to continue shopping</p>
-                        <a href="{{ route('pos.index') }}" class="btn btn-primary mt-3">
+                        <a href="{{ route('vendor.pos.index') }}" class="btn btn-primary mt-3">
                             <i class="fas fa-shopping-bag me-2"></i>Browse Products
                         </a>
                     </div>
@@ -225,7 +226,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading('Removing item...');
-                    window.location.href = `{{ route('pos.removeItem', '') }}/${index}`;
+                    window.location.href = `{{ route('vendor.pos.removeItem', '') }}/${index}`;
                 }
             });
         }
@@ -243,14 +244,14 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading('Clearing cart...');
-                    window.location.href = "{{ route('pos.clearCart') }}";
+                    window.location.href = "{{ route('vendor.pos.clearCart') }}";
                 }
             });
         }
 
         function proceedToCheckout() {
             showLoading('Proceeding to checkout...');
-            window.location.href = "{{ route('pos.checkout') }}";
+            window.location.href = "{{ route('vendor.pos.checkout') }}";
         }
     </script>
 @endsection

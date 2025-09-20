@@ -200,17 +200,61 @@ class AdminFeeService
         $totalAdminReceives = $transactions->sum('admin_receives');
         $totalVendorReceives = $transactions->sum('vendor_receives');
 
+        // Status breakdown
+        $statusBreakdown = [
+            'pending' => ['count' => 0, 'total' => 0],
+            'paid' => ['count' => 0, 'total' => 0],
+            'failed' => ['count' => 0, 'total' => 0],
+            'refunded' => ['count' => 0, 'total' => 0]
+        ];
+
+        foreach ($transactions as $transaction) {
+            $status = $transaction->status;
+            if (isset($statusBreakdown[$status])) {
+                $statusBreakdown[$status]['count']++;
+                $statusBreakdown[$status]['total'] += $transaction->admin_fee_amount;
+            }
+        }
+
+        // Top vendors
+        $topVendors = $transactions->groupBy('vendor_id')
+            ->map(function ($vendorTransactions) {
+                $vendor = $vendorTransactions->first()->vendor;
+                return [
+                    'name' => $vendor ? $vendor->name : 'Unknown',
+                    'email' => $vendor ? $vendor->email : 'N/A',
+                    'transaction_count' => $vendorTransactions->count(),
+                    'total_admin_fee' => $vendorTransactions->sum('admin_fee_amount')
+                ];
+            })
+            ->sortByDesc('total_admin_fee')
+            ->take(5)
+            ->values();
+
+        // Chart data (last 30 days)
+        $chartData = [
+            'labels' => [],
+            'revenue' => []
+        ];
+
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $chartData['labels'][] = $date->format('M d');
+
+            $dayRevenue = $transactions->where('created_at', '>=', $date->startOfDay())
+                ->where('created_at', '<=', $date->endOfDay())
+                ->sum('admin_fee_amount');
+            $chartData['revenue'][] = $dayRevenue;
+        }
+
         return [
             'total_transactions' => $totalTransactions,
-            'total_auction_amount' => $totalAuctionAmount,
-            'total_admin_fees' => $totalAdminFees,
-            'total_payment_fees' => $totalPaymentFees,
-            'total_admin_receives' => $totalAdminReceives,
-            'total_vendor_receives' => $totalVendorReceives,
-            'average_admin_fee_percentage' => $totalAuctionAmount > 0 ?
-                round(($totalAdminFees / $totalAuctionAmount) * 100, 2) : 0,
-            'average_transaction_amount' => $totalTransactions > 0 ?
-                round($totalAuctionAmount / $totalTransactions, 2) : 0
+            'total_admin_revenue' => $totalAdminReceives,
+            'average_admin_fee' => $totalTransactions > 0 ? round($totalAdminFees / $totalTransactions, 2) : 0,
+            'average_percentage' => $totalAuctionAmount > 0 ? round(($totalAdminFees / $totalAuctionAmount) * 100, 2) : 0,
+            'status_breakdown' => $statusBreakdown,
+            'top_vendors' => $topVendors,
+            'chart_data' => $chartData
         ];
     }
 

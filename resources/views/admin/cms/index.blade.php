@@ -12,9 +12,38 @@
                             <i class="fas fa-cogs me-2"></i>CMS Management
                         </h3>
                         <div class="card-actions">
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSettingModal">
-                                <i class="fas fa-plus me-1"></i>Add New Setting
-                            </button>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSettingModal">
+                                    <i class="fas fa-plus me-1"></i>Add New Setting
+                                </button>
+                                <a href="{{ route('admin.cms.preview') }}" class="btn btn-info" target="_blank">
+                                    <i class="fas fa-eye me-1"></i>Preview Landing
+                                </a>
+                                <a href="{{ route('admin.cms.statistics') }}" class="btn btn-success">
+                                    <i class="fas fa-chart-bar me-1"></i>Statistics
+                                </a>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                        data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog me-1"></i>Tools
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ route('admin.cms.export') }}">
+                                                <i class="fas fa-download me-2"></i>Export Settings
+                                            </a></li>
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                data-bs-target="#importModal">
+                                                <i class="fas fa-upload me-2"></i>Import Settings
+                                            </a></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="resetSettings()">
+                                                <i class="fas fa-undo me-2"></i>Reset to Default
+                                            </a></li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -96,7 +125,8 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="type" class="form-label">Type <span class="text-danger">*</span></label>
+                                    <label for="type" class="form-label">Type <span
+                                            class="text-danger">*</span></label>
                                     <select class="form-select" id="type" name="type" required>
                                         <option value="">Select Type</option>
                                         <option value="text">Text</option>
@@ -138,6 +168,37 @@
             </div>
         </div>
     </div>
+
+    <!-- Import Settings Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import CMS Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ route('admin.cms.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select JSON File</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".json"
+                                required>
+                            <div class="form-text">Upload a JSON file exported from CMS settings</div>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Warning:</strong> This will overwrite existing settings with the same keys.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Import Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -147,6 +208,65 @@
             const label = this.value;
             const key = label.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '_');
             document.getElementById('key').value = key;
+        });
+
+        // Reset settings function
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all CMS settings to default? This action cannot be undone.')) {
+                fetch('{{ route('admin.cms.reset') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while resetting settings');
+                    });
+            }
+        }
+
+        // Real-time preview functionality
+        function previewSetting(key, value) {
+            // Update preview elements in real-time
+            const previewElements = document.querySelectorAll(`[data-cms-key="${key}"]`);
+            previewElements.forEach(element => {
+                if (element.tagName === 'IMG') {
+                    element.src = value;
+                } else {
+                    element.textContent = value;
+                }
+            });
+        }
+
+        // Auto-save functionality
+        let saveTimeout;
+
+        function autoSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                const form = document.getElementById('cmsForm');
+                if (form) {
+                    form.submit();
+                }
+            }, 2000); // Auto-save after 2 seconds of inactivity
+        }
+
+        // Add auto-save to form inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', autoSave);
+            });
         });
     </script>
 @endsection

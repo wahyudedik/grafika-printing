@@ -151,7 +151,7 @@ class ProdukController extends Controller
             }
         }
 
-        return redirect()->route('produk.index')
+        return redirect()->route('vendor.products.index')
             ->with('toast_success', 'Produk berhasil ditambahkan!');
     }
 
@@ -385,7 +385,7 @@ class ProdukController extends Controller
             }
         }
 
-        return redirect()->route('produk.index')
+        return redirect()->route('vendor.products.index')
             ->with('toast_success', 'Produk berhasil diperbarui!');
     }
 
@@ -401,7 +401,7 @@ class ProdukController extends Controller
             foreach ($produk->gambar as $image) {
                 $imagePath = public_path($image);
                 if (file_exists($imagePath)) {
-                    unlink($imagePath); 
+                    unlink($imagePath);
                 }
             }
         }
@@ -418,7 +418,7 @@ class ProdukController extends Controller
         // Delete the product
         $produk->delete();
 
-        return redirect()->route('produk.index')
+        return redirect()->route('vendor.products.index')
             ->with('toast_success', 'Produk berhasil dihapus!');
     }
 }

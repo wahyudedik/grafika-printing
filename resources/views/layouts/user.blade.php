@@ -8,6 +8,49 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <style>
+        /* Responsive navbar improvements */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .navbar-nav .nav-item {
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem;
+                text-align: left;
+                border-radius: 0.375rem;
+            }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .navbar-nav .dropdown-menu {
+                position: static !important;
+                transform: none !important;
+                box-shadow: none;
+                border: none;
+                background-color: rgba(0, 0, 0, 0.02);
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-link-title {
+                font-size: 0.875rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -71,7 +114,7 @@
         <div class="collapse navbar-collapse" id="navbar-menu">
             <div class="navbar navbar-light">
                 <div class="container-xl">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav flex-wrap">
                         <li class="nav-item {{ request()->routeIs('welcome') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('welcome') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -100,11 +143,12 @@
                                         <line x1="3" y1="10" x2="21" y2="10" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Dashboard</span>
+                                <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
+                                <span class="nav-link-title d-sm-none">Dash</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('auctions.index') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('auctions.index') }}">
+                        <li class="nav-item {{ request()->routeIs('user.auctions.index') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('user.auctions.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -116,11 +160,12 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Lelang</span>
+                                <span class="nav-link-title d-none d-sm-inline">Lelang</span>
+                                <span class="nav-link-title d-sm-none">Lelang</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('auctions.my') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('auctions.my') }}">
+                        <li class="nav-item {{ request()->routeIs('user.auctions.my') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('user.auctions.my') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -131,7 +176,8 @@
                                         <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Lelang Saya</span>
+                                <span class="nav-link-title d-none d-sm-inline">Lelang Saya</span>
+                                <span class="nav-link-title d-sm-none">Saya</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('user.tracking.*') ? 'active' : '' }}">
@@ -148,7 +194,8 @@
                                         <path d="M9 12l2 2l4 -4" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Tracking Pesanan</span>
+                                <span class="nav-link-title d-none d-sm-inline">Tracking Pesanan</span>
+                                <span class="nav-link-title d-sm-none">Tracking</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('user.profile.*') ? 'active' : '' }}">
@@ -164,7 +211,8 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Profil</span>
+                                <span class="nav-link-title d-none d-sm-inline">Profil</span>
+                                <span class="nav-link-title d-sm-none">Profil</span>
                             </a>
                         </li>
                     </ul>

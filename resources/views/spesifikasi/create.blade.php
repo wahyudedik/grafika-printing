@@ -5,7 +5,7 @@
     <div class="container-xl">
         <div class="row g-3">
             <div class="col-12">
-                <form action="{{ route('spesifikasi.store') }}" method="POST" class="card"
+                <form action="{{ route('vendor.specifications.store') }}" method="POST" class="card"
                     onsubmit="showLoading('Menambahkan spesifikasi...')">
                     @csrf
                     <div class="card-header">
@@ -71,7 +71,7 @@
                             Simpan
                         </button>
 
-                        <a href="{{ route('spesifikasi.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.specifications.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">

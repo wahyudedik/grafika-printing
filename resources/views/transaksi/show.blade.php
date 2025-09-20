@@ -9,7 +9,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h3 class="card-title">Detail Transaksi: {{ $transaksi->kode }}</h3>
                         <div>
-                            <a href="{{ route('transaksi.edit', $transaksi->id) }}" class="btn btn-primary">
+                            <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}" class="btn btn-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                     width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -20,7 +20,7 @@
                                 </svg>
                                 Edit
                             </a>
-                            <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('vendor.transactions.index') }}" class="btn btn-secondary">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                     width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -106,7 +106,9 @@
                                     </tr>
                                     <tr>
                                         <th>Terbayar</th>
-                                        <td>Rp {{ number_format($transaksi->terbayar ?? $transaksi->total_harga, 0, ',', '.') }}</td>
+                                        <td>Rp
+                                            {{ number_format($transaksi->terbayar ?? $transaksi->total_harga, 0, ',', '.') }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <th>Kembali</th>
@@ -208,7 +210,7 @@
                     <div class="card-footer d-flex justify-content-between">
                         <div>
                             @if ($transaksi->status != 'completed' && $transaksi->status != 'cancelled')
-                                <form action="{{ route('transaksi.update', $transaksi->id) }}" method="POST"
+                                <form action="{{ route('vendor.transactions.update', $transaksi->id) }}" method="POST"
                                     class="d-inline" id="status-form">
                                     @csrf
                                     @method('PUT')
@@ -270,7 +272,7 @@
                                 </svg>
                                 Hapus
                             </button>
-                            <a href="{{ route('transaksi.generateInvoice', $transaksi->id) }}" class="btn btn-info"
+                            <a href="{{ route('vendor.transactions.invoice', $transaksi->id) }}" class="btn btn-info"
                                 target="_blank">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-invoice"
                                     width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -320,7 +322,7 @@
                             }
                         });
                         const form = document.getElementById('delete-form');
-                        form.action = `{{ route('transaksi.destroy', '') }}/${id}`;
+                        form.action = `{{ route('vendor.transactions.destroy', '') }}/${id}`;
                         form.submit();
                     }
                 });

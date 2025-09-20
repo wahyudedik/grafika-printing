@@ -56,7 +56,7 @@ class SpesifikasiController extends Controller
 
         Spesifikasi::create($validated);
 
-        return redirect()->route('spesifikasi.index')
+        return redirect()->route('vendor.specifications.index')
             ->with('toast_success', 'Spesifikasi berhasil ditambahkan.');
     }
 
@@ -99,7 +99,7 @@ class SpesifikasiController extends Controller
 
         $spesifikasi->update($validated);
 
-        return redirect()->route('spesifikasi.index')
+        return redirect()->route('vendor.specifications.index')
             ->with('toast_success', 'Spesifikasi berhasil diperbarui.');
     }
 
@@ -112,13 +112,13 @@ class SpesifikasiController extends Controller
 
         // Check if the specification is being used
         if ($spesifikasi->spesifikasiProduk()->count() > 0) {
-            return redirect()->route('spesifikasi.index')
+            return redirect()->route('vendor.specifications.index')
                 ->with('toast_error', 'Spesifikasi tidak dapat dihapus karena sedang digunakan oleh produk.');
         }
 
         $spesifikasi->delete();
 
-        return redirect()->route('spesifikasi.index')
+        return redirect()->route('vendor.specifications.index')
             ->with('toast_success', 'Spesifikasi berhasil dihapus.');
     }
 }

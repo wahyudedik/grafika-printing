@@ -19,24 +19,6 @@ class XenditPaymentController extends Controller
         $this->xenditService = $xenditService;
     }
 
-    /**
-     * Show payment page for auction
-     */
-    public function showPaymentPage(Auction $auction)
-    {
-        // Check if auction is waiting for payment
-        if ($auction->status !== 'waiting_payment') {
-            return redirect()->route('auctions.show', $auction)
-                ->with('error', 'Lelang ini tidak memerlukan pembayaran.');
-        }
-
-        // Check if user is the auction owner
-        if ($auction->user_id !== Auth::id()) {
-            abort(403);
-        }
-
-        return view('payments.auction-payment', compact('auction'));
-    }
 
     /**
      * Create payment link for auction
@@ -44,14 +26,6 @@ class XenditPaymentController extends Controller
     public function createPaymentLink(Request $request, Auction $auction): JsonResponse
     {
         try {
-            // Validate request
-            $request->validate([
-                'payment_type' => 'required|string|in:bank_transfer,ewallet,credit_card',
-                'customer' => 'sometimes|array',
-                'customer.given_names' => 'required_with:customer|string|max:255',
-                'customer.email' => 'required_with:customer|email|max:255'
-            ]);
-
             // Check if auction is waiting for payment
             if ($auction->status !== 'waiting_payment') {
                 return response()->json(['error' => 'Lelang ini tidak memerlukan pembayaran.'], 400);
@@ -62,6 +36,7 @@ class XenditPaymentController extends Controller
                 return response()->json(['error' => 'Unauthorized.'], 403);
             }
 
+            // Validate request
             $request->validate([
                 'payment_type' => 'required|in:payment_link,xenpayment',
                 'customer' => 'nullable|array',
@@ -89,8 +64,8 @@ class XenditPaymentController extends Controller
                         'category' => 'Printing Service'
                     ]
                 ],
-                'success_redirect_url' => config('services.xendit.redirect_url') . route('auctions.show', $auction, false) . '?payment=success',
-                'failure_redirect_url' => config('services.xendit.redirect_url') . route('auctions.show', $auction, false) . '?payment=failed',
+                'success_redirect_url' => config('services.xendit.redirect_url') . route('user.auctions.show', $auction, false) . '?payment=success',
+                'failure_redirect_url' => config('services.xendit.redirect_url') . route('user.auctions.show', $auction, false) . '?payment=failed',
                 'invoice_duration' => 86400, // 24 hours
                 'payment_methods' => [
                     'BCA',
@@ -110,13 +85,9 @@ class XenditPaymentController extends Controller
 
             $response = null;
             if ($request->payment_type === 'payment_link') {
-                Log::info('Creating payment link with data:', $paymentData);
                 $response = $this->xenditService->createPaymentLink($paymentData);
-                Log::info('Payment link response:', $response);
             } else {
-                Log::info('Creating XenPayment with data:', $paymentData);
                 $response = $this->xenditService->createXenPayment($paymentData);
-                Log::info('XenPayment response:', $response);
             }
 
             if (!$response) {

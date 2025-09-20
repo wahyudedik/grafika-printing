@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Produk</h3>
                 </div>
                 <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('produk.index') }}" method="GET" class="flex-grow-1">
+                    <form action="{{ route('vendor.products.index') }}" method="GET" class="flex-grow-1">
                         <div class="input-icon">
                             <span class="input-icon-addon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -31,17 +31,17 @@
                         </button>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
-                                href="{{ route('produk.index', array_merge(request()->except('kategori_id'), ['kategori_id' => ''])) }}">Semua</a>
+                                href="{{ route('vendor.products.index', array_merge(request()->except('kategori_id'), ['kategori_id' => ''])) }}">Semua</a>
                             @foreach ($kategories as $kategori)
                                 <a class="dropdown-item"
-                                    href="{{ route('produk.index', array_merge(request()->except('kategori_id'), ['kategori_id' => $kategori->id])) }}">
+                                    href="{{ route('vendor.products.index', array_merge(request()->except('kategori_id'), ['kategori_id' => $kategori->id])) }}">
                                     {{ $kategori->nama_kategori }}
                                 </a>
                             @endforeach
                         </div>
                     </div>
 
-                    <a href="{{ route('produk.create') }}" class="btn btn-primary">
+                    <a href="{{ route('vendor.products.create') }}" class="btn btn-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -94,8 +94,8 @@
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('produk.show', $produk->id) }}" class="btn btn-icon btn-ghost-info"
-                                        data-bs-toggle="tooltip" title="View">
+                                    <a href="{{ route('vendor.products.show', $produk->id) }}"
+                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
                                             stroke="currentColor" fill="none">
@@ -105,7 +105,7 @@
                                                 d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('produk.edit', $produk->id) }}"
+                                    <a href="{{ route('vendor.products.edit', $produk->id) }}"
                                         class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -152,7 +152,7 @@
                                         Silahkan tambahkan produk baru atau ubah filter pencarian
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('produk.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.products.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"
@@ -210,7 +210,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             showLoading('Menghapus...');
-                            deleteForm.action = `{{ route('produk.destroy', '') }}/${id}`;
+                            deleteForm.action = `{{ route('vendor.products.destroy', '') }}/${id}`;
                             deleteForm.submit();
                         }
                     });

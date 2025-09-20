@@ -16,7 +16,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('produk.update', $produk->id) }}" method="POST" class="card"
+                <form action="{{ route('vendor.products.update', $produk->id) }}" method="POST" class="card"
                     enctype="multipart/form-data" onsubmit="showLoading('Memperbarui produk...')">
                     @csrf
                     @method('PUT')
@@ -345,7 +345,7 @@
                             Update
                         </button>
 
-                        <a href="{{ route('produk.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.products.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

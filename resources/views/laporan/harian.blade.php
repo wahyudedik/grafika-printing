@@ -22,7 +22,7 @@
                             </svg>
                             Print
                         </a>
-                        <a href="{{ route('laporan.export-penjualan', ['type' => 'daily', 'date' => $selectedDate->format('Y-m-d')]) }}"
+                        <a href="{{ route('vendor.laporan.export-penjualan', ['type' => 'daily', 'date' => $selectedDate->format('Y-m-d')]) }}"
                             class="btn btn-primary d-none d-sm-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -47,7 +47,7 @@
                         <h3 class="card-title">Filter</h3>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('laporan.penjualan-harian') }}" method="GET" class="row g-3">
+                        <form action="{{ route('vendor.laporan.penjualan-harian') }}" method="GET" class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label">Pilih Tanggal</label>
                                 <input type="date" class="form-control" name="date"

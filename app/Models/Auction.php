@@ -38,7 +38,12 @@ class Auction extends Model
         'progress_percentage',
         'catatan_vendor',
         'transaksi_id',
-        'pos_integrated'
+        'pos_integrated',
+        'rejection_reason',
+        'rejected_by',
+        'rejected_at',
+        'approved_by',
+        'approved_at'
     ];
 
     protected $casts = [
@@ -55,7 +60,9 @@ class Auction extends Model
         'quantity' => 'integer',
         'estimasi_selesai' => 'datetime',
         'progress_percentage' => 'integer',
-        'pos_integrated' => 'boolean'
+        'pos_integrated' => 'boolean',
+        'rejected_at' => 'datetime',
+        'approved_at' => 'datetime'
     ];
 
     public function user(): BelongsTo
@@ -112,5 +119,28 @@ class Auction extends Model
     public function latestPayment()
     {
         return $this->hasOne(XenditPayment::class)->latest();
+    }
+
+    /**
+     * Relasi dengan ShippingInvoice
+     */
+    public function shippingInvoice()
+    {
+        return $this->hasOne(ShippingInvoice::class);
+    }
+
+    public function deliveryConfirmation()
+    {
+        return $this->hasOne(DeliveryConfirmation::class);
+    }
+
+    public function hasDeliveryConfirmation(): bool
+    {
+        return $this->deliveryConfirmation()->exists();
+    }
+
+    public function isDeliveryConfirmed(): bool
+    {
+        return $this->deliveryConfirmation && $this->deliveryConfirmation->isConfirmed();
     }
 }

@@ -51,15 +51,15 @@ class CheckoutController extends Controller
 
             $startTime = $latestPending ? Carbon::parse($latestPending->estimasi_selesai) : now();
             $estimatedCompletion = $startTime->addMinutes($totalTime);
-            
+
             // Hitung total harga
             $totalAmount = collect($cartItems)->sum('total_price');
-            
+
             // Hitung jumlah terbayar dan kembalian
-            $paymentAmount = $validatedData['payment_method'] === 'cash' && isset($validatedData['payment_amount']) 
-                ? (float) $validatedData['payment_amount'] 
+            $paymentAmount = $validatedData['payment_method'] === 'cash' && isset($validatedData['payment_amount'])
+                ? (float) $validatedData['payment_amount']
                 : $totalAmount;
-                
+
             $changeAmount = max(0, $paymentAmount - $totalAmount);
 
             $transaksi = Transaksi::create([
@@ -123,13 +123,13 @@ class CheckoutController extends Controller
 
             return response()->json([
                 'success' => true,
-                'invoiceUrl' => route('pos.invoice.show', [
+                'invoiceUrl' => route('vendor.pos.invoice.show', [
                     'transaksi' => $transaksi->id
                 ]),
-                'downloadUrl' => route('pos.invoice.download', [
+                'downloadUrl' => route('vendor.pos.invoice.download', [
                     'transaksi' => $transaksi->id
                 ]),
-                'redirectUrl' => route('pos.index')
+                'redirectUrl' => route('vendor.pos.index')
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -148,7 +148,7 @@ class CheckoutController extends Controller
             $cartItems = session('cart', []);
 
             if (empty($cartItems)) {
-                return redirect()->route('pos.cart')
+                return redirect()->route('vendor.pos.cart')
                     ->with('toast_error', 'Your cart is empty. Please add items before checkout.');
             }
 
@@ -170,7 +170,7 @@ class CheckoutController extends Controller
             ));
         } catch (\Exception $e) {
             Log::error('Error displaying checkout: ' . $e->getMessage());
-            return redirect()->route('pos.cart')
+            return redirect()->route('vendor.pos.cart')
                 ->with('toast_error', 'Failed to load checkout page: ' . $e->getMessage());
         }
     }
@@ -197,9 +197,9 @@ class CheckoutController extends Controller
                 'email' => $validated['email']
             ]);
 
-            if ($request->expectsJson()) { 
+            if ($request->expectsJson()) {
                 return response()->json([
-                    'success' => true, 
+                    'success' => true,
                     'customer' => $customer
                 ]);
             }
@@ -213,7 +213,7 @@ class CheckoutController extends Controller
                     'success' => false,
                     'message' => 'Failed to create customer: ' . $e->getMessage()
                 ], 500);
-            } 
+            }
 
             return redirect()->back()
                 ->with('toast_error', 'Failed to create customer: ' . $e->getMessage())

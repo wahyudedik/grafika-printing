@@ -8,6 +8,49 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <style>
+        /* Responsive navbar improvements */
+        @media (max-width: 768px) {
+            .navbar-nav {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .navbar-nav .nav-item {
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+
+            .navbar-nav .nav-link {
+                padding: 0.75rem 1rem;
+                text-align: left;
+                border-radius: 0.375rem;
+            }
+
+            .navbar-nav .nav-link:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            .navbar-nav .dropdown-menu {
+                position: static !important;
+                transform: none !important;
+                box-shadow: none;
+                border: none;
+                background-color: rgba(0, 0, 0, 0.02);
+                margin-left: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-link-title {
+                font-size: 0.875rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 
@@ -62,7 +105,7 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a>
+                        <a class="dropdown-item" href="{{ route('user.profile.edit') }}">Profile</a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -77,7 +120,7 @@
         <div class="collapse navbar-collapse" id="navbar-menu">
             <div class="navbar navbar-light">
                 <div class="container-xl">
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav flex-wrap">
                         <li class="nav-item {{ request()->routeIs('welcome') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('welcome') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -93,8 +136,8 @@
                                 <span class="nav-link-title">Home</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('dashboard') }}">
+                        <li class="nav-item {{ request()->routeIs('vendor.dashboard') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.dashboard') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
@@ -106,11 +149,12 @@
                                         <line x1="3" y1="10" x2="21" y2="10" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Dashboard</span>
+                                <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
+                                <span class="nav-link-title d-sm-none">Dash</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('pos.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ url('/dashboard/pos') }}">
+                        <li class="nav-item {{ request()->routeIs('vendor.pos.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.pos.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -121,11 +165,12 @@
                                         <path d="M14 12h7l-3 -3m0 6l3 -3" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">POS</span>
+                                <span class="nav-link-title d-none d-sm-inline">POS</span>
+                                <span class="nav-link-title d-sm-none">POS</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('pengguna.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('pengguna.index') }}">
+                        <li class="nav-item {{ request()->routeIs('vendor.users.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.users.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -137,11 +182,12 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Pengguna</span>
+                                <span class="nav-link-title d-none d-sm-inline">Pengguna</span>
+                                <span class="nav-link-title d-sm-none">User</span>
                             </a>
                         </li>
                         <li
-                            class="nav-item dropdown {{ request()->routeIs('bahan.*') || request()->routeIs('alat.*') ? 'active' : '' }}">
+                            class="nav-item dropdown {{ request()->routeIs('vendor.materials.*') || request()->routeIs('vendor.tools.*') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-extra"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
                                 aria-expanded="false">
@@ -155,21 +201,22 @@
                                         <path d="M4 17h16" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Bahan & Alat</span>
+                                <span class="nav-link-title d-none d-sm-inline">Bahan & Alat</span>
+                                <span class="nav-link-title d-sm-none">Bahan</span>
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('bahan.index') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.materials.index') }}">
                                     Bahan
                                 </a>
-                                <a class="dropdown-item" href="{{ route('alat.index') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.tools.index') }}">
                                     Alat
                                 </a>
                             </div>
                         </li>
                         <li
-                            class="nav-item dropdown {{ request()->routeIs('produk.*') ||
-                            request()->routeIs('spesifikasi.*') ||
-                            request()->routeIs('kategori-produk.*')
+                            class="nav-item dropdown {{ request()->routeIs('vendor.products.*') ||
+                            request()->routeIs('vendor.specifications.*') ||
+                            request()->routeIs('vendor.categories.*')
                                 ? 'active'
                                 : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-extra"
@@ -186,22 +233,23 @@
                                         <path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Produk</span>
+                                <span class="nav-link-title d-none d-sm-inline">Produk</span>
+                                <span class="nav-link-title d-sm-none">Produk</span>
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('spesifikasi.index') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.specifications.index') }}">
                                     Spesifikasi
                                 </a>
-                                <a class="dropdown-item" href="{{ route('produk.index') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.products.index') }}">
                                     Produk
                                 </a>
-                                <a class="dropdown-item" href="{{ route('kategori-produk.index') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.categories.index') }}">
                                     Kategori Produk
                                 </a>
                             </div>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('pelanggan.index') }}">
+                        <li class="nav-item {{ request()->routeIs('vendor.customers.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.customers.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -213,11 +261,12 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Pelanggan</span>
+                                <span class="nav-link-title d-none d-sm-inline">Pelanggan</span>
+                                <span class="nav-link-title d-sm-none">Customer</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('transaksi.index') }}">
+                        <li class="nav-item {{ request()->routeIs('vendor.transactions.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.transactions.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -228,7 +277,8 @@
                                         <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Transaksi</span>
+                                <span class="nav-link-title d-none d-sm-inline">Transaksi</span>
+                                <span class="nav-link-title d-sm-none">Trans</span>
                             </a>
                         </li>
                         <li class="nav-item dropdown {{ request()->routeIs('vendor.auctions.*') ? 'active' : '' }}">
@@ -246,7 +296,8 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Lelang</span>
+                                <span class="nav-link-title d-none d-sm-inline">Lelang</span>
+                                <span class="nav-link-title d-sm-none">Lelang</span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{{ route('vendor.auctions.index') }}">
@@ -271,7 +322,8 @@
                                         <path d="M9 12l2 2l4 -4" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Tracking Pesanan</span>
+                                <span class="nav-link-title d-none d-sm-inline">Tracking Pesanan</span>
+                                <span class="nav-link-title d-sm-none">Tracking</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.wallet.*') ? 'active' : '' }}">
@@ -288,10 +340,11 @@
                                         <path d="M7 12v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Wallet</span>
+                                <span class="nav-link-title d-none d-sm-inline">Wallet</span>
+                                <span class="nav-link-title d-sm-none">Wallet</span>
                             </a>
                         </li>
-                        <li class="nav-item dropdown {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                        <li class="nav-item dropdown {{ request()->routeIs('vendor.laporan.*') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-reports"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
                                 aria-expanded="false">
@@ -307,16 +360,17 @@
                                         <line x1="9" y1="17" x2="15" y2="17" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Laporan</span>
+                                <span class="nav-link-title d-none d-sm-inline">Laporan</span>
+                                <span class="nav-link-title d-sm-none">Report</span>
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('laporan.penjualan-harian') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.laporan.penjualan-harian') }}">
                                     Laporan Penjualan Harian
                                 </a>
-                                <a class="dropdown-item" href="{{ route('laporan.penjualan-bulanan') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.laporan.penjualan-bulanan') }}">
                                     Laporan Penjualan Bulanan
                                 </a>
-                                <a class="dropdown-item" href="{{ route('laporan.penjualan-tahunan') }}">
+                                <a class="dropdown-item" href="{{ route('vendor.laporan.penjualan-tahunan') }}">
                                     Laporan Penjualan Tahunan
                                 </a>
                             </div>

@@ -92,7 +92,7 @@ class AlatController extends Controller
             // Create alat with vendor_id
             Alat::create(array_merge($request->all(), ['vendor_id' => $vendorId]));
 
-            return redirect()->route('alat.index')->with('toast_success', 'Alat berhasil ditambahkan');
+            return redirect()->route('vendor.tools.index')->with('toast_success', 'Alat berhasil ditambahkan');
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', 'Error adding alat: ' . $e->getMessage())->withInput();
         }
@@ -147,7 +147,7 @@ class AlatController extends Controller
             $data['vendor_id'] = $alat->vendor_id;
 
             $alat->update($data);
-            return redirect()->route('alat.index')->with('toast_success', 'Alat berhasil diperbarui');
+            return redirect()->route('vendor.tools.index')->with('toast_success', 'Alat berhasil diperbarui');
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', 'Error updating alat: ' . $e->getMessage())->withInput();
         }
@@ -160,7 +160,7 @@ class AlatController extends Controller
         try {
             $alat = Alat::findOrFail($id);
             $alat->delete();
-            return redirect()->route('alat.index')->with('toast_success', 'Alat berhasil dihapus');
+            return redirect()->route('vendor.tools.index')->with('toast_success', 'Alat berhasil dihapus');
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', 'Error deleting alat: ' . $e->getMessage());
         }

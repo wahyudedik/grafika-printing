@@ -20,8 +20,8 @@
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <h5 class="card-title mb-0">{{ $auction->title }}</h5>
                                                 <span
-                                                    class="badge bg-{{ $this->getStatusColor($auction->transaksi->tracking_status) }}">
-                                                    {{ ucfirst($auction->transaksi->tracking_status) }}
+                                                    class="badge bg-{{ getStatusColor($auction->transaksi->tracking_status ?? 'menunggu') }}">
+                                                    {{ ucfirst($auction->transaksi->tracking_status ?? 'menunggu') }}
                                                 </span>
                                             </div>
                                         </div>
@@ -51,8 +51,8 @@
                                             <!-- Progress Bar -->
                                             <div class="mt-3">
                                                 <div class="progress mb-2" style="height: 8px;">
-                                                    <div class="progress-bar bg-{{ $this->getStatusColor($auction->transaksi->tracking_status) }}"
-                                                        style="width: {{ $this->getProgressPercentage($auction->transaksi->tracking_status) }}%">
+                                                    <div class="progress-bar bg-{{ getStatusColor($auction->transaksi->tracking_status ?? 'menunggu') }}"
+                                                        style="width: {{ getProgressPercentage($auction->transaksi->tracking_status ?? 'menunggu') }}%">
                                                     </div>
                                                 </div>
                                                 <div class="d-flex justify-content-between small text-muted">
@@ -100,7 +100,7 @@
                                     Pesanan akan muncul di sini setelah lelang Anda dimenangkan oleh vendor.
                                 </p>
                                 <div class="empty-action">
-                                    <a href="{{ route('auctions.index') }}" class="btn btn-primary">Lihat Lelang</a>
+                                    <a href="{{ route('user.auctions.index') }}" class="btn btn-primary">Lihat Lelang</a>
                                 </div>
                             </div>
                         </div>

@@ -397,6 +397,38 @@
 
 ## Dashboard Features
 ### Admin Dashboard (Developer)
+
+## 🆕 **FITUR BARU & PEMBENARAN BUG**
+
+### **Delivery Confirmation System** (20 September 2025)
+- ✅ **Sistem Konfirmasi Barang Sampai**: User bisa konfirmasi barang diterima dengan rating dan feedback
+- ✅ **Automatic Payment to Vendor**: Vendor baru dapat bayar setelah user konfirmasi barang OK
+- ✅ **Dispute Resolution System**: Admin bisa resolve dispute dengan pilihan refund/rework
+- ✅ **Photo Upload**: User bisa upload foto barang sebagai bukti
+- ✅ **Rating System**: User bisa rating vendor 1-5 bintang
+
+### **🛡️ Sistem Moderasi Lelang** (20 September 2025)
+- ✅ **Approve/Reject Lelang**: Admin bisa setujui/tolak lelang dengan alasan yang jelas
+- ✅ **Status Pending**: Semua lelang baru otomatis berstatus "pending" dan perlu verifikasi
+- ✅ **Filter Status**: Admin bisa filter lelang berdasarkan status (pending, active, rejected)
+- ✅ **Notifikasi User**: User mendapat notifikasi email saat lelang di-approve/reject
+- ✅ **Dashboard Moderasi**: Interface yang mudah untuk moderasi konten
+- ✅ **Alasan Penolakan**: Admin bisa memberikan alasan yang jelas saat menolak lelang
+
+### **Payment Flow yang Diperbaiki** (20 September 2025)
+- ✅ **User bayar lelang** → Status "Settled" di Xendit (uang masuk ke admin)
+- ✅ **Vendor mulai cetak** → Tapi belum dapat bayar (menunggu konfirmasi)
+- ✅ **Vendor kirim barang** → User bayar ongkir CASH saat terima barang
+- ✅ **User konfirmasi barang** → Vendor baru dapat bayar lelang (minus admin fee)
+- ✅ **Jika ada masalah** → Dispute system untuk resolusi
+
+### **Bug Fixes** (20 September 2025)
+- ✅ **View [admin.payment-management.index] not found** → Dibuat view payment management
+- ✅ **Route [admin.admin-fees.statistics] not found** → Diperbaiki route order
+- ✅ **Test files cleanup** → Dihapus test files yang tidak diperlukan
+- ✅ **Cache issues** → Clear semua cache (route, view, config)
+
+### Admin Dashboard (Developer)
 - [x] User Statistics
 - [x] Vendor Management
 - [x] User Management

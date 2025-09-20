@@ -22,7 +22,7 @@ class InvoiceController extends Controller
                 'transaksiItem.produk',
                 'transaksiItem.transaksiItemSpecifications.spesifikasiProduk.spesifikasi',
                 'transaksiItem.transaksiItemSpecifications.bahan',
-                'pelanggan', 
+                'pelanggan',
                 'vendor',
             ])->where('vendor_id', $vendor->id)
                 ->findOrFail($transaksi->id);
@@ -30,7 +30,7 @@ class InvoiceController extends Controller
             return view('pos.show', compact('transaksi'));
         } catch (\Exception $e) {
             Log::error('Error showing invoice: ' . $e->getMessage());
-            return redirect()->route('pos.index')
+            return redirect()->route('vendor.pos.index')
                 ->with('toast_error', 'Failed to display invoice: ' . $e->getMessage());
         }
     }
@@ -83,11 +83,11 @@ class InvoiceController extends Controller
             $pdf = Pdf::loadView('pos.print-invoice', compact('transaksi', 'logoBase64'))
                 ->setOptions($options)
                 ->setPaper([0, 0, 283.46, 283.46], 'portrait');
-                
+
             return $pdf->download("invoice-{$transaksi->kode}.pdf");
         } catch (\Exception $e) {
             Log::error('Error downloading invoice: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
-            return redirect()->route('pos.index')
+            return redirect()->route('vendor.pos.index')
                 ->with('toast_error', 'Failed to download invoice: ' . $e->getMessage());
         }
     }

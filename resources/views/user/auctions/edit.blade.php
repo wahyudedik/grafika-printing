@@ -17,7 +17,28 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('auctions.update', $auction) }}" enctype="multipart/form-data">
+                    @if (session('error'))
+                        <div class="alert alert-danger">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <!-- Payment Status Warning -->
+                    @if ($auction->status === 'paid' || $auction->status === 'completed')
+                        <div class="alert alert-warning">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-lock me-2"></i>
+                                <div>
+                                    <strong>Lelang Sudah Dibayar!</strong><br>
+                                    Lelang ini sudah dibayar dan tidak dapat diedit lagi.
+                                    Status: <span class="badge bg-success">{{ ucfirst($auction->status) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('user.auctions.update', $auction) }}"
+                        enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -138,8 +159,9 @@
 
                                 <div class="mb-3">
                                     <label for="specifications" class="form-label">Spesifikasi Teknis</label>
-                                    <textarea class="form-control @error('specifications') is-invalid @enderror" id="specifications" name="specifications"
-                                        rows="3" placeholder="Contoh: Ukuran A4, Kertas 80gsm, Full Color, Finishing Laminating">{{ old('specifications', $auction->specifications) }}</textarea>
+                                    <textarea class="form-control @error('specifications') is-invalid @enderror" id="specifications"
+                                        name="specifications" rows="3"
+                                        placeholder="Contoh: Ukuran A4, Kertas 80gsm, Full Color, Finishing Laminating">{{ old('specifications', $auction->specifications) }}</textarea>
                                     @error('specifications')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -204,7 +226,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('auctions.show', $auction) }}" class="btn btn-secondary">Batal</a>
+                            <a href="{{ route('user.auctions.show', $auction) }}" class="btn btn-secondary">Batal</a>
                             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                         </div>
                     </form>

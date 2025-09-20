@@ -71,6 +71,18 @@ class AuctionController extends Controller
         $data['progress_percentage'] = 0;
         $data['pos_integrated'] = false;
 
+        // Calculate admin fees
+        $adminFeeService = app(\App\Services\AdminFeeService::class);
+        $fees = $adminFeeService->calculateTotalFees($request->budget, 'bank_transfer');
+
+        $data['admin_fee_amount'] = $fees['admin_fee'];
+        $data['payment_gateway_fee'] = $fees['payment_gateway_fee'];
+        $data['total_amount_with_fees'] = $fees['total_amount'];
+        $data['vendor_receives'] = $fees['vendor_receives'];
+        $data['admin_receives'] = $fees['admin_receives'];
+        $data['fee_breakdown'] = json_encode($fees['admin_fee_breakdown']);
+        $data['fees_calculated'] = true;
+
         // Handle file upload
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -81,8 +93,8 @@ class AuctionController extends Controller
 
         Auction::create($data);
 
-        return redirect()->route('auctions.index')
-            ->with('success', 'Permintaan cetak berhasil dibuat!');
+        return redirect()->route('user.auctions.index')
+            ->with('success', 'Permintaan cetak berhasil dibuat! Lelang Anda sedang menunggu verifikasi admin.');
     }
 
     /**
@@ -105,6 +117,12 @@ class AuctionController extends Controller
             abort(403);
         }
 
+        // Prevent editing after payment is completed
+        if ($auction->status === 'paid' || $auction->status === 'completed') {
+            return redirect()->route('user.auctions.show', $auction)
+                ->with('error', 'Lelang ini sudah dibayar dan tidak dapat diedit lagi.');
+        }
+
         return view('user.auctions.edit', compact('auction'));
     }
 
@@ -116,6 +134,12 @@ class AuctionController extends Controller
         // Only allow user who created the auction to update
         if ($auction->user_id !== Auth::id()) {
             abort(403);
+        }
+
+        // Prevent updating after payment is completed
+        if ($auction->status === 'paid' || $auction->status === 'completed') {
+            return redirect()->route('user.auctions.show', $auction)
+                ->with('error', 'Lelang ini sudah dibayar dan tidak dapat diedit lagi.');
         }
 
         $request->validate([
@@ -146,7 +170,7 @@ class AuctionController extends Controller
 
         $auction->update($data);
 
-        return redirect()->route('auctions.show', $auction)
+        return redirect()->route('user.auctions.show', $auction)
             ->with('success', 'Permintaan cetak berhasil diperbarui!');
     }
 
@@ -167,7 +191,7 @@ class AuctionController extends Controller
 
         $auction->delete();
 
-        return redirect()->route('auctions.index')
+        return redirect()->route('user.auctions.index')
             ->with('success', 'Permintaan cetak berhasil dihapus!');
     }
 
@@ -209,16 +233,186 @@ class AuctionController extends Controller
 
         $winnerBid->update(['status' => 'accepted']);
 
-        // Log untuk debug
-        Log::info('Auction closed and winner selected', [
-            'auction_id' => $auction->id,
-            'winner_vendor_id' => $winnerBid->vendor_id,
-            'winning_bid' => $winnerBid->bid_amount,
-            'redirect_url' => route('xendit.payment.show-page', ['auction' => $auction->id])
-        ]);
+        // Create payment link directly
+        try {
+            $xenditService = app(\App\Services\XenditService::class);
 
-        // Redirect to payment page
-        return redirect()->route('xendit.payment.show-page', ['auction' => $auction->id])
-            ->with('success', 'Pemenang telah dipilih! Silakan lakukan pembayaran untuk melanjutkan proses.');
+            $externalId = 'auction_' . $auction->id . '_' . time();
+            $amount = $auction->total_amount_with_fees > 0 ? $auction->total_amount_with_fees : $winnerBid->bid_amount;
+
+            $paymentData = [
+                'external_id' => $externalId,
+                'amount' => $amount,
+                'description' => 'Pembayaran Lelang: ' . $auction->title,
+                'customer' => [
+                    'given_names' => Auth::user()->name ?? 'Customer',
+                    'email' => Auth::user()->email ?? 'customer@example.com'
+                ],
+                'items' => [
+                    [
+                        'name' => $auction->title,
+                        'quantity' => $auction->quantity,
+                        'price' => $amount,
+                        'category' => 'Printing Service'
+                    ]
+                ],
+                'success_redirect_url' => route('user.auctions.show', $auction) . '?payment=success',
+                'failure_redirect_url' => route('user.auctions.show', $auction) . '?payment=failed',
+                'invoice_duration' => 86400, // 24 hours
+                'payment_methods' => [
+                    'BCA',
+                    'BNI',
+                    'BRI',
+                    'BSI',
+                    'MANDIRI',
+                    'PERMATA',
+                    'ALFAMART',
+                    'INDOMARET',
+                    'OVO',
+                    'DANA',
+                    'LINKAJA',
+                    'SHOPEEPAY'
+                ]
+            ];
+
+            $response = $xenditService->createPaymentLink($paymentData);
+
+            if ($response && isset($response['invoice_url'])) {
+                // Save payment record
+                $payment = \App\Models\XenditPayment::create([
+                    'external_id' => $externalId,
+                    'xendit_id' => $response['id'] ?? null,
+                    'type' => 'payment_link',
+                    'amount' => $amount,
+                    'description' => $paymentData['description'],
+                    'status' => 'pending',
+                    'customer' => $paymentData['customer'],
+                    'items' => $paymentData['items'],
+                    'checkout_url' => $response['invoice_url'],
+                    'success_redirect_url' => $paymentData['success_redirect_url'],
+                    'failure_redirect_url' => $paymentData['failure_redirect_url'],
+                    'expires_at' => now()->addHours(24),
+                    'auction_id' => $auction->id
+                ]);
+
+                Log::info('Payment link created successfully', [
+                    'auction_id' => $auction->id,
+                    'payment_id' => $payment->id,
+                    'checkout_url' => $response['invoice_url']
+                ]);
+
+                // Redirect directly to Xendit checkout
+                return redirect($response['invoice_url']);
+            } else {
+                throw new \Exception('Failed to create payment link');
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to create payment link', [
+                'auction_id' => $auction->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->route('user.auctions.show', $auction)
+                ->with('error', 'Gagal membuat link pembayaran. Silakan coba lagi.');
+        }
+    }
+
+    /**
+     * Create payment link for auction that is waiting for payment
+     */
+    public function createPayment(Auction $auction)
+    {
+        // Check if auction is waiting for payment
+        if ($auction->status !== 'waiting_payment') {
+            return redirect()->route('user.auctions.show', $auction)
+                ->with('error', 'Lelang ini tidak memerlukan pembayaran.');
+        }
+
+        // Check if user is the auction owner
+        if ($auction->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        try {
+            $xenditService = app(\App\Services\XenditService::class);
+
+            $externalId = 'auction_' . $auction->id . '_' . time();
+            $amount = $auction->total_amount_with_fees > 0 ? $auction->total_amount_with_fees : $auction->winning_bid;
+
+            $paymentData = [
+                'external_id' => $externalId,
+                'amount' => $amount,
+                'description' => 'Pembayaran Lelang: ' . $auction->title,
+                'customer' => [
+                    'given_names' => Auth::user()->name ?? 'Customer',
+                    'email' => Auth::user()->email ?? 'customer@example.com'
+                ],
+                'items' => [
+                    [
+                        'name' => $auction->title,
+                        'quantity' => $auction->quantity,
+                        'price' => $amount,
+                        'category' => 'Printing Service'
+                    ]
+                ],
+                'success_redirect_url' => route('user.auctions.show', $auction) . '?payment=success',
+                'failure_redirect_url' => route('user.auctions.show', $auction) . '?payment=failed',
+                'invoice_duration' => 86400, // 24 hours
+                'payment_methods' => [
+                    'BCA',
+                    'BNI',
+                    'BRI',
+                    'BSI',
+                    'MANDIRI',
+                    'PERMATA',
+                    'ALFAMART',
+                    'INDOMARET',
+                    'OVO',
+                    'DANA',
+                    'LINKAJA',
+                    'SHOPEEPAY'
+                ]
+            ];
+
+            $response = $xenditService->createPaymentLink($paymentData);
+
+            if ($response && isset($response['invoice_url'])) {
+                // Save payment record
+                $payment = \App\Models\XenditPayment::create([
+                    'external_id' => $externalId,
+                    'xendit_id' => $response['id'] ?? null,
+                    'type' => 'payment_link',
+                    'amount' => $amount,
+                    'description' => $paymentData['description'],
+                    'status' => 'pending',
+                    'customer' => $paymentData['customer'],
+                    'items' => $paymentData['items'],
+                    'checkout_url' => $response['invoice_url'],
+                    'success_redirect_url' => $paymentData['success_redirect_url'],
+                    'failure_redirect_url' => $paymentData['failure_redirect_url'],
+                    'expires_at' => now()->addHours(24),
+                    'auction_id' => $auction->id
+                ]);
+
+                Log::info('Payment link created successfully', [
+                    'auction_id' => $auction->id,
+                    'payment_id' => $payment->id,
+                    'checkout_url' => $response['invoice_url']
+                ]);
+
+                // Redirect directly to Xendit checkout
+                return redirect($response['invoice_url']);
+            } else {
+                throw new \Exception('Failed to create payment link');
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to create payment link', [
+                'auction_id' => $auction->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->route('user.auctions.show', $auction)
+                ->with('error', 'Gagal membuat link pembayaran. Silakan coba lagi.');
+        }
     }
 }

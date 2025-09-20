@@ -67,14 +67,14 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $pelanggans = Pelanggan::where('vendor_id', $vendor->id)->get();
 
         if ($pelanggans->isEmpty()) {
-            return redirect()->route('pelanggan.create')
+            return redirect()->route('vendor.customers.create')
                 ->with('toast_info', 'Anda belum memiliki pelanggan. Silakan tambahkan pelanggan terlebih dahulu.');
         }
 
@@ -83,7 +83,7 @@ class TransaksiController extends Controller
             ->get();
 
         if ($produks->isEmpty()) {
-            return redirect()->route('produk.create')
+            return redirect()->route('vendor.products.create')
                 ->with('toast_info', 'Anda belum memiliki produk. Silakan tambahkan produk terlebih dahulu.');
         }
 
@@ -107,7 +107,7 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
@@ -211,7 +211,7 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
@@ -236,7 +236,7 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
@@ -281,7 +281,7 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
@@ -419,7 +419,7 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
@@ -460,7 +460,7 @@ class TransaksiController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('dashboard')
+            return redirect()->route('vendor.dashboard')
                 ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 

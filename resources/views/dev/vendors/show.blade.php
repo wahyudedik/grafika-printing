@@ -54,20 +54,18 @@
                             </div>
                         </div>
 
-                        @if($vendor->logo)
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Company Logo</label>
-                                    <div>
-                                        <img src="{{ asset('vendors_logo/' . $vendor->logo) }}" 
-                                             alt="{{ $vendor->name }} Logo" 
-                                             class="img-fluid" 
-                                             style="max-height: 100px;">
+                        @if ($vendor->logo)
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Company Logo</label>
+                                        <div>
+                                            <img src="{{ asset('vendors_logo/' . $vendor->logo) }}"
+                                                alt="{{ $vendor->name }} Logo" class="img-fluid" style="max-height: 100px;">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
 
                         <hr class="my-4">
@@ -86,7 +84,7 @@
                                     <div class="form-control-plaintext">{{ $users->email }}</div>
                                 </div>
 
-                                <div class="mb-3"> 
+                                <div class="mb-3">
                                     <label class="form-label">User Type</label>
                                     <div>
                                         @if ($users->usertype == 'dev')
@@ -125,7 +123,7 @@
                         </div>
                     </div>
                     <div class="card-footer text-end">
-                        <a href="{{ route('vendors.edit', $vendor->id) }}" class="btn btn-primary">
+                        <a href="{{ route('admin.vendors.edit', $vendor->id) }}" class="btn btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">
@@ -137,7 +135,7 @@
                             Edit
                         </a>
 
-                        <a href="{{ route('vendors.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.vendors.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">

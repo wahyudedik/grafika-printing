@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserDashboardController extends Controller
 {
@@ -25,7 +26,7 @@ class UserDashboardController extends Controller
             $vendorCount = Vendor::where('is_active', 1)
                 ->where('id', Auth::user()->vendorUser->first()->vendor_id)
                 ->count();
-                
+
             // Get product count if Produk model exists
             $productCount = 0;
             if (class_exists('App\Models\Vendor\Produk')) {
@@ -185,8 +186,33 @@ class UserDashboardController extends Controller
     public function devDashboard()
     {
         try {
-            $vendor = $this->vendorDashboard();
-            return view('dev.dashboard', compact('vendor'));
+
+            // Get comprehensive statistics
+            $stats = $this->getDevStatistics();
+
+            // Get recent activities
+            $recentActivities = $this->getRecentActivities();
+
+            // Get payment issues
+            $paymentIssues = $this->getPaymentIssues();
+
+            // Get monthly revenue chart data
+            $revenueChartData = $this->getRevenueChartData();
+
+            // Get auction status distribution
+            $auctionStatusDistribution = $this->getAuctionStatusDistribution();
+
+            // Get vendor performance
+            $vendorPerformance = $this->getVendorPerformance();
+
+            return view('dev.dashboard', compact(
+                'stats',
+                'recentActivities',
+                'paymentIssues',
+                'revenueChartData',
+                'auctionStatusDistribution',
+                'vendorPerformance'
+            ));
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', 'Error loading dashboard: ' . $e->getMessage());
         }
@@ -195,5 +221,234 @@ class UserDashboardController extends Controller
     public function userDashboard()
     {
         return view('user.dashboard');
+    }
+
+    /**
+     * Get comprehensive statistics for dev dashboard
+     */
+    private function getDevStatistics()
+    {
+        try {
+            return [
+                'total_users' => User::where('usertype', 'user')->count(),
+                'total_vendors' => Vendor::count(),
+                'total_auctions' => \App\Models\Auction::count(),
+                'active_auctions' => \App\Models\Auction::where('status', 'active')->count(),
+                'paid_auctions' => \App\Models\Auction::where('status', 'paid')->count(),
+                'waiting_payment_auctions' => \App\Models\Auction::where('status', 'waiting_payment')->count(),
+                'total_revenue' => \App\Models\VendorWallet::sum('total_earned') ?? 0,
+                'pending_withdrawals' => \App\Models\VendorWithdrawal::where('status', 'pending')->sum('amount') ?? 0,
+                'completed_withdrawals' => \App\Models\VendorWithdrawal::where('status', 'completed')->sum('amount') ?? 0,
+                'total_bids' => \App\Models\AuctionBid::count(),
+                'accepted_bids' => \App\Models\AuctionBid::where('status', 'accepted')->count(),
+                'pending_bids' => \App\Models\AuctionBid::where('status', 'pending')->count(),
+                'payment_issues' => \App\Models\Auction::where('status', 'waiting_payment')
+                    ->where('created_at', '<', now()->subHours(24))->count(),
+                'expired_payments' => \App\Models\XenditPayment::where('status', 'pending')
+                    ->where('expires_at', '<', now())->count()
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error getting dev statistics', ['error' => $e->getMessage()]);
+            return [
+                'total_users' => 0,
+                'total_vendors' => 0,
+                'total_auctions' => 0,
+                'active_auctions' => 0,
+                'paid_auctions' => 0,
+                'waiting_payment_auctions' => 0,
+                'total_revenue' => 0,
+                'pending_withdrawals' => 0,
+                'completed_withdrawals' => 0,
+                'total_bids' => 0,
+                'accepted_bids' => 0,
+                'pending_bids' => 0,
+                'payment_issues' => 0,
+                'expired_payments' => 0
+            ];
+        }
+    }
+
+    /**
+     * Get recent activities
+     */
+    private function getRecentActivities()
+    {
+        try {
+            $activities = collect();
+
+            // Recent auctions
+            $recentAuctions = \App\Models\Auction::with('user')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function ($auction) {
+                    return [
+                        'type' => 'auction_created',
+                        'message' => "Lelang baru: {$auction->title}",
+                        'user' => $auction->user ? $auction->user->name : 'Unknown',
+                        'time' => $auction->created_at,
+                        'status' => $auction->status
+                    ];
+                });
+
+            // Recent payments
+            $recentPayments = \App\Models\XenditPayment::with('auction.user')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function ($payment) {
+                    return [
+                        'type' => 'payment_created',
+                        'message' => "Pembayaran: Rp " . number_format((float) $payment->amount),
+                        'user' => $payment->auction && $payment->auction->user ? $payment->auction->user->name : 'Unknown',
+                        'time' => $payment->created_at,
+                        'status' => $payment->status
+                    ];
+                });
+
+            // Recent withdrawals
+            $recentWithdrawals = \App\Models\VendorWithdrawal::with('vendor')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(function ($withdrawal) {
+                    return [
+                        'type' => 'withdrawal_request',
+                        'message' => "Penarikan: Rp " . number_format((float) $withdrawal->amount),
+                        'user' => $withdrawal->vendor ? $withdrawal->vendor->name : 'Unknown',
+                        'time' => $withdrawal->created_at,
+                        'status' => $withdrawal->status
+                    ];
+                });
+
+            return $activities
+                ->merge($recentAuctions)
+                ->merge($recentPayments)
+                ->merge($recentWithdrawals)
+                ->sortByDesc('time')
+                ->take(10);
+        } catch (\Exception $e) {
+            Log::error('Error getting recent activities', ['error' => $e->getMessage()]);
+            return collect();
+        }
+    }
+
+    /**
+     * Get payment issues that need attention
+     */
+    private function getPaymentIssues()
+    {
+        try {
+            return [
+                'stuck_payments' => \App\Models\Auction::where('status', 'waiting_payment')
+                    ->where('created_at', '<', now()->subHours(24))
+                    ->with(['user', 'winnerVendor'])
+                    ->get(),
+                'expired_payments' => \App\Models\XenditPayment::where('status', 'pending')
+                    ->where('expires_at', '<', now())
+                    ->with('auction.user')
+                    ->get(),
+                'failed_payments' => \App\Models\XenditPayment::where('status', 'failed')
+                    ->with('auction.user')
+                    ->get()
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error getting payment issues', ['error' => $e->getMessage()]);
+            return [
+                'stuck_payments' => collect(),
+                'expired_payments' => collect(),
+                'failed_payments' => collect()
+            ];
+        }
+    }
+
+    /**
+     * Get revenue chart data for the last 12 months
+     */
+    private function getRevenueChartData()
+    {
+        try {
+            $months = [];
+            $revenue = [];
+
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $months[] = $date->format('M Y');
+
+                $monthRevenue = \App\Models\VendorWalletTransaction::where('type', 'credit')
+                    ->whereYear('created_at', $date->year)
+                    ->whereMonth('created_at', $date->month)
+                    ->sum('amount');
+
+                $revenue[] = (float) $monthRevenue;
+            }
+
+            return [
+                'months' => $months,
+                'revenue' => $revenue
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error getting revenue chart data', ['error' => $e->getMessage()]);
+            return [
+                'months' => [],
+                'revenue' => []
+            ];
+        }
+    }
+
+    /**
+     * Get auction status distribution
+     */
+    private function getAuctionStatusDistribution()
+    {
+        try {
+            return [
+                'active' => \App\Models\Auction::where('status', 'active')->count(),
+                'waiting_payment' => \App\Models\Auction::where('status', 'waiting_payment')->count(),
+                'paid' => \App\Models\Auction::where('status', 'paid')->count(),
+                'completed' => \App\Models\Auction::where('status', 'completed')->count(),
+                'closed' => \App\Models\Auction::where('status', 'closed')->count(),
+                'rejected' => \App\Models\Auction::where('status', 'rejected')->count()
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error getting auction status distribution', ['error' => $e->getMessage()]);
+            return [
+                'active' => 0,
+                'waiting_payment' => 0,
+                'paid' => 0,
+                'completed' => 0,
+                'closed' => 0,
+                'rejected' => 0
+            ];
+        }
+    }
+
+    /**
+     * Get vendor performance data
+     */
+    private function getVendorPerformance()
+    {
+        try {
+            return Vendor::with(['wallet', 'auctionBids'])
+                ->get()
+                ->map(function ($vendor) {
+                    return [
+                        'id' => $vendor->id,
+                        'name' => $vendor->name,
+                        'total_earnings' => $vendor->wallet ? $vendor->wallet->total_earned : 0,
+                        'current_balance' => $vendor->wallet ? $vendor->wallet->balance : 0,
+                        'total_bids' => $vendor->auctionBids ? $vendor->auctionBids->count() : 0,
+                        'accepted_bids' => $vendor->auctionBids ? $vendor->auctionBids->where('status', 'accepted')->count() : 0,
+                        'success_rate' => $vendor->auctionBids && $vendor->auctionBids->count() > 0
+                            ? round(($vendor->auctionBids->where('status', 'accepted')->count() / $vendor->auctionBids->count()) * 100, 2)
+                            : 0
+                    ];
+                })
+                ->sortByDesc('total_earnings')
+                ->take(10);
+        } catch (\Exception $e) {
+            Log::error('Error getting vendor performance', ['error' => $e->getMessage()]);
+            return collect();
+        }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class XenditPayment extends Model
 {
@@ -12,60 +12,54 @@ class XenditPayment extends Model
     protected $fillable = [
         'external_id',
         'xendit_id',
-        'type',
         'amount',
-        'currency',
         'description',
+        'customer_name',
+        'customer_email',
         'status',
-        'payment_method',
-        'customer',
-        'items',
-        'fees',
         'checkout_url',
-        'success_redirect_url',
-        'failure_redirect_url',
         'expires_at',
         'paid_at',
-        'webhook_data',
-        'auction_id',
+        'payment_method',
+        'failure_reason'
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'customer' => 'array',
-        'items' => 'array',
-        'fees' => 'array',
-        'webhook_data' => 'array',
         'expires_at' => 'datetime',
-        'paid_at' => 'datetime',
+        'paid_at' => 'datetime'
     ];
 
     /**
-     * Scope untuk payment yang pending
+     * Get the status badge class
      */
-    public function scopePending($query)
+    public function getStatusBadgeClassAttribute()
     {
-        return $query->where('status', 'pending');
+        return match ($this->status) {
+            'pending' => 'badge-warning',
+            'paid' => 'badge-success',
+            'expired' => 'badge-danger',
+            'failed' => 'badge-danger',
+            default => 'badge-secondary'
+        };
     }
 
     /**
-     * Scope untuk payment yang paid
+     * Get the status text
      */
-    public function scopePaid($query)
+    public function getStatusTextAttribute()
     {
-        return $query->where('status', 'paid');
+        return match ($this->status) {
+            'pending' => 'Menunggu Pembayaran',
+            'paid' => 'Berhasil Dibayar',
+            'expired' => 'Kadaluarsa',
+            'failed' => 'Gagal',
+            default => 'Tidak Diketahui'
+        };
     }
 
     /**
-     * Scope untuk payment yang expired
-     */
-    public function scopeExpired($query)
-    {
-        return $query->where('status', 'expired');
-    }
-
-    /**
-     * Check apakah payment sudah expired
+     * Check if payment is expired
      */
     public function isExpired()
     {
@@ -73,7 +67,7 @@ class XenditPayment extends Model
     }
 
     /**
-     * Check apakah payment sudah paid
+     * Check if payment is successful
      */
     public function isPaid()
     {
@@ -81,18 +75,10 @@ class XenditPayment extends Model
     }
 
     /**
-     * Check apakah payment masih pending
+     * Get formatted amount
      */
-    public function isPending()
+    public function getFormattedAmountAttribute()
     {
-        return $this->status === 'pending';
-    }
-
-    /**
-     * Relasi dengan Auction
-     */
-    public function auction()
-    {
-        return $this->belongsTo(Auction::class);
+        return 'Rp ' . number_format((float) $this->amount, 0, ',', '.');
     }
 }

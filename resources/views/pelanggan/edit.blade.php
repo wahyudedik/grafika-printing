@@ -16,7 +16,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('pelanggan.update', $pelanggan->id) }}" method="POST" class="card"
+                <form action="{{ route('vendor.customers.update', $pelanggan->id) }}" method="POST" class="card"
                     onsubmit="showLoading('Memperbarui pelanggan...')" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -97,7 +97,7 @@
                             Update
                         </button>
 
-                        <a href="{{ route('pelanggan.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('vendor.customers.index') }}" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
                                 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                 stroke-linecap="round" stroke-linejoin="round">

@@ -9,7 +9,7 @@
                     <h3 class="card-title">Daftar Transaksi</h3>
                 </div>
                 <div class="d-flex flex-column flex-grow-1">
-                    <form action="{{ route('transaksi.index') }}" method="GET" id="filter-form">
+                    <form action="{{ route('vendor.transactions.index') }}" method="GET" id="filter-form">
                         <div class="row g-2">
                             <div class="col-md-6">
                                 <div class="input-icon">
@@ -39,7 +39,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <a href="{{ route('transaksi.create') }}" class="btn btn-primary w-124">
+                                <a href="{{ route('vendor.transactions.create') }}" class="btn btn-primary w-124">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                         stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +96,7 @@
                     @forelse ($transaksis as $transaksi)
                         <tr>
                             <td>
-                                <a href="{{ route('transaksi.show', $transaksi->id) }}" class="text-reset">
+                                <a href="{{ route('vendor.transactions.show', $transaksi->id) }}" class="text-reset">
                                     {{ $transaksi->kode }}
                                 </a>
                             </td>
@@ -142,7 +142,7 @@
                             </td>
                             <td>
                                 <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('transaksi.show', $transaksi->id) }}"
+                                    <a href="{{ route('vendor.transactions.show', $transaksi->id) }}"
                                         class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -153,7 +153,7 @@
                                                 d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
                                         </svg>
                                     </a>
-                                    <a href="{{ route('transaksi.edit', $transaksi->id) }}"
+                                    <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
                                         class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -165,8 +165,8 @@
                                         </svg>
                                     </a>
                                     <form id="delete-form-{{ $transaksi->id }}"
-                                        action="{{ route('transaksi.destroy', $transaksi->id) }}" method="POST"
-                                        style="display: none;">
+                                        action="{{ route('vendor.transactions.destroy', $transaksi->id) }}"
+                                        method="POST" style="display: none;">
                                         @csrf
                                         @method('DELETE')
                                     </form>
@@ -207,7 +207,7 @@
                                         Silahkan tambahkan transaksi baru atau ubah filter pencarian
                                     </p>
                                     <div class="empty-action">
-                                        <a href="{{ route('transaksi.create') }}" class="btn btn-primary">
+                                        <a href="{{ route('vendor.transactions.create') }}" class="btn btn-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                                 height="24" viewBox="0 0 24 24" stroke-width="2"
                                                 stroke="currentColor" fill="none" stroke-linecap="round"

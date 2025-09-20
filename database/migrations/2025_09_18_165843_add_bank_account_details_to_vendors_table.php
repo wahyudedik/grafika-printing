@@ -48,9 +48,16 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('vendors', function (Blueprint $table) {
-            $table->dropIndex(['primary_bank_name', 'primary_account_number']);
-            $table->dropIndex(['secondary_bank_name', 'secondary_account_number']);
-            $table->dropIndex('bank_verified');
+            // Check if indexes exist before dropping
+            if (Schema::hasIndex('vendors', ['primary_bank_name', 'primary_account_number'])) {
+                $table->dropIndex(['primary_bank_name', 'primary_account_number']);
+            }
+            if (Schema::hasIndex('vendors', ['secondary_bank_name', 'secondary_account_number'])) {
+                $table->dropIndex(['secondary_bank_name', 'secondary_account_number']);
+            }
+            if (Schema::hasIndex('vendors', 'bank_verified')) {
+                $table->dropIndex('bank_verified');
+            }
 
             $table->dropColumn([
                 'primary_bank_name',

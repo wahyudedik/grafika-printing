@@ -55,7 +55,7 @@ class KategoriProdukController extends Controller
             'vendor_id' => session('current_vendor_id', 1) // Assuming you store current vendor ID in session
         ]);
 
-        return redirect()->route('kategori-produk.index')
+        return redirect()->route('vendor.categories.index')
             ->with('toast_success', 'Kategori produk berhasil ditambahkan.');
     }
 
@@ -89,7 +89,7 @@ class KategoriProdukController extends Controller
             'slug' => Str::slug($request->nama_kategori)
         ]);
 
-        return redirect()->route('kategori-produk.index')
+        return redirect()->route('vendor.categories.index')
             ->with('toast_success', 'Kategori produk berhasil diperbarui.');
     }
 
@@ -100,13 +100,13 @@ class KategoriProdukController extends Controller
     {
         // Check if category has products
         if ($kategoriProduk->produk()->count() > 0) {
-            return redirect()->route('kategori-produk.index')
+            return redirect()->route('vendor.categories.index')
                 ->with('toast_error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait.');
         }
 
         $kategoriProduk->delete();
 
-        return redirect()->route('kategori-produk.index')
+        return redirect()->route('vendor.categories.index')
             ->with('toast_success', 'Kategori produk berhasil dihapus.');
     }
 }
