@@ -407,7 +407,7 @@
 
                         <!-- Transactions & Orders -->
                         <li
-                            class="nav-item dropdown {{ request()->routeIs('admin.transactions.*') || request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                            class="nav-item dropdown {{ request()->routeIs('admin.admin-fees.*') || request()->routeIs('admin.payments.*') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-transactions"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
                                 aria-expanded="false">
@@ -426,7 +426,7 @@
                                 <span class="nav-link-title d-sm-none">Txn</span>
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.transactions.index') }}">
+                                <a class="dropdown-item" href="{{ route('admin.admin-fees.transactions') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -434,9 +434,9 @@
                                         <path
                                             d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
                                     </svg>
-                                    All Transactions
+                                    Admin Fee Transactions
                                 </a>
-                                <a class="dropdown-item" href="{{ route('admin.orders.index') }}">
+                                <a class="dropdown-item" href="{{ route('admin.payments.index') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -444,9 +444,9 @@
                                         <path d="M3 3h2l.4 2m7.6 5l8.5 -8.5a1.5 1.5 0 0 0 -4 -4l-8.5 8.5v4" />
                                         <path d="M14 6l7 7l-4 4l-7 -7l4 -4" />
                                     </svg>
-                                    Orders
+                                    Payment Management
                                 </a>
-                                <a class="dropdown-item" href="{{ route('admin.transactions.pos') }}">
+                                <a class="dropdown-item" href="{{ route('admin.admin-fees.statistics') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -454,14 +454,13 @@
                                         <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
                                         <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
                                     </svg>
-                                    POS Transactions
+                                    Fee Statistics
                                 </a>
                             </div>
                         </li>
 
                         <!-- Audit & Security -->
-                        <li
-                            class="nav-item dropdown {{ request()->routeIs('admin.audit-logs.*') || request()->routeIs('admin.security.*') ? 'active' : '' }}">
+                        <li class="nav-item dropdown {{ request()->routeIs('admin.audit-logs.*') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-audit"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
                                 aria-expanded="false">
@@ -501,7 +500,7 @@
                                     </svg>
                                     High Risk Transactions
                                 </a>
-                                <a class="dropdown-item" href="{{ route('admin.security.encryption') }}">
+                                <a class="dropdown-item" href="{{ route('admin.audit-logs.financial') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -511,7 +510,7 @@
                                         <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
                                         <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
                                     </svg>
-                                    Encryption Status
+                                    Financial Logs
                                 </a>
                             </div>
                         </li>
