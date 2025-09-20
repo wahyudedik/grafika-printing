@@ -17,9 +17,9 @@ class VendorController extends Controller
     {
         try {
             $vendor = Vendor::query();
-            if($request->has('search')){
+            if ($request->has('search')) {
                 $search = $request->search;
-                $vendor->where(function($query) use ($search){
+                $vendor->where(function ($query) use ($search) {
                     $query->where('name', 'like', "%{$search}%");
                 });
             }
@@ -82,7 +82,7 @@ class VendorController extends Controller
 
             $vendors->vendorUser()->attach($request->user_id);
 
-            return redirect()->route('vendors.index')->with('toast_success', 'Vendor created successfully');
+            return redirect()->route('admin.vendors.index')->with('toast_success', 'Vendor created successfully');
         } catch (\Throwable $th) {
             return redirect()->back()->with('toast_error', 'Something went wrong' . $th->getMessage());
         }
@@ -97,6 +97,8 @@ class VendorController extends Controller
             $vendor = Vendor::findOrFail($id);
             $users = $vendor->vendorUser()->first();
             return view('dev.vendors.show', compact('vendor', 'users'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('toast_error', 'Error loading vendor');
         } catch (\Throwable $th) {
             return redirect()->back()->with('toast_error', 'Something went wrong');
         }
@@ -111,6 +113,8 @@ class VendorController extends Controller
             $vendor = Vendor::findOrFail($id);
             $users = $vendor->vendorUser()->first();
             return view('dev.vendors.edit', compact('vendor', 'users'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()->with('toast_error', 'Error loading vendor');
         } catch (\Throwable $th) {
             return redirect()->back()->with('toast_error', 'Something went wrong');
         }
@@ -139,7 +143,7 @@ class VendorController extends Controller
                 if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
                     unlink(public_path('vendors_logo/' . $vendor->logo));
                 }
-                
+
                 $logo = $request->file('logo');
                 $logoName = time() . '.' . $logo->getClientOriginalExtension();
                 $logo->move(public_path('vendors_logo'), $logoName);
@@ -157,7 +161,7 @@ class VendorController extends Controller
 
             $vendor->vendorUser()->sync($request->user_id);
 
-            return redirect()->route('vendors.index')->with('toast_success', 'Vendor updated successfully');
+            return redirect()->route('admin.vendors.index')->with('toast_success', 'Vendor updated successfully');
         } catch (\Throwable $th) {
             return redirect()->back()->with('toast_error', 'Something went wrong' . $th->getMessage());
         }
@@ -174,10 +178,9 @@ class VendorController extends Controller
                 unlink(public_path('vendors_logo/' . $vendor->logo));
             }
             $vendor->delete();
-            return redirect()->route('vendors.index')->with('toast_success', 'Vendor deleted successfully');
+            return redirect()->route('admin.vendors.index')->with('toast_success', 'Vendor deleted successfully');
         } catch (\Throwable $th) {
             return redirect()->back()->with('toast_error', 'Something went wrong');
         }
     }
 }
- 

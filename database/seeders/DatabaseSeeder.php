@@ -16,10 +16,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->command->info('🚀 Starting database seeding...');
 
-        // Run basic dummy data seeders
+        // Run comprehensive dummy data seeder
         $this->call([
-            BasicDummyDataSeeder::class,     // Users, Vendors, Admin Fee Settings, Wallets
-            AuctionDataSeeder::class,        // Auctions, Bids, Delivery Confirmations
+            ComprehensiveDummyDataSeeder::class,  // All comprehensive dummy data
         ]);
 
         $this->command->info('✅ All dummy data created successfully!');

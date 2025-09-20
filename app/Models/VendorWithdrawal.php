@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Vendor\TenantModel;
+use App\Services\EncryptionService;
+use App\Services\AuditLogService;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
@@ -38,6 +40,12 @@ class VendorWithdrawal extends TenantModel
         'webhook_data' => 'array',
         'processed_at' => 'datetime',
         'completed_at' => 'datetime'
+    ];
+
+    protected $hidden = [
+        'account_number',
+        'account_name',
+        'bank_name'
     ];
 
     public function vendor(): BelongsTo
@@ -127,6 +135,9 @@ class VendorWithdrawal extends TenantModel
                 'admin_notes' => $adminNotes
             ]);
 
+            // Log audit trail
+            AuditLogService::logWithdrawal($this, 'approve');
+
             return $this;
         });
     }
@@ -147,6 +158,9 @@ class VendorWithdrawal extends TenantModel
                 'processed_at' => now(),
                 'admin_notes' => $adminNotes
             ]);
+
+            // Log audit trail
+            AuditLogService::logWithdrawal($this, 'reject');
 
             return $this;
         });
@@ -181,6 +195,9 @@ class VendorWithdrawal extends TenantModel
                 'completed_at' => now(),
                 'payment_proof' => $paymentProof
             ]);
+
+            // Log audit trail
+            AuditLogService::logWithdrawal($this, 'complete');
 
             return $this;
         });
@@ -232,5 +249,99 @@ class VendorWithdrawal extends TenantModel
         ];
 
         return $labels[$this->method] ?? ucfirst(str_replace('_', ' ', $this->method));
+    }
+
+    /**
+     * Encrypt sensitive data before saving
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($withdrawal) {
+            // Encrypt sensitive data
+            if ($withdrawal->account_number) {
+                $withdrawal->account_number = EncryptionService::encryptFinancialData($withdrawal->account_number);
+            }
+            if ($withdrawal->account_name) {
+                $withdrawal->account_name = EncryptionService::encryptFinancialData($withdrawal->account_name);
+            }
+            if ($withdrawal->bank_name) {
+                $withdrawal->bank_name = EncryptionService::encryptFinancialData($withdrawal->bank_name);
+            }
+        });
+
+        static::saved(function ($withdrawal) {
+            // Log audit trail
+            AuditLogService::logWithdrawal($withdrawal, 'create');
+        });
+
+        static::updated(function ($withdrawal) {
+            // Log audit trail for updates
+            AuditLogService::logWithdrawal($withdrawal, 'update', $withdrawal->getOriginal());
+        });
+    }
+
+    /**
+     * Decrypt sensitive data for display
+     */
+    public function getDecryptedAccountNumberAttribute()
+    {
+        if (!$this->account_number) return null;
+
+        try {
+            return EncryptionService::decryptFinancialData($this->account_number);
+        } catch (\Exception $e) {
+            return EncryptionService::maskSensitiveData($this->account_number);
+        }
+    }
+
+    public function getDecryptedAccountNameAttribute()
+    {
+        if (!$this->account_name) return null;
+
+        try {
+            return EncryptionService::decryptFinancialData($this->account_name);
+        } catch (\Exception $e) {
+            return EncryptionService::maskSensitiveData($this->account_name);
+        }
+    }
+
+    public function getDecryptedBankNameAttribute()
+    {
+        if (!$this->bank_name) return null;
+
+        try {
+            return EncryptionService::decryptFinancialData($this->bank_name);
+        } catch (\Exception $e) {
+            return EncryptionService::maskSensitiveData($this->bank_name);
+        }
+    }
+
+    /**
+     * Get masked account number for display
+     */
+    public function getMaskedAccountNumberAttribute()
+    {
+        if (!$this->account_number) return null;
+        return EncryptionService::maskSensitiveData($this->account_number);
+    }
+
+    /**
+     * Get masked account name for display
+     */
+    public function getMaskedAccountNameAttribute()
+    {
+        if (!$this->account_name) return null;
+        return EncryptionService::maskSensitiveData($this->account_name);
+    }
+
+    /**
+     * Get masked bank name for display
+     */
+    public function getMaskedBankNameAttribute()
+    {
+        if (!$this->bank_name) return null;
+        return EncryptionService::maskSensitiveData($this->bank_name);
     }
 }

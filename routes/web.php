@@ -89,13 +89,22 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
         Route::get('/transactions', [\App\Http\Controllers\Admin\AdminFeeController::class, 'transactions'])->name('transactions');
         Route::get('/statistics', [\App\Http\Controllers\Admin\AdminFeeController::class, 'statistics'])->name('statistics');
         Route::post('/preview', [\App\Http\Controllers\Admin\AdminFeeController::class, 'getFeePreview'])->name('preview');
-        Route::get('/preview', [\App\Http\Controllers\Admin\AdminFeeController::class, 'preview'])->name('preview');
+        Route::get('/preview', [\App\Http\Controllers\Admin\AdminFeeController::class, 'preview'])->name('preview-page');
         Route::get('/vendor-statistics', [\App\Http\Controllers\Admin\AdminFeeController::class, 'getVendorStatistics'])->name('vendor-statistics');
         Route::get('/{adminFee}', [\App\Http\Controllers\Admin\AdminFeeController::class, 'show'])->name('show');
         Route::get('/{adminFee}/edit', [\App\Http\Controllers\Admin\AdminFeeController::class, 'edit'])->name('edit');
         Route::put('/{adminFee}', [\App\Http\Controllers\Admin\AdminFeeController::class, 'update'])->name('update');
         Route::delete('/{adminFee}', [\App\Http\Controllers\Admin\AdminFeeController::class, 'destroy'])->name('destroy');
         Route::patch('/{adminFee}/toggle', [\App\Http\Controllers\Admin\AdminFeeController::class, 'toggleStatus'])->name('toggle');
+    });
+
+    // Audit Logs Management
+    Route::prefix('audit-logs')->name('audit-logs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('index');
+        Route::get('/high-risk', [\App\Http\Controllers\Admin\AuditLogController::class, 'highRisk'])->name('high-risk');
+        Route::get('/financial', [\App\Http\Controllers\Admin\AuditLogController::class, 'financial'])->name('financial');
+        Route::get('/export', [\App\Http\Controllers\Admin\AuditLogController::class, 'export'])->name('export');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'show'])->name('show');
     });
 
     // Withdrawal Management
@@ -106,6 +115,35 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
         Route::post('/{withdrawal}/approve', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'approve'])->name('approve');
         Route::post('/{withdrawal}/reject', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'reject'])->name('reject');
         Route::post('/{withdrawal}/complete', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'complete'])->name('complete');
+    });
+
+    // Wallet Management
+    Route::prefix('wallets')->name('wallets.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\WalletManagementController::class, 'index'])->name('index');
+        Route::get('/statistics', [\App\Http\Controllers\Admin\WalletManagementController::class, 'statistics'])->name('statistics');
+        Route::get('/{wallet}', [\App\Http\Controllers\Admin\WalletManagementController::class, 'show'])->name('show');
+        Route::get('/{wallet}/transactions', [\App\Http\Controllers\Admin\WalletManagementController::class, 'transactions'])->name('transactions');
+        Route::post('/{wallet}/freeze', [\App\Http\Controllers\Admin\WalletManagementController::class, 'freeze'])->name('freeze');
+        Route::post('/{wallet}/unfreeze', [\App\Http\Controllers\Admin\WalletManagementController::class, 'unfreeze'])->name('unfreeze');
+    });
+
+    // Shipping Management
+    Route::prefix('shipping')->name('shipping.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ShippingController::class, 'index'])->name('index');
+        Route::get('/invoices', [\App\Http\Controllers\Admin\ShippingController::class, 'invoices'])->name('invoices');
+        Route::get('/export', [\App\Http\Controllers\Admin\ShippingController::class, 'export'])->name('export');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\ShippingController::class, 'show'])->name('show');
+        Route::get('/{id}/track', [\App\Http\Controllers\Admin\ShippingController::class, 'track'])->name('track');
+        Route::patch('/{id}/status', [\App\Http\Controllers\Admin\ShippingController::class, 'updateStatus'])->name('update-status');
+    });
+
+    // Delivery Management
+    Route::prefix('delivery')->name('delivery.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\DeliveryController::class, 'index'])->name('index');
+        Route::get('/export', [\App\Http\Controllers\Admin\DeliveryController::class, 'export'])->name('export');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\DeliveryController::class, 'show'])->name('show');
+        Route::patch('/{id}/approve', [\App\Http\Controllers\Admin\DeliveryController::class, 'approve'])->name('approve');
+        Route::patch('/{id}/reject', [\App\Http\Controllers\Admin\DeliveryController::class, 'reject'])->name('reject');
     });
 
     // Analytics & Monitoring
@@ -332,6 +370,14 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::get('/ewallet-providers', [\App\Http\Controllers\VendorBankAccountController::class, 'getEwalletProviders'])->name('ewallet-providers');
         Route::get('/account-details', [\App\Http\Controllers\VendorBankAccountController::class, 'getAccountDetails'])->name('account-details');
         Route::post('/withdrawal/calculate-fee', [\App\Http\Controllers\VendorWithdrawalController::class, 'calculateFee'])->name('withdrawal.calculate-fee');
+
+        // Vendor Audit Logs
+        Route::prefix('audit-logs')->name('audit-logs.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\VendorAuditLogController::class, 'index'])->name('index');
+            Route::get('/financial', [\App\Http\Controllers\VendorAuditLogController::class, 'financial'])->name('financial');
+            Route::get('/export', [\App\Http\Controllers\VendorAuditLogController::class, 'export'])->name('export');
+            Route::get('/{id}', [\App\Http\Controllers\VendorAuditLogController::class, 'show'])->name('show');
+        });
     });
 
     // Mobile API

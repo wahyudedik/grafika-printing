@@ -8,6 +8,8 @@ use App\Models\Vendor\Transaksi;
 use App\Models\Vendor\TransaksiItem;
 use App\Models\Vendor\Bahan;
 use App\Models\Vendor\Produk;
+use App\Services\XenditBalanceService;
+use App\Services\AuditLogService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -205,13 +207,21 @@ class UserDashboardController extends Controller
             // Get vendor performance
             $vendorPerformance = $this->getVendorPerformance();
 
+            // Get Xendit balance
+            $xenditBalance = (new XenditBalanceService())->getBalanceWithStatus();
+
+            // Get high-risk audit logs
+            $highRiskLogs = AuditLogService::getHighRiskTransactions(10);
+
             return view('dev.dashboard', compact(
                 'stats',
                 'recentActivities',
                 'paymentIssues',
                 'revenueChartData',
                 'auctionStatusDistribution',
-                'vendorPerformance'
+                'vendorPerformance',
+                'xenditBalance',
+                'highRiskLogs'
             ));
         } catch (\Exception $e) {
             return redirect()->back()->with('toast_error', 'Error loading dashboard: ' . $e->getMessage());

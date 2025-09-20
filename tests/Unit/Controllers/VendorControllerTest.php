@@ -18,23 +18,27 @@ class VendorControllerTest extends TestCase
     {
         parent::setUp();
         Storage::fake('public');
+
+        // Create and login as dev user
+        $user = User::factory()->create(['usertype' => 'dev']);
+        $this->actingAs($user);
     }
 
     public function test_index_displays_vendors()
     {
         $vendors = Vendor::factory(3)->create();
-        
-        $response = $this->get(route('vendors.index'));
-        
+
+        $response = $this->get(route('admin.admin.vendors.index'));
+
         $response->assertStatus(200);
-        $response->assertViewIs('dev.vendors.index');
+        $response->assertViewIs('dev.admin.vendors.index');
         $response->assertViewHas('vendors');
     }
 
     public function test_create_displays_form()
     {
-        $response = $this->get(route('vendors.create'));
-        
+        $response = $this->get(route('admin.vendors.create'));
+
         $response->assertStatus(200);
         $response->assertViewIs('dev.vendors.create');
     }
@@ -43,7 +47,7 @@ class VendorControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $logo = UploadedFile::fake()->image('logo.jpg');
-        
+
         $vendorData = [
             'name' => $this->faker->company,
             'email' => $this->faker->email,
@@ -55,9 +59,9 @@ class VendorControllerTest extends TestCase
             'users' => [$user->id]
         ];
 
-        $response = $this->post(route('vendors.store'), $vendorData);
-        
-        $response->assertRedirect(route('vendors.index'));
+        $response = $this->post(route('admin.vendors.store'), $vendorData);
+
+        $response->assertRedirect(route('admin.vendors.index'));
         $this->assertDatabaseHas('vendors', [
             'name' => $vendorData['name'],
             'email' => $vendorData['email']
@@ -68,9 +72,9 @@ class VendorControllerTest extends TestCase
     public function test_show_displays_vendor()
     {
         $vendor = Vendor::factory()->create();
-        
-        $response = $this->get(route('vendors.show', $vendor->id));
-        
+
+        $response = $this->get(route('admin.vendors.show', $vendor->id));
+
         $response->assertStatus(200);
         $response->assertViewIs('dev.vendors.show');
         $response->assertViewHas('vendor');
@@ -79,9 +83,9 @@ class VendorControllerTest extends TestCase
     public function test_edit_displays_form()
     {
         $vendor = Vendor::factory()->create();
-        
-        $response = $this->get(route('vendors.edit', $vendor->id));
-        
+
+        $response = $this->get(route('admin.vendors.edit', $vendor->id));
+
         $response->assertStatus(200);
         $response->assertViewIs('dev.vendors.edit');
         $response->assertViewHas('vendor');
@@ -91,7 +95,7 @@ class VendorControllerTest extends TestCase
     {
         $vendor = Vendor::factory()->create(['logo' => 'vendors/old-logo.jpg']);
         $newLogo = UploadedFile::fake()->image('new-logo.jpg');
-        
+
         $updatedData = [
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
@@ -102,9 +106,9 @@ class VendorControllerTest extends TestCase
             'logo' => $newLogo
         ];
 
-        $response = $this->put(route('vendors.update', $vendor->id), $updatedData);
-        
-        $response->assertRedirect(route('vendors.index'));
+        $response = $this->put(route('admin.vendors.update', $vendor->id), $updatedData);
+
+        $response->assertRedirect(route('admin.vendors.index'));
         $this->assertDatabaseHas('vendors', [
             'id' => $vendor->id,
             'name' => 'Updated Name',
@@ -118,25 +122,25 @@ class VendorControllerTest extends TestCase
     {
         $vendor = Vendor::factory()->create(['logo' => 'vendors/logo.jpg']);
         Storage::disk('public')->put('vendors/logo.jpg', 'fake-image-content');
-        
-        $response = $this->delete(route('vendors.destroy', $vendor->id));
-        
-        $response->assertRedirect(route('vendors.index'));
+
+        $response = $this->delete(route('admin.vendors.destroy', $vendor->id));
+
+        $response->assertRedirect(route('admin.vendors.index'));
         $this->assertDatabaseMissing('vendors', ['id' => $vendor->id]);
         Storage::disk('public')->assertMissing('vendors/logo.jpg');
     }
 
     public function test_validation_error_on_store()
     {
-        $response = $this->post(route('vendors.store'), []);
-        
+        $response = $this->post(route('admin.vendors.store'), []);
+
         $response->assertSessionHasErrors(['name', 'email', 'phone', 'address', 'is_active']);
     }
 
     public function test_handles_invalid_vendor_id()
     {
-        $response = $this->get(route('vendors.show', 999999));
-        
+        $response = $this->get(route('admin.vendors.show', 999999));
+
         $response->assertRedirect();
         $response->assertSessionHas('toast_error', 'Error loading vendor');
     }

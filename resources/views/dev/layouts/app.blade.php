@@ -297,6 +297,226 @@
                                 <span class="nav-link-title d-sm-none">Admin Fee</span>
                             </a>
                         </li>
+                        <!-- Financial Management -->
+                        <li
+                            class="nav-item dropdown {{ request()->routeIs('admin.withdrawals.*') || request()->routeIs('admin.payments.*') || request()->routeIs('admin.wallets.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-financial"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M7 7h10v3l-4 5l-4 -5z" />
+                                        <path d="M12 3v18" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Financial</span>
+                                <span class="nav-link-title d-sm-none">Finance</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('admin.withdrawals.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M7 7h10v3l-4 5l-4 -5z" />
+                                    </svg>
+                                    Withdrawals
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.payments.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path
+                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    </svg>
+                                    Payments
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.wallets.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M17 8v-3a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-3" />
+                                    </svg>
+                                    Wallets
+                                </a>
+                            </div>
+                        </li>
+
+                        <!-- Shipping & Delivery -->
+                        <li
+                            class="nav-item dropdown {{ request()->routeIs('admin.shipping.*') || request()->routeIs('admin.delivery.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-shipping"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Shipping</span>
+                                <span class="nav-link-title d-sm-none">Ship</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('admin.shipping.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
+                                    </svg>
+                                    Shipping Tracking
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.delivery.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 12l2 2l4 -4" />
+                                        <path d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
+                                        <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
+                                    </svg>
+                                    Delivery Confirmations
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.shipping.invoices') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path
+                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                    </svg>
+                                    Shipping Invoices
+                                </a>
+                            </div>
+                        </li>
+
+                        <!-- Transactions & Orders -->
+                        <li
+                            class="nav-item dropdown {{ request()->routeIs('admin.transactions.*') || request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-transactions"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                        <path
+                                            d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Transactions</span>
+                                <span class="nav-link-title d-sm-none">Txn</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('admin.transactions.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                    </svg>
+                                    All Transactions
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.orders.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M3 3h2l.4 2m7.6 5l8.5 -8.5a1.5 1.5 0 0 0 -4 -4l-8.5 8.5v4" />
+                                        <path d="M14 6l7 7l-4 4l-7 -7l4 -4" />
+                                    </svg>
+                                    Orders
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.transactions.pos') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                                    </svg>
+                                    POS Transactions
+                                </a>
+                            </div>
+                        </li>
+
+                        <!-- Audit & Security -->
+                        <li
+                            class="nav-item dropdown {{ request()->routeIs('admin.audit-logs.*') || request()->routeIs('admin.security.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-audit"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                        <path
+                                            d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Audit & Security</span>
+                                <span class="nav-link-title d-sm-none">Audit</span>
+                            </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('admin.audit-logs.index') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
+                                    </svg>
+                                    Audit Logs
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.audit-logs.high-risk') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 9v2m0 4v.01" />
+                                        <path
+                                            d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.84 2.75" />
+                                    </svg>
+                                    High Risk Transactions
+                                </a>
+                                <a class="dropdown-item" href="{{ route('admin.security.encryption') }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path
+                                            d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
+                                        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
+                                        <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
+                                    </svg>
+                                    Encryption Status
+                                </a>
+                            </div>
+                        </li>
+
+                        <!-- CMS Management -->
                         <li class="nav-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('admin.cms.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">

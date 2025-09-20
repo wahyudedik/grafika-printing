@@ -17,6 +17,7 @@ use App\Models\Vendor\WholesalePrice;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Vendor\TransaksiItemSpecifications;
 use App\Models\AuctionBid;
 use App\Models\Auction;
@@ -25,6 +26,8 @@ use App\Models\VendorWithdrawal;
 
 class Vendor extends Model
 {
+    use HasFactory;
+
     protected $table = 'vendors';
 
     protected $fillable = [

@@ -16,24 +16,24 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Company Name</label>
-                                    <div class="form-control-plaintext">{{ $vendor->name }}</div>
+                                    <div class="form-control-plaintext">{{ $vendor->name ?? 'N/A' }}</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
-                                    <div class="form-control-plaintext">{{ $vendor->email }}</div>
+                                    <div class="form-control-plaintext">{{ $vendor->email ?? 'N/A' }}</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Phone</label>
-                                    <div class="form-control-plaintext">{{ $vendor->phone }}</div>
+                                    <div class="form-control-plaintext">{{ $vendor->phone ?? 'N/A' }}</div>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Address</label>
-                                    <div class="form-control-plaintext">{{ $vendor->address }}</div>
+                                    <div class="form-control-plaintext">{{ $vendor->address ?? 'N/A' }}</div>
                                 </div>
 
                                 <div class="mb-3">
