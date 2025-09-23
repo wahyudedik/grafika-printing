@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'name' => 'System Administrator',
-                'email' => 'system@grafika-printing.com',
+                'email' => 'system@grafika-printing.com', 
                 'password' => Hash::make('system123'),
                 'usertype' => 'dev',
                 'email_verified_at' => now(),
