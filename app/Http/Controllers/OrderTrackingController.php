@@ -2,258 +2,183 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Vendor\Transaksi;
 use App\Models\Auction;
+use App\Models\OrderTracking;
+use App\Models\EscrowPayment;
+use App\Models\MediationRequest;
+use App\Services\OrderTrackingService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class OrderTrackingController extends Controller
 {
-    /**
-     * Display order tracking for user
-     */
-    public function index()
+    protected $orderTrackingService;
+
+    public function __construct(OrderTrackingService $orderTrackingService)
     {
-        $user = Auth::user();
-
-        // Get auctions where user is the creator and has been paid
-        $auctions = Auction::where('user_id', $user->id)
-            ->where('status', 'paid')
-            ->whereNotNull('transaksi_id')
-            ->with(['transaksi', 'winnerVendor'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('user.tracking.index', compact('auctions'));
+        $this->orderTrackingService = $orderTrackingService;
     }
 
     /**
-     * Display order tracking for vendor
+     * Show order tracking for user
      */
-    public function vendorIndex()
+    public function index(): View
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $user = Auth::user();
 
-        if (!$vendor) {
-            abort(403, 'Anda tidak memiliki akses vendor');
-        }
-
-        // Get auctions where this vendor is the winner and need tracking
-        $auctions = Auction::where('winner_vendor_id', $vendor->id)
-            ->whereIn('status', ['paid', 'completed'])
-            ->with(['user', 'transaksi', 'shippingInvoice'])
+        $orderTrackings = OrderTracking::where('user_id', $user->id)
+            ->with(['auction', 'vendor'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
 
-        // Get shipping invoices for this vendor
-        $shippingInvoices = \App\Models\ShippingInvoice::where('vendor_id', $vendor->id)
-            ->with(['auction', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('vendor.tracking.index', compact('auctions', 'shippingInvoices'));
+        return view('user.order-tracking.index', compact('orderTrackings'));
     }
 
     /**
      * Show specific order tracking
      */
-    public function show(Auction $auction)
+    public function show(OrderTracking $orderTracking): View
     {
-        // Check if user owns this auction
-        if ($auction->user_id !== Auth::id()) {
-            abort(403, 'Anda tidak memiliki akses untuk melihat tracking ini');
+        // Check if user can view this order tracking
+        if ($orderTracking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
         }
 
-        $auction->load(['transaksi', 'winnerVendor']);
+        $orderTracking->load(['auction', 'vendor', 'user']);
 
-        if (!$auction->transaksi) {
-            abort(404, 'Transaksi tidak ditemukan');
-        }
-
-        return view('user.tracking.show', compact('auction'));
+        return view('user.order-tracking.show', compact('orderTracking'));
     }
 
     /**
-     * Update tracking status (for vendor)
+     * Show vendor order tracking
      */
-    public function updateStatus(Request $request, Transaksi $transaksi)
+    public function vendorIndex(): View
     {
+        $vendor = Auth::user()->vendorUser->first();
+
+        if (!$vendor) {
+            abort(403, 'Vendor access required');
+        }
+
+        $orderTrackings = OrderTracking::where('vendor_id', $vendor->id)
+            ->with(['auction', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('vendor.order-tracking.index', compact('orderTrackings'));
+    }
+
+    /**
+     * Update order status (vendor)
+     */
+    public function updateStatus(Request $request, OrderTracking $orderTracking): RedirectResponse
+    {
+        // Check if vendor can update this order tracking
+        $vendor = Auth::user()->vendorUser->first();
+        if (!$vendor || $orderTracking->vendor_id !== $vendor->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
-            'tracking_status' => 'required|in:menunggu,diproses,dicetak,dikirim,selesai',
-            'no_resi' => 'nullable|string|max:50',
-            'kurir' => 'nullable|string|max:50',
-            'ongkir' => 'nullable|numeric|min:0',
-            'is_cod' => 'boolean'
+            'status' => 'required|string',
+            'status_description' => 'nullable|string|max:500',
+            'tracking_number' => 'nullable|string|max:100',
+            'estimated_delivery' => 'nullable|date|after:now',
+            'notes' => 'nullable|string|max:1000'
         ]);
 
-        $transaksi->update([
-            'tracking_status' => $request->tracking_status,
-            'no_resi' => $request->no_resi,
-            'kurir' => $request->kurir,
-            'ongkir' => $request->ongkir ?? 0,
-            'is_cod' => $request->is_cod ?? false,
-            'alamat_pengiriman' => $request->alamat_pengiriman ?? $transaksi->alamat_pengiriman
-        ]);
-
-        // Update auction status if it exists
-        if ($transaksi->auction) {
-            $auctionStatus = match ($request->tracking_status) {
-                'menunggu' => 'paid',
-                'diproses' => 'paid',
-                'dicetak' => 'paid',
-                'dikirim' => 'paid',
-                'selesai' => 'completed',
-                default => 'paid'
-            };
-
-            $transaksi->auction->update(['status' => $auctionStatus]);
-        }
-
-        // Update timestamps based on status
-        $this->updateTrackingTimestamps($transaksi, $request->tracking_status);
-
-        // Send notification if order is completed
-        if ($request->tracking_status === 'selesai') {
-            $this->sendOrderCompletedNotification($transaksi);
-        }
+        $this->orderTrackingService->updateStatus(
+            $orderTracking,
+            $request->status,
+            $request->status_description,
+            $request->tracking_number,
+            $request->estimated_delivery,
+            $request->notes
+        );
 
         return redirect()->back()
-            ->with('success', 'Status tracking berhasil diperbarui!');
+            ->with('success', 'Order status updated successfully');
     }
 
     /**
-     * Calculate shipping cost using RajaOngkir API
+     * Request mediation
      */
-    public function calculateShipping(Request $request)
+    public function requestMediation(Request $request, OrderTracking $orderTracking): RedirectResponse
     {
+        // Check if user can request mediation for this order
+        if ($orderTracking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
-            'origin' => 'required|string',
-            'destination' => 'required|string',
-            'weight' => 'required|integer|min:1',
-            'courier' => 'required|string'
+            'reason' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'evidence_files' => 'nullable|array|max:5',
+            'evidence_files.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048'
         ]);
 
-        try {
-            $response = Http::withHeaders([
-                'key' => config('services.rajaongkir.api_key'),
-                'Content-Type' => 'application/x-www-form-urlencoded'
-            ])->post('https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost', [
-                'origin' => $request->origin,
-                'destination' => $request->destination,
-                'weight' => $request->weight,
-                'courier' => $request->courier,
-                'price' => 'lowest'
-            ]);
+        $this->orderTrackingService->requestMediation(
+            $orderTracking,
+            $request->reason,
+            $request->description,
+            $request->file('evidence_files', [])
+        );
 
-            if ($response->successful()) {
-                $data = $response->json();
-                return response()->json([
-                    'success' => true,
-                    'data' => $data
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal menghitung ongkir'
-                ], 400);
-            }
-        } catch (\Exception $e) {
-            Log::error('RajaOngkir API Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat menghitung ongkir'
-            ], 500);
-        }
+        return redirect()->back()
+            ->with('success', 'Mediation request submitted successfully');
     }
 
     /**
-     * Track shipment using RajaOngkir API
+     * Confirm delivery (user)
      */
-    public function trackShipment(Request $request)
+    public function confirmDelivery(Request $request, OrderTracking $orderTracking): RedirectResponse
     {
+        // Check if user can confirm delivery for this order
+        if ($orderTracking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
-            'awb' => 'required|string',
-            'courier' => 'required|string'
+            'delivery_photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'rating' => 'required|integer|min:1|max:5',
+            'feedback' => 'nullable|string|max:500'
         ]);
 
-        try {
-            $response = Http::withHeaders([
-                'key' => config('services.rajaongkir.api_key')
-            ])->get('https://rajaongkir.komerce.id/api/v1/track/waybill', [
-                'awb' => $request->awb,
-                'courier' => $request->courier
-            ]);
+        $this->orderTrackingService->confirmDelivery(
+            $orderTracking,
+            $request->file('delivery_photo'),
+            $request->rating,
+            $request->feedback
+        );
 
-            if ($response->successful()) {
-                $data = $response->json();
-                return response()->json([
-                    'success' => true,
-                    'data' => $data
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal melacak pengiriman'
-                ], 400);
-            }
-        } catch (\Exception $e) {
-            Log::error('RajaOngkir Tracking Error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat melacak pengiriman'
-            ], 500);
-        }
+        return redirect()->back()
+            ->with('success', 'Delivery confirmed successfully');
     }
 
     /**
-     * Update tracking timestamps
+     * Get tracking status for API
      */
-    private function updateTrackingTimestamps(Transaksi $transaksi, string $status)
+    public function getTrackingStatus(OrderTracking $orderTracking)
     {
-        $now = now();
-
-        switch ($status) {
-            case 'diproses':
-                $transaksi->update(['diproses_at' => $now]);
-                break;
-            case 'dicetak':
-                $transaksi->update(['dicetak_at' => $now]);
-                break;
-            case 'dikirim':
-                $transaksi->update(['dikirim_at' => $now]);
-                break;
-            case 'selesai':
-                $transaksi->update(['selesai_at' => $now]);
-                break;
+        // Check if user can view this order tracking
+        if ($orderTracking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
         }
-    }
 
-    /**
-     * Send order completed notification to user
-     */
-    private function sendOrderCompletedNotification(Transaksi $transaksi)
-    {
-        try {
-            // Get the auction associated with this transaction
-            $auction = Auction::where('transaksi_id', $transaksi->id)->first();
-
-            if ($auction && $auction->user) {
-                // Send notification to user
-                $auction->user->notify(new \App\Notifications\OrderCompletedNotification($auction));
-
-                Log::info('Order completed notification sent', [
-                    'auction_id' => $auction->id,
-                    'user_id' => $auction->user_id,
-                    'vendor_id' => $transaksi->vendor_id
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::error('Failed to send order completed notification', [
-                'transaction_id' => $transaksi->id,
-                'error' => $e->getMessage()
-            ]);
-        }
+        return response()->json([
+            'status' => $orderTracking->status,
+            'status_label' => $orderTracking->status_label,
+            'status_color' => $orderTracking->status_color,
+            'status_description' => $orderTracking->status_description,
+            'tracking_number' => $orderTracking->tracking_number,
+            'estimated_delivery' => $orderTracking->estimated_delivery,
+            'actual_delivery' => $orderTracking->actual_delivery,
+            'notes' => $orderTracking->notes,
+            'is_mediation_requested' => $orderTracking->is_mediation_requested,
+            'mediation_status' => $orderTracking->mediation_status,
+            'updated_at' => $orderTracking->updated_at
+        ]);
     }
 }

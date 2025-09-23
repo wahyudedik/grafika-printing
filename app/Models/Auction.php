@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\User\UserTenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Auction extends Model
+class Auction extends UserTenantModel
 {
     protected $fillable = [
         'user_id',
@@ -43,7 +43,16 @@ class Auction extends Model
         'rejected_by',
         'rejected_at',
         'approved_by',
-        'approved_at'
+        'approved_at',
+        'admin_approval_status',
+        'admin_approval_date',
+        'admin_approval_notes',
+        'delivery_status',
+        'tracking_number',
+        'shipping_cost',
+        'user_rating',
+        'user_feedback',
+        'completion_date'
     ];
 
     protected $casts = [
@@ -142,5 +151,127 @@ class Auction extends Model
     public function isDeliveryConfirmed(): bool
     {
         return $this->deliveryConfirmation && $this->deliveryConfirmation->isConfirmed();
+    }
+
+    // Admin Approval Methods
+    public function isPendingApproval(): bool
+    {
+        return $this->admin_approval_status === 'pending';
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->admin_approval_status === 'approved';
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->admin_approval_status === 'rejected';
+    }
+
+    public function approve($adminId, $notes = null)
+    {
+        $this->update([
+            'admin_approval_status' => 'approved',
+            'admin_approval_date' => now(),
+            'admin_approval_notes' => $notes,
+            'approved_by' => $adminId,
+            'status' => 'active'
+        ]);
+    }
+
+    public function reject($adminId, $reason)
+    {
+        $this->update([
+            'admin_approval_status' => 'rejected',
+            'admin_approval_date' => now(),
+            'admin_approval_notes' => $reason,
+            'approved_by' => $adminId,
+            'status' => 'rejected'
+        ]);
+    }
+
+    // Delivery Methods
+    public function isShipped(): bool
+    {
+        return $this->delivery_status === 'shipped';
+    }
+
+    public function isDelivered(): bool
+    {
+        return $this->delivery_status === 'delivered';
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->delivery_status === 'completed';
+    }
+
+    public function markAsShipped($trackingNumber, $shippingCost = null)
+    {
+        $this->update([
+            'delivery_status' => 'shipped',
+            'tracking_number' => $trackingNumber,
+            'shipping_cost' => $shippingCost
+        ]);
+    }
+
+    public function markAsDelivered()
+    {
+        $this->update([
+            'delivery_status' => 'delivered'
+        ]);
+    }
+
+    public function complete($rating = null, $feedback = null)
+    {
+        $this->update([
+            'delivery_status' => 'completed',
+            'user_rating' => $rating,
+            'user_feedback' => $feedback,
+            'completion_date' => now(),
+            'status' => 'completed'
+        ]);
+
+        // Transfer money to vendor wallet
+        if ($this->winner_vendor_id && $this->winning_bid) {
+            $vendor = Vendor::find($this->winner_vendor_id);
+            if ($vendor) {
+                $wallet = $vendor->getOrCreateWallet();
+                $wallet->addCredit(
+                    $this->winning_bid,
+                    'auction_payment',
+                    "Payment for auction: {$this->title}",
+                    $this->id,
+                    'auction'
+                );
+            }
+        }
+    }
+
+    // Scopes
+    public function scopePendingApproval($query)
+    {
+        return $query->where('admin_approval_status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('admin_approval_status', 'approved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('admin_approval_status', 'rejected');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeCompleted($query)
+    {
+        return $query->where('delivery_status', 'completed');
     }
 }

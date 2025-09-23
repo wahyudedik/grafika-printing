@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use App\Models\Vendor\TenantModel;
+use App\Models\User\UserTenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class VendorRating extends TenantModel
+class VendorRating extends UserTenantModel
 {
     protected $fillable = [
         'vendor_id',

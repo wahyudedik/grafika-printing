@@ -136,7 +136,7 @@ class Bahan extends TenantModel
             }
 
             // You could log low stock situations
-            \Illuminate\Support\Facades\Log::warning("Low stock alert: {$this->nama_bahan} (ID: {$this->id}) - Current stock: {$this->stok}");
+            Log::warning("Low stock alert: {$this->nama_bahan} (ID: {$this->id}) - Current stock: {$this->stok}");
         }
     }
 }

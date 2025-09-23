@@ -229,7 +229,7 @@
                             </div>
 
                             <div class="d-grid">
-                                <a href="{{ route('vendor.profile', auth()->user()->vendorUser->first()) }}"
+                                <a href="{{ route('vendor.public.profile', auth()->user()->vendorUser->first()->vendor_id) }}"
                                     class="btn btn-outline-primary btn-sm" target="_blank">
                                     <i class="fas fa-external-link-alt me-1"></i>
                                     Lihat Profile Lengkap

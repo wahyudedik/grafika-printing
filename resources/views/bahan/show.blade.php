@@ -26,7 +26,8 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Harga Pokok Produksi (HPP)</label>
-                                    <div class="form-control-plaintext">Rp {{ number_format($bahan->hpp, 0, ',', '.') }}
+                                    <div class="form-control-plaintext">Rp
+                                        {{ number_format((float) $bahan->hpp, 0, ',', '.') }}
                                     </div>
                                 </div>
 
@@ -72,7 +73,7 @@
                                                 <tr>
                                                     <td>{{ $price->min_quantity }}</td>
                                                     <td>{{ $price->max_quantity ?? 'Unlimited' }}</td>
-                                                    <td>Rp {{ number_format($price->harga, 0, ',', '.') }}</td>
+                                                    <td>Rp {{ number_format((float) $price->harga, 0, ',', '.') }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>

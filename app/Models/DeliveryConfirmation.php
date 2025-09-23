@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\User\UserTenantModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DeliveryConfirmation extends Model
+class DeliveryConfirmation extends UserTenantModel
 {
     protected $fillable = [
         'auction_id',

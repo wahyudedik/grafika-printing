@@ -121,15 +121,19 @@ class CheckoutController extends Controller
             DB::commit();
             session()->forget('cart');
 
+            // Redirect to payment options instead of invoice
             return response()->json([
                 'success' => true,
+                'paymentUrl' => route('vendor.pos.payment.options', [
+                    'transaksi' => $transaksi->id
+                ]),
                 'invoiceUrl' => route('vendor.pos.invoice.show', [
                     'transaksi' => $transaksi->id
                 ]),
                 'downloadUrl' => route('vendor.pos.invoice.download', [
                     'transaksi' => $transaksi->id
                 ]),
-                'redirectUrl' => route('vendor.pos.index')
+                'redirectUrl' => route('vendor.pos.payment.options', $transaksi->id)
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

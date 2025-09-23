@@ -38,6 +38,14 @@ class AdminFeeService
     }
 
     /**
+     * Calculate fees for POS transactions (alias for calculateAdminFees)
+     */
+    public function calculateFees($amount, $category = 'pos_transaction')
+    {
+        return $this->calculateAdminFees($amount, $category);
+    }
+
+    /**
      * Calculate payment gateway fees
      */
     public function calculatePaymentGatewayFees($amount, $paymentMethod = 'xendit')

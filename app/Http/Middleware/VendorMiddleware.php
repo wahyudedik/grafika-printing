@@ -20,11 +20,25 @@ class VendorMiddleware
             return redirect('/login');
         }
 
-        $userType = $request->user()->usertype;
+        $user = $request->user();
+        $userType = $user->usertype;
+
         if ($userType === 'vendor') {
+            // Check if user has vendor relationship
+            if (!$user->vendorUser || $user->vendorUser->isEmpty()) {
+                return redirect('/login')->with('error', 'No vendor account associated with this user.');
+            }
+
             return $next($request);
         } else {
-            return redirect()->back();
+            // Redirect to appropriate dashboard based on user type
+            if ($userType === 'dev') {
+                return redirect()->route('admin.dashboard');
+            } elseif ($userType === 'user') {
+                return redirect()->route('user.dashboard');
+            } else {
+                return redirect('/login')->with('error', 'Invalid user type.');
+            }
         }
     }
 }

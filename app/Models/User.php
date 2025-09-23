@@ -8,11 +8,12 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Traits\HasUuid;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, HasUuid;
 
     /**
      * The attributes that are mass assignable.
@@ -25,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'usertype', //dev, vendor, user
         'last_login_at',
+        'uuid',
     ];
 
     /**
@@ -57,6 +59,31 @@ class User extends Authenticatable implements MustVerifyEmail
     public function vendorUser()
     {
         return $this->belongsToMany(Vendor::class, 'vendor_user');
+    }
+
+    public function auctions()
+    {
+        return $this->hasMany(Auction::class);
+    }
+
+    public function xenditPayments()
+    {
+        return $this->hasMany(XenditPayment::class);
+    }
+
+    public function deliveryConfirmations()
+    {
+        return $this->hasMany(DeliveryConfirmation::class);
+    }
+
+    public function shippingInvoices()
+    {
+        return $this->hasMany(ShippingInvoice::class);
+    }
+
+    public function vendorRatings()
+    {
+        return $this->hasMany(VendorRating::class);
     }
 
     /**

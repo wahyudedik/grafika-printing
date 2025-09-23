@@ -43,8 +43,8 @@ class AuctionApproved extends Notification
             ->line('Selamat! Lelang Anda telah disetujui dan sekarang aktif.')
             ->line('**Detail Lelang:**')
             ->line('Judul: ' . $this->auction->title)
-            ->line('Budget: Rp ' . number_format($this->auction->budget, 0, ',', '.'))
-            ->line('Deadline: ' . $this->auction->deadline->format('d M Y H:i'))
+            ->line('Budget: Rp ' . number_format((float) $this->auction->budget, 0, ',', '.'))
+            ->line('Deadline: ' . \Carbon\Carbon::parse($this->auction->deadline)->format('d M Y H:i'))
             ->line('Lelang Anda sekarang dapat dilihat oleh vendor dan mereka dapat memberikan penawaran.')
             ->action('Lihat Lelang', route('user.auctions.show', $this->auction))
             ->line('Terima kasih telah menggunakan layanan kami.');

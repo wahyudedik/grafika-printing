@@ -89,7 +89,7 @@ class ShippingController extends Controller
 
         try {
             $rajaOngkirService = new RajaOngkirService();
-            $trackingResult = $rajaOngkirService->trackShipment($shippingInvoice->resi);
+            $trackingResult = $rajaOngkirService->trackShipment($shippingInvoice->resi, $shippingInvoice->courier);
 
             // Update status based on tracking result
             if ($trackingResult['success']) {

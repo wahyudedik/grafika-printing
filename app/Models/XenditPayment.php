@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\User\UserTenantModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class XenditPayment extends Model
+class XenditPayment extends UserTenantModel
 {
     use HasFactory;
 
@@ -21,7 +21,8 @@ class XenditPayment extends Model
         'expires_at',
         'paid_at',
         'payment_method',
-        'failure_reason'
+        'failure_reason',
+        'auction_id'
     ];
 
     protected $casts = [
@@ -80,5 +81,13 @@ class XenditPayment extends Model
     public function getFormattedAmountAttribute()
     {
         return 'Rp ' . number_format((float) $this->amount, 0, ',', '.');
+    }
+
+    /**
+     * Get the auction that owns the payment
+     */
+    public function auction()
+    {
+        return $this->belongsTo(Auction::class);
     }
 }

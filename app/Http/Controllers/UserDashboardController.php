@@ -21,12 +21,20 @@ class UserDashboardController extends Controller
     public function vendorDashboard()
     {
         try {
+            // Check if user has vendor relationship
+            $user = Auth::user();
+            if (!$user->vendorUser || $user->vendorUser->isEmpty()) {
+                return redirect('/login')->with('error', 'No vendor account associated with this user.');
+            }
+
+            $vendorId = $user->vendorUser->first()->vendor_id;
+
             // Get counts for dashboard widgets
-            $userCount = User::whereHas('vendorUser', function ($query) {
-                $query->where('vendor_id', Auth::user()->vendorUser->first()->vendor_id);
+            $userCount = User::whereHas('vendorUser', function ($query) use ($vendorId) {
+                $query->where('vendor_id', $vendorId);
             })->count();
             $vendorCount = Vendor::where('is_active', 1)
-                ->where('id', Auth::user()->vendorUser->first()->vendor_id)
+                ->where('id', $vendorId)
                 ->count();
 
             // Get product count if Produk model exists

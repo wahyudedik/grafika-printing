@@ -79,13 +79,13 @@
 
                                                 if ($spec['input_type'] === 'select' && $bahan) {
                                                     $pricePerUnit = $wholesalePrice->calculateFinalPrice(
-                                                        $bahan->hpp,
+                                                        (float) ($bahan->hpp ?? 0),
                                                         $item['quantity'],
                                                         $bahan->id,
                                                     );
                                                 } elseif ($bahan) {
                                                     $pricePerUnit = $wholesalePrice->calculateFinalPrice(
-                                                        $bahan->hpp,
+                                                        (float) ($bahan->hpp ?? 0),
                                                         $spec['value'],
                                                         $bahan->id,
                                                     );

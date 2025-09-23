@@ -38,4 +38,18 @@ class AuctionBid extends TenantModel
     {
         return $this->status === 'pending';
     }
+
+    /**
+     * Scope a query to only include records for the current vendor.
+     */
+    public function scopeForCurrentVendor($query)
+    {
+        $tenantManager = app(\App\Services\TenantManager::class);
+
+        if ($tenantManager->hasVendorContext()) {
+            return $query->where('vendor_id', $tenantManager->getVendorId());
+        }
+
+        return $query;
+    }
 }

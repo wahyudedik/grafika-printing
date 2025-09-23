@@ -88,7 +88,7 @@
                     @forelse ($bahan as $item)
                         <tr>
                             <td class="font-medium">{{ $item->nama_bahan }}</td>
-                            <td>Rp {{ number_format($item->hpp, 0, ',', '.') }}</td>
+                            <td>Rp {{ number_format((float) $item->hpp, 0, ',', '.') }}</td>
                             <td>{{ $item->satuan }}</td>
                             <td>{!! $item->stock_status_label !!}</td>
                             <td>

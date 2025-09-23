@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Vendor;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,20 @@ class TenantManager
      * @var \App\Models\Vendor|null
      */
     protected $currentVendor = null;
+
+    /**
+     * The current user ID.
+     *
+     * @var int|null
+     */
+    protected $currentUserId = null;
+
+    /**
+     * The current user instance.
+     *
+     * @var \App\Models\User|null
+     */
+    protected $currentUser = null;
 
     /**
      * Set the current vendor ID.
@@ -132,7 +147,134 @@ class TenantManager
 
         session()->forget('current_vendor_id');
 
-        Log::info('Tenant context cleared');
+        Log::info('Vendor tenant context cleared');
+
+        return $this;
+    }
+
+    /**
+     * Set the current user ID.
+     *
+     * @param int $userId
+     * @return $this
+     */
+    public function setUserId(int $userId)
+    {
+        $this->currentUserId = $userId;
+        $this->currentUser = null; // Reset cached user
+
+        // Also set in session as fallback
+        session(['current_user_id' => $userId]);
+
+        Log::info('User tenant context set', ['user_id' => $userId]);
+
+        return $this;
+    }
+
+    /**
+     * Set the current user using a User model.
+     *
+     * @param \App\Models\User $user
+     * @return $this
+     */
+    public function setUser(User $user)
+    {
+        $this->currentUserId = $user->id;
+        $this->currentUser = $user;
+
+        // Also set in session as fallback
+        session(['current_user_id' => $user->id]);
+
+        Log::info('User tenant context set', ['user_id' => $user->id, 'user_email' => $user->email]);
+
+        return $this;
+    }
+
+    /**
+     * Get the current user ID.
+     *
+     * @return int|null
+     */
+    public function getUserId()
+    {
+        if ($this->currentUserId) {
+            return $this->currentUserId;
+        }
+
+        // Fallback to session
+        $userId = session('current_user_id');
+        if ($userId) {
+            $this->currentUserId = $userId;
+            return $userId;
+        }
+
+        // Fallback to authenticated user
+        if (Auth::check()) {
+            $this->currentUserId = Auth::id();
+            return $this->currentUserId;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the current user instance.
+     *
+     * @return \App\Models\User|null
+     */
+    public function getUser()
+    {
+        if ($this->currentUser) {
+            return $this->currentUser;
+        }
+
+        $userId = $this->getUserId();
+        if ($userId) {
+            $this->currentUser = User::withoutGlobalScopes()->find($userId);
+            return $this->currentUser;
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a user context is set.
+     *
+     * @return bool
+     */
+    public function hasUserContext()
+    {
+        return $this->getUserId() !== null;
+    }
+
+    /**
+     * Clear the current user context.
+     *
+     * @return $this
+     */
+    public function clearUserContext()
+    {
+        $this->currentUserId = null;
+        $this->currentUser = null;
+
+        session()->forget('current_user_id');
+
+        Log::info('User tenant context cleared');
+
+        return $this;
+    }
+
+    /**
+     * Clear all tenant contexts.
+     *
+     * @return $this
+     */
+    public function clearAllContexts()
+    {
+        $this->clearVendorContext();
+        $this->clearUserContext();
+
+        Log::info('All tenant contexts cleared');
 
         return $this;
     }

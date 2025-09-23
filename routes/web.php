@@ -35,6 +35,11 @@ Route::get('/', function () {
     return view('welcome', compact('auctions'));
 })->name('welcome');
 
+// Public vendor profile route
+Route::get('/vendor/{vendor}/profile', function (\App\Models\Vendor $vendor) {
+    return view('vendor.public-profile', compact('vendor'));
+})->name('vendor.public.profile');
+
 // ============================================================================
 // AUTHENTICATION ROUTES
 // ============================================================================
@@ -96,6 +101,16 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
         Route::put('/{adminFee}', [\App\Http\Controllers\Admin\AdminFeeController::class, 'update'])->name('update');
         Route::delete('/{adminFee}', [\App\Http\Controllers\Admin\AdminFeeController::class, 'destroy'])->name('destroy');
         Route::patch('/{adminFee}/toggle', [\App\Http\Controllers\Admin\AdminFeeController::class, 'toggleStatus'])->name('toggle');
+    });
+
+    // Mediation Management
+    Route::prefix('mediation')->name('mediation.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\MediationController::class, 'index'])->name('index');
+        Route::get('/{mediationRequest}', [\App\Http\Controllers\Admin\MediationController::class, 'show'])->name('show');
+        Route::post('/{mediationRequest}/start-review', [\App\Http\Controllers\Admin\MediationController::class, 'startReview'])->name('start-review');
+        Route::post('/{mediationRequest}/resolve', [\App\Http\Controllers\Admin\MediationController::class, 'resolve'])->name('resolve');
+        Route::post('/{mediationRequest}/close', [\App\Http\Controllers\Admin\MediationController::class, 'close'])->name('close');
+        Route::get('/statistics', [\App\Http\Controllers\Admin\MediationController::class, 'statistics'])->name('statistics');
     });
 
     // Audit Logs Management
@@ -185,10 +200,15 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
 // VENDOR ROUTES
 // ============================================================================
 
-Route::middleware(['auth', 'verified', 'vendor'])->prefix('vendor')->name('vendor.')->group(function () {
+Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->name('vendor.')->group(function () {
 
     // Dashboard
     Route::get('/', [UserDashboardController::class, 'vendorDashboard'])->name('dashboard');
+
+    // Profile Management
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // POS System
     Route::prefix('pos')->name('pos.')->group(function () {
@@ -205,6 +225,17 @@ Route::middleware(['auth', 'verified', 'vendor'])->prefix('vendor')->name('vendo
         Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout');
         Route::get('/invoice/{transaksi}', [InvoiceController::class, 'show'])->name('invoice');
         Route::get('/invoice/{transaksi}/print', [InvoiceController::class, 'print'])->name('invoice.print');
+
+        // Payment System
+        Route::prefix('payment')->name('payment.')->group(function () {
+            Route::get('/{transaksi}/options', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'showPaymentOptions'])->name('options');
+            Route::get('/{transaksi}/cash', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'showPaymentOptions'])->name('cash');
+            Route::post('/{transaksi}/cash', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'processCashPayment'])->name('cash.process');
+            Route::get('/{transaksi}/online', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'showPaymentOptions'])->name('online');
+            Route::post('/{transaksi}/online', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'processXenditPayment'])->name('online.process');
+            Route::get('/{transaksi}/success', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'paymentSuccess'])->name('success');
+            Route::get('/{transaksi}/failure', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'paymentFailure'])->name('failure');
+        });
     });
 
     // Product Management
@@ -325,21 +356,39 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->name('user.')->
     // Auction System
     Route::resource('auctions', \App\Http\Controllers\AuctionController::class);
     Route::post('/auctions/{auction}/payment', [\App\Http\Controllers\AuctionController::class, 'createPayment'])->name('auctions.payment');
-    Route::post('/auctions/{auction}/close', [\App\Http\Controllers\AuctionController::class, 'close'])->name('auctions.close');
+    Route::post('/auctions/{auction}/close', [\App\Http\Controllers\AuctionController::class, 'closeAuction'])->name('auctions.close');
     Route::get('/auctions/my/auctions', [\App\Http\Controllers\AuctionController::class, 'myAuctions'])->name('auctions.my');
 
-    // Order Tracking
-    Route::prefix('tracking')->name('tracking.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('index');
-        Route::get('/{auction}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('show');
+    // Payment Confirmation System
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/{auction}/confirmation', [\App\Http\Controllers\PaymentConfirmationController::class, 'show'])->name('confirmation');
+        Route::post('/{auction}/process', [\App\Http\Controllers\PaymentConfirmationController::class, 'process'])->name('process');
+        Route::get('/{auction}/success', [\App\Http\Controllers\PaymentConfirmationController::class, 'success'])->name('success');
+        Route::get('/{auction}/failure', [\App\Http\Controllers\PaymentConfirmationController::class, 'failure'])->name('failure');
     });
 
-    // Shipping Management
-    Route::prefix('shipping')->name('shipping.')->group(function () {
-        Route::post('/invoice/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'generateShippingInvoice'])->name('generate-invoice');
-        Route::post('/payment/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'handleCODPayment'])->name('handle-payment');
-        Route::post('/calculate', [\App\Http\Controllers\ShippingInvoiceController::class, 'calculateShippingCost'])->name('calculate-cost');
+    // Order Tracking System
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'index'])->name('index');
+        Route::get('/{orderTracking}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('show');
+        Route::post('/{orderTracking}/mediation', [\App\Http\Controllers\OrderTrackingController::class, 'requestMediation'])->name('mediation');
+        Route::post('/{orderTracking}/confirm-delivery', [\App\Http\Controllers\OrderTrackingController::class, 'confirmDelivery'])->name('confirm-delivery');
+        Route::get('/{orderTracking}/status', [\App\Http\Controllers\OrderTrackingController::class, 'getTrackingStatus'])->name('status');
     });
+
+    // Vendor Order Tracking
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'vendorIndex'])->name('index');
+        Route::get('/{orderTracking}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('show');
+        Route::post('/{orderTracking}/update-status', [\App\Http\Controllers\OrderTrackingController::class, 'updateStatus'])->name('update-status');
+    });
+});
+
+// Shipping Management
+Route::prefix('shipping')->name('shipping.')->group(function () {
+    Route::post('/invoice/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'generateShippingInvoice'])->name('generate-invoice');
+    Route::post('/payment/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'handleCODPayment'])->name('handle-payment');
+    Route::post('/calculate', [\App\Http\Controllers\ShippingInvoiceController::class, 'calculateShippingCost'])->name('calculate-cost');
 });
 
 // ============================================================================
@@ -404,13 +453,20 @@ Route::get('/administrator', function () {
 })->middleware(['auth', 'verified', 'dev']);
 
 Route::get('/dashboard', function () {
-    $user = \Illuminate\Support\Facades\Auth::user();
+    $user = Auth::user();
     if ($user && $user->usertype === 'vendor') {
+        // Check if user has vendor relationship
+        if (!$user->vendorUser || $user->vendorUser->isEmpty()) {
+            Auth::logout();
+            return redirect('/login')->with('error', 'No vendor account associated with this user.');
+        }
         return redirect()->route('vendor.dashboard');
     } elseif ($user && $user->usertype === 'user') {
         return redirect()->route('user.dashboard');
+    } elseif ($user && $user->usertype === 'dev') {
+        return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('admin.dashboard');
+    return redirect('/login');
 })->middleware(['auth', 'verified']);
 
 // ============================================================================
@@ -419,7 +475,7 @@ Route::get('/dashboard', function () {
 
 if (app()->environment('local')) {
     Route::get('/debug/test', function () {
-        $user = \Illuminate\Support\Facades\Auth::user();
+        $user = Auth::user();
         return response()->json([
             'user' => $user,
             'usertype' => $user?->usertype,

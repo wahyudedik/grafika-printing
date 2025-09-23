@@ -383,7 +383,7 @@
                                 <td>{{ $transaction->kode }}</td>
                                 <td>{{ $transaction->pelanggan->nama ?? 'N/A' }}</td>
                                 <td>{{ \Carbon\Carbon::parse($transaction->tanggal_dibuat)->format('d M Y') }}</td>
-                                <td>Rp {{ number_format($transaction->total_harga, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format((float) $transaction->total_harga, 0, ',', '.') }}</td>
                                 <td>
                                     @if ($transaction->status == 'pending')
                                         <span class="badge bg-yellow text-white">Pending</span>

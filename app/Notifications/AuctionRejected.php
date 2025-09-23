@@ -45,7 +45,7 @@ class AuctionRejected extends Notification
             ->line('Kami menyesal menginformasikan bahwa lelang Anda telah ditolak.')
             ->line('**Detail Lelang:**')
             ->line('Judul: ' . $this->auction->title)
-            ->line('Budget: Rp ' . number_format($this->auction->budget, 0, ',', '.'))
+            ->line('Budget: Rp ' . number_format((float) $this->auction->budget, 0, ',', '.'))
             ->line('**Alasan Penolakan:**')
             ->line($this->reason)
             ->line('Silakan buat lelang baru dengan memperhatikan alasan penolakan di atas.')
