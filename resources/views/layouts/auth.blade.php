@@ -12,7 +12,7 @@
     <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler-flags.min.css" rel="stylesheet">
     <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler-payments.min.css" rel="stylesheet">
     <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler-vendors.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/icons@latest/iconfont/tabler-icons.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
