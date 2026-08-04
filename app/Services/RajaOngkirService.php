@@ -12,8 +12,9 @@ class RajaOngkirService
 
     public function __construct()
     {
-        $this->apiKey = config('services.rajaongkir.api_key');
-        $this->baseUrl = config('services.rajaongkir.base_url', 'https://rajaongkir.komerce.id/api/v1');
+        // Use ServiceConfigOverride to get values from DB first, fallback to .env config
+        $this->apiKey = \App\Services\ServiceConfigOverride::get('rajaongkir', 'api_key') ?? config('services.rajaongkir.api_key');
+        $this->baseUrl = \App\Services\ServiceConfigOverride::get('rajaongkir', 'base_url') ?? config('services.rajaongkir.base_url', 'https://rajaongkir.komerce.id/api/v1');
     }
 
     /**

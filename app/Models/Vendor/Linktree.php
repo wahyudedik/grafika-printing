@@ -68,11 +68,43 @@ class Linktree extends TenantModel
     }
 
     /**
+     * Get the A/B tests for this linktree.
+     */
+    public function abTests(): HasMany
+    {
+        return $this->hasMany(\App\Models\LinktreeAbTest::class);
+    }
+
+    /**
      * Get the active social media links.
      */
     public function activeSocials(): HasMany
     {
         return $this->socials()->where('is_active', true)->orderBy('sort_order');
+    }
+
+    /**
+     * Get the linktree products (pivot with custom data).
+     */
+    public function linktreeProducts(): HasMany
+    {
+        return $this->hasMany(LinktreeProduct::class)->orderBy('sort_order');
+    }
+
+    /**
+     * Get the active linktree products.
+     */
+    public function activeLinktreeProducts(): HasMany
+    {
+        return $this->linktreeProducts()->where('is_active', true)->orderBy('sort_order');
+    }
+
+    /**
+     * Check if this linktree has product catalog enabled.
+     */
+    public function hasProductCatalog(): bool
+    {
+        return $this->linktreeProducts()->where('is_active', true)->count() > 0;
     }
 
     /**

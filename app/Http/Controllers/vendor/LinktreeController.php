@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Vendor\Linktree;
 use App\Models\Vendor\LinktreeLink;
 use App\Models\Vendor\LinktreeSocial;
+use App\Models\Vendor\LinktreeProduct;
+use App\Models\Vendor\Produk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -70,10 +72,14 @@ class LinktreeController extends Controller
         $validated['bg_color'] = $validated['bg_color'] ?? $this->getDefaultColor($validated['template'], 'bg');
         $validated['text_color'] = $validated['text_color'] ?? $this->getDefaultColor($validated['template'], 'text');
 
-        $linktree = Linktree::create($validated);
-
-        return redirect()->route('vendor.linktree.edit', $linktree)
-            ->with('success', 'Linktree berhasil dibuat! Sekarang tambahkan link dan sosial media.');
+        try {
+            $linktree = Linktree::create($validated);
+            return redirect()->route('vendor.linktree.edit', $linktree)
+                ->with('success', 'Linktree berhasil dibuat! Sekarang tambahkan link dan sosial media.');
+        } catch (\Exception $e) {
+            \Log::error('Gagal membuat linktree: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Gagal membuat linktree. Silakan coba lagi.');
+        }
     }
 
     /**
@@ -90,6 +96,35 @@ class LinktreeController extends Controller
         }]);
 
         return view('vendor.linktree.show', compact('linktree'));
+    }
+
+    /**
+     * Show analytics dashboard for the linktree.
+     */
+    public function analytics(Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        $linktree->load(['links' => function ($query) {
+            $query->orderBy('clicks_count', 'desc');
+        }, 'socials']);
+
+        // Top links by clicks
+        $topLinks = $linktree->links()
+            ->where('clicks_count', '>', 0)
+            ->orderBy('clicks_count', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Conversion rate (clicks / views)
+        $conversionRate = $linktree->views_count > 0
+            ? round(($linktree->clicks_count / $linktree->views_count) * 100, 1)
+            : 0;
+
+        // Total social clicks (estimated from socials count)
+        $socialCount = $linktree->socials()->count();
+
+        return view('vendor.linktree.analytics', compact('linktree', 'topLinks', 'conversionRate', 'socialCount'));
     }
 
     /**
@@ -141,9 +176,13 @@ class LinktreeController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
         $validated['show_qris'] = $request->boolean('show_qris');
 
-        $linktree->update($validated);
-
-        return back()->with('success', 'Pengaturan linktree berhasil diperbarui!');
+        try {
+            $linktree->update($validated);
+            return back()->with('success', 'Pengaturan linktree berhasil diperbarui!');
+        } catch (\Exception $e) {
+            \Log::error('Gagal update linktree: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Gagal memperbarui linktree. Silakan coba lagi.');
+        }
     }
 
     /**
@@ -153,13 +192,18 @@ class LinktreeController extends Controller
     {
         $this->authorizeLinktree($linktree);
 
-        // Delete related links and socials
-        $linktree->links()->delete();
-        $linktree->socials()->delete();
-        $linktree->delete();
+        try {
+            // Delete related links and socials
+            $linktree->links()->delete();
+            $linktree->socials()->delete();
+            $linktree->delete();
 
-        return redirect()->route('vendor.linktree.index')
-            ->with('success', 'Linktree berhasil dihapus.');
+            return redirect()->route('vendor.linktree.index')
+                ->with('success', 'Linktree berhasil dihapus.');
+        } catch (\Exception $e) {
+            \Log::error('Gagal hapus linktree: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus linktree. Silakan coba lagi.');
+        }
     }
 
     /**
@@ -346,18 +390,30 @@ class LinktreeController extends Controller
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $file = $request->file('avatar');
-        $filename = 'linktree_avatar_' . $linktree->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('linktree/avatars'), $filename);
+        try {
+            $file = $request->file('avatar');
+            $filename = 'linktree_avatar_' . $linktree->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-        // Delete old avatar if exists
-        if ($linktree->avatar && file_exists(public_path('linktree/avatars/' . $linktree->avatar))) {
-            unlink(public_path('linktree/avatars/' . $linktree->avatar));
+            // Ensure directory exists
+            $dir = public_path('linktree/avatars');
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $file->move($dir, $filename);
+
+            // Delete old avatar if exists
+            if ($linktree->avatar && file_exists(public_path('linktree/avatars/' . $linktree->avatar))) {
+                unlink(public_path('linktree/avatars/' . $linktree->avatar));
+            }
+
+            $linktree->update(['avatar' => $filename]);
+
+            return back()->with('success', 'Avatar berhasil diupload!');
+        } catch (\Exception $e) {
+            \Log::error('Gagal upload avatar: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengupload avatar. Pastikan file gambar valid dan coba lagi.');
         }
-
-        $linktree->update(['avatar' => $filename]);
-
-        return back()->with('success', 'Avatar berhasil diupload!');
     }
 
     /**
@@ -371,18 +427,30 @@ class LinktreeController extends Controller
             'banner' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
-        $file = $request->file('banner');
-        $filename = 'linktree_banner_' . $linktree->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('linktree/banners'), $filename);
+        try {
+            $file = $request->file('banner');
+            $filename = 'linktree_banner_' . $linktree->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-        // Delete old banner if exists
-        if ($linktree->banner && file_exists(public_path('linktree/banners/' . $linktree->banner))) {
-            unlink(public_path('linktree/banners/' . $linktree->banner));
+            // Ensure directory exists
+            $dir = public_path('linktree/banners');
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $file->move($dir, $filename);
+
+            // Delete old banner if exists
+            if ($linktree->banner && file_exists(public_path('linktree/banners/' . $linktree->banner))) {
+                unlink(public_path('linktree/banners/' . $linktree->banner));
+            }
+
+            $linktree->update(['banner' => $filename]);
+
+            return back()->with('success', 'Banner berhasil diupload!');
+        } catch (\Exception $e) {
+            \Log::error('Gagal upload banner: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengupload banner. Pastikan file gambar valid dan coba lagi.');
         }
-
-        $linktree->update(['banner' => $filename]);
-
-        return back()->with('success', 'Banner berhasil diupload!');
     }
 
     /**
@@ -396,18 +464,377 @@ class LinktreeController extends Controller
             'qris_image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $file = $request->file('qris_image');
-        $filename = 'linktree_qris_' . $linktree->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $file->move(public_path('linktree/qris'), $filename);
+        try {
+            $file = $request->file('qris_image');
+            $filename = 'linktree_qris_' . $linktree->id . '_' . time() . '.' . $file->getClientOriginalExtension();
 
-        // Delete old QRIS if exists
-        if ($linktree->qris_image && file_exists(public_path('linktree/qris/' . $linktree->qris_image))) {
-            unlink(public_path('linktree/qris/' . $linktree->qris_image));
+            // Ensure directory exists
+            $dir = public_path('linktree/qris');
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $file->move($dir, $filename);
+
+            // Delete old QRIS if exists
+            if ($linktree->qris_image && file_exists(public_path('linktree/qris/' . $linktree->qris_image))) {
+                unlink(public_path('linktree/qris/' . $linktree->qris_image));
+            }
+
+            $linktree->update(['qris_image' => $filename, 'show_qris' => true]);
+
+            return back()->with('success', 'Gambar QRIS berhasil diupload!');
+        } catch (\Exception $e) {
+            \Log::error('Gagal upload QRIS: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengupload gambar QRIS. Pastikan file gambar valid dan coba lagi.');
+        }
+    }
+
+    // =========================================================================
+    // BULK LINK MANAGEMENT
+    // =========================================================================
+
+    /**
+     * Export links as CSV file for download.
+     */
+    public function exportLinks(Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        $links = $linktree->links()->orderBy('sort_order')->get();
+
+        $filename = 'linktree_' . $linktree->custom_url . '_links_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($links) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Header
+            fputcsv($file, ['Judul', 'URL', 'Ikon', 'Aktif', 'Urutan']);
+
+            foreach ($links as $link) {
+                fputcsv($file, [
+                    $link->title,
+                    $link->url,
+                    $link->icon ?? '',
+                    $link->is_active ? 'Ya' : 'Tidak',
+                    $link->sort_order,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Show import links form.
+     */
+    public function importLinksForm(Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        $linkCount = $linktree->links()->count();
+
+        return view('vendor.linktree.import', compact('linktree', 'linkCount'));
+    }
+
+    /**
+     * Process imported links from CSV file.
+     */
+    public function importLinks(Request $request, Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:5120', // Max 5MB
+            'import_mode' => 'required|in:append,replace',
+        ]);
+
+        $file = $request->file('csv_file');
+        $importMode = $request->input('import_mode');
+
+        try {
+            $handle = fopen($file->getRealPath(), 'r');
+
+            if ($handle === false) {
+                return back()->withErrors(['csv_file' => 'Gagal membuka file CSV.']);
+            }
+
+            // Read header row
+            $header = fgetcsv($handle);
+
+            if ($header === false || count($header) < 2) {
+                fclose($handle);
+                return back()->withErrors(['csv_file' => 'File CSV tidak valid atau kosong.']);
+            }
+
+            // Normalize header (lowercase, trim)
+            $header = array_map(fn($h) => strtolower(trim($h)), $header);
+
+            // Map header to field names
+            $fieldMap = [];
+            $possibleMaps = [
+                'judul' => 'title', 'title' => 'title', 'nama' => 'title', 'name' => 'title',
+                'url' => 'url', 'link' => 'url', 'website' => 'url',
+                'ikon' => 'icon', 'icon' => 'icon', 'emoji' => 'icon',
+                'aktif' => 'is_active', 'active' => 'is_active', 'status' => 'is_active',
+                'urutan' => 'sort_order', 'order' => 'sort_order', 'sort' => 'sort_order', 'posisi' => 'sort_order',
+            ];
+
+            foreach ($header as $index => $col) {
+                if (isset($possibleMaps[$col])) {
+                    $fieldMap[$possibleMaps[$col]] = $index;
+                }
+            }
+
+            if (!isset($fieldMap['title']) || !isset($fieldMap['url'])) {
+                fclose($handle);
+                return back()->withErrors([
+                    'csv_file' => 'File CSV harus memiliki kolom "Judul/Title" dan "URL/Link". Kolom yang ditemukan: ' . implode(', ', $header),
+                ]);
+            }
+
+            $importedCount = 0;
+            $skippedCount = 0;
+            $errors = [];
+
+            // If replace mode, delete existing links first
+            if ($importMode === 'replace') {
+                $linktree->links()->delete();
+            }
+
+            // Get next sort order
+            $maxOrder = $linktree->links()->max('sort_order') ?? 0;
+
+            $rowNumber = 1; // 1-indexed (header is row 0)
+            while (($row = fgetcsv($handle)) !== false) {
+                $rowNumber++;
+
+                $title = trim($row[$fieldMap['title']] ?? '');
+                $url = trim($row[$fieldMap['url']] ?? '');
+
+                // Skip empty rows
+                if (empty($title) && empty($url)) {
+                    continue;
+                }
+
+                // Validate URL
+                if (empty($url)) {
+                    $errors[] = "Baris {$rowNumber}: URL kosong, dilewati.";
+                    $skippedCount++;
+                    continue;
+                }
+
+                if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                    // Try prepending https://
+                    $urlWithProtocol = 'https://' . $url;
+                    if (filter_var($urlWithProtocol, FILTER_VALIDATE_URL)) {
+                        $url = $urlWithProtocol;
+                    } else {
+                        $errors[] = "Baris {$rowNumber}: URL tidak valid ({$url}), dilewati.";
+                        $skippedCount++;
+                        continue;
+                    }
+                }
+
+                // Get optional fields
+                $icon = isset($fieldMap['icon']) ? trim($row[$fieldMap['icon']] ?? '') : null;
+                $isActive = true; // Default active
+                if (isset($fieldMap['is_active'])) {
+                    $activeVal = strtolower(trim($row[$fieldMap['is_active']] ?? 'ya'));
+                    $isActive = in_array($activeVal, ['ya', 'yes', 'true', '1', 'aktif', 'on']);
+                }
+                $sortOrder = isset($fieldMap['sort_order']) ? (int) ($row[$fieldMap['sort_order']] ?? 0) : 0;
+
+                if ($sortOrder <= 0) {
+                    $maxOrder++;
+                    $sortOrder = $maxOrder;
+                }
+
+                try {
+                    LinktreeLink::create([
+                        'linktree_id' => $linktree->id,
+                        'title' => $title,
+                        'url' => $url,
+                        'icon' => $icon ?: null,
+                        'is_active' => $isActive,
+                        'sort_order' => $sortOrder,
+                    ]);
+                    $importedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = "Baris {$rowNumber}: Gagal menyimpan - {$e->getMessage()}";
+                    $skippedCount++;
+                }
+            }
+
+            fclose($handle);
+
+            $message = "Import selesai! {$importedCount} link berhasil diimpor.";
+            if ($skippedCount > 0) {
+                $message .= " {$skippedCount} baris dilewati.";
+            }
+
+            $flashData = ['success' => $message];
+            if (!empty($errors)) {
+                $flashData['errors_list'] = $errors;
+            }
+
+            return redirect()->route('vendor.linktree.show', $linktree)
+                ->with($flashData);
+
+        } catch (\Exception $e) {
+            \Log::error("Linktree import error: {$e->getMessage()}");
+            return back()->withErrors([
+                'csv_file' => 'Terjadi kesalahan saat memproses file: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    // =========================================================================
+    // PRODUCT CATALOG MANAGEMENT
+    // =========================================================================
+
+    /**
+     * Show product management page for a linktree.
+     */
+    public function manageProducts(Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        // Load linktree products with produk relationship
+        $linktree->load(['linktreeProducts' => function ($query) {
+            $query->with('produk')->orderBy('sort_order');
+        }]);
+
+        // Get vendor's products that are NOT already added to this linktree
+        $addedProdukIds = $linktree->linktreeProducts->pluck('produk_id')->toArray();
+        $availableProduks = Produk::where('vendor_id', $linktree->vendor_id)
+            ->whereNotIn('id', $addedProdukIds)
+            ->orderBy('nama_produk')
+            ->get();
+
+        return view('vendor.linktree.products', compact('linktree', 'availableProduks'));
+    }
+
+    /**
+     * Add a product to the linktree catalog.
+     */
+    public function addProduct(Request $request, Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        $validated = $request->validate([
+            'produk_id' => 'required|integer|exists:produks,id',
+            'custom_price' => 'nullable|string|max:50',
+            'custom_description' => 'nullable|string|max:1000',
+        ]);
+
+        // Check if product already exists in this linktree
+        $exists = LinktreeProduct::where('linktree_id', $linktree->id)
+            ->where('produk_id', $validated['produk_id'])
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Produk ini sudah ditambahkan ke linktree.');
         }
 
-        $linktree->update(['qris_image' => $filename, 'show_qris' => true]);
+        // Verify the product belongs to the same vendor
+        $produk = Produk::find($validated['produk_id']);
+        if ($produk->vendor_id !== $linktree->vendor_id) {
+            abort(403, 'Produk ini bukan milik vendor Anda.');
+        }
 
-        return back()->with('success', 'Gambar QRIS berhasil diupload!');
+        // Get next sort order
+        $maxOrder = LinktreeProduct::where('linktree_id', $linktree->id)->max('sort_order') ?? 0;
+
+        LinktreeProduct::create([
+            'linktree_id' => $linktree->id,
+            'produk_id' => $validated['produk_id'],
+            'sort_order' => $maxOrder + 1,
+            'is_active' => true,
+            'custom_price' => $validated['custom_price'] ?? null,
+            'custom_description' => $validated['custom_description'] ?? null,
+        ]);
+
+        return redirect()->route('vendor.linktree.products', $linktree)
+            ->with('success', 'Produk berhasil ditambahkan ke linktree!');
+    }
+
+    /**
+     * Update a linktree product (custom price, description, active status).
+     */
+    public function updateProduct(Request $request, Linktree $linktree, LinktreeProduct $product)
+    {
+        $this->authorizeLinktree($linktree);
+        $this->authorizeProductOwned($product, $linktree);
+
+        $validated = $request->validate([
+            'custom_price' => 'nullable|string|max:50',
+            'custom_description' => 'nullable|string|max:1000',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $product->update($validated);
+
+        return redirect()->route('vendor.linktree.products', $linktree)
+            ->with('success', 'Produk berhasil diperbarui!');
+    }
+
+    /**
+     * Toggle active status of a linktree product.
+     */
+    public function toggleProduct(Linktree $linktree, LinktreeProduct $product)
+    {
+        $this->authorizeLinktree($linktree);
+        $this->authorizeProductOwned($product, $linktree);
+
+        $product->update(['is_active' => !$product->is_active]);
+
+        $status = $product->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        return redirect()->route('vendor.linktree.products', $linktree)
+            ->with('success', "Produk berhasil {$status}!");
+    }
+
+    /**
+     * Remove a product from the linktree catalog.
+     */
+    public function removeProduct(Linktree $linktree, LinktreeProduct $product)
+    {
+        $this->authorizeLinktree($linktree);
+        $this->authorizeProductOwned($product, $linktree);
+
+        $product->delete();
+
+        return redirect()->route('vendor.linktree.products', $linktree)
+            ->with('success', 'Produk berhasil dihapus dari linktree.');
+    }
+
+    /**
+     * Reorder products in the linktree catalog via AJAX.
+     */
+    public function reorderProducts(Request $request, Linktree $linktree)
+    {
+        $this->authorizeLinktree($linktree);
+
+        $request->validate([
+            'product_order' => 'required|array',
+            'product_order.*' => 'integer|exists:linktree_products,id',
+        ]);
+
+        foreach ($request->product_order as $index => $productId) {
+            LinktreeProduct::where('id', $productId)
+                ->where('linktree_id', $linktree->id)
+                ->update(['sort_order' => $index + 1]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Urutan produk berhasil diperbarui.']);
     }
 
     // =========================================================================
@@ -442,6 +869,16 @@ class LinktreeController extends Controller
     {
         if ($social->linktree_id !== $linktree->id) {
             abort(403, 'Social media ini bukan milik linktree ini.');
+        }
+    }
+
+    /**
+     * Authorize that the linktree product belongs to the linktree.
+     */
+    private function authorizeProductOwned(LinktreeProduct $product, Linktree $linktree): void
+    {
+        if ($product->linktree_id !== $linktree->id) {
+            abort(403, 'Produk ini bukan milik linktree ini.');
         }
     }
 

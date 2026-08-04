@@ -79,7 +79,7 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('admin.profile') }}">Profile</a>
+                        <a class="dropdown-item" href="{{ url('/admin/profile') }}">Profile</a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -281,7 +281,7 @@
                                 <span class="nav-link-title d-sm-none">Revenue</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('admin.admin-fees.*') ? 'active' : '' }}">
+                        <li class="nav-item {{ request()->routeIs('admin.admin-fees.index') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('admin.admin-fees.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
@@ -550,6 +550,43 @@
                                 <span class="nav-link-title d-sm-none">Lelang</span>
                             </a>
                         </li>
+
+                        <!-- Mediation -->
+                        <li class="nav-item {{ request()->routeIs('admin.mediation.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.mediation.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                                        <path d="M8 14l2 2l4 -4" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Mediasi</span>
+                                <span class="nav-link-title d-sm-none">Mediasi</span>
+                            </a>
+                        </li>
+
+                        <!-- Service Configurations -->
+                        <li class="nav-item {{ request()->routeIs('admin.service-configs.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.service-configs.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+                                        <path d="M12 12l3.5 -2" />
+                                        <path d="M12 12l-3.5 -2" />
+                                        <path d="M12 12l0 3.5" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Service Config</span>
+                                <span class="nav-link-title d-sm-none">Config</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -580,13 +617,13 @@
                 <div class="col-lg-auto ms-lg-auto">
                     <ul class="list-inline list-inline-dots mb-0">
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">Documentation</a>
+                            <a href="{{ route('admin.dashboard') }}" class="link-secondary">Dashboard</a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">License</a>
+                            <a href="{{ route('admin.audit-logs.index') }}" class="link-secondary">Audit Logs</a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">Source code</a>
+                            <a href="https://grafika.noteds.com" class="link-secondary" target="_blank">Website</a>
                         </li>
                     </ul>
                 </div>

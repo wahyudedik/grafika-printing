@@ -77,11 +77,30 @@
             Untuk melanjutkan proses pengiriman, Anda perlu membayar biaya pengiriman terlebih dahulu.</p>
 
         <div class="invoice-details">
-            <h3>Detail Pengiriman</h3>
+            <h3>Detail Pesanan</h3>
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Kode Transaksi:</strong></td>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ $transaksi->kode }}</td>
+                </tr>
+                @php
+                    $ongkir = (float) ($transaksi->ongkir ?? 0);
+                    $subtotalBarang = (float) $transaksi->total_harga - $ongkir;
+                @endphp
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Subtotal Barang:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Rp
+                        {{ number_format($subtotalBarang > 0 ? $subtotalBarang : $transaksi->total_harga, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Biaya Pengiriman ({{ $transaksi->kurir ?? '-' }}):</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Rp
+                        {{ number_format($ongkir, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Total Pesanan:</strong></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #ddd; font-weight: bold;">Rp
+                        {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Kurir:</strong></td>
@@ -90,11 +109,6 @@
                 <tr>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Alamat Tujuan:</strong></td>
                     <td style="padding: 8px; border-bottom: 1px solid #ddd;">{{ $transaksi->alamat_pengiriman }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Biaya Pengiriman:</strong></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #ddd;">Rp
-                        {{ number_format($transaksi->ongkir, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px;"><strong>Status:</strong></td>

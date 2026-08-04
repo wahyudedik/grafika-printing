@@ -16,7 +16,7 @@ class SimpleTestSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🌱 Creating simple test users...');
+        $this->command->info('🌱 Creating simple test users...'); 
 
         // Clear existing data (optional - be careful in production!)
         // User::truncate();
@@ -29,7 +29,7 @@ class SimpleTestSeeder extends Seeder
                 'name' => 'Developer Admin',
                 'password' => Hash::make('password'),
                 'usertype' => 'dev',
-                'email_verified_at' => now(), 
+                'email_verified_at' => now(),
                 'uuid' => Str::uuid(),
             ]
         );
@@ -52,7 +52,7 @@ class SimpleTestSeeder extends Seeder
 
         // Create Vendor
         $vendorUser = User::firstOrCreate(
-            ['email' => 'vendor@example.com'], 
+            ['email' => 'vendor@example.com'],
             [
                 'name' => 'Jane Vendor',
                 'password' => Hash::make('password'),

@@ -17,10 +17,11 @@ class XenditService
 
     public function __construct()
     {
-        $this->apiKey = config('services.xendit.api_key');
-        $this->baseUrl = config('services.xendit.base_url');
-        $this->publicKey = config('services.xendit.public_key');
-        $this->webhookToken = config('services.xendit.webhook_token');
+        // Use ServiceConfigOverride to get values from DB first, fallback to .env config
+        $this->apiKey = \App\Services\ServiceConfigOverride::get('xendit', 'api_key') ?? config('services.xendit.api_key');
+        $this->baseUrl = \App\Services\ServiceConfigOverride::get('xendit', 'base_url') ?? config('services.xendit.base_url');
+        $this->publicKey = \App\Services\ServiceConfigOverride::get('xendit', 'public_key') ?? config('services.xendit.public_key');
+        $this->webhookToken = \App\Services\ServiceConfigOverride::get('xendit', 'webhook_token') ?? config('services.xendit.webhook_token');
 
         // Configure Xendit SDK
         Configuration::setXenditKey($this->apiKey);
@@ -312,8 +313,90 @@ class XenditService
             'retail_outlet' => [
                 'ALFAMART',
                 'INDOMARET'
+            ],
+            'qr_code' => [
+                'QRIS'
             ]
         ];
+    }
+
+    /**
+     * Create QRIS payment via Xendit Invoice API.
+     * Returns invoice with QR code that can be scanned.
+     *
+     * @param array $data ['external_id', 'amount', 'description', 'items'?]
+     * @return array|null ['id', 'invoice_url', 'qr_code', 'amount', 'status'] or null on failure
+     */
+    public function createQrisPayment(array $data)
+    {
+        try {
+            $this->validatePaymentData($data);
+
+            $url = $this->baseUrl . '/v2/invoices';
+
+            $payload = [
+                'external_id' => $data['external_id'],
+                'amount' => $data['amount'],
+                'description' => $data['description'] ?? 'Pembayaran Linktree',
+                'invoice_duration' => $data['invoice_duration'] ?? 86400, // 24 hours
+                'customer' => $data['customer'] ?? null,
+                'customer_email' => $data['customer_email'] ?? null,
+                'success_redirect_url' => $data['success_redirect_url'] ?? config('app.url') . '/payment/success',
+                'failure_redirect_url' => $data['failure_redirect_url'] ?? config('app.url') . '/payment/failed',
+                'payment_methods' => ['QRIS'],
+                'currency' => 'IDR',
+                'items' => $data['items'] ?? [
+                    [
+                        'name' => $data['description'] ?? 'Pembayaran Linktree',
+                        'quantity' => 1,
+                        'price' => $data['amount']
+                    ]
+                ],
+                'locale' => 'id'
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])->post($url, $payload);
+
+            if ($response->successful()) {
+                $result = $response->json();
+
+                Log::info('Xendit QRIS Invoice Created Successfully', [
+                    'external_id' => $data['external_id'],
+                    'invoice_id' => $result['id'] ?? null,
+                    'amount' => $data['amount']
+                ]);
+
+                return [
+                    'id' => $result['id'] ?? null,
+                    'external_id' => $result['external_id'] ?? null,
+                    'invoice_url' => $result['invoice_url'] ?? null,
+                    'qr_code' => $result['qr_code'] ?? null,
+                    'amount' => $result['amount'] ?? null,
+                    'status' => $result['status'] ?? null,
+                    'created' => $result['created'] ?? null,
+                    'expires_at' => $result['expiry_date'] ?? null,
+                    'payment_methods' => $result['payment_methods'] ?? []
+                ];
+            } else {
+                Log::error('Xendit QRIS API Error', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'data' => $data
+                ]);
+                return null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Xendit QRIS Payment Creation Error', [
+                'message' => $e->getMessage(),
+                'data' => $data,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return null;
+        }
     }
 
     /**

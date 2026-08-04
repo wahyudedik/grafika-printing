@@ -92,13 +92,22 @@ class AuctionBidController extends Controller
         }
 
         // Create new bid
-        AuctionBid::create([
+        $bid = AuctionBid::create([
             'auction_id' => $auction->id,
             'vendor_id' => $vendorId,
             'bid_amount' => $request->bid_amount,
             'message' => $request->message,
             'status' => 'pending'
         ]);
+
+        // Notify auction owner about new bid
+        try {
+            $auction->user->notify(
+                new \App\Notifications\NewBidOnAuction($auction, $bid, $vendorUser)
+            );
+        } catch (\Exception $e) {
+            \Log::warning('Gagal mengirim notifikasi bid baru: ' . $e->getMessage());
+        }
 
         return redirect()->route('vendor.auctions.show', $auction)
             ->with('success', 'Penawaran berhasil dikirim!');

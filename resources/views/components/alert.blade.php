@@ -1,3 +1,4 @@
+{{-- Toast-style alerts (used by vendor controllers) --}}
 @if (session('toast_success'))
     <script>
         Swal.fire({
@@ -21,6 +22,119 @@
         Swal.fire({
             icon: 'error',
             title: '{{ session('toast_error') }}',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+@endif
+
+@if (session('toast_info'))
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: '{{ session('toast_info') }}',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+@endif
+
+@if (session('toast_warning'))
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: '{{ session('toast_warning') }}',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+@endif
+
+{{-- Standard session alerts (used by many controllers) --}}
+@if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+@endif
+
+@if (session('warning'))
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Perhatian!',
+            text: '{{ session('warning') }}',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+    </script>
+@endif
+
+@if (session('info'))
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Info',
+            text: '{{ session('info') }}',
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -67,24 +181,17 @@
         });
     }
 
-    // Loading state for forms
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('form:not([data-no-loading])').forEach(form => {
-            form.addEventListener('submit', (e) => {
-                if (!form.hasAttribute('data-no-loading')) {
-                    showLoading('Processing...');
-                }
-            });
+    // Loading state for forms (only for forms with data-loading attribute)
+    document.querySelectorAll('form[data-loading]').forEach(form => {
+        form.addEventListener('submit', () => {
+            showLoading('Processing...');
         });
+    });
 
-        // Loading state for links except certain ones
-        document.querySelectorAll('a:not([href^="#"]):not([data-bs-toggle]):not([data-no-loading])').forEach(
-            link => {
-                link.addEventListener('click', () => {
-                    if (!link.hasAttribute('data-no-loading')) {
-                        showLoading('Loading...');
-                    }
-                });
-            });
+    // Loading state for links (only for links with data-loading attribute)
+    document.querySelectorAll('a[data-loading]:not([href^="#"])').forEach(link => {
+        link.addEventListener('click', () => {
+            showLoading('Loading...');
+        });
     });
 </script>

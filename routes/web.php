@@ -21,6 +21,8 @@ use App\Http\Controllers\vendor\pos\CheckoutController;
 use App\Http\Controllers\vendor\KategoriProdukController;
 use App\Http\Controllers\Vendor\LinktreeController;
 use App\Http\Controllers\LinktreePublicController;
+use App\Http\Controllers\LinktreePaymentController;
+use App\Http\Controllers\vendor\TemplateController;
 
 // ============================================================================
 // PUBLIC ROUTES
@@ -45,6 +47,8 @@ Route::get('/vendor/{vendor}/profile', function (\App\Models\Vendor $vendor) {
 // Public Linktree route
 Route::get('/l/{customUrl}', [LinktreePublicController::class, 'show'])->name('linktree.public');
 Route::get('/l/{customUrl}/click/{linkId}', [LinktreePublicController::class, 'trackClick'])->name('linktree.click');
+Route::post('/l/{customUrl}/pay/qris', [LinktreePaymentController::class, 'generateQris'])->name('linktree.pay.qris');
+Route::get('/l/{customUrl}/pay/status/{invoiceId}', [LinktreePaymentController::class, 'checkStatus'])->name('linktree.pay.status');
 
 // ============================================================================
 // AUTHENTICATION ROUTES
@@ -219,6 +223,19 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
         Route::post('/{profile}/suspend', [\App\Http\Controllers\Admin\UserLelangController::class, 'suspend'])->name('suspend');
         Route::post('/{profile}/reactivate', [\App\Http\Controllers\Admin\UserLelangController::class, 'reactivate'])->name('reactivate');
     });
+
+    // Service Configurations (Third-Party API Settings)
+    Route::prefix('service-configs')->name('service-configs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'index'])->name('index');
+        Route::get('/{service}', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'show'])->name('show');
+        Route::post('/', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'store'])->name('store');
+        Route::put('/{serviceConfig}', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'update'])->name('update');
+        Route::delete('/{serviceConfig}', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'destroy'])->name('destroy');
+        Route::post('/{serviceConfig}/toggle', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'toggle'])->name('toggle');
+        Route::post('/test-connection', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'testConnection'])->name('test-connection');
+        Route::get('/seed-defaults', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'seedDefaults'])->name('seed-defaults');
+        Route::get('/clear-cache', [\App\Http\Controllers\Admin\ServiceConfigController::class, 'clearCache'])->name('clear-cache');
+    });
 });
 
 // ============================================================================
@@ -261,6 +278,13 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
             Route::get('/{transaksi}/success', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'paymentSuccess'])->name('success');
             Route::get('/{transaksi}/failure', [\App\Http\Controllers\vendor\pos\PaymentController::class, 'paymentFailure'])->name('failure');
         });
+
+        // Thermal Printing
+        Route::get('/{transaksi}/thermal', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'printDirect'])->name('thermal-print');
+        Route::get('/{transaksi}/thermal-js', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'printViaJS'])->name('thermal-print-js');
+        Route::get('/printer-settings', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'showSettings'])->name('printer.settings');
+        Route::post('/printer-settings', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'saveSettings'])->name('printer.settings.save');
+        Route::get('/printer-settings/json', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'getPrinterSettings'])->name('printer.settings.json');
     });
 
     // Product Management
@@ -362,6 +386,7 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::get('/create', [LinktreeController::class, 'create'])->name('create');
         Route::post('/', [LinktreeController::class, 'store'])->name('store');
         Route::get('/{linktree}', [LinktreeController::class, 'show'])->name('show');
+        Route::get('/{linktree}/analytics', [LinktreeController::class, 'analytics'])->name('analytics');
         Route::get('/{linktree}/edit', [LinktreeController::class, 'edit'])->name('edit');
         Route::put('/{linktree}', [LinktreeController::class, 'update'])->name('update');
         Route::delete('/{linktree}', [LinktreeController::class, 'destroy'])->name('destroy');
@@ -382,6 +407,44 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::post('/{linktree}/upload-avatar', [LinktreeController::class, 'uploadAvatar'])->name('upload-avatar');
         Route::post('/{linktree}/upload-banner', [LinktreeController::class, 'uploadBanner'])->name('upload-banner');
         Route::post('/{linktree}/upload-qris', [LinktreeController::class, 'uploadQris'])->name('upload-qris');
+
+        // Bulk Link Management
+        Route::get('/{linktree}/export-links', [LinktreeController::class, 'exportLinks'])->name('export-links');
+        Route::get('/{linktree}/import-links', [LinktreeController::class, 'importLinksForm'])->name('import-links-form');
+        Route::post('/{linktree}/import-links', [LinktreeController::class, 'importLinks'])->name('import-links');
+
+        // Template Builder
+        Route::get('/{linktree}/template', [TemplateController::class, 'index'])->name('template.index');
+        Route::post('/{linktree}/template/preview', [TemplateController::class, 'preview'])->name('template.preview');
+        Route::post('/{linktree}/template/apply', [TemplateController::class, 'apply'])->name('template.apply');
+        Route::get('/{linktree}/template/{template}/colors', [TemplateController::class, 'getColors'])->name('template.colors');
+
+        // A/B Testing
+        Route::get('/{linktree}/ab-test', [\App\Http\Controllers\vendor\AbTestController::class, 'index'])->name('ab-test.index');
+        Route::get('/{linktree}/ab-test/create', [\App\Http\Controllers\vendor\AbTestController::class, 'create'])->name('ab-test.create');
+        Route::post('/{linktree}/ab-test', [\App\Http\Controllers\vendor\AbTestController::class, 'store'])->name('ab-test.store');
+        Route::get('/{linktree}/ab-test/{abTest}', [\App\Http\Controllers\vendor\AbTestController::class, 'show'])->name('ab-test.show');
+        Route::post('/{linktree}/ab-test/{abTest}/start', [\App\Http\Controllers\vendor\AbTestController::class, 'start'])->name('ab-test.start');
+        Route::post('/{linktree}/ab-test/{abTest}/pause', [\App\Http\Controllers\vendor\AbTestController::class, 'pause'])->name('ab-test.pause');
+        Route::post('/{linktree}/ab-test/{abTest}/stop', [\App\Http\Controllers\vendor\AbTestController::class, 'stop'])->name('ab-test.stop');
+        Route::post('/{linktree}/ab-test/{abTest}/apply-winner', [\App\Http\Controllers\vendor\AbTestController::class, 'applyWinner'])->name('ab-test.apply-winner');
+        Route::delete('/{linktree}/ab-test/{abTest}', [\App\Http\Controllers\vendor\AbTestController::class, 'destroy'])->name('ab-test.destroy');
+
+        // Product Catalog Management
+        Route::get('/{linktree}/products', [LinktreeController::class, 'manageProducts'])->name('products');
+        Route::post('/{linktree}/products', [LinktreeController::class, 'addProduct'])->name('products.store');
+        Route::put('/{linktree}/products/{product}', [LinktreeController::class, 'updateProduct'])->name('products.update');
+        Route::post('/{linktree}/products/{product}/toggle', [LinktreeController::class, 'toggleProduct'])->name('products.toggle');
+        Route::delete('/{linktree}/products/{product}', [LinktreeController::class, 'removeProduct'])->name('products.destroy');
+        Route::post('/{linktree}/products/reorder', [LinktreeController::class, 'reorderProducts'])->name('products.reorder');
+    });
+
+    // Manual Transfer Orders
+    Route::prefix('manual-transfers')->name('manual-transfers.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'index'])->name('index');
+        Route::get('/{order}', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'show'])->name('show');
+        Route::post('/{order}/confirm', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'confirm'])->name('confirm');
+        Route::post('/{order}/reject', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'reject'])->name('reject');
     });
 });
 
@@ -480,6 +543,14 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::get('/user', [\App\Http\Controllers\Api\AuthController::class, 'user'])->name('user');
     });
 });
+
+// ============================================================================
+// MANUAL TRANSFER ROUTES (Public - no auth required)
+// ============================================================================
+
+Route::post('/manual-transfer/order', [\App\Http\Controllers\ManualTransferController::class, 'placeOrder'])->name('manual-transfer.place');
+Route::get('/manual-transfer/{orderNumber}/status', [\App\Http\Controllers\ManualTransferController::class, 'checkStatus'])->name('manual-transfer.status');
+Route::post('/manual-transfer/{orderNumber}/upload-proof', [\App\Http\Controllers\ManualTransferController::class, 'uploadProof'])->name('manual-transfer.upload-proof');
 
 // ============================================================================
 // WEBHOOK ROUTES

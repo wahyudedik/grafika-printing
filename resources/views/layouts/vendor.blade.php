@@ -11,22 +11,30 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="{{ asset('css/dashboard-improvements.css') }}">
     <style>
-        /* Responsive navbar improvements */
+        /* Navbar horizontal scroll for mobile */
         @media (max-width: 768px) {
+            .navbar-collapse {
+                max-height: 70vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             .navbar-nav {
                 flex-direction: column;
                 width: 100%;
+                padding-bottom: 0.5rem;
             }
 
             .navbar-nav .nav-item {
                 width: 100%;
-                margin-bottom: 0.25rem;
+                margin-bottom: 2px;
             }
 
             .navbar-nav .nav-link {
-                padding: 0.75rem 1rem;
+                padding: 0.6rem 0.75rem;
                 text-align: left;
                 border-radius: 0.375rem;
+                font-size: 0.9rem;
             }
 
             .navbar-nav .nav-link:hover {
@@ -38,8 +46,34 @@
                 transform: none !important;
                 box-shadow: none;
                 border: none;
-                background-color: rgba(0, 0, 0, 0.02);
+                background-color: rgba(0, 0, 0, 0.03);
                 margin-left: 1rem;
+                margin-bottom: 0.25rem;
+                border-radius: 0.375rem;
+            }
+
+            .navbar-nav .dropdown-menu .dropdown-item {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            /* Page header responsive */
+            .page-header {
+                flex-wrap: wrap;
+            }
+
+            .page-header .col-auto {
+                margin-top: 0.5rem;
+            }
+
+            .page-header .btn-list {
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .page-header .btn-list .btn {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.6rem;
             }
 
             /* Mobile card/table improvements */
@@ -49,42 +83,106 @@
             }
 
             .table-responsive {
-                font-size: 0.85rem;
+                font-size: 0.82rem;
             }
 
             .btn {
-                font-size: 0.875rem;
-                padding: 0.4rem 0.75rem;
+                font-size: 0.85rem;
+                padding: 0.4rem 0.7rem;
             }
 
             .page-header h2 {
-                font-size: 1.25rem;
+                font-size: 1.15rem;
+            }
+
+            .page-pretitle {
+                font-size: 0.75rem;
+            }
+
+            /* Card improvements */
+            .card-body {
+                padding: 0.875rem;
+            }
+
+            .card-header {
+                padding: 0.75rem 0.875rem;
+            }
+
+            .card-title {
+                font-size: 0.95rem;
             }
         }
 
         @media (max-width: 576px) {
             .nav-link-title {
-                font-size: 0.8rem;
+                font-size: 0.78rem;
             }
 
             .navbar-brand {
-                font-size: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .navbar-brand img {
+                width: 28px;
+                height: 28px;
             }
 
             /* Stack columns on very small screens */
             .row > .col-sm-6,
             .row > .col-md-4,
-            .row > .col-lg-3 {
+            .row > .col-lg-3,
+            .row > .col-lg-4,
+            .row > .col-lg-8 {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
 
             .card-body {
-                padding: 0.75rem;
+                padding: 0.625rem;
             }
 
             .stat-card {
                 margin-bottom: 0.75rem;
+            }
+
+            /* User dropdown */
+            .navbar-nav .d-none.d-xl-block {
+                display: none !important;
+            }
+
+            /* Page header stack on mobile */
+            .page-header .row {
+                flex-direction: column;
+            }
+
+            .page-header .col {
+                width: 100%;
+            }
+
+            .page-header .col-auto {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+
+            .page-header .btn-list {
+                width: 100%;
+            }
+
+            .page-header .btn-list .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            /* Form improvements */
+            .input-group-text {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.5rem;
+            }
+
+            /* Alert improvements */
+            .alert {
+                font-size: 0.85rem;
+                padding: 0.6rem 0.75rem;
             }
         }
 
@@ -99,6 +197,17 @@
             .btn {
                 min-height: 44px;
             }
+
+            .dropdown-item {
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        /* Navbar collapse transition */
+        .navbar-collapse {
+            transition: max-height 0.3s ease-in-out;
         }
     </style>
     @stack('styles')
@@ -221,6 +330,26 @@
                                 <span class="nav-link-title d-sm-none">POS</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('vendor.pos.printer.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.pos.printer.settings') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2H5a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                                        <path d="M17 9v-4a2 2 0 0 0 -2 -2H5a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-4" />
+                                        <path d="M6 17v2" />
+                                        <path d="M6 13v2" />
+                                        <path d="M18 17v2" />
+                                        <path d="M13 13v2" />
+                                        <path d="M7 7h10" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Printer</span>
+                                <span class="nav-link-title d-sm-none">Prt</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('vendor.users.*') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('vendor.users.index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -236,6 +365,23 @@
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Pengguna</span>
                                 <span class="nav-link-title d-sm-none">User</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('vendor.manual-transfers.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.manual-transfers.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M5 12l5 -5l4 4" />
+                                        <path d="M14 16l4 -4l-5 -5" />
+                                        <path d="M4 4v16" />
+                                        <path d="M20 4v16" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Transfer Manual</span>
+                                <span class="nav-link-title d-sm-none">TM</span>
                             </a>
                         </li>
                         <li
@@ -452,8 +598,10 @@
                                 <span class="nav-link-title d-sm-none">Log</span>
                             </a>
                         </li>
-                        <li class="nav-item {{ request()->routeIs('vendor.linktree.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.linktree.index') }}">
+                        <li class="nav-item dropdown {{ request()->routeIs('vendor.linktree.*') ? 'active' : '' }}">
+                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-linktree"
+                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
+                                aria-expanded="false">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
@@ -468,6 +616,14 @@
                                 <span class="nav-link-title d-none d-sm-inline">Linktree</span>
                                 <span class="nav-link-title d-sm-none">Link</span>
                             </a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{{ route('vendor.linktree.index') }}">
+                                    Semua Linktree
+                                </a>
+                                <a class="dropdown-item" href="{{ route('vendor.linktree.create') }}">
+                                    Buat Baru
+                                </a>
+                            </div>
                         </li>
                         <li class="nav-item dropdown {{ request()->routeIs('vendor.laporan.*') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-reports"

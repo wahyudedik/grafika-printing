@@ -18,6 +18,38 @@
     <meta name="twitter:description" content="{{ $linktree->bio }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700" rel="stylesheet" />
+
+    {{-- Schema.org JSON-LD Structured Data --}}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ProfilePage",
+        "name": @json($linktree->title),
+        "description": @json($linktree->meta_description ?: $linktree->bio),
+        "url": @json(url('/l/' . $linktree->custom_url)),
+        @if($linktree->avatar)
+        "image": @json(asset('linktree/avatars/' . $linktree->avatar)),
+        @endif
+        "mainEntity": {
+            "@type": "Person",
+            "name": @json($vendor->name ?? $vendor->nama_vendor ?? $linktree->title),
+            "description": @json($linktree->bio),
+            @if($linktree->show_qris && $linktree->qris_image)
+            "paymentAccepted": "QRIS, Cash",
+            @endif
+            "sameAs": [
+                @foreach($linktree->activeSocials as $social)
+                @json($social->url){{ $loop->last ? '' : ',' }}
+                @endforeach
+            ]
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "Grafika Printing",
+            "url": @json(url('/'))
+        }
+    }
+    </script>
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -146,6 +178,87 @@
             border-radius: 50px;
         }
 
+        /* Product Catalog */
+        .products-section {
+            margin-bottom: 20px;
+        }
+
+        .products-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .product-card {
+            background: {{ $linktree->primary_color }}08;
+            border: 1px solid {{ $linktree->primary_color }}15;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: {{ $linktree->primary_color }}30;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            background: {{ $linktree->primary_color }}05;
+        }
+
+        .product-image-placeholder {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: {{ $linktree->primary_color }}05;
+            color: {{ $linktree->primary_color }}60;
+            font-size: 24px;
+        }
+
+        .product-info {
+            padding: 8px 10px;
+        }
+
+        .product-name {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-price {
+            font-size: 11px;
+            font-weight: 700;
+            color: {{ $linktree->primary_color }};
+        }
+
+        @media (max-width: 360px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* QRIS */
         .qris-section {
             text-align: center;
@@ -249,11 +362,116 @@
             @endforeach
         </div>
 
-        <!-- QRIS -->
-        @if($linktree->show_qris && $linktree->qris_image)
-        <div class="qris-section">
-            <img src="{{ asset('linktree/qris/' . $linktree->qris_image) }}" alt="QRIS" class="qris-image">
-            <div class="qris-label">Scan untuk pembayaran QRIS</div>
+        <!-- Product Catalog -->
+        @if($hasProducts && $linktree->activeLinktreeProducts->count() > 0)
+        <div class="products-section">
+            <div class="products-title" style="color: {{ $linktree->text_color }};">🛍️ Produk</div>
+            <div class="product-grid">
+                @foreach($linktree->activeLinktreeProducts as $lp)
+                <div class="product-card" onclick="trackProductClick('{{ $lp->id }}')">
+                    @if($lp->display_image)
+                    <img src="{{ asset('produk_gambar/' . $lp->display_image) }}" alt="{{ $lp->display_name }}" class="product-image" loading="lazy">
+                    @else
+                    <div class="product-image-placeholder">📦</div>
+                    @endif
+                    <div class="product-info">
+                        <div class="product-name">{{ $lp->display_name }}</div>
+                        @if($lp->display_price)
+                        <div class="product-price">{{ $lp->display_price }}</div>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- Payment Section -->
+        @if($linktree->show_qris)
+        <div class="qris-section" style="background: {{ $linktree->primary_color }}08; border: 1px solid {{ $linktree->primary_color }}20; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: center;">
+
+            {{-- Xendit QRIS Payment (active) --}}
+            @if($xenditActive && $qrisAvailable)
+                @if($linktree->qris_image)
+                    <img src="{{ asset('linktree/qris/' . $linktree->qris_image) }}" alt="QRIS" class="qris-image" style="max-width: 200px; border-radius: 8px; margin-bottom: 8px;">
+                    <div class="qris-label" style="font-size: 12px; opacity: 0.7;">Scan untuk pembayaran QRIS</div>
+                @endif
+
+                {{-- Dynamic QRIS Payment via Xendit --}}
+                <div id="qris-dynamic-section" style="margin-top: 12px;">
+                    <div id="qris-payment-form">
+                        <div style="margin-bottom: 8px;">
+                            <input type="number" id="qris-amount" placeholder="Jumlah pembayaran (Rp)" min="1000" max="10000000"
+                                style="width: 100%; padding: 10px; border: 1px solid {{ $linktree->primary_color }}30; border-radius: 8px; font-size: 14px; text-align: center;">
+                        </div>
+                        <button onclick="generateDynamicQris()" id="btn-generate-qris"
+                            style="width: 100%; padding: 10px; background: {{ $linktree->primary_color }}; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500;">
+                            💳 Bayar via QRIS
+                        </button>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="qris-loading" style="display: none; padding: 20px;">
+                        <div style="font-size: 14px; opacity: 0.7;">Memproses pembayaran...</div>
+                    </div>
+
+                    <!-- QR Code Result -->
+                    <div id="qris-result" style="display: none; padding: 12px;">
+                        <div id="qris-qr-container" style="margin-bottom: 12px;"></div>
+                        <div id="qris-amount-display" style="font-weight: 600; font-size: 16px; margin-bottom: 8px;"></div>
+                        <div id="qris-status" style="font-size: 12px; opacity: 0.7; margin-bottom: 12px;">Menunggu pembayaran...</div>
+                        <button onclick="resetQrisForm()" style="padding: 8px 16px; background: transparent; color: {{ $linktree->primary_color }}; border: 1px solid {{ $linktree->primary_color }}40; border-radius: 8px; font-size: 12px; cursor: pointer;">
+                            Bayar Lagi
+                        </button>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="qris-error" style="display: none; padding: 12px; color: #dc3545; font-size: 13px;"></div>
+                </div>
+
+            {{-- Xendit active but no QRIS image - show static QRIS only --}}
+            @elseif($xenditActive && $linktree->qris_image && !$qrisAvailable)
+                <img src="{{ asset('linktree/qris/' . $linktree->qris_image) }}" alt="QRIS" class="qris-image" style="max-width: 200px; border-radius: 8px; margin-bottom: 8px;">
+                <div class="qris-label" style="font-size: 12px; opacity: 0.7;">Scan untuk pembayaran QRIS</div>
+
+            {{-- Xendit NOT active - Manual Transfer fallback --}}
+            @elseif(!$xenditActive)
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: {{ $linktree->text_color }};">
+                    💳 Pembayaran Transfer Manual
+                </div>
+
+                @if($bankAccount)
+                    <div style="background: {{ $linktree->primary_color }}05; border: 1px solid {{ $linktree->primary_color }}15; border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: left;">
+                        @if($bankAccount['bank_name'])
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 12px; opacity: 0.6;">Bank</span>
+                                <span style="font-size: 13px; font-weight: 600;">{{ $bankAccount['bank_name'] }}</span>
+                            </div>
+                        @endif
+                        @if($bankAccount['account_number'])
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 12px; opacity: 0.6;">No. Rekening</span>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 13px; font-weight: 600; font-family: monospace;">{{ $bankAccount['account_number'] }}</span>
+                                    <button onclick="copyBankNumber('{{ $bankAccount['account_number'] }}')" style="font-size: 11px; padding: 2px 6px; border: 1px solid {{ $linktree->primary_color }}30; border-radius: 4px; background: transparent; cursor: pointer;">
+                                        📋
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+                        @if($bankAccount['account_name'])
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="font-size: 12px; opacity: 0.6;">Atas Nama</span>
+                                <span style="font-size: 13px; font-weight: 600;">{{ $bankAccount['account_name'] }}</span>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
+                <div style="font-size: 11px; opacity: 0.5; margin-top: 8px;">
+                    Lakukan transfer ke rekening di atas, lalu hubungi penjual untuk konfirmasi.
+                </div>
+            @endif
         </div>
         @endif
 
@@ -275,7 +493,135 @@
     </div>
 
     <script>
-        // Track page view (already done server-side)
+        let qrisInvoiceId = null;
+        let qrisCheckInterval = null;
+
+        function formatRupiah(num) {
+            return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function generateDynamicQris() {
+            const amountInput = document.getElementById('qris-amount');
+            const amount = parseInt(amountInput.value);
+
+            if (!amount || amount < 1000) {
+                amountInput.style.borderColor = '#dc3545';
+                return;
+            }
+
+            amountInput.style.borderColor = '{{ $linktree->primary_color }}30';
+
+            // Show loading
+            document.getElementById('qris-payment-form').style.display = 'none';
+            document.getElementById('qris-loading').style.display = 'block';
+            document.getElementById('qris-error').style.display = 'none';
+            document.getElementById('qris-result').style.display = 'none';
+
+            fetch('{{ route("linktree.pay.qris", $linktree->custom_url) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    description: 'Pembayaran ke {{ addslashes($vendor->name ?? $vendor->nama_vendor ?? $linktree->title) }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    qrisInvoiceId = data.invoice_id;
+
+                    document.getElementById('qris-loading').style.display = 'none';
+                    document.getElementById('qris-result').style.display = 'block';
+                    document.getElementById('qris-amount-display').textContent = formatRupiah(data.amount);
+
+                    // Show QR code or redirect URL
+                    const qrContainer = document.getElementById('qris-qr-container');
+                    if (data.qr_code) {
+                        qrContainer.innerHTML = '<img src="' + data.qr_code + '" alt="QRIS Code" style="max-width: 200px; border-radius: 8px;">';
+                    } else if (data.invoice_url) {
+                        qrContainer.innerHTML = '<a href="' + data.invoice_url + '" target="_blank" style="display: inline-block; padding: 12px 24px; background: {{ $linktree->primary_color }}; color: white; border-radius: 8px; text-decoration: none; font-weight: 500;">Buka Halaman Pembayaran</a>';
+                    }
+
+                    // Start checking payment status
+                    startPaymentCheck();
+                } else {
+                    showError(data.error || 'Gagal membuat pembayaran');
+                }
+            })
+            .catch(error => {
+                showError('Terjadi kesalahan. Silakan coba lagi.');
+            });
+        }
+
+        function startPaymentCheck() {
+            if (qrisCheckInterval) clearInterval(qrisCheckInterval);
+
+            qrisCheckInterval = setInterval(() => {
+                if (!qrisInvoiceId) return;
+
+                fetch('{{ route("linktree.pay.status", [$linktree->custom_url, "__INVOICE__"]) }}'.replace('__INVOICE__', qrisInvoiceId))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.status === 'PAID') {
+                            clearInterval(qrisCheckInterval);
+                            document.getElementById('qris-status').innerHTML = '✅ Pembayaran berhasil! Terima kasih.';
+                            document.getElementById('qris-status').style.color = '#28a745';
+                        }
+                    })
+                    .catch(() => {});
+            }, 5000);
+        }
+
+        function resetQrisForm() {
+            if (qrisCheckInterval) clearInterval(qrisCheckInterval);
+            qrisInvoiceId = null;
+            document.getElementById('qris-payment-form').style.display = 'block';
+            document.getElementById('qris-loading').style.display = 'none';
+            document.getElementById('qris-result').style.display = 'none';
+            document.getElementById('qris-error').style.display = 'none';
+            document.getElementById('qris-amount').value = '';
+        }
+
+        function trackProductClick(productId) {
+            // Track product click (optional analytics)
+            fetch('{{ url("/l/" . $linktree->custom_url . "/product-click") }}/' + productId, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            }).catch(() => {});
+        }
+
+        function showError(msg) {
+            document.getElementById('qris-loading').style.display = 'none';
+            document.getElementById('qris-result').style.display = 'none';
+            document.getElementById('qris-error').style.display = 'block';
+            document.getElementById('qris-error').textContent = msg;
+            setTimeout(() => {
+                document.getElementById('qris-error').style.display = 'none';
+                document.getElementById('qris-payment-form').style.display = 'block';
+            }, 3000);
+        }
+
+        function copyBankNumber(number) {
+            navigator.clipboard.writeText(number).then(() => {
+                alert('Nomor rekening berhasil disalin: ' + number);
+            }).catch(() => {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = number;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Nomor rekening berhasil disalin: ' + number);
+            });
+        }
     </script>
 </body>
 </html>

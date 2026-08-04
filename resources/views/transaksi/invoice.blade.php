@@ -301,10 +301,28 @@
         <div class="divider"></div>
 
         <!-- TOTALS SECTION -->
+        @php
+            $ongkir = (float) ($transaksi->ongkir ?? 0);
+            $subtotalBarang = (float) $transaksi->total_harga - $ongkir;
+        @endphp
         <table class="total-table">
             <tr>
-                <td style="width: 60%; text-align: left;">Total</td>
+                <td style="width: 60%; text-align: left;">Subtotal Barang</td>
                 <td style="width: 40%; text-align: right;">
+                    Rp {{ number_format($subtotalBarang > 0 ? $subtotalBarang : $transaksi->total_harga, 0, ',', '.') }}
+                </td>
+            </tr>
+            @if ($ongkir > 0)
+                <tr>
+                    <td style="text-align: left;">Ongkos Kirim ({{ $transaksi->kurir ?? '-' }})</td>
+                    <td style="text-align: right;">
+                        Rp {{ number_format($ongkir, 0, ',', '.') }}
+                    </td>
+                </tr>
+            @endif
+            <tr style="border-top: 1px solid #000;">
+                <td style="text-align: left; font-weight: bold;">Total</td>
+                <td style="text-align: right; font-weight: bold;">
                     Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
                 </td>
             </tr>
@@ -321,6 +339,26 @@
                 </td>
             </tr>
         </table>
+
+        <!-- SHIPPING INFO (if COD or has shipping) -->
+        @if ($ongkir > 0 && ($transaksi->is_cod || $transaksi->alamat_pengiriman))
+            <div class="divider"></div>
+            <div style="font-size: 11px; margin-bottom: 8px;">
+                <strong>Informasi Pengiriman:</strong>
+                @if ($transaksi->alamat_pengiriman)
+                    <p style="margin: 2px 0;">Alamat: {{ $transaksi->alamat_pengiriman }}</p>
+                @endif
+                @if ($transaksi->kurir)
+                    <p style="margin: 2px 0;">Kurir: {{ $transaksi->kurir }}</p>
+                @endif
+                @if ($transaksi->no_resi)
+                    <p style="margin: 2px 0;">No. Resi: {{ $transaksi->no_resi }}</p>
+                @endif
+                @if ($transaksi->is_cod)
+                    <p style="margin: 2px 0; color: #dc3545; font-weight: bold;">⚠ COD - Bayar di Tempat</p>
+                @endif
+            </div>
+        @endif
 
         <!-- FOOTER SECTION -->
         <div class="footer">

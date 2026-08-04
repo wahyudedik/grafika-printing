@@ -1,4 +1,4 @@
-@extends('dev.layouts.app')
+@extends('layouts.vendor')
 
 @section('title', 'Create User')
 @section('content')

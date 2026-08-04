@@ -2,7 +2,7 @@
 
 ## Ringkasan
 
-Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang dibangun dengan Laravel 11. Platform ini mengelola seluruh siklus bisnis percetakan dari katalog produk, pemesanan, produksi, pembayaran, hingga pengiriman.
+Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang dibangun dengan **Laravel 13** (di-upgrade dari Laravel 11 pada Agustus 2026). Platform ini mengelola seluruh siklus bisnis percetakan dari katalog produk, pemesanan, produksi, pembayaran, hingga pengiriman.
 
 ---
 
@@ -22,13 +22,24 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 | 8 | **Payment Gateway Xendit** | ✅ Sudah ada | `XenditService` sudah fully integrated. Perlu verifikasi cover QRIS, VA, E-Wallet untuk lelang & linktree |
 | 9 | **Linktree Module** | ❌ BELUM ADA | Fitur ini **sama sekali belum ada** di kode |
 | 10 | **Template Builder** | ❌ BELUM ADA | Bagian dari Linktree, belum ada |
-| 11 | **deploy.sh / update.sh** | ❌ BELUM ADA | VPS_DEPLOYMENT_GUIDE.md ada tapi script belum dibuat |
+| 11 | **deploy.sh / update.sh** | ✅ Sudah ada | `deploy.sh` dan `update.sh` sudah dibuat sesuai VPS_DEPLOYMENT_GUIDE.md |
 
 ### Kesimpulan Gap
 
-- **4 fitur SUDAH SELESAI:** Alur Lelang, Integrasi POS, Wallet+Withdraw, Payment Gateway Xendit
+- **7 fitur SUDAH SELESAI:** Alur Lelang, Integrasi POS, Wallet+Withdraw, Payment Gateway Xendit, Deployment Scripts, Manual Transfer Payment, Linktree Product Catalog
 - **3 fitur PARTIAL:** User Lelang role, Manajemen User Lelang, COD Ongkir
-- **3 fitur BELUM ADA:** Linktree Module, Template Builder, Deployment Scripts
+- **0 fitur BELUM ADA:** Semua fitur utama sudah tersedia
+
+### Catatan Update (4 Agustus 2026)
+- ✅ **Bug Fix Thermal Printer:** View `thermal-print-js.blade.php` sudah dibuat
+- ✅ **Admin Service Configs CRUD:** `ServiceConfigController` + views sudah lengkap
+- ✅ **Manual Transfer Payment:** `ManualTransferController` + views sudah berfungsi
+- ✅ **Deployment Scripts:** `deploy.sh` dan `update.sh` sudah dibuat
+- ✅ **View Bug Fix:** 20+ view yang hilang sudah dibuat (withdrawal, wallet, order tracking, mediation, shipping invoices, delivery confirmation)
+- ✅ **Layout Bug Fix:** 2 layout missing sudah dibuat (`layouts.app`, `vendor.layouts.app`)
+- ✅ **Navigation Fix:** Link broken di user layout diperbaiki
+- ✅ **Mediation Views:** Admin mediation index, show, statistics views sudah dibuat
+- ✅ **Linktree Product Catalog:** Model, migration, controller methods, routes, dan views sudah dibuat. Vendor bisa menambahkan produk ke linktree dengan harga dan deskripsi khusus.
 
 ---
 
@@ -269,8 +280,10 @@ sequenceDiagram
 
 ### 5. 🆕 Linktree Module
 
-> **Status:** ❌ BELUM ADA
+> **Status:** ✅ Sudah ada (backend + views)
 > **Fitur:** CRUD links, halaman publik, custom URL, profil, template builder
+> **Controller:** [`LinktreeController`](app/Http/Controllers/vendor/LinktreeController.php) + [`LinktreePublicController`](app/Http/Controllers/LinktreePublicController.php)
+> **Model:** [`Linktree`](app/Models/Vendor/Linktree.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php)
 
 #### 5.1 CRUD Links
 - **Route:** `/vendor/linktree/links` (resource CRUD)
@@ -386,7 +399,9 @@ graph TB
 
 ### 6. 🆕 Template Builder
 
-> **Status:** ❌ BELUM ADA (bagian dari Linktree)
+> **Status:** ✅ Sudah ada (bagian dari Linktree)
+> **Controller:** [`TemplateController`](app/Http/Controllers/vendor/TemplateController.php)
+> **Templates:** minimal, colorful, dark, professional, gradient, nature, neon, elegant
 
 #### 6.1 Pilihan Template
 - Minimal (bersih, sederhana)
@@ -466,8 +481,9 @@ Yang perlu ditambah:
 
 ### 9. 🆕 Deployment Scripts
 
-> **Status:** ❌ BELUM ADA
-> **Catatan:** [`VPS_DEPLOYMENT_GUIDE.md`](VPS_DEPLOYMENT_GUIDE.md) sudah ada tapi script belum dibuat
+> **Status:** ✅ Sudah ada
+> **Files:** [`deploy.sh`](deploy.sh), [`update.sh`](update.sh)
+> **Catatan:** Sesuai panduan di [`VPS_DEPLOYMENT_GUIDE.md`](VPS_DEPLOYMENT_GUIDE.md)
 
 #### 9.1 deploy.sh (First-time Deployment)
 - Install dependencies (PHP, MySQL, Nginx)
@@ -534,10 +550,10 @@ Yang perlu ditambah:
 | `pelanggans` | ✅ Ada |
 | `transaksis` | ✅ Ada |
 | `transaksi_items` | ✅ Ada |
-| `linktrees` | ❌ Belum ada |
-| `linktree_links` | ❌ Belum ada |
-| `linktree_socials` | ❌ Belum ada |
-| `linktree_payments` | ❌ Belum ada |
+| `linktrees` | ✅ Ada |
+| `linktree_links` | ✅ Ada |
+| `linktree_socials` | ✅ Ada |
+| `linktree_payments` | ✅ Ada (via Xendit QRIS) |
 
 ### Tabel Global
 | Tabel | Status |

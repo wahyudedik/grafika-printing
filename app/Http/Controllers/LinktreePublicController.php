@@ -3,38 +3,123 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vendor\Linktree;
+use App\Models\LinktreeAbTest;
+use App\Models\LinktreeAbTestResult;
+use App\Models\ServiceConfig;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LinktreePublicController extends Controller
 {
     /**
      * Display the public linktree page.
+     * Supports A/B testing: if a running test exists, randomly show a variant template.
+     * Detects Xendit active status to show appropriate payment method.
      */
-    public function show(string $customUrl)
+    public function show(Request $request, string $customUrl)
     {
         $linktree = Linktree::where('custom_url', $customUrl)
             ->where('is_active', true)
-            ->with(['activeLinks', 'activeSocials'])
+            ->with(['activeLinks', 'activeSocials', 'activeLinktreeProducts' => function ($query) {
+                $query->with('produk');
+            }])
             ->first();
 
         if (!$linktree) {
             abort(404, 'Linktree tidak ditemukan atau belum aktif.');
         }
 
+        // Check for running A/B test
+        $abTest = $linktree->abTests()->where('status', 'running')->first();
+        $activeVariant = null;
+
+        if ($abTest) {
+            // Get or create visitor ID from cookie
+            $visitorId = $request->cookie('lt_vid_' . $linktree->id);
+
+            if (!$visitorId) {
+                $visitorId = md5(uniqid(mt_rand(), true));
+            }
+
+            // Determine which variant to show
+            $activeVariant = $abTest->getVariantForVisitor($visitorId);
+
+            // Record this impression (only once per visitor per test)
+            $existingResult = LinktreeAbTestResult::where('ab_test_id', $abTest->id)
+                ->where('visitor_id', $visitorId)
+                ->first();
+
+            if (!$existingResult) {
+                LinktreeAbTestResult::create([
+                    'ab_test_id' => $abTest->id,
+                    'variant' => $activeVariant,
+                    'visitor_id' => $visitorId,
+                    'is_click' => false,
+                    'shown_at' => now(),
+                ]);
+            }
+        }
+
         // Increment views count
         $linktree->incrementViews();
 
-        // Get template classes
-        $templateClasses = $linktree->getTemplateClasses();
+        // Get template classes - use A/B test variant if active
+        if ($abTest && $activeVariant) {
+            $variantTemplate = $activeVariant === 'variant_a' ? $abTest->variant_a : $abTest->variant_b;
+            // Create a temporary template classes from the variant
+            $templateClasses = $this->getVariantTemplateClasses($variantTemplate);
+        } else {
+            $templateClasses = $linktree->getTemplateClasses();
+        }
 
         // Get vendor info
         $vendor = $linktree->vendor;
 
-        return view('linktree.public', compact('linktree', 'templateClasses', 'vendor'));
+        // Detect Xendit active status
+        $xenditActive = $this->isXenditActive();
+
+        // Get vendor bank account for manual transfer fallback
+        $bankAccount = null;
+        if ($vendor) {
+            $bankAccount = $vendor->getPrimaryBankAccount();
+        }
+
+        // QRIS available only if Xendit is active and linktree has QRIS image
+        $qrisAvailable = $xenditActive && !empty($linktree->qris_image);
+
+        // Check if product catalog has products
+        $hasProducts = $linktree->activeLinktreeProducts->count() > 0;
+
+        $view = view('linktree.public', compact(
+            'linktree',
+            'templateClasses',
+            'vendor',
+            'xenditActive',
+            'bankAccount',
+            'qrisAvailable',
+            'hasProducts'
+        ));
+
+        // Set visitor cookie for A/B test consistency
+        if ($abTest && $activeVariant) {
+            $cookieName = 'lt_vid_' . $linktree->id;
+            return response()->view('linktree.public', compact(
+                'linktree',
+                'templateClasses',
+                'vendor',
+                'xenditActive',
+                'bankAccount',
+                'qrisAvailable',
+                'hasProducts'
+            ))->cookie($cookieName, $visitorId, 30 * 24 * 60); // 30 days
+        }
+
+        return $view;
     }
 
     /**
      * Track link click and redirect.
+     * Also records A/B test click if applicable.
      */
     public function trackClick(Request $request, string $customUrl, int $linkId)
     {
@@ -56,6 +141,88 @@ class LinktreePublicController extends Controller
         $link->incrementClicks();
         $linktree->incrementClicks();
 
+        // Record A/B test click if applicable
+        $abTest = $linktree->abTests()->where('status', 'running')->first();
+        if ($abTest) {
+            $visitorId = $request->cookie('lt_vid_' . $linktree->id);
+            if ($visitorId) {
+                LinktreeAbTestResult::where('ab_test_id', $abTest->id)
+                    ->where('visitor_id', $visitorId)
+                    ->update(['is_click' => true]);
+            }
+        }
+
         return redirect()->away($link->url);
+    }
+
+    /**
+     * Generate template classes for an A/B test variant.
+     */
+    private function getVariantTemplateClasses(string $template): array
+    {
+        $configs = [
+            'minimal' => [
+                'bg' => 'bg-white',
+                'text' => 'text-gray-900',
+                'primary' => 'bg-gray-700',
+                'primary_text' => 'text-white',
+                'secondary' => 'bg-gray-100',
+                'border' => 'border-gray-200',
+                'card' => 'bg-white border-gray-200',
+            ],
+            'colorful' => [
+                'bg' => 'bg-violet-50',
+                'text' => 'text-gray-900',
+                'primary' => 'bg-violet-600',
+                'primary_text' => 'text-white',
+                'secondary' => 'bg-pink-100',
+                'border' => 'border-violet-200',
+                'card' => 'bg-white border-violet-200',
+            ],
+            'dark' => [
+                'bg' => 'bg-gray-900',
+                'text' => 'text-gray-100',
+                'primary' => 'bg-indigo-600',
+                'primary_text' => 'text-white',
+                'secondary' => 'bg-gray-800',
+                'border' => 'border-gray-700',
+                'card' => 'bg-gray-800 border-gray-700',
+            ],
+            'professional' => [
+                'bg' => 'bg-slate-50',
+                'text' => 'text-slate-900',
+                'primary' => 'bg-blue-800',
+                'primary_text' => 'text-white',
+                'secondary' => 'bg-blue-50',
+                'border' => 'border-slate-200',
+                'card' => 'bg-white border-slate-200',
+            ],
+        ];
+
+        return $configs[$template] ?? $configs['minimal'];
+    }
+
+    /**
+     * Check if Xendit payment gateway is active.
+     * Checks ServiceConfig first, then falls back to env config.
+     */
+    private function isXenditActive(): bool
+    {
+        try {
+            // Check if Xendit is enabled in ServiceConfig
+            $xenditEnabled = ServiceConfig::getValue('xendit', 'enabled', null);
+            if ($xenditEnabled !== null) {
+                return filter_var($xenditEnabled, FILTER_VALIDATE_BOOLEAN);
+            }
+
+            // Fallback: check if Xendit API key is configured in env
+            $apiKey = config('services.xendit.api_key');
+            return !empty($apiKey) && $apiKey !== 'your-xendit-api-key';
+        } catch (\Exception $e) {
+            Log::warning('Failed to check Xendit status: ' . $e->getMessage());
+            // Fallback to env check
+            $apiKey = config('services.xendit.api_key');
+            return !empty($apiKey) && $apiKey !== 'your-xendit-api-key';
+        }
     }
 }

@@ -6,7 +6,7 @@
 
 ## Overview Projek
 
-**Grafika-Printing** adalah platform multi-tenant untuk bisnis percetakan Indonesia. Dibangun dengan **Laravel 11**, menggunakan arsitektur shared-database multi-tenant.
+**Grafika-Printing** adalah platform multi-tenant untuk bisnis percetakan Indonesia. Dibangun dengan **Laravel 13** (di-upgrade dari Laravel 11 pada Agustus 2026), menggunakan arsitektur shared-database multi-tenant.
 
 - **Production URL:** https://grafika.noteds.com
 - **Bahasa Kode:** PHP 8.2+, Blade Templates, JavaScript (minimal)

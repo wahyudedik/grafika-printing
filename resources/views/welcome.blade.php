@@ -1166,14 +1166,6 @@
                 <p>Lihat proyek lelang aktif dan temukan vendor terbaik untuk kebutuhan cetak Anda</p>
             </div>
 
-            @php
-                $auctions = \App\Models\Auction::with('user')
-                    ->where('status', '!=', 'draft')
-                    ->latest()
-                    ->take(6)
-                    ->get();
-            @endphp
-
             <div class="auctions-grid">
                 @forelse ($auctions as $auction)
                     <div class="auction-card">
@@ -1196,7 +1188,7 @@
                         <div class="auction-card-footer">
                             <div class="auction-price">
                                 @if($auction->budget_min || $auction->budget_max)
-                                    Rp {{ number_format($auction->budget_min ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format($auction->budget_min ?? $auction->estimated_budget ?? 0, 0, ',', '.') }}
                                     @if($auction->budget_max)
                                         - {{ number_format($auction->budget_max, 0, ',', '.') }}
                                     @endif
@@ -1204,7 +1196,11 @@
                                     Harga Kompetitif
                                 @endif
                             </div>
-                            <a href="{{ route('user.auctions.show', $auction->id) }}" class="btn-auction">Lihat Detail</a>
+                            @auth
+                                <a href="{{ route('user.auctions.show', $auction->id) }}" class="btn-auction">Lihat Detail</a>
+                            @else
+                                <a href="{{ route('login') }}" class="btn-auction">Masuk untuk Detail</a>
+                            @endauth
                         </div>
                     </div>
                 @empty

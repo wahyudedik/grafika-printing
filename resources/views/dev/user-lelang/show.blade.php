@@ -53,6 +53,17 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Win Rate Progress -->
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <small class="text-muted">Tingkat Kemenangan</small>
+                        <small class="fw-bold">{{ $profile->win_rate }}%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: {{ $profile->win_rate }}%"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -88,6 +99,12 @@
                     <label class="form-label text-muted small">Total Belanja</label>
                     <div class="h3 text-primary mb-0">Rp {{ number_format($profile->total_spent, 0, ',', '.') }}</div>
                 </div>
+                @if($profile->total_auctions > 0)
+                <div class="mt-2">
+                    <label class="form-label text-muted small">Rata-rata per Lelang</label>
+                    <div class="fw-bold">Rp {{ number_format($profile->total_spent / max($profile->total_auctions, 1), 0, ',', '.') }}</div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -232,6 +249,48 @@
                         <div class="border rounded p-3 text-center">
                             <div class="h2 mb-1 text-warning">{{ $auctionStats['won'] }}</div>
                             <small class="text-muted">Menang</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Spending Analytics -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 7v5l3 3"/></svg>
+                    Analisis Pengeluaran
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-4">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted small mb-1">Total Pengeluaran</div>
+                            <div class="h4 text-primary mb-0">Rp {{ number_format($profile->total_spent, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted small mb-1">Rata-rata Bid</div>
+                            @php
+                                $avgBid = $recentAuctions->filter(fn($a) => $a->bids->count() > 0)
+                                    ->flatMap(fn($a) => $a->bids)
+                                    ->avg('bid_amount');
+                            @endphp
+                            <div class="h4 text-success mb-0">Rp {{ number_format($avgBid ?? 0, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="border rounded p-3 text-center">
+                            <div class="text-muted small mb-1">Bid Terakhir 30 Hari</div>
+                            @php
+                                $recentBids = \App\Models\AuctionBid::whereHas('auction', fn($q) => $q->where('user_id', $profile->user_id))
+                                    ->where('created_at', '>=', now()->subDays(30))
+                                    ->count();
+                            @endphp
+                            <div class="h4 text-warning mb-0">{{ $recentBids }} bid</div>
                         </div>
                     </div>
                 </div>
