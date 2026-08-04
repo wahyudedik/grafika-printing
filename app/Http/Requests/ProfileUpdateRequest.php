@@ -36,7 +36,7 @@ class ProfileUpdateRequest extends FormRequest
                 'phone' => ['required', 'string', 'max:20'],
                 'address' => ['required', 'string'],
                 'website' => ['nullable', 'string', 'url', 'max:255'],
-                'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+                'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             ]);
         }
 

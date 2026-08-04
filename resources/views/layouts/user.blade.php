@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Grafika Printing</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('css/dashboard-improvements.css') }}">
     <style>
         /* Responsive navbar improvements */
         @media (max-width: 768px) {
@@ -39,15 +41,58 @@
                 background-color: rgba(0, 0, 0, 0.02);
                 margin-left: 1rem;
             }
+
+            /* Mobile card/table improvements */
+            .page-body .container-xl {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+
+            .btn {
+                font-size: 0.875rem;
+                padding: 0.4rem 0.75rem;
+            }
+
+            .page-header h2 {
+                font-size: 1.25rem;
+            }
         }
 
         @media (max-width: 576px) {
             .nav-link-title {
-                font-size: 0.875rem;
+                font-size: 0.8rem;
             }
 
             .navbar-brand {
-                font-size: 1.1rem;
+                font-size: 1rem;
+            }
+
+            .row > .col-sm-6,
+            .row > .col-md-4,
+            .row > .col-lg-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .card-body {
+                padding: 0.75rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .btn {
+                min-height: 44px;
             }
         }
     </style>
@@ -61,7 +106,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <a href="{{ route('welcome') }}">
+                <a href="{{ route('welcome') }}" class="d-flex align-items-center text-decoration-none">
+                    <img src="{{ asset('logo.png') }}" alt="Grafika Printing" height="32" width="32" style="border-radius: 6px; margin-right: 8px;">
                     @php
                         $appName = 'Grafika Printing';
                         if (auth()->check() && auth()->user()->usertype === 'user') {
@@ -137,7 +183,8 @@
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                         stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <rect x="3" y="4" width="18" height="18" rx="2"
+                                            ry="2" />
                                         <line x1="16" y1="2" x2="16" y2="6" />
                                         <line x1="8" y1="2" x2="8" y2="6" />
                                         <line x1="3" y1="10" x2="21" y2="10" />
@@ -154,10 +201,9 @@
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                        <path d="M7 8l-4 4l4 4" />
+                                        <path d="M17 8l4 4l-4 4" />
+                                        <path d="M14 4l-4 16" />
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Lelang</span>
@@ -171,9 +217,10 @@
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" />
-                                        <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
+                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                                        <path d="M12 7v5l3 3" />
+                                        <path d="M12 1v6" />
+                                        <path d="M12 17v6" />
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Lelang Saya</span>
@@ -198,6 +245,25 @@
                                 <span class="nav-link-title d-sm-none">Tracking</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('user.orders.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('user.orders.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M10 5h4l-1 7h-2z" />
+                                        <path d="M14 17a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z" />
+                                        <path d="M6 9l2 -2l2 2" />
+                                        <path d="M14 9l2 -2l2 2" />
+                                        <path
+                                            d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Pesanan Saya</span>
+                                <span class="nav-link-title d-sm-none">Pesanan</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('user.profile.*') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('user.profile.edit') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -205,10 +271,9 @@
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path
+                                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1 -2.83 0l-.06-.06a1.65 1.65 0 0 0 -1.82-.33 1.65 1.65 0 0 0 -1 1.51V21a2 2 0 0 1 -2 2 2 2 0 0 1 -2 -2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0 -1.82.33l-.06.06a2 2 0 0 1 -2.83 0 2 2 0 0 1 0 -2.83l.06-.06a1.65 1.65 0 0 0 .33 -1.82 1.65 1.65 0 0 0 -1.51 -1H3a2 2 0 0 1 -2 -2 2 2 0 0 1 2 -2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0 -.33 -1.82l-.06-.06a2 2 0 0 1 0 -2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 -1.51V3a2 2 0 0 1 2 -2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82 -.33l.06 -.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06 .06a1.65 1.65 0 0 0 -.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1 -2 2h-.09a1.65 1.65 0 0 0 -1.51 1z" />
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Profil</span>
@@ -245,13 +310,10 @@
                 <div class="col-lg-auto ms-lg-auto">
                     <ul class="list-inline list-inline-dots mb-0">
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">Documentation</a>
+                            <a href="{{ route('welcome') }}" class="link-secondary">Beranda</a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">License</a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a href="#" class="link-secondary">Source code</a>
+                            <a href="{{ route('user.dashboard') }}" class="link-secondary">Dashboard</a>
                         </li>
                     </ul>
                 </div>

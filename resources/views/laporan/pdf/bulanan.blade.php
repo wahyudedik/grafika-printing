@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Laporan Penjualan Bulanan</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,7 +73,7 @@
 <body>
     <h1>Grafika Printing</h1>
     <h2>Laporan Penjualan Bulanan - {{ $bulan }}</h2>
-    
+
     <div class="summary">
         <div class="summary-item">
             <div class="summary-value">{{ count($transaksis) }}</div>
@@ -83,7 +84,7 @@
             <div class="summary-label">Total Penjualan</div>
         </div>
     </div>
-    
+
     <div class="section-title">Transaksi</div>
     <table>
         <thead>
@@ -113,7 +114,7 @@
             @endforelse
         </tbody>
     </table>
-    
+
     <div class="footer">
         <p>Laporan ini dicetak pada {{ now()->format('d/m/Y H:i') }}</p>
     </div>

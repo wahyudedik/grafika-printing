@@ -14,6 +14,11 @@ class LaporanController extends Controller
 {
     public function penjualanHarian(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'date' => 'nullable|date_format:Y-m-d'
+        ]);
+
         $date = $request->input('date', now()->format('Y-m-d'));
         $selectedDate = Carbon::parse($date);
 
@@ -47,6 +52,11 @@ class LaporanController extends Controller
 
     public function penjualanBulanan(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'month' => 'nullable|date_format:Y-m'
+        ]);
+
         $month = $request->input('month', now()->format('Y-m'));
         list($year, $monthNum) = explode('-', $month);
         $selectedMonth = Carbon::createFromDate($year, $monthNum, 1);
@@ -78,7 +88,8 @@ class LaporanController extends Controller
                     ->whereMonth('tanggal_dibuat', $monthNum)
                     ->where('status', '!=', 'cancelled');
             })
-            ->select('produk_id', DB::raw('SUM(kuantitas) as total_qty'))
+            ->select('produk_id')
+            ->selectRaw('SUM(kuantitas) as total_qty')
             ->groupBy('produk_id')
             ->orderByDesc('total_qty')
             ->limit(5)
@@ -125,7 +136,8 @@ class LaporanController extends Controller
         // Get top 10 customers
         $pelangganTerbaik = DB::table('transaksis')
             ->join('pelanggans', 'transaksis.pelanggan_id', '=', 'pelanggans.id')
-            ->select('pelanggans.nama', DB::raw('SUM(transaksis.total_harga) as total_pembelian'))
+            ->select('pelanggans.nama')
+            ->selectRaw('SUM(transaksis.total_harga) as total_pembelian')
             ->whereYear('transaksis.tanggal_dibuat', $year)
             ->where('transaksis.status', '!=', 'cancelled')
             ->groupBy('pelanggans.nama')
@@ -134,7 +146,7 @@ class LaporanController extends Controller
             ->get();
 
         // Year selection options
-        $years = Transaksi::select(DB::raw('YEAR(tanggal_dibuat) as year'))
+        $years = Transaksi::selectRaw('YEAR(tanggal_dibuat) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year');

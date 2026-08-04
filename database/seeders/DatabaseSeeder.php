@@ -11,56 +11,57 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🚀 Starting comprehensive database seeding...');
+        $this->command->info('🚀 Starting database seeding...');
         $this->command->newLine();
 
-        // Core data seeding
-        $this->command->info('👥 Seeding users and vendors...');
-        $this->call(UserSeeder::class);
+        // 1. Base users & vendor
+        $this->command->info('👥 Step 1: Creating users & vendor...');
+        $this->call(SimpleTestSeeder::class);
 
-        $this->command->info('🏢 Seeding vendor data...');
-        $this->call(VendorSeeder::class);
+        // 2. CMS Settings
+        $this->command->info('📄 Step 2: Creating CMS settings...');
+        $this->call(CmsSettingsSeeder::class);
 
-        $this->command->info('💰 Seeding admin fee settings...');
-        $this->call(AdminFeeSeeder::class);
+        // 3. Admin Fee Settings
+        $this->command->info('💰 Step 3: Creating admin fee settings...');
+        $this->call(AdminFeeSettingsSeeder::class);
 
-        $this->command->info('🎯 Seeding auction data...');
-        $this->call(AuctionSeeder::class);
+        // 4. Vendor Wallets & Transactions
+        $this->command->info('🏦 Step 4: Creating vendor wallets...');
+        $this->call(VendorWalletSeeder::class);
 
-        $this->command->info('💳 Seeding payment data...');
-        $this->call(PaymentSeeder::class);
+        // 5. Linktree Data
+        $this->command->info('🔗 Step 5: Creating linktree data...');
+        $this->call(LinktreeSeeder::class);
 
-        $this->command->info('🖨️ Seeding POS transaction data...');
-        $this->call(POSSeeder::class);
-
-        $this->command->info('📦 Seeding delivery tracking data...');
-        $this->call(DeliverySeeder::class);
+        // 6. Lelang User Profiles
+        $this->command->info('👤 Step 6: Creating lelang user profiles...');
+        $this->call(LelangUserProfileSeeder::class);
 
         $this->command->newLine();
-        $this->command->info('✅ All seeders completed successfully!');
+        $this->command->info('✅ All seeding completed successfully!');
         $this->command->newLine();
 
-        $this->displaySeedingSummary();
+        $this->displaySummary();
     }
 
-    private function displaySeedingSummary()
+    private function displaySummary()
     {
-        $this->command->info('📊 SEEDING SUMMARY');
-        $this->command->newLine();
-
-        $this->command->info('✅ Users: Dev, Regular, and Vendor users created');
-        $this->command->info('✅ Vendors: Complete vendor profiles with wallets');
-        $this->command->info('✅ Products: Categories, specifications, materials, equipment');
-        $this->command->info('✅ Customers: Vendor customer database');
-        $this->command->info('✅ Auctions: With admin approval flow and bidding');
-        $this->command->info('✅ Payments: Xendit integration with multiple methods');
-        $this->command->info('✅ POS: Thermal printing transactions');
-        $this->command->info('✅ Delivery: Order tracking and shipping');
-        $this->command->info('✅ Ratings: Vendor rating system');
-        $this->command->info('✅ Admin Fees: Comprehensive fee settings');
-
-        $this->command->newLine();
-        $this->command->info('🎉 Grafika Printing database is now fully seeded!');
-        $this->command->info('💡 You can now test all features with realistic data.');
+        $this->command->info('╔══════════════════════════════════════════════════════════╗');
+        $this->command->info('║           SEEDING SUMMARY                               ║');
+        $this->command->info('╠══════════════════════════════════════════════════════════╣');
+        $this->command->info('║ 👤 Users & Vendor                                      ║');
+        $this->command->info('║    DEV: dev@grafika-printing.com (password)             ║');
+        $this->command->info('║    USER: user@example.com (password)                    ║');
+        $this->command->info('║    VENDOR: vendor@example.com (password)                ║');
+        $this->command->info('║                                                         ║');
+        $this->command->info('║ 📄 CMS Settings: Site name, contact, social media       ║');
+        $this->command->info('║ 💰 Admin Fees: Auction 5%, Payment Gateway 2.5%        ║');
+        $this->command->info('║ 🏦 Wallet: Rp 1,250,000 balance + transactions          ║');
+        $this->command->info('║ 🔗 Linktree: /l/grafika-printing (5 links, 4 socials)  ║');
+        $this->command->info('║ 👤 Lelang Profiles: Active user profiles                ║');
+        $this->command->info('╠══════════════════════════════════════════════════════════╣');
+        $this->command->info('║ 🚀 Ready for testing!                                   ║');
+        $this->command->info('╚══════════════════════════════════════════════════════════╝');
     }
 }

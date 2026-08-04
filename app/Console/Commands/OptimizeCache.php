@@ -189,21 +189,6 @@ class OptimizeCache extends Command
                 Cache::put('payment_stats', $stats, 1800); // 30 minutes
                 return $stats;
             },
-            'Admin Fee Settings' => function () {
-                $settings = AdminFeeSetting::where('is_active', true)->get();
-                Cache::put('admin_fee_settings', $settings, 7200); // 2 hours
-                return $settings;
-            },
-            'CMS Settings' => function () {
-                $settings = CmsSetting::where('is_active', true)->get();
-                Cache::put('cms_settings', $settings, 7200); // 2 hours
-                return $settings;
-            },
-            'Product Categories' => function () {
-                $categories = KategoriProduk::where('is_active', true)->get();
-                Cache::put('product_categories', $categories, 3600); // 1 hour
-                return $categories;
-            }
         ];
 
         $optimized = 0;
@@ -271,17 +256,17 @@ class OptimizeCache extends Command
                 });
             },
             'Admin Fee Settings' => function () {
-                Cache::remember('admin_fee_settings', 7200, function () {
+                return Cache::remember('admin_fee_settings', 7200, function () {
                     return AdminFeeSetting::where('is_active', true)->get();
                 });
             },
             'CMS Settings' => function () {
-                Cache::remember('cms_settings', 7200, function () {
-                    return CmsSetting::where('is_active', true)->get();
+                return Cache::remember('cms_settings', 7200, function () {
+                    return CmsSetting::where('is_active', true)->all();
                 });
             },
             'Product Categories' => function () {
-                Cache::remember('product_categories', 3600, function () {
+                return Cache::remember('product_categories', 3600, function () {
                     return KategoriProduk::where('is_active', true)->get();
                 });
             }

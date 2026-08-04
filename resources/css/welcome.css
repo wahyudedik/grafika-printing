@@ -1,0 +1,8 @@
+/* Welcome page - Import Tabler Core & Font Awesome from node_modules (no CDN) */
+
+/* Tabler Core */
+@import '@tabler/core/dist/css/tabler.min.css';
+@import '@tabler/core/dist/css/tabler-vendors.min.css';
+
+/* Font Awesome */
+@import '@fortawesome/fontawesome-free/css/all.min.css';

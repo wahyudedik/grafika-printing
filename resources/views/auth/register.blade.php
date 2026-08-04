@@ -1,242 +1,163 @@
-<!doctype html>
-<html lang="en">
+@extends('layouts.auth')
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Register - {{ config('app.name') }}</title>
-    <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler-flags.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler-payments.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/core@latest/dist/css/tabler-vendors.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/icons@latest/iconfont/tabler-icons.min.css" rel="stylesheet">
-    <style>
-        .login-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
+@section('content')
+<div class="auth-form-header">
+    <h1>Buat Akun</h1>
+    <p>Daftar untuk memulai perjalanan percetakan Anda</p>
+</div>
 
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+@if ($errors->any())
+    <div class="auth-alert auth-alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 9v4"/>
+            <path d="M10.363 3.593l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/>
+            <path d="M12 16h.01"/>
+        </svg>
+        <div>
+            @foreach ($errors->all() as $error)
+                <div>{{ $error }}</div>
+            @endforeach
+        </div>
+    </div>
+@endif
 
-        .logo-container {
-            background: #000;
-            padding: 12px 24px;
-            border-radius: 8px;
-            position: relative;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin: 0 auto 2rem;
-            display: inline-block;
-        }
+<form method="POST" action="{{ route('register') }}" class="auth-form" autocomplete="off">
+    @csrf
 
-        .logo-container::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(to right, #00FFFF 25%, #FF00FF 25% 50%, #FFFF00 50% 75%, #000000 75%);
-            border-radius: 0 0 8px 8px;
-        }
-
-        .btn-primary-custom {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary-custom:hover {
-            background: linear-gradient(45deg, #764ba2, #667eea);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-
-        .form-control-custom {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px 16px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control-custom:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-            z-index: 10;
-        }
-
-        .input-with-icon {
-            padding-left: 40px;
-        }
-    </style>
-</head>
-
-<body class="login-bg">
-    <div class="page page-center">
-        <div class="container container-tight py-4">
-            {{-- <div class="text-center mb-4">
-                <div class="logo-container">
-                    <span class="text-white fw-bold fs-4">GRAFIKA PRINTING</span>
-                </div>
-            </div> --}}
-
-            <div class="card card-md login-card">
-                <div class="card-body">
-                    <h2 class="h2 text-center mb-4">Create account</h2>
-                    <p class="text-muted text-center mb-4">Join us and start your printing journey</p>
-
-                    <form method="POST" action="{{ route('register') }}" autocomplete="off">
-                        @csrf
-
-                        <div class="mb-3">
-                            <label class="form-label">Full Name</label>
-                            <div class="input-group input-group-flat">
-                                <span class="input-group-text">
-                                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                    </svg>
-                                </span>
-                                <input type="text" name="name" class="form-control"
-                                    placeholder="Enter your full name" value="{{ old('name') }}" required autofocus>
-                            </div>
-                            @error('name')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Email address</label>
-                            <div class="input-group input-group-flat">
-                                <span class="input-group-text">
-                                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
-                                        <path d="M3 7l9 6l9 -6" />
-                                    </svg>
-                                </span>
-                                <input type="email" name="email" class="form-control" placeholder="your@email.com"
-                                    value="{{ old('email') }}" required>
-                            </div>
-                            @error('email')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <div class="input-group input-group-flat">
-                                <span class="input-group-text">
-                                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M5 11a7 7 0 0 1 14 0v7a1.78 1.78 0 0 1 -3.1 1.4a1.65 1.65 0 0 0 -2.6 0a1.65 1.65 0 0 1 -2.6 0a1.65 1.65 0 0 0 -2.6 0a1.78 1.78 0 0 1 -3.1 -1.4v-7z" />
-                                        <path d="M12 4l0 2" />
-                                    </svg>
-                                </span>
-                                <input type="password" name="password" class="form-control" placeholder="••••••••"
-                                    required>
-                            </div>
-                            @error('password')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Confirm Password</label>
-                            <div class="input-group input-group-flat">
-                                <span class="input-group-text">
-                                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M5 11a7 7 0 0 1 14 0v7a1.78 1.78 0 0 1 -3.1 1.4a1.65 1.65 0 0 0 -2.6 0a1.65 1.65 0 0 1 -2.6 0a1.65 1.65 0 0 0 -2.6 0a1.78 1.78 0 0 1 -3.1 -1.4v-7z" />
-                                        <path d="M12 4l0 2" />
-                                    </svg>
-                                </span>
-                                <input type="password" name="password_confirmation" class="form-control"
-                                    placeholder="••••••••" required>
-                            </div>
-                            @error('password_confirmation')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-check">
-                                <input type="checkbox" name="terms" class="form-check-input" required />
-                                <span class="form-check-label">I agree to the <a href="#" tabindex="-1">Terms
-                                        of Service</a> and <a href="#" tabindex="-1">Privacy Policy</a></span>
-                            </label>
-                        </div>
-
-                        <div class="form-footer">
-                            <button type="submit" class="btn btn-primary-custom w-100">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M9 12l2 2l4 -4" />
-                                    <path
-                                        d="M21 12c-1 0 -2.5 -.5 -3 -1.5c-.5 -1 -1 -1.5 -2 -1.5s-1.5 .5 -2 1.5c-.5 1 -2 1.5 -3 1.5s-2.5 -.5 -3 -1.5c-.5 -1 -1 -1.5 -2 -1.5s-1.5 .5 -2 1.5c-.5 1 -2 1.5 -3 1.5" />
-                                    <path d="M12 2l0 10" />
-                                </svg>
-                                Create account
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="text-center text-muted mt-3">
-                    Already have account?
-                    <a href="{{ route('login') }}" tabindex="-1">Sign in</a>
-                </div>
-            </div>
-
-            <div class="text-center text-muted mt-4">
-                <a href="{{ route('welcome') }}" class="text-decoration-none text-white">
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M5 12l14 0" />
-                        <path d="M5 12l6 6" />
-                        <path d="M5 12l6 -6" />
-                    </svg>
-                    Back to homepage
-                </a>
-            </div>
+    <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <div class="input-wrapper">
+            <input type="text" name="name" class="form-control" placeholder="Masukkan nama lengkap"
+                value="{{ old('name') }}" required autofocus>
+            <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+                    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+                </svg>
+            </span>
         </div>
     </div>
 
-    <script src="https://unpkg.com/@tabler/core@latest/dist/js/tabler.min.js"></script>
-</body>
+    <div class="form-group">
+        <label class="form-label">Email</label>
+        <div class="input-wrapper">
+            <input type="email" name="email" class="form-control" placeholder="nama@email.com"
+                value="{{ old('email') }}" required>
+            <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M5 7a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10a2 2 0 0 0 -2 -2h-10z"/>
+                    <path d="M3 7l9 6l9 -6"/>
+                </svg>
+            </span>
+        </div>
+    </div>
 
-</html>
+    <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+            <input type="password" name="password" id="password" class="form-control" placeholder="Buat password kuat" required>
+            <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M5 11a7 7 0 0 1 14 0v7a1.78 1.78 0 0 1 -3.1 1.4a1.65 1.65 0 0 0 -2.6 0a1.65 1.65 0 0 1 -2.6 0a1.65 1.65 0 0 0 -2.6 0a1.78 1.78 0 0 1 -3.1 -1.4v-7z"/>
+                    <path d="M12 4l0 2"/>
+                </svg>
+            </span>
+            <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                </svg>
+            </button>
+        </div>
+        <div class="password-strength">
+            <div class="strength-bar">
+                <div class="strength-fill strength-weak" id="strength-fill"></div>
+            </div>
+            <span class="strength-text" id="strength-text">Masukkan password</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Konfirmasi Password</label>
+        <div class="input-wrapper">
+            <input type="password" name="password_confirmation" class="form-control" placeholder="Ulangi password" required>
+            <span class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M5 11a7 7 0 0 1 14 0v7a1.78 1.78 0 0 1 -3.1 1.4a1.65 1.65 0 0 0 -2.6 0a1.65 1.65 0 0 1 -2.6 0a1.65 1.65 0 0 0 -2.6 0a1.78 1.78 0 0 1 -3.1 -1.4v-7z"/>
+                    <path d="M12 4l0 2"/>
+                </svg>
+            </span>
+        </div>
+    </div>
+
+    <div class="auth-checkbox">
+        <input type="checkbox" name="terms" id="terms" required>
+        <label for="terms">Saya menyetujui <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a></label>
+    </div>
+
+    <button type="submit" class="btn-auth btn-auth-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/>
+            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+            <path d="M16 3l4 4l-4 4"/>
+            <path d="M20 7h-4"/>
+        </svg>
+        Buat Akun
+    </button>
+</form>
+
+<div class="auth-footer">
+    Sudah punya akun? <a href="{{ route('login') }}">Masuk</a>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    function togglePassword(fieldId, btn) {
+        const field = document.getElementById(fieldId);
+        const isPassword = field.type === 'password';
+        field.type = isPassword ? 'text' : 'password';
+        btn.innerHTML = isPassword
+            ? '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17.94 17.94a10.07 10.07 0 0 1 -11.291 -11.291"/><path d="M10.5 10.5a2 2 0 1 0 3.511 3.511"/><path d="M8.4 8.4l7.6 7.6"/><path d="M21 3l-6 6"/><path d="M3 3l6 6"/></svg>'
+            : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/></svg>';
+    }
+
+    // Password strength checker
+    document.getElementById('password').addEventListener('input', function() {
+        const password = this.value;
+        const strengthFill = document.getElementById('strength-fill');
+        const strengthText = document.getElementById('strength-text');
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]/)) strength++;
+        if (password.match(/[A-Z]/)) strength++;
+        if (password.match(/[0-9]/)) strength++;
+        if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+        const levels = {
+            0: { cls: 'strength-weak', label: 'Sangat lemah', color: '#dc3545' },
+            1: { cls: 'strength-weak', label: 'Lemah', color: '#dc3545' },
+            2: { cls: 'strength-fair', label: 'Cukup', color: '#ffc107' },
+            3: { cls: 'strength-good', label: 'Baik', color: '#17a2b8' },
+            4: { cls: 'strength-strong', label: 'Kuat', color: '#28a745' },
+            5: { cls: 'strength-strong', label: 'Sangat kuat', color: '#28a745' }
+        };
+
+        const level = password.length === 0
+            ? { cls: 'strength-weak', label: 'Masukkan password', color: '#e9ecef' }
+            : levels[strength];
+
+        strengthFill.className = 'strength-fill ' + level.cls;
+        strengthText.textContent = level.label;
+        strengthText.style.color = level.color;
+    });
+</script>
+@endsection

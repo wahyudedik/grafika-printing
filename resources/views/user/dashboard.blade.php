@@ -10,32 +10,185 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h2 class="card-title">Selamat Datang, {{ auth()->user()->name }}!</h2>
-                            <p class="text-muted">Anda telah berhasil login sebagai User di Grafika Printing.</p>
+                            <h2 class="card-title">Selamat Datang, {{ auth()->user()->name }}! 👋</h2>
+                            <p class="text-muted mb-0">Kelola lelang, pesanan, dan aktivitas Anda di Grafika Printing.</p>
                         </div>
                         <div class="col-auto">
-                            <div class="avatar avatar-lg"
-                                style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMyMTk2RjMiLz4KPHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4PSI4IiB5PSI4Ij4KPHBhdGggZD0iTTEyIDJDMTMuMSAyIDE0IDIuOSAxNCA0QzE0IDUuMSAxMy4xIDYgMTIgNkMxMC45IDYgMTAgNS4xIDEwIDRDMTAgMi45IDEwLjkgMiAxMiAyWk0yMSA5VjIySDNWOUgyMVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo8L3N2Zz4K')">
-                            </div>
+                            <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                                Buat Lelang Baru
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Stats Cards -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Total Lelang</div>
+                    </div>
+                    <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="h1 mb-0 me-2">{{ $myAuctionsCount ?? 0 }}</div>
+                        <span class="badge bg-blue-lt">{{ $activeAuctionsCount ?? 0 }} aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Pesanan Aktif</div>
+                    </div>
+                    <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="h1 mb-0 me-2">{{ $pendingOrdersCount ?? 0 }}</div>
+                        <span class="badge bg-green-lt">{{ $ordersCount ?? 0 }} total</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Lelang Selesai</div>
+                    </div>
+                    <div class="d-flex align-items-baseline justify-content-between">
+                        <div class="h1 mb-0 me-2">{{ $completedAuctionsCount ?? 0 }}</div>
+                        <span class="badge bg-green-lt">✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="subheader">Total Pengeluaran</div>
+                    </div>
+                    <div class="d-flex align-items-baseline">
+                        <div class="h1 mb-0 me-2">Rp {{ number_format($totalSpent ?? 0, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Auctions -->
+        @if(isset($recentAuctions) && $recentAuctions->count() > 0)
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Lelang Terbaru</h3>
+                    <div class="card-actions">
+                        <a href="{{ route('user.auctions.my') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th>Judul</th>
+                                    <th>Status</th>
+                                    <th>Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentAuctions as $auction)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('user.auctions.show', $auction) }}" class="text-decoration-none">
+                                            {{ Str::limit($auction->title, 30) }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $statusColors = [
+                                                'pending' => 'bg-yellow-lt',
+                                                'active' => 'bg-green-lt',
+                                                'closed' => 'bg-secondary-lt',
+                                                'completed' => 'bg-blue-lt',
+                                                'paid' => 'bg-indigo-lt',
+                                            ];
+                                            $color = $statusColors[$auction->status] ?? 'bg-secondary-lt';
+                                        @endphp
+                                        <span class="badge {{ $color }}">{{ ucfirst($auction->status) }}</span>
+                                    </td>
+                                    <td class="text-muted">{{ $auction->created_at->diffForHumans() }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Recent Orders -->
+        @if(isset($recentOrders) && $recentOrders->count() > 0)
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Pesanan Terbaru</h3>
+                    <div class="card-actions">
+                        <a href="{{ route('user.orders.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th>Lelang</th>
+                                    <th>Status</th>
+                                    <th>Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentOrders as $order)
+                                <tr>
+                                    <td>
+                                        <a href="{{ route('user.orders.show', $order) }}" class="text-decoration-none">
+                                            {{ Str::limit($order->auction->title ?? 'N/A', 30) }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ $order->status_color ?? 'bg-secondary-lt' }}">
+                                            {{ $order->status_label ?? ucfirst($order->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-muted">{{ $order->created_at->diffForHumans() }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Quick Actions -->
         <div class="col-md-6 col-lg-4">
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <div class="subheader">Layanan Cetak</div>
+                        <div class="subheader">Lelang Saya</div>
                     </div>
                     <div class="d-flex align-items-baseline">
-                        <div class="h1 mb-0 me-2">📄</div>
+                        <div class="h1 mb-0 me-2">🏆</div>
                     </div>
                     <div class="mt-3">
-                        <p class="text-muted">Akses layanan cetak dan printing yang tersedia</p>
-                        <a href="#" class="btn btn-primary btn-sm">Lihat Layanan</a>
+                        <p class="text-muted">Lihat semua lelang yang telah Anda buat</p>
+                        <a href="{{ route('user.auctions.my') }}" class="btn btn-primary btn-sm">Lihat Lelang</a>
                     </div>
                 </div>
             </div>
@@ -75,7 +228,7 @@
             </div>
         </div>
 
-        <!-- Information Cards -->
+        <!-- Account Info -->
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
@@ -116,11 +269,11 @@
             </div>
         </div>
 
-        <!-- Features Coming Soon -->
+        <!-- Features Info -->
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Fitur yang Akan Datang</h3>
+                    <h3 class="card-title">Fitur Tersedia</h3>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -141,8 +294,8 @@
                                     <span class="avatar bg-green-lt">💳</span>
                                 </div>
                                 <div>
-                                    <div class="font-weight-medium">Pembayaran Online</div>
-                                    <div class="text-muted">Integrasi dengan Midtrans untuk pembayaran yang aman</div>
+                                    <div class="font-weight-medium">Pembayaran Xendit</div>
+                                    <div class="text-muted">Integrasi dengan Xendit untuk pembayaran yang aman dan mudah</div>
                                 </div>
                             </div>
                         </div>
@@ -153,8 +306,7 @@
                                 </div>
                                 <div>
                                     <div class="font-weight-medium">Rating Vendor</div>
-                                    <div class="text-muted">Beri rating dan review untuk vendor setelah pesanan selesai
-                                    </div>
+                                    <div class="text-muted">Beri rating dan review untuk vendor setelah pesanan selesai</div>
                                 </div>
                             </div>
                         </div>

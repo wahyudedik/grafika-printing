@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Grafika Printing</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('css/dashboard-improvements.css') }}">
     <style>
         /* Responsive navbar improvements */
         @media (max-width: 768px) {
@@ -39,15 +41,63 @@
                 background-color: rgba(0, 0, 0, 0.02);
                 margin-left: 1rem;
             }
+
+            /* Mobile card/table improvements */
+            .page-body .container-xl {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .table-responsive {
+                font-size: 0.85rem;
+            }
+
+            .btn {
+                font-size: 0.875rem;
+                padding: 0.4rem 0.75rem;
+            }
+
+            .page-header h2 {
+                font-size: 1.25rem;
+            }
         }
 
         @media (max-width: 576px) {
             .nav-link-title {
-                font-size: 0.875rem;
+                font-size: 0.8rem;
             }
 
             .navbar-brand {
-                font-size: 1.1rem;
+                font-size: 1rem;
+            }
+
+            /* Stack columns on very small screens */
+            .row > .col-sm-6,
+            .row > .col-md-4,
+            .row > .col-lg-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .card-body {
+                padding: 0.75rem;
+            }
+
+            .stat-card {
+                margin-bottom: 0.75rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .btn {
+                min-height: 44px;
             }
         }
     </style>
@@ -61,7 +111,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <a href="{{ route('welcome') }}">
+                <a href="{{ route('welcome') }}" class="d-flex align-items-center text-decoration-none">
+                    <img src="{{ asset('logo.png') }}" alt="Grafika Printing" height="32" width="32" style="border-radius: 6px; margin-right: 8px;">
                     @php
                         $vendorName = 'Dashboard';
                         if (auth()->check()) {
@@ -105,7 +156,7 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('user.profile.edit') }}">Profile</a>
+                        <a class="dropdown-item" href="{{ route('vendor.profile') }}">Profile</a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -143,7 +194,8 @@
                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                         stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                        <rect x="3" y="4" width="18" height="18" rx="2"
+                                            ry="2" />
                                         <line x1="16" y1="2" x2="16" y2="6" />
                                         <line x1="8" y1="2" x2="8" y2="6" />
                                         <line x1="3" y1="10" x2="21" y2="10" />
@@ -160,9 +212,9 @@
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M18 7v-2a2 2 0 0 0 -2 -2h-10a2 2 0 0 0 -2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-2" />
-                                        <path d="M14 12h7l-3 -3m0 6l3 -3" />
+                                        <path d="M3 3h18v18H3V3z" />
+                                        <path d="M7 7h10v10H7V7z" />
+                                        <path d="M9 9h6v6H9V9z" />
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">POS</span>
@@ -196,9 +248,10 @@
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M4 7h16" />
-                                        <path d="M4 12h16" />
-                                        <path d="M4 17h16" />
+                                        <path d="M3 3h18v18H3V3z" />
+                                        <path d="M7 7h10v2H7V7z" />
+                                        <path d="M7 11h10v2H7v-2z" />
+                                        <path d="M7 15h10v2H7v-2z" />
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Bahan & Alat</span>
@@ -290,10 +343,9 @@
                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+                                        <path d="M7 8l-4 4l4 4" />
+                                        <path d="M17 8l4 4l-4 4" />
+                                        <path d="M14 4l-4 16" />
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Lelang</span>
@@ -342,6 +394,79 @@
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Wallet</span>
                                 <span class="nav-link-title d-sm-none">Wallet</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('vendor.bank-accounts.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.bank-accounts.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M3 21h18" />
+                                        <path d="M3 10h18" />
+                                        <path d="M5 6l7 -3l7 3" />
+                                        <path d="M4 10v11" />
+                                        <path d="M20 10v11" />
+                                        <path d="M8 10v11" />
+                                        <path d="M12 10v11" />
+                                        <path d="M16 10v11" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Rekening Bank</span>
+                                <span class="nav-link-title d-sm-none">Bank</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('vendor.shipping.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.shipping.calculator') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M18 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M6 17l-2 -4h12l-2 4" />
+                                        <path d="M6 12l-2 -2l2 -1l2 2l2 -1l2 2l2 -1l2 2" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Kalkulator Ongkir</span>
+                                <span class="nav-link-title d-sm-none">Ongkir</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('vendor.audit-logs.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.audit-logs.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                                        <path
+                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                                        <path d="M12 11l0 6" />
+                                        <path d="M9 14l6 0" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Audit Log</span>
+                                <span class="nav-link-title d-sm-none">Log</span>
+                            </a>
+                        </li>
+                        <li class="nav-item {{ request()->routeIs('vendor.linktree.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('vendor.linktree.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 12m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0" />
+                                        <path d="M12 7l5 5" />
+                                        <path d="M12 12l5 -5" />
+                                        <path d="M17 12h4" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Linktree</span>
+                                <span class="nav-link-title d-sm-none">Link</span>
                             </a>
                         </li>
                         <li class="nav-item dropdown {{ request()->routeIs('vendor.laporan.*') ? 'active' : '' }}">
@@ -405,13 +530,10 @@
                 <div class="col-lg-auto ms-lg-auto">
                     <ul class="list-inline list-inline-dots mb-0">
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">Documentation</a>
+                            <a href="{{ route('welcome') }}" class="link-secondary">Beranda</a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="#" class="link-secondary">License</a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a href="#" class="link-secondary">Source code</a>
+                            <a href="{{ route('vendor.dashboard') }}" class="link-secondary">Dashboard</a>
                         </li>
                     </ul>
                 </div>

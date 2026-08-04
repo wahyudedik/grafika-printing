@@ -58,7 +58,9 @@
 
                         <div class="mb-3">
                             <label class="form-label">Logo</label>
-                            <input type="file" class="form-control @error('logo') is-invalid @enderror" name="logo">
+                            <input type="file" class="form-control @error('logo') is-invalid @enderror" name="logo"
+                                accept="image/png,image/jpeg,image/jpg">
+                            <small class="form-hint">Only PNG, JPG, and JPEG files are allowed. Maximum size: 2MB.</small>
                             @error('logo')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

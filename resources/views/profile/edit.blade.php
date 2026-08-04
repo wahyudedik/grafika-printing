@@ -36,7 +36,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label" for="logo">Update Logo</label>
-                                        <input type="file" class="form-control" id="logo" name="logo">
+                                        <input type="file" class="form-control" id="logo" name="logo"
+                                            accept="image/png,image/jpeg,image/jpg">
                                         @error('logo')
                                             <div class="text-danger mt-1">{{ $message }}</div>
                                         @enderror

@@ -23,6 +23,7 @@ use App\Models\AuctionBid;
 use App\Models\Auction;
 use App\Models\VendorRating;
 use App\Models\VendorWithdrawal;
+use App\Models\Vendor\Linktree;
 
 class Vendor extends Model
 {
@@ -273,6 +274,22 @@ class Vendor extends Model
     public function withdrawals()
     {
         return $this->hasMany(VendorWithdrawal::class, 'vendor_id');
+    }
+
+    /**
+     * Get linktrees for this vendor
+     */
+    public function linktrees()
+    {
+        return $this->hasMany(Linktree::class, 'vendor_id');
+    }
+
+    /**
+     * Get active linktree
+     */
+    public function activeLinktree()
+    {
+        return $this->linktrees()->where('is_active', true)->first();
     }
 
     /**

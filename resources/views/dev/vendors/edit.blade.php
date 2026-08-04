@@ -86,8 +86,10 @@
                                         class="img-fluid" style="max-height: 100px;">
                                 </div>
                             @endif
-                            <input type="file" class="form-control @error('logo') is-invalid @enderror" name="logo">
-                            <small class="form-hint">Leave empty to keep current logo. Upload new image to change.</small>
+                            <input type="file" class="form-control @error('logo') is-invalid @enderror" name="logo"
+                                accept="image/png,image/jpeg,image/jpg">
+                            <small class="form-hint">Only PNG, JPG, and JPEG files are allowed. Maximum size: 2MB. Leave
+                                empty to keep current logo.</small>
                             @error('logo')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

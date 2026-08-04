@@ -20,6 +20,13 @@ class AlatController extends Controller
     public function index(Request $request)
     {
         try {
+            // Validate input
+            $request->validate([
+                'search' => 'nullable|string|max:255',
+                'status' => 'nullable|in:aktif,maintenance,rusak',
+                'tersedia' => 'nullable|in:yes,no'
+            ]);
+
             $query = Alat::query();
 
             // Search filter

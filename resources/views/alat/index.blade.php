@@ -96,7 +96,7 @@
                             <td><span class="badge bg-{{ $item->status_color }}-lt">{{ $item->status }}</span></td>
                             <td>{{ $item->tanggal_pembelian->format('d M Y') }}</td>
                             <td>{{ $item->kapasitas_cetak_per_jam }}</td>
-                            <td>{!! $item->availability_label !!}</td>
+                            <td>{{ $item->availability_label }}</td>
                             <td>
                                 <div class="btn-list flex-nowrap">
                                     <a href="{{ route('vendor.tools.show', $item->id) }}"
@@ -189,38 +189,14 @@
 
     @push('scripts')
         <script>
+            // Set delete action for external script
             document.addEventListener('DOMContentLoaded', function() {
-                // Setup delete buttons
-                const deleteButtons = document.querySelectorAll('.delete-btn');
                 const deleteForm = document.getElementById('delete-form');
-
-                deleteButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        confirmDelete(id);
-                    });
-                });
-
-                // Individual delete confirmation
-                window.confirmDelete = function(id) {
-                    Swal.fire({
-                        title: 'Anda yakin?',
-                        text: "Data yang dihapus tidak dapat dikembalikan!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            showLoading('Menghapus...');
-                            deleteForm.action = `{{ route('vendor.tools.destroy', '') }}/${id}`;
-                            deleteForm.submit();
-                        }
-                    });
-                };
+                if (deleteForm) {
+                    deleteForm.setAttribute('data-action', '{{ route('vendor.tools.destroy', '') }}');
+                }
             });
         </script>
+        <script src="{{ asset('js/dashboard-common.js') }}"></script>
     @endpush
 @endsection

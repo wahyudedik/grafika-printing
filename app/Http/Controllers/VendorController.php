@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\Return_;
-use PhpParser\Node\Stmt\TryCatch;
 
 class VendorController extends Controller
 {
@@ -56,7 +54,7 @@ class VendorController extends Controller
                 'email' => 'required|string|email|max:255|unique:users',
                 'phone' => 'required|string|max:255',
                 'address' => 'required|string|max:255',
-                'logo' => 'image|mimes:jpeg,png|max:2048',
+                'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'website' => 'nullable|string|max:255',
                 'is_active' => 'boolean',
                 'user_id' => 'required|exists:users,id',
@@ -132,7 +130,7 @@ class VendorController extends Controller
                 'email' => 'required|string|email|max:255|unique:users,email,' . $vendor->id,
                 'phone' => 'required|string|max:255',
                 'address' => 'required|string|max:255',
-                'logo' => 'image|mimes:jpeg,png|max:2048',
+                'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
                 'website' => 'nullable|string|max:255',
                 'is_active' => 'boolean',
                 'user_id' => 'required|exists:users,id',

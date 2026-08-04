@@ -90,7 +90,7 @@
                             <td class="font-medium">{{ $item->nama_bahan }}</td>
                             <td>Rp {{ number_format((float) $item->hpp, 0, ',', '.') }}</td>
                             <td>{{ $item->satuan }}</td>
-                            <td>{!! $item->stock_status_label !!}</td>
+                            <td>{{ $item->stock_status_label }}</td>
                             <td>
                                 @if ($item->wholesalePrices->count() > 0)
                                     <span class="badge bg-primary text-white">{{ $item->wholesalePrices->count() }} tier
@@ -191,20 +191,14 @@
 
     @push('scripts')
         <script>
+            // Set delete action for external script
             document.addEventListener('DOMContentLoaded', function() {
                 const deleteForm = document.getElementById('delete-form');
-                const deleteButtons = document.querySelectorAll('.delete-btn');
-
-                // Setup delete buttons
-                deleteButtons.forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        // Use the global confirmDelete function from alert.blade.php
-                        confirmDelete('delete-form');
-                        deleteForm.action = `{{ route('vendor.materials.destroy', '') }}/${id}`;
-                    });
-                });
+                if (deleteForm) {
+                    deleteForm.setAttribute('data-action', '{{ route('vendor.materials.destroy', '') }}');
+                }
             });
         </script>
+        <script src="{{ asset('js/dashboard-common.js') }}"></script>
     @endpush
 @endsection

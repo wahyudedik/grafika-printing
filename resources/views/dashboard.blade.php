@@ -145,7 +145,7 @@
                                         @foreach ($lowStockMaterials as $material)
                                             <tr>
                                                 <td>{{ $material->nama_bahan }}</td>
-                                                <td>{!! $material->stock_status_label !!}</td>
+                                                <td>{{ $material->stock_status_label }}</td>
                                                 <td>{{ $material->satuan }}</td>
                                             </tr>
                                         @endforeach
@@ -533,80 +533,9 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Popular Products Chart
-            var popularProductsOptions = {
-                series: [{
-                    data: @json($popularProducts['data'])
-                }],
-                chart: {
-                    type: 'bar',
-                    height: 250,
-                    toolbar: {
-                        show: false,
-                    }
-                },
-                plotOptions: {
-                    bar: {
-                        borderRadius: 4,
-                        horizontal: true,
-                    }
-                },
-                colors: ['#206bc4'],
-                dataLabels: {
-                    enabled: false
-                },
-                xaxis: {
-                    categories: @json($popularProducts['labels']),
-                }
-            };
-
-            var popularProductsChart = new ApexCharts(document.querySelector("#popular-products-chart"),
-                popularProductsOptions);
-            popularProductsChart.render();
-
-            // Monthly Revenue Chart
-            var monthlyRevenueOptions = {
-                series: [{
-                    name: 'Revenue',
-                    data: @json($revenueData['data'])
-                }],
-                chart: {
-                    height: 250,
-                    type: 'line',
-                    toolbar: {
-                        show: false,
-                    }
-                },
-                colors: ['#2fb344'],
-                dataLabels: {
-                    enabled: false
-                },
-                stroke: {
-                    curve: 'smooth',
-                    width: 3
-                },
-                xaxis: {
-                    categories: @json($revenueData['labels']),
-                },
-                yaxis: {
-                    labels: {
-                        formatter: function(val) {
-                            return "Rp " + val.toFixed(1) + "M";
-                        }
-                    }
-                },
-                markers: {
-                    size: 5,
-                    hover: {
-                        size: 7
-                    }
-                }
-            };
-
-            var monthlyRevenueChart = new ApexCharts(document.querySelector("#monthly-revenue-chart"),
-                monthlyRevenueOptions);
-            monthlyRevenueChart.render();
-        });
+        // Pass data to external script
+        window.popularProductsData = @json($popularProducts);
+        window.revenueData = @json($revenueData);
     </script>
+    <script src="{{ asset('js/dashboard-charts.js') }}"></script>
 @endpush

@@ -108,7 +108,8 @@ class UserDashboardController extends Controller
 
             if (class_exists('App\Models\Vendor\Produk')) {
                 // Get the most frequently ordered products
-                $topProducts = TransaksiItem::select('produk_id', DB::raw('COUNT(*) as order_count'))
+                $topProducts = TransaksiItem::select('produk_id')
+                    ->selectRaw('COUNT(*) as order_count')
                     ->groupBy('produk_id')
                     ->orderBy('order_count', 'desc')
                     ->limit(6)
@@ -238,7 +239,53 @@ class UserDashboardController extends Controller
 
     public function userDashboard()
     {
-        return view('user.dashboard');
+        try {
+            $user = Auth::user();
+
+            // Auction statistics
+            $myAuctionsCount = \App\Models\Auction::where('user_id', $user->id)->count();
+            $activeAuctionsCount = \App\Models\Auction::where('user_id', $user->id)
+                ->where('status', 'active')->count();
+            $completedAuctionsCount = \App\Models\Auction::where('user_id', $user->id)
+                ->where('status', 'completed')->count();
+
+            // Recent auctions
+            $recentAuctions = \App\Models\Auction::where('user_id', $user->id)
+                ->latest()
+                ->limit(5)
+                ->get();
+
+            // Order tracking
+            $ordersCount = \App\Models\OrderTracking::where('user_id', $user->id)->count();
+            $pendingOrdersCount = \App\Models\OrderTracking::where('user_id', $user->id)
+                ->whereNotIn('status', ['completed', 'cancelled'])->count();
+
+            // Recent orders
+            $recentOrders = \App\Models\OrderTracking::where('user_id', $user->id)
+                ->with('auction')
+                ->latest()
+                ->limit(5)
+                ->get();
+
+            // Total spending
+            $totalSpent = \App\Models\XenditPayment::where('user_id', $user->id)
+                ->where('status', 'paid')
+                ->sum('amount') ?? 0;
+
+            return view('user.dashboard', compact(
+                'myAuctionsCount',
+                'activeAuctionsCount',
+                'completedAuctionsCount',
+                'recentAuctions',
+                'ordersCount',
+                'pendingOrdersCount',
+                'recentOrders',
+                'totalSpent'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Error loading user dashboard', ['error' => $e->getMessage()]);
+            return view('user.dashboard');
+        }
     }
 
     /**

@@ -25,6 +25,14 @@ class TransaksiController extends Controller
      */
     public function index(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'status' => 'nullable|in:pending,processing,quality_check,completed,cancelled',
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date'
+        ]);
+
         // Build transaction query
         $query = Transaksi::query();
 

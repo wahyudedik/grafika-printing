@@ -19,6 +19,8 @@ use App\Http\Controllers\vendor\pos\InvoiceController;
 use App\Http\Controllers\vendor\SpesifikasiController;
 use App\Http\Controllers\vendor\pos\CheckoutController;
 use App\Http\Controllers\vendor\KategoriProdukController;
+use App\Http\Controllers\Vendor\LinktreeController;
+use App\Http\Controllers\LinktreePublicController;
 
 // ============================================================================
 // PUBLIC ROUTES
@@ -40,6 +42,10 @@ Route::get('/vendor/{vendor}/profile', function (\App\Models\Vendor $vendor) {
     return view('vendor.public-profile', compact('vendor'));
 })->name('vendor.public.profile');
 
+// Public Linktree route
+Route::get('/l/{customUrl}', [LinktreePublicController::class, 'show'])->name('linktree.public');
+Route::get('/l/{customUrl}/click/{linkId}', [LinktreePublicController::class, 'trackClick'])->name('linktree.click');
+
 // ============================================================================
 // AUTHENTICATION ROUTES
 // ============================================================================
@@ -55,10 +61,15 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
     // Dashboard
     Route::get('/', [UserDashboardController::class, 'devDashboard'])->name('dashboard');
 
+    // Profile Management
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     // User Management
     Route::resource('users', UserController::class);
 
-    // Vendor Management  
+    // Vendor Management
     Route::resource('vendors', VendorController::class);
 
     // Auction Management
@@ -193,6 +204,20 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
         Route::post('/import', [\App\Http\Controllers\Admin\CmsController::class, 'import'])->name('import');
         Route::get('/api/settings/{category?}', [\App\Http\Controllers\Admin\CmsController::class, 'getSettings'])->name('api.settings');
         Route::put('/setting/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'updateSetting'])->name('update-setting');
+    });
+
+    // User Lelang Management
+    Route::prefix('user-lelang')->name('user-lelang.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\UserLelangController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\UserLelangController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\UserLelangController::class, 'store'])->name('store');
+        Route::get('/{profile}', [\App\Http\Controllers\Admin\UserLelangController::class, 'show'])->name('show');
+        Route::get('/{profile}/edit', [\App\Http\Controllers\Admin\UserLelangController::class, 'edit'])->name('edit');
+        Route::put('/{profile}', [\App\Http\Controllers\Admin\UserLelangController::class, 'update'])->name('update');
+        Route::delete('/{profile}', [\App\Http\Controllers\Admin\UserLelangController::class, 'destroy'])->name('destroy');
+        Route::post('/{profile}/verify', [\App\Http\Controllers\Admin\UserLelangController::class, 'verify'])->name('verify');
+        Route::post('/{profile}/suspend', [\App\Http\Controllers\Admin\UserLelangController::class, 'suspend'])->name('suspend');
+        Route::post('/{profile}/reactivate', [\App\Http\Controllers\Admin\UserLelangController::class, 'reactivate'])->name('reactivate');
     });
 });
 
@@ -330,6 +355,34 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::get('/penjualan-tahunan', [LaporanController::class, 'penjualanTahunan'])->name('penjualan-tahunan');
         Route::get('/export-penjualan', [LaporanController::class, 'exportPenjualan'])->name('export-penjualan');
     });
+
+    // Linktree Management
+    Route::prefix('linktree')->name('linktree.')->group(function () {
+        Route::get('/', [LinktreeController::class, 'index'])->name('index');
+        Route::get('/create', [LinktreeController::class, 'create'])->name('create');
+        Route::post('/', [LinktreeController::class, 'store'])->name('store');
+        Route::get('/{linktree}', [LinktreeController::class, 'show'])->name('show');
+        Route::get('/{linktree}/edit', [LinktreeController::class, 'edit'])->name('edit');
+        Route::put('/{linktree}', [LinktreeController::class, 'update'])->name('update');
+        Route::delete('/{linktree}', [LinktreeController::class, 'destroy'])->name('destroy');
+        Route::post('/{linktree}/toggle-active', [LinktreeController::class, 'toggleActive'])->name('toggle-active');
+
+        // Link Management
+        Route::post('/{linktree}/links', [LinktreeController::class, 'storeLink'])->name('links.store');
+        Route::put('/{linktree}/links/{link}', [LinktreeController::class, 'updateLink'])->name('links.update');
+        Route::delete('/{linktree}/links/{link}', [LinktreeController::class, 'destroyLink'])->name('links.destroy');
+        Route::post('/{linktree}/links/reorder', [LinktreeController::class, 'reorderLinks'])->name('links.reorder');
+
+        // Social Media Management
+        Route::post('/{linktree}/socials', [LinktreeController::class, 'storeSocial'])->name('socials.store');
+        Route::put('/{linktree}/socials/{social}', [LinktreeController::class, 'updateSocial'])->name('socials.update');
+        Route::delete('/{linktree}/socials/{social}', [LinktreeController::class, 'destroySocial'])->name('socials.destroy');
+
+        // Upload
+        Route::post('/{linktree}/upload-avatar', [LinktreeController::class, 'uploadAvatar'])->name('upload-avatar');
+        Route::post('/{linktree}/upload-banner', [LinktreeController::class, 'uploadBanner'])->name('upload-banner');
+        Route::post('/{linktree}/upload-qris', [LinktreeController::class, 'uploadQris'])->name('upload-qris');
+    });
 });
 
 // ============================================================================
@@ -375,17 +428,10 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->name('user.')->
         Route::post('/{orderTracking}/confirm-delivery', [\App\Http\Controllers\OrderTrackingController::class, 'confirmDelivery'])->name('confirm-delivery');
         Route::get('/{orderTracking}/status', [\App\Http\Controllers\OrderTrackingController::class, 'getTrackingStatus'])->name('status');
     });
-
-    // Vendor Order Tracking
-    Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'vendorIndex'])->name('index');
-        Route::get('/{orderTracking}', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('show');
-        Route::post('/{orderTracking}/update-status', [\App\Http\Controllers\OrderTrackingController::class, 'updateStatus'])->name('update-status');
-    });
 });
 
-// Shipping Management
-Route::prefix('shipping')->name('shipping.')->group(function () {
+// Shipping Management (authenticated)
+Route::middleware(['auth', 'verified'])->prefix('shipping')->name('shipping.')->group(function () {
     Route::post('/invoice/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'generateShippingInvoice'])->name('generate-invoice');
     Route::post('/payment/{transaksi}', [\App\Http\Controllers\ShippingInvoiceController::class, 'handleCODPayment'])->name('handle-payment');
     Route::post('/calculate', [\App\Http\Controllers\ShippingInvoiceController::class, 'calculateShippingCost'])->name('calculate-cost');

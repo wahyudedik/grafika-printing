@@ -21,12 +21,21 @@ return Application::configure(basePath: dirname(__DIR__))
                 'user' => \App\Http\Middleware\UserMiddleware::class,
                 'tenants' => \App\Http\Middleware\SetTenantContext::class,
                 'Tenant' => \App\Facades\Tenant::class,
+                'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
+                'input.sanitize' => \App\Http\Middleware\InputSanitizer::class,
             ])
             ->group(
                 'tenant',
                 [
                     // \Spatie\Multitenancy\Http\Middleware\NeedsTenant::class,
                     // \Spatie\Multitenancy\Http\Middleware\EnsureValidTenantSession::class,
+                ]
+            )
+            ->group(
+                'security',
+                [
+                    \App\Http\Middleware\SecurityHeaders::class,
+                    \App\Http\Middleware\InputSanitizer::class,
                 ]
             )
             ->validateCsrfTokens(except: [

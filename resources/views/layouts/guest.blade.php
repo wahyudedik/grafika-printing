@@ -8,6 +8,9 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -19,7 +22,8 @@
 <body class="font-sans text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100 dark:bg-gray-900">
         <div>
-            <a href="/" class="text-2xl font-bold text-gray-800 dark:text-white">
+            <a href="/" class="flex items-center gap-3 text-2xl font-bold text-gray-800 dark:text-white">
+                <img src="{{ asset('logo.png') }}" alt="Grafika Printing" height="40" width="40" style="border-radius: 8px;">
                 Grafika Printing
             </a>
         </div>

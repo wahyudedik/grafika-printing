@@ -340,8 +340,8 @@ class TestAuctionFlow extends Command
             'is_winning' => true,
         ]);
 
-        $this->info("✅ Vendor 1 bid: Rp " . number_format($bid1->bid_amount));
-        $this->info("✅ Vendor 2 bid: Rp " . number_format($bid2->bid_amount));
+        $this->info("✅ Vendor 1 bid: Rp " . number_format($bid1->bid_amount ?? 0));
+        $this->info("✅ Vendor 2 bid: Rp " . number_format($bid2->bid_amount ?? 0));
 
         // Test bid isolation
         $tenantManager = app(TenantManager::class);
@@ -426,7 +426,7 @@ class TestAuctionFlow extends Command
             'updated' => now(),
         ]);
 
-        $this->info("✅ Payment created: Rp " . number_format($payment->amount));
+        $this->info("✅ Payment created: Rp " . number_format($payment->amount ?? 0));
         $this->info("📊 Payment status: {$payment->status}");
 
         // Test payment completion
@@ -487,7 +487,7 @@ class TestAuctionFlow extends Command
         $auction->markAsShipped('TRK123456789', 15000);
         $this->info("✅ Auction marked as shipped");
         $this->info("📊 Tracking number: {$auction->tracking_number}");
-        $this->info("📊 Shipping cost: Rp " . number_format($auction->shipping_cost));
+        $this->info("📊 Shipping cost: Rp " . number_format($auction->shipping_cost ?? 0));
 
         // Test delivery confirmation
         $deliveryConfirmation = DeliveryConfirmation::create([
@@ -567,8 +567,8 @@ class TestAuctionFlow extends Command
         $finalBalance = $wallet->balance;
         $creditAmount = $finalBalance - $initialBalance;
 
-        $this->info("📊 Vendor wallet balance: Rp " . number_format($finalBalance));
-        $this->info("📊 Credit amount: Rp " . number_format($creditAmount));
+        $this->info("📊 Vendor wallet balance: Rp " . number_format($finalBalance ?? 0));
+        $this->info("📊 Credit amount: Rp " . number_format($creditAmount ?? 0));
 
         if ($creditAmount == $auction->winning_bid) {
             $this->info("✅ Vendor received correct payment");
@@ -658,7 +658,7 @@ class TestAuctionFlow extends Command
             'is_winning' => true,
         ]);
 
-        $this->info("✅ Vendor bid: Rp " . number_format($bid->bid_amount));
+        $this->info("✅ Vendor bid: Rp " . number_format($bid->bid_amount ?? 0));
 
         // Test bid isolation
         $vendorBids = AuctionBid::forCurrentVendor()->count();
@@ -703,7 +703,7 @@ class TestAuctionFlow extends Command
             'updated' => now(),
         ]);
 
-        $this->info("✅ Payment created: Rp " . number_format($payment->amount));
+        $this->info("✅ Payment created: Rp " . number_format($payment->amount ?? 0));
         $this->info("📊 Payment status: {$payment->status}");
 
         // Test payment completion
@@ -726,7 +726,7 @@ class TestAuctionFlow extends Command
         $auction->markAsShipped('TRK123456789', 15000);
         $this->info("✅ Auction marked as shipped");
         $this->info("📊 Tracking number: {$auction->tracking_number}");
-        $this->info("📊 Shipping cost: Rp " . number_format($auction->shipping_cost));
+        $this->info("📊 Shipping cost: Rp " . number_format($auction->shipping_cost ?? 0));
 
         // Test delivery confirmation
         $deliveryConfirmation = DeliveryConfirmation::create([
@@ -768,8 +768,8 @@ class TestAuctionFlow extends Command
         $finalBalance = $wallet->balance;
         $creditAmount = $finalBalance - $initialBalance;
 
-        $this->info("📊 Vendor wallet balance: Rp " . number_format($finalBalance));
-        $this->info("📊 Credit amount: Rp " . number_format($creditAmount));
+        $this->info("📊 Vendor wallet balance: Rp " . number_format($finalBalance ?? 0));
+        $this->info("📊 Credit amount: Rp " . number_format($creditAmount ?? 0));
 
         if ($creditAmount == $auction->winning_bid) {
             $this->info("✅ Vendor received correct payment");

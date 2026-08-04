@@ -1,0 +1,292 @@
+/* Dashboard Improvements - Icon dan Color Fixes */
+
+/* ===== ICON IMPROVEMENTS ===== */
+
+/* Auction Icon - Better auction/hammer icon */
+.nav-link-icon .auction-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M7 8l-4 4l4 4'/%3E%3Cpath d='M17 8l4 4l-4 4'/%3E%3Cpath d='M14 4l-4 16'/%3E%3C/svg%3E");
+}
+
+/* Financial Icon - Better money/trending icon */
+.nav-link-icon .financial-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0'/%3E%3Cpath d='M12 7v5l3 3'/%3E%3C/svg%3E");
+}
+
+/* Vendor Icon - Better store/shop icon */
+.nav-link-icon .vendor-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M3 21h18'/%3E%3Cpath d='M5 21v-16l8 -4v16'/%3E%3Cpath d='M19 21v-11l-6 -4'/%3E%3C/svg%3E");
+}
+
+/* Users Icon - Better users/people icon */
+.nav-link-icon .users-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='icon' width='24' height='24' viewBox='0 0 24 24' stroke-width='2' stroke='currentColor' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath stroke='none' d='M0 0h24v24H0z' fill='none'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3Cpath d='M21 21v-2a4 4 0 0 0 -3 -3.85'/%3E%3C/svg%3E");
+}
+
+/* ===== COLOR FIXES ===== */
+
+/* Fix button color contrast issues */
+.btn-primary {
+    background-color: #206bc4 !important;
+    border-color: #206bc4 !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:hover {
+    background-color: #1a5bb8 !important;
+    border-color: #1a5bb8 !important;
+    color: #ffffff !important;
+}
+
+.btn-primary:focus {
+    background-color: #1a5bb8 !important;
+    border-color: #1a5bb8 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(32, 107, 196, 0.25) !important;
+}
+
+.btn-success {
+    background-color: #2fb344 !important;
+    border-color: #2fb344 !important;
+    color: #ffffff !important;
+}
+
+.btn-success:hover {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.btn-danger {
+    background-color: #d63939 !important;
+    border-color: #d63939 !important;
+    color: #ffffff !important;
+}
+
+.btn-danger:hover {
+    background-color: #c92a2a !important;
+    border-color: #c92a2a !important;
+    color: #ffffff !important;
+}
+
+.btn-warning {
+    background-color: #f59f00 !important;
+    border-color: #f59f00 !important;
+    color: #ffffff !important;
+}
+
+.btn-warning:hover {
+    background-color: #e67e00 !important;
+    border-color: #e67e00 !important;
+    color: #ffffff !important;
+}
+
+.btn-info {
+    background-color: #4299e1 !important;
+    border-color: #4299e1 !important;
+    color: #ffffff !important;
+}
+
+.btn-info:hover {
+    background-color: #3182ce !important;
+    border-color: #3182ce !important;
+    color: #ffffff !important;
+}
+
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #5a6268 !important;
+    color: #ffffff !important;
+}
+
+/* ===== NAVIGATION IMPROVEMENTS ===== */
+
+/* Better navigation hover effects */
+.nav-link:hover {
+    background-color: rgba(32, 107, 196, 0.1) !important;
+    border-radius: 0.375rem !important;
+}
+
+.nav-link.active {
+    background-color: rgba(32, 107, 196, 0.15) !important;
+    color: #206bc4 !important;
+    border-radius: 0.375rem !important;
+}
+
+/* Dropdown menu improvements */
+.dropdown-menu {
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-radius: 0.5rem !important;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(32, 107, 196, 0.1) !important;
+    color: #206bc4 !important;
+}
+
+/* ===== CARD IMPROVEMENTS ===== */
+
+.card {
+    border: 1px solid #e9ecef !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    border-radius: 0.5rem !important;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* ===== TABLE IMPROVEMENTS ===== */
+
+.table {
+    border-radius: 0.5rem !important;
+    overflow: hidden !important;
+}
+
+.table thead th {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    font-weight: 600 !important;
+    color: #495057 !important;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(32, 107, 196, 0.05) !important;
+}
+
+/* ===== ALERT IMPROVEMENTS ===== */
+
+.alert-success {
+    background-color: #d1edff !important;
+    border-color: #2fb344 !important;
+    color: #0f5132 !important;
+}
+
+.alert-danger {
+    background-color: #f8d7da !important;
+    border-color: #d63939 !important;
+    color: #721c24 !important;
+}
+
+.alert-warning {
+    background-color: #fff3cd !important;
+    border-color: #f59f00 !important;
+    color: #664d03 !important;
+}
+
+.alert-info {
+    background-color: #d1ecf1 !important;
+    border-color: #4299e1 !important;
+    color: #055160 !important;
+}
+
+/* ===== BADGE IMPROVEMENTS ===== */
+
+.badge {
+    font-weight: 500 !important;
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 0.375rem !important;
+}
+
+.badge-primary {
+    background-color: #206bc4 !important;
+    color: #ffffff !important;
+}
+
+.badge-success {
+    background-color: #2fb344 !important;
+    color: #ffffff !important;
+}
+
+.badge-danger {
+    background-color: #d63939 !important;
+    color: #ffffff !important;
+}
+
+.badge-warning {
+    background-color: #f59f00 !important;
+    color: #ffffff !important;
+}
+
+.badge-info {
+    background-color: #4299e1 !important;
+    color: #ffffff !important;
+}
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+
+@media (max-width: 768px) {
+    .nav-link-title {
+        font-size: 0.875rem !important;
+    }
+
+    .btn {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+    }
+
+    .card {
+        margin-bottom: 1rem !important;
+    }
+}
+
+/* ===== ANIMATION IMPROVEMENTS ===== */
+
+.nav-link,
+.btn,
+.card {
+    transition: all 0.3s ease !important;
+}
+
+.nav-link:hover {
+    transform: translateY(-1px) !important;
+}
+
+.btn:hover {
+    transform: translateY(-1px) !important;
+}
+
+/* ===== FOCUS IMPROVEMENTS ===== */
+
+.btn:focus,
+.nav-link:focus {
+    outline: 2px solid #206bc4 !important;
+    outline-offset: 2px !important;
+}
+
+/* ===== LOADING STATES ===== */
+
+.btn.loading {
+    opacity: 0.7 !important;
+    cursor: not-allowed !important;
+}
+
+.btn.loading::after {
+    content: "" !important;
+    display: inline-block !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    border: 2px solid transparent !important;
+    border-top: 2px solid currentColor !important;
+    border-radius: 50% !important;
+    animation: spin 1s linear infinite !important;
+    margin-left: 0.5rem !important;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
