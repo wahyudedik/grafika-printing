@@ -62,7 +62,8 @@ class XenditService
                     'OVO',
                     'DANA',
                     'LINKAJA',
-                    'SHOPEEPAY'
+                    'SHOPEEPAY',
+                    'QRIS'
                 ],
                 'currency' => $data['currency'] ?? 'IDR',
                 'items' => $data['items'] ?? [
@@ -81,7 +82,7 @@ class XenditService
                 'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
-            ])->post($url, $payload);
+            ])->timeout(30)->retry(3, 500)->post($url, $payload);
 
             if ($response->successful()) {
                 $result = $response->json();
@@ -183,7 +184,7 @@ class XenditService
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
-            ])->get($this->baseUrl . '/v2/invoices/' . $paymentLinkId);
+            ])->timeout(30)->retry(3, 500)->get($this->baseUrl . '/v2/invoices/' . $paymentLinkId);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -243,7 +244,7 @@ class XenditService
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
-            ])->post($this->baseUrl . '/v2/invoices/' . $paymentLinkId . '/expire');
+            ])->timeout(30)->retry(3, 500)->post($this->baseUrl . '/v2/invoices/' . $paymentLinkId . '/expire');
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -280,14 +281,13 @@ class XenditService
 
         $expectedSignature = hash_hmac('sha256', $payload, $this->webhookToken);
 
-        // Log for debugging
+        $isValid = hash_equals($expectedSignature, $signature);
+
         Log::info('Xendit webhook signature verification', [
-            'expected' => $expectedSignature,
-            'received' => $signature,
-            'match' => hash_equals($expectedSignature, $signature)
+            'match' => $isValid
         ]);
 
-        return hash_equals($expectedSignature, $signature);
+        return $isValid;
     }
 
     /**
@@ -359,7 +359,7 @@ class XenditService
                 'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
-            ])->post($url, $payload);
+            ])->timeout(30)->retry(3, 500)->post($url, $payload);
 
             if ($response->successful()) {
                 $result = $response->json();

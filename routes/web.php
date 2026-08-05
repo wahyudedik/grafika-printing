@@ -363,15 +363,6 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::post('/{auction}', [\App\Http\Controllers\VendorRatingController::class, 'store'])->name('store');
     });
 
-    // Reports
-    Route::prefix('reports')->name('reports.')->group(function () {
-        Route::get('/', [LaporanController::class, 'index'])->name('index');
-        Route::get('/transactions', [LaporanController::class, 'transactions'])->name('transactions');
-        Route::get('/products', [LaporanController::class, 'products'])->name('products');
-        Route::get('/customers', [LaporanController::class, 'customers'])->name('customers');
-        Route::get('/export', [LaporanController::class, 'export'])->name('export');
-    });
-
     // Laporan Routes
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/penjualan-harian', [LaporanController::class, 'penjualanHarian'])->name('penjualan-harian');
@@ -456,6 +447,7 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->name('user.')->
 
     // Delivery Confirmation Routes
     Route::prefix('delivery-confirmation')->name('delivery-confirmation.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\DeliveryConfirmationController::class, 'index'])->name('index');
         Route::get('/{auction}/create', [\App\Http\Controllers\DeliveryConfirmationController::class, 'create'])->name('create');
         Route::post('/{auction}', [\App\Http\Controllers\DeliveryConfirmationController::class, 'store'])->name('store');
         Route::get('/{confirmation}', [\App\Http\Controllers\DeliveryConfirmationController::class, 'show'])->name('show');
@@ -553,11 +545,12 @@ Route::get('/manual-transfer/{orderNumber}/status', [\App\Http\Controllers\Manua
 Route::post('/manual-transfer/{orderNumber}/upload-proof', [\App\Http\Controllers\ManualTransferController::class, 'uploadProof'])->name('manual-transfer.upload-proof');
 
 // ============================================================================
-// WEBHOOK ROUTES
+// WEBHOOK ROUTES - Xendit webhook sudah ditangani di API routes (api/xendit/webhook)
+// Route lama /webhooks/xendit di-deprecate karena tidak ter-cover CSRF exclusion
 // ============================================================================
 
-Route::prefix('webhooks')->name('webhooks.')->group(function () {
-    Route::post('/xendit', [\App\Http\Controllers\XenditWebhookController::class, 'handleWebhook'])->name('xendit');
+Route::get('/webhooks/xendit', function () {
+    return response()->json(['message' => 'Please use POST /api/xendit/webhook instead'], 400);
 });
 
 // ============================================================================

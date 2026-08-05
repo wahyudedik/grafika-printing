@@ -72,55 +72,67 @@
 
                         <!-- Account Manager Section -->
                         <h4>Account Manager</h4>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <div class="form-control-plaintext">{{ $users->name }}</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <div class="form-control-plaintext">{{ $users->email }}</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">User Type</label>
-                                    <div>
-                                        @if ($users->usertype == 'dev')
-                                            <span class="badge bg-blue text-white">Developer</span>
-                                        @else
-                                            <span class="badge bg-green text-white">Vendor</span>
-                                        @endif
+                        @if ($users)
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <div class="form-control-plaintext">{{ $users->name }}</div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Email Verified</label>
-                                    <div class="form-control-plaintext">
-                                        @if ($users->email_verified_at)
-                                            <span class="badge bg-green text-white">
-                                                Verified ({{ $users->email_verified_at->format('d M Y H:i') }})
-                                            </span>
-                                        @else
-                                            <span class="badge bg-red text-white">Not Verified</span>
-                                        @endif
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <div class="form-control-plaintext">{{ $users->email }}</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">User Type</label>
+                                        <div>
+                                            @if ($users->usertype == 'dev')
+                                                <span class="badge bg-blue text-white">Developer</span>
+                                            @else
+                                                <span class="badge bg-green text-white">Vendor</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Account Created</label>
-                                    <div class="form-control-plaintext">{{ $users->created_at->format('d M Y H:i') }}</div>
-                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Email Verified</label>
+                                        <div class="form-control-plaintext">
+                                            @if ($users->email_verified_at)
+                                                <span class="badge bg-green text-white">
+                                                    Verified ({{ $users->email_verified_at->format('d M Y H:i') }})
+                                                </span>
+                                            @else
+                                                <span class="badge bg-red text-white">Not Verified</span>
+                                            @endif
+                                        </div>
+                                    </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Last Updated</label>
-                                    <div class="form-control-plaintext">{{ $users->updated_at->format('d M Y H:i') }}</div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Account Created</label>
+                                        <div class="form-control-plaintext">{{ $users->created_at->format('d M Y H:i') }}</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Last Updated</label>
+                                        <div class="form-control-plaintext">{{ $users->updated_at->format('d M Y H:i') }}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="alert alert-info">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 12m-10 0a10 10 0 1 0 20 0a10 10 0 1 0 -20 0"></path>
+                                    <path d="M12 16v-4"></path>
+                                    <path d="M12 8h.01"></path>
+                                </svg>
+                                No user account is associated with this vendor.
+                            </div>
+                        @endif
                     </div>
                     <div class="card-footer text-end">
                         <a href="{{ route('admin.vendors.edit', $vendor->id) }}" class="btn btn-primary">

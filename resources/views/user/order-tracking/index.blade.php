@@ -68,7 +68,7 @@
                                     {{ $tracking->created_at->format('d M Y') }}
                                 </td>
                                 <td>
-                                    <a href="{{ route('user.order-tracking.show', $tracking) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ route('user.orders.show', $tracking) }}" class="btn btn-sm btn-outline-primary">
                                         Detail
                                     </a>
                                 </td>

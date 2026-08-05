@@ -13,20 +13,28 @@
     <style>
         /* Responsive navbar improvements */
         @media (max-width: 768px) {
+            .navbar-collapse {
+                max-height: 70vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
             .navbar-nav {
                 flex-direction: column;
                 width: 100%;
+                padding-bottom: 0.5rem;
             }
 
             .navbar-nav .nav-item {
                 width: 100%;
-                margin-bottom: 0.25rem;
+                margin-bottom: 2px;
             }
 
             .navbar-nav .nav-link {
-                padding: 0.75rem 1rem;
+                padding: 0.6rem 0.75rem;
                 text-align: left;
                 border-radius: 0.375rem;
+                font-size: 0.9rem;
             }
 
             .navbar-nav .nav-link:hover {
@@ -38,19 +46,128 @@
                 transform: none !important;
                 box-shadow: none;
                 border: none;
-                background-color: rgba(0, 0, 0, 0.02);
+                background-color: rgba(0, 0, 0, 0.03);
                 margin-left: 1rem;
+                margin-bottom: 0.25rem;
+                border-radius: 0.375rem;
+            }
+
+            .navbar-nav .dropdown-menu .dropdown-item {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            /* Page header responsive */
+            .page-header {
+                flex-wrap: wrap;
+            }
+
+            .page-header .col-auto {
+                margin-top: 0.5rem;
+            }
+
+            .page-header .btn-list {
+                flex-wrap: wrap;
+                gap: 0.25rem;
+            }
+
+            .page-header .btn-list .btn {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.6rem;
+            }
+
+            /* Mobile card/table improvements */
+            .page-body .container-xl {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .table-responsive {
+                font-size: 0.82rem;
+            }
+
+            .btn {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.7rem;
+            }
+
+            .page-header h2 {
+                font-size: 1.15rem;
+            }
+
+            .page-pretitle {
+                font-size: 0.75rem;
+            }
+
+            /* Card improvements */
+            .card-body {
+                padding: 0.875rem;
+            }
+
+            .card-header {
+                padding: 0.75rem 0.875rem;
+            }
+
+            .card-title {
+                font-size: 0.95rem;
             }
         }
 
         @media (max-width: 576px) {
             .nav-link-title {
-                font-size: 0.875rem;
+                font-size: 0.78rem;
             }
 
             .navbar-brand {
-                font-size: 1.1rem;
+                font-size: 0.95rem;
             }
+
+            /* Stack columns on very small screens */
+            .row > .col-sm-6,
+            .row > .col-md-4,
+            .row > .col-lg-3 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .card-body {
+                padding: 0.75rem;
+            }
+
+            .stat-card .stat-card-title {
+                font-size: 0.8rem;
+            }
+
+            .stat-card .h3 {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-link {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+
+            .btn {
+                min-height: 44px;
+            }
+
+            .dropdown-item {
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        /* Hover shadow effect for interactive elements */
+        .hover-shadow-sm {
+            transition: box-shadow 0.15s ease-in-out;
+        }
+        .hover-shadow-sm:hover {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
     </style>
     @stack('styles')
@@ -69,6 +186,25 @@
                 </a>
             </h1>
             <div class="navbar-nav flex-row order-md-last">
+                <div class="d-none d-md-flex me-3">
+                    <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1"
+                        aria-label="Show notifications">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path
+                                d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6">
+                            </path>
+                            <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+                        </svg>
+                        {{-- Notification badge --}}
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="badge bg-red">{{ auth()->user()->unreadNotifications->count() }}</span>
+                        @endif
+                    </a>
+                </div>
+
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                         aria-label="Open user menu">
@@ -107,7 +243,7 @@
                                         <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Home</span>
+                                <span class="nav-link-title">Beranda</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -124,7 +260,7 @@
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
-                                <span class="nav-link-title d-sm-none">Dash</span>
+                                <span class="nav-link-title d-sm-none">Dash.</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
@@ -139,7 +275,7 @@
                                         <path d="M19 21v-11l-6 -4" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Vendors</span>
+                                <span class="nav-link-title d-none d-sm-inline">Vendor</span>
                                 <span class="nav-link-title d-sm-none">Vendor</span>
                             </a>
                         </li>
@@ -156,7 +292,7 @@
                                         <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Users</span>
+                                <span class="nav-link-title d-none d-sm-inline">Pengguna</span>
                                 <span class="nav-link-title d-sm-none">User</span>
                             </a>
                         </li>
@@ -312,8 +448,8 @@
                                         <path d="M12 6v6l4 2" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Financial</span>
-                                <span class="nav-link-title d-sm-none">Finance</span>
+                                <span class="nav-link-title d-none d-sm-inline">Keuangan</span>
+                                <span class="nav-link-title d-sm-none">Keuang.</span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{{ route('admin.withdrawals.index') }}">
@@ -365,8 +501,8 @@
                                         <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Shipping</span>
-                                <span class="nav-link-title d-sm-none">Ship</span>
+                                <span class="nav-link-title d-none d-sm-inline">Pengiriman</span>
+                                <span class="nav-link-title d-sm-none">Kirim</span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{{ route('admin.shipping.index') }}">
@@ -407,7 +543,7 @@
 
                         <!-- Transactions & Orders -->
                         <li
-                            class="nav-item dropdown {{ request()->routeIs('admin.admin-fees.*') || request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+                            class="nav-item dropdown {{ request()->routeIs('admin.admin-fees.transactions') || request()->routeIs('admin.admin-fees.statistics') || request()->routeIs('admin.admin-fees.show') || request()->routeIs('admin.admin-fees.edit') ? 'active' : '' }}">
                             <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-transactions"
                                 data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
                                 aria-expanded="false">
@@ -422,8 +558,8 @@
                                             d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Transactions</span>
-                                <span class="nav-link-title d-sm-none">Txn</span>
+                                <span class="nav-link-title d-none d-sm-inline">Transaksi</span>
+                                <span class="nav-link-title d-sm-none">Trans.</span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{{ route('admin.admin-fees.transactions') }}">
@@ -435,16 +571,6 @@
                                             d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
                                     </svg>
                                     Admin Fee Transactions
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.payments.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M3 3h2l.4 2m7.6 5l8.5 -8.5a1.5 1.5 0 0 0 -4 -4l-8.5 8.5v4" />
-                                        <path d="M14 6l7 7l-4 4l-7 -7l4 -4" />
-                                    </svg>
-                                    Payment Management
                                 </a>
                                 <a class="dropdown-item" href="{{ route('admin.admin-fees.statistics') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
@@ -474,7 +600,7 @@
                                         <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Audit & Security</span>
+                                <span class="nav-link-title d-none d-sm-inline">Audit & Keamanan</span>
                                 <span class="nav-link-title d-sm-none">Audit</span>
                             </a>
                             <div class="dropdown-menu">
@@ -527,7 +653,7 @@
                                         <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">CMS Management</span>
+                                <span class="nav-link-title d-none d-sm-inline">Manajemen CMS</span>
                                 <span class="nav-link-title d-sm-none">CMS</span>
                             </a>
                         </li>
@@ -583,7 +709,7 @@
                                         <path d="M12 12l0 3.5" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Service Config</span>
+                                <span class="nav-link-title d-none d-sm-inline">Konfigurasi Layanan</span>
                                 <span class="nav-link-title d-sm-none">Config</span>
                             </a>
                         </li>

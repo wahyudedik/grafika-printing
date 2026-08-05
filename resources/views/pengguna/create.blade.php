@@ -5,7 +5,7 @@
     <div class="container-xl">
         <div class="row row-cards">
             <div class="col-12">
-                <form action="{{ route('users.store') }}" method="POST" class="card"
+                <form action="{{ route('vendor.users.store') }}" method="POST" class="card"
                     onsubmit="showLoading('Creating user...')" enctype="multipart/form-data">
                     @csrf
                     <div class="card-header">

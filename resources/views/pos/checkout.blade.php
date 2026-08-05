@@ -1,12 +1,12 @@
 @extends('layouts.vendor')
 
-@section('title', 'Checkout')
+@section('title', 'Pembayaran')
 
 @section('content')
     {{-- Add CSRF token meta tag --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- header --}}
-    <div class="col-md-12 mt-4">
+    <div class="col-12 mt-4">
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-header bg-white border-0 py-4">
                 <div class="d-flex justify-content-between align-items-center">
@@ -25,32 +25,32 @@
         </div>
     </div>
 
-    <div class="col-md-12 mt-4">
+    <div class="col-12 mt-4">
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
                 <form id="checkoutForm" action="{{ route('vendor.pos.checkout') }}" method="POST" data-no-loading>
                     @csrf
                     <div class="row">
                         <div class="col-md-6">
-                            <h4 class="mb-4">Customer Information</h4>
+                            <h4 class="mb-4">Informasi Pelanggan</h4>
                             <div class="mb-3">
-                                <label class="form-label">Customer</label>
+                                <label class="form-label">Pelanggan</label>
                                 <div class="d-flex gap-2">
                                     <select name="pelanggan_id" class="form-select" required id="customerSelect">
-                                        <option value="">Select Customer</option>
+                                        <option value="">Pilih Pelanggan</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->nama }}</option>
                                         @endforeach
                                     </select>
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                         data-bs-target="#newCustomerModal">
-                                        <i class="fas fa-plus"></i> Add Customer
+                                        <i class="fas fa-plus"></i> Tambah Pelanggan
                                     </button>
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Payment Method</label>
+                                <label class="form-label">Metode Pembayaran</label>
                                 <select name="payment_method" class="form-select" required id="paymentMethodSelect">
                                     <option value="cash">Cash</option>
                                     <option value="transfer">Bank Transfer</option>
@@ -146,14 +146,14 @@
                             </script>
 
                             <div class="mb-3">
-                                <label class="form-label">Notes</label>
+                                <label class="form-label">Catatan</label>
                                 <textarea name="catatan" class="form-control" rows="3"
-                                    placeholder="Add any special instructions or notes here..."></textarea>
+                                    placeholder="Tambahkan instruksi khusus atau catatan di sini..."></textarea>
                             </div>
 
                         </div>
                         <div class="col-md-6">
-                            <h4 class="mb-4">Order Summary</h4>
+                            <h4 class="mb-4">Ringkasan Pesanan</h4>
                             @foreach ($cartItems as $index => $item)
                                 <div class="card shadow-sm border-0 rounded-4 mb-3">
                                     <div class="card-body">
@@ -268,19 +268,19 @@
                             <div class="card shadow-sm border-0 rounded-4">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Total Items</span>
-                                        <span class="fw-medium">{{ count($cartItems) }} items</span>
+                                        <span class="text-muted">Total Item</span>
+                                        <span class="fw-medium">{{ count($cartItems) }} item</span>
                                     </div>
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Total Quantity</span>
+                                        <span class="text-muted">Total Jumlah</span>
                                         <span class="fw-medium">{{ collect($cartItems)->sum('quantity') }} pcs</span>
                                     </div>
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Total Production Time</span>
-                                        <span class="fw-medium">{{ $totalTime }} minutes</span>
+                                        <span class="text-muted">Total Waktu Produksi</span>
+                                        <span class="fw-medium">{{ $totalTime }} menit</span>
                                     </div>
                                     <div class="d-flex justify-content-between pt-3">
-                                        <h4 class="fw-bold mb-0">Grand Total</h4>
+                                        <h4 class="fw-bold mb-0">Total Akhir</h4>
                                         <h4 class="fw-bold text-primary mb-0">
                                             Rp {{ number_format($totalAmount, 0, ',', '.') }}
                                         </h4>
@@ -292,10 +292,10 @@
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <a href="{{ route('vendor.pos.cart') }}" class="btn btn-outline-primary rounded-pill px-4"
                                 data-no-loading>
-                                <i class="fas fa-arrow-left me-2"></i>Back to Cart
+                                <i class="fas fa-arrow-left me-2"></i>Kembali ke Keranjang
                             </a>
                             <button type="submit" class="btn btn-primary rounded-pill px-4">
-                                <i class="fas fa-check me-2"></i>Complete Order
+                                <i class="fas fa-check me-2"></i>Selesaikan Pesanan
                             </button>
                         </div>
                     </div>
@@ -309,7 +309,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Customer</h5>
+                    <h5 class="modal-title">Tambah Pelanggan Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('vendor.customers.store') }}" method="POST" id="newCustomerForm"
@@ -334,8 +334,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -354,7 +354,7 @@
                     const submitButton = this.querySelector('button[type="submit"]');
                     const originalButtonText = submitButton.innerHTML;
 
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
                     submitButton.disabled = true;
 
                     try {
@@ -386,8 +386,8 @@
 
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Success!',
-                                text: 'Customer added successfully',
+                                title: 'Berhasil!',
+                                text: 'Pelanggan berhasil ditambahkan',
                                 toast: true,
                                 position: 'top-end',
                                 showConfirmButton: false,
@@ -395,14 +395,14 @@
                                 timerProgressBar: true
                             });
                         } else {
-                            throw new Error(data.message || 'Failed to add customer');
+                            throw new Error(data.message || 'Gagal menambahkan pelanggan');
                         }
                     } catch (error) {
                         console.error('Error:', error);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error!',
-                            text: error.message || 'Failed to add customer. Please try again.',
+                            title: 'Gagal!',
+                            text: error.message || 'Gagal menambahkan pelanggan. Silakan coba lagi.',
                             confirmButtonColor: '#3085d6'
                         });
                     } finally {
@@ -423,8 +423,8 @@
                     if (!customerSelect.value) {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Validation Error',
-                            text: 'Please select a customer before proceeding',
+                            title: 'Validasi Gagal',
+                            text: 'Silakan pilih pelanggan terlebih dahulu',
                             confirmButtonColor: '#3085d6'
                         });
                         customerSelect.focus();
@@ -434,7 +434,7 @@
                     // Show loading state
                     const submitButton = this.querySelector('button[type="submit"]');
                     const originalButtonText = submitButton.innerHTML;
-                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
                     submitButton.disabled = true;
 
                     try {
@@ -456,8 +456,8 @@
                             // Show success message
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Order Completed!',
-                                text: 'Your order has been processed successfully.',
+                                title: 'Pesanan Selesai!',
+                                text: 'Pesanan Anda berhasil diproses.',
                                 confirmButtonColor: '#3085d6'
                             }).then(() => {
                                 // Open web view in new tab
@@ -481,15 +481,15 @@
                             });
                         } else {
                             throw new Error(data.message ||
-                                'An error occurred during checkout. Please try again.');
+                                'Terjadi kesalahan saat checkout. Silakan coba lagi.');
                         }
                     } catch (error) {
                         console.error('Checkout error:', error);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Checkout Failed',
+                            title: 'Checkout Gagal',
                             text: error.message ||
-                                'An unexpected error occurred. Please try again later.',
+                                'Terjadi kesalahan yang tidak terduga. Silakan coba lagi nanti.',
                             confirmButtonColor: '#3085d6'
                         });
                     } finally {

@@ -350,6 +350,14 @@
                 @endif
                 @if ($transaksi->is_cod)
                     <p style="margin: 2px 0; color: #dc3545; font-weight: bold;">⚠ COD - Bayar di Tempat</p>
+                    @if (isset($transaksi->shipping_payment_status) && $transaksi->shipping_payment_status)
+                        <p style="margin: 2px 0;">
+                            Status Pembayaran Ongkir:
+                            <span style="color: {{ $transaksi->shipping_payment_status === 'paid' ? '#198754' : '#dc3545' }}; font-weight: bold;">
+                                {{ $transaksi->shipping_payment_status === 'paid' ? 'Lunas' : 'Belum Dibayar' }}
+                            </span>
+                        </p>
+                    @endif
                 @endif
             </div>
         @endif

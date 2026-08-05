@@ -111,7 +111,7 @@
                     @php
                         $appName = 'Grafika Printing';
                         if (auth()->check() && auth()->user()->usertype === 'user') {
-                            $appName = 'User Dashboard';
+                            $appName = 'Dasbor Pengguna';
                         }
                     @endphp
                     {{ $appName }}
@@ -131,7 +131,10 @@
                             </path>
                             <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
                         </svg>
-                        <span class="badge bg-red"></span>
+                        {{-- Notification badge: tampilkan saat ada notifikasi --}}
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="badge bg-red">{{ auth()->user()->unreadNotifications->count() }}</span>
+                        @endif
                     </a>
                 </div>
 
@@ -145,11 +148,11 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('user.profile.edit') }}">Profile</a>
+                        <a class="dropdown-item" href="{{ route('user.profile.edit') }}">Profil</a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="dropdown-item">Logout</button>
+                            <button type="submit" class="dropdown-item">Keluar</button>
                         </form>
                     </div>
                 </div>
@@ -173,7 +176,7 @@
                                         <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Home</span>
+                                <span class="nav-link-title">Beranda</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
@@ -190,8 +193,8 @@
                                         <line x1="3" y1="10" x2="21" y2="10" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
-                                <span class="nav-link-title d-sm-none">Dash</span>
+                                <span class="nav-link-title d-none d-sm-inline">Dasbor</span>
+                                <span class="nav-link-title d-sm-none">Dasbor</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('user.auctions.index') ? 'active' : '' }}">
@@ -245,6 +248,21 @@
                                 <span class="nav-link-title d-sm-none">Tracking</span>
                             </a>
                         </li>
+                        <li class="nav-item {{ request()->routeIs('user.delivery-confirmation.*') ? 'active' : '' }}">
+                            <a class="nav-link hover-shadow-sm" href="{{ route('user.delivery-confirmation.index') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M9 12l2 2l4 -4" />
+                                        <path d="M5 7a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-10" />
+                                    </svg>
+                                </span>
+                                <span class="nav-link-title d-none d-sm-inline">Konfirmasi Pengiriman</span>
+                                <span class="nav-link-title d-sm-none">Konfirmasi</span>
+                            </a>
+                        </li>
                         <li class="nav-item {{ request()->routeIs('user.profile.*') ? 'active' : '' }}">
                             <a class="nav-link hover-shadow-sm" href="{{ route('user.profile.edit') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -272,7 +290,7 @@
                 <div class="row align-items-center">
                     <div class="col">
                         <h2 class="page-title">
-                            @yield('title', 'Dashboard')
+                            @yield('title', 'Dasbor')
                         </h2>
                     </div>
                 </div>
@@ -294,7 +312,7 @@
                             <a href="{{ route('welcome') }}" class="link-secondary">Beranda</a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="{{ route('user.dashboard') }}" class="link-secondary">Dashboard</a>
+                            <a href="{{ route('user.dashboard') }}" class="link-secondary">Dasbor</a>
                         </li>
                     </ul>
                 </div>
@@ -303,7 +321,7 @@
                         <li class="list-inline-item">
                             Copyright © {{ date('Y') }}
                             <a href="#" class="link-secondary">Grafika Printing</a>.
-                            All rights reserved.
+                            Hak cipta dilindungi.
                         </li>
                     </ul>
                 </div>

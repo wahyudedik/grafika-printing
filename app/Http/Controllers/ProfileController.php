@@ -40,6 +40,7 @@ class ProfileController extends Controller
         // Update user profile
         $user = $request->user();
         $user->name = $validated['name'];
+        $user->email = $validated['email'];
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -73,11 +74,11 @@ class ProfileController extends Controller
 
                 $vendor->update($vendorData);
 
-                return Redirect::route('profile.edit')->with('status', 'vendor-profile-updated');
+                return Redirect::route('user.profile.edit')->with('status', 'vendor-profile-updated');
             }
         }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('user.profile.edit')->with('status', 'profile-updated');
     }
 
     /**

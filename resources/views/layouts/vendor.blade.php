@@ -223,14 +223,11 @@
                 <a href="{{ route('welcome') }}" class="d-flex align-items-center text-decoration-none">
                     <img src="{{ asset('logo.png') }}" alt="Grafika Printing" height="32" width="32" style="border-radius: 6px; margin-right: 8px;">
                     @php
-                        $vendorName = 'Dashboard';
+                        $vendorName = 'Dasbor';
                         if (auth()->check()) {
-                            // Gunakan relasi belongsToMany yang ada di User.php
-                            $vendor = auth()->user()->vendorUser->first();
-
+                            $vendor = optional(auth()->user())->vendorUser->first();
                             if ($vendor) {
-                                // Coba kedua kemungkinan nama field
-                                $vendorName = $vendor->name ?? ($vendor->nama_vendor ?? 'Dashboard');
+                                $vendorName = $vendor->name ?? ($vendor->nama_vendor ?? 'Dasbor');
                             }
                         }
                     @endphp
@@ -251,7 +248,10 @@
                             </path>
                             <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
                         </svg>
-                        <span class="badge bg-red"></span>
+                        {{-- Notification badge: tampilkan saat ada notifikasi --}}
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="badge bg-red">{{ auth()->user()->unreadNotifications->count() }}</span>
+                        @endif
                     </a>
                 </div>
 
@@ -265,11 +265,11 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('vendor.profile') }}">Profile</a>
+                        <a class="dropdown-item" href="{{ route('vendor.profile') }}">Profil</a>
                         <div class="dropdown-divider"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="dropdown-item">Logout</button>
+                            <button type="submit" class="dropdown-item">Keluar</button>
                         </form>
                     </div>
                 </div>
@@ -293,7 +293,7 @@
                                         <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title">Home</span>
+                                <span class="nav-link-title">Beranda</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.dashboard') ? 'active' : '' }}">
@@ -310,8 +310,8 @@
                                         <line x1="3" y1="10" x2="21" y2="10" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
-                                <span class="nav-link-title d-sm-none">Dash</span>
+                                <span class="nav-link-title d-none d-sm-inline">Dasbor</span>
+                                <span class="nav-link-title d-sm-none">Dasbor</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.pos.*') ? 'active' : '' }}">
@@ -346,8 +346,8 @@
                                         <path d="M7 7h10" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Printer</span>
-                                <span class="nav-link-title d-sm-none">Prt</span>
+                                <span class="nav-link-title d-none d-sm-inline">Cetak</span>
+                                <span class="nav-link-title d-sm-none">Cetak</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.users.*') ? 'active' : '' }}">
@@ -364,7 +364,7 @@
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Pengguna</span>
-                                <span class="nav-link-title d-sm-none">User</span>
+                                <span class="nav-link-title d-sm-none">Pengguna</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.manual-transfers.*') ? 'active' : '' }}">
@@ -461,7 +461,7 @@
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Pelanggan</span>
-                                <span class="nav-link-title d-sm-none">Customer</span>
+                                <span class="nav-link-title d-sm-none">Plng</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.transactions.*') ? 'active' : '' }}">
@@ -538,8 +538,8 @@
                                         <path d="M7 12v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
                                     </svg>
                                 </span>
-                                <span class="nav-link-title d-none d-sm-inline">Wallet</span>
-                                <span class="nav-link-title d-sm-none">Wallet</span>
+                                <span class="nav-link-title d-none d-sm-inline">Dompet</span>
+                                <span class="nav-link-title d-sm-none">Dompet</span>
                             </a>
                         </li>
                         <li class="nav-item {{ request()->routeIs('vendor.bank-accounts.*') ? 'active' : '' }}">
@@ -642,7 +642,7 @@
                                     </svg>
                                 </span>
                                 <span class="nav-link-title d-none d-sm-inline">Laporan</span>
-                                <span class="nav-link-title d-sm-none">Report</span>
+                                <span class="nav-link-title d-sm-none">Laporan</span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="{{ route('vendor.laporan.penjualan-harian') }}">
@@ -667,7 +667,7 @@
                 <div class="row align-items-center">
                     <div class="col">
                         <h2 class="page-title">
-                            @yield('title', 'Dashboard')
+                            @yield('title', 'Dasbor')
                         </h2>
                     </div>
                 </div>
@@ -689,7 +689,7 @@
                             <a href="{{ route('welcome') }}" class="link-secondary">Beranda</a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="{{ route('vendor.dashboard') }}" class="link-secondary">Dashboard</a>
+                            <a href="{{ route('vendor.dashboard') }}" class="link-secondary">Dasbor</a>
                         </li>
                     </ul>
                 </div>
@@ -698,7 +698,7 @@
                         <li class="list-inline-item">
                             Copyright © {{ date('Y') }}
                             <a href="#" class="link-secondary">Grafika Printing</a>.
-                            All rights reserved.
+                            Hak cipta dilindungi.
                         </li>
                     </ul>
                 </div>

@@ -99,13 +99,25 @@
 
                         <!-- Account Manager Section -->
                         <h4>Account Manager</h4>
-                        <div class="mb-3">
-                            <label class="form-label required">Associated User</label>
-                            <input type="text" class="form-control" value="{{ $users->name }} ({{ $users->email }})"
-                                readonly>
-                            <input type="hidden" name="user_id" value="{{ $users->id }}">
-                            <small class="form-hint">The user who manages this vendor account</small>
-                        </div>
+                        @if ($users)
+                            <div class="mb-3">
+                                <label class="form-label required">Associated User</label>
+                                <input type="text" class="form-control" value="{{ $users->name }} ({{ $users->email }})"
+                                    readonly>
+                                <input type="hidden" name="user_id" value="{{ $users->id }}">
+                                <small class="form-hint">The user who manages this vendor account</small>
+                            </div>
+                        @else
+                            <div class="alert alert-warning">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M12 9v4"></path>
+                                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                                    <path d="M12 16h.01"></path>
+                                </svg>
+                                No user account is associated with this vendor. Please create a user first.
+                            </div>
+                        @endif
                     </div>
                     <div class="card-footer text-end">
                         <button type="submit" class="btn btn-primary">

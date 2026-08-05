@@ -83,7 +83,7 @@
                             <div class="modal modal-blur fade" id="updateStatusModal{{ $tracking->id }}" tabindex="-1">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
-                                        <form action="{{ route('vendor.order-tracking.update-status', $tracking) }}" method="POST">
+                                        <form action="{{ route('vendor.tracking.update', $tracking) }}" method="POST">
                                             @csrf
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Update Status Pesanan #{{ $tracking->order_code ?? $tracking->id }}</h5>

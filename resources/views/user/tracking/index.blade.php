@@ -65,7 +65,7 @@
                                             </div>
 
                                             <div class="mt-3">
-                                                <a href="{{ route('user.tracking.show', $auction) }}"
+                                                <a href="{{ route('user.orders.show', $auction) }}"
                                                     class="btn btn-primary btn-sm">
                                                     Detail Tracking
                                                 </a>

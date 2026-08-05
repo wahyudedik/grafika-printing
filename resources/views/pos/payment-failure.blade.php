@@ -1,6 +1,6 @@
 @extends('layouts.vendor')
 
-@section('title', 'Payment Failed - ' . $transaksi->kode)
+@section('title', 'Pembayaran Gagal - ' . $transaksi->kode)
 
 @section('content')
     <div class="container-xl">
@@ -8,7 +8,7 @@
             <div class="col-md-6">
                 <div class="card border-danger">
                     <div class="card-header bg-danger text-white text-center">
-                        <h3 class="mb-0">❌ Payment Failed</h3>
+                        <h3 class="mb-0">❌ Pembayaran Gagal</h3>
                     </div>
                     <div class="card-body text-center">
                         <div class="mb-4">
@@ -18,36 +18,36 @@
                             </svg>
                         </div>
 
-                        <h4 class="text-danger mb-3">Payment Failed</h4>
+                        <h4 class="text-danger mb-3">Pembayaran Gagal</h4>
 
                         <div class="alert alert-danger">
-                            <h5>Transaction Details</h5>
-                            <p><strong>Invoice:</strong> {{ $transaksi->kode }}</p>
-                            <p><strong>Customer:</strong> {{ $transaksi->pelanggan->nama }}</p>
-                            <p><strong>Amount:</strong> Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-                            <p><strong>Status:</strong> {{ ucfirst($transaksi->status ?? 'Failed') }}</p>
+                            <h5>Detail Transaksi</h5>
+                            <p><strong>Faktur:</strong> {{ $transaksi->kode }}</p>
+                            <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan->nama }}</p>
+                            <p><strong>Jumlah:</strong> Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
+                            <p><strong>Status:</strong> {{ ucfirst($transaksi->status ?? 'Gagal') }}</p>
                         </div>
 
                         <div class="alert alert-warning">
-                            <h6>What to do next?</h6>
+                            <h6>Apa yang harus dilakukan?</h6>
                             <ul class="list-unstyled mb-0">
-                                <li>• Check payment status with customer</li>
-                                <li>• Try alternative payment method</li>
-                                <li>• Process cash payment if customer is present</li>
-                                <li>• Contact customer for payment completion</li>
+                                <li>• Periksa status pembayaran dengan pelanggan</li>
+                                <li>• Coba metode pembayaran lain</li>
+                                <li>• Proses pembayaran tunai jika pelanggan hadir</li>
+                                <li>• Hubungi pelanggan untuk kelanjutan pembayaran</li>
                             </ul>
                         </div>
 
                         <div class="d-grid gap-2">
                             <a href="{{ route('vendor.pos.payment.options', $transaksi->id) }}" class="btn btn-primary">
-                                💳 Try Different Payment
+                                💳 Coba Metode Lain
                             </a>
                             <a href="{{ route('vendor.pos.invoice.show', $transaksi->id) }}"
                                 class="btn btn-outline-secondary">
-                                📄 View Invoice
+                                📄 Lihat Faktur
                             </a>
                             <a href="{{ route('vendor.pos.index') }}" class="btn btn-outline-primary">
-                                🏪 Back to POS
+                                🏪 Kembali ke POS
                             </a>
                         </div>
                     </div>

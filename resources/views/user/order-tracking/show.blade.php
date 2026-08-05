@@ -9,7 +9,7 @@
             <h2 class="page-title">Detail Tracking Pesanan</h2>
         </div>
         <div class="col-auto ms-auto">
-            <a href="{{ route('user.order-tracking.index') }}" class="btn btn-outline-primary">
+            <a href="{{ route('user.orders.index') }}" class="btn btn-outline-primary">
                 Kembali
             </a>
         </div>
@@ -102,7 +102,7 @@
                     </div>
                     <div class="card-body">
                         @if($orderTracking->status === 'shipped' || $orderTracking->status === 'delivered')
-                        <form action="{{ route('user.order-tracking.confirm-delivery', $orderTracking) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('user.orders.confirm-delivery', $orderTracking) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Foto Bukti Terima</label>
@@ -142,7 +142,7 @@
                         <h3 class="card-title">Ajukan Mediasi</h3>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('user.order-tracking.request-mediation', $orderTracking) }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('user.orders.mediation', $orderTracking) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label class="form-label">Alasan</label>

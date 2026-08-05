@@ -57,7 +57,7 @@ class PaymentConfirmationController extends Controller
     public function process(Request $request, Auction $auction): RedirectResponse
     {
         $request->validate([
-            'payment_method' => 'required|string|in:bank_transfer,credit_card,ewallet,retail_outlet',
+            'payment_method' => 'required|string|in:bank_transfer,credit_card,ewallet,retail_outlet,qris',
             'agree_terms' => 'required|accepted'
         ]);
 
@@ -102,7 +102,7 @@ class PaymentConfirmationController extends Controller
 
             // Create Xendit payment link
             $paymentData = [
-                'external_id' => 'auction-' . $auction->id . '-' . time(),
+                'external_id' => 'auction_' . $auction->id . '_' . time(),
                 'amount' => $feeCalculation['total_amount'],
                 'description' => "Payment for auction: {$auction->title}",
                 'customer' => [
@@ -112,7 +112,7 @@ class PaymentConfirmationController extends Controller
                 'payment_methods' => [$request->payment_method],
                 'success_redirect_url' => route('payments.success', $auction),
                 'failure_redirect_url' => route('payments.failure', $auction),
-                'callback_url' => route('xendit.webhook'),
+                'callback_url' => route('api.xendit.webhook'),
                 'expires_at' => now()->addDays(1)->toISOString(),
                 'metadata' => [
                     'auction_id' => $auction->id,
@@ -137,12 +137,16 @@ class PaymentConfirmationController extends Controller
                 'user_id' => $auction->user_id
             ]);
 
+            if (!isset($paymentLink['invoice_url'])) {
+                throw new \Exception('Payment link URL not received from Xendit');
+            }
+
             return redirect($paymentLink['invoice_url'])
-                ->with('success', 'Payment link created successfully! Please complete your payment.');
+                ->with('success', 'Link pembayaran berhasil dibuat! Silakan selesaikan pembayaran Anda.');
         } catch (\Exception $e) {
             return redirect()
                 ->route('payments.confirmation', $auction)
-                ->with('error', 'Failed to create payment: ' . $e->getMessage());
+                ->with('error', 'Gagal membuat pembayaran: ' . $e->getMessage());
         }
     }
 

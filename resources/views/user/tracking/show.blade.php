@@ -13,7 +13,7 @@
                             <div class="card-subtitle">Kode: {{ $auction->kode }} • Transaksi:
                                 {{ $auction->transaksi->kode }}</div>
                         </div>
-                        <span class="badge bg-{{ $this->getStatusColor($auction->transaksi->tracking_status) }} fs-6">
+                        <span class="badge bg-{{ getStatusColor($auction->transaksi->tracking_status) }} fs-6">
                             {{ ucfirst($auction->transaksi->tracking_status) }}
                         </span>
                     </div>
@@ -147,7 +147,7 @@
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="d-flex gap-2">
-                                <a href="{{ route('user.tracking.index') }}" class="btn btn-secondary">
+                                <a href="{{ route('user.orders.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-1"></i> Kembali
                                 </a>
                                 @if ($auction->transaksi->tracking_status === 'selesai')

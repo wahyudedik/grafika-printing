@@ -1,6 +1,6 @@
 @extends('layouts.vendor')
 
-@section('title', 'Payment Success - ' . $transaksi->kode)
+@section('title', 'Pembayaran Berhasil - ' . $transaksi->kode)
 
 @section('content')
     <div class="container-xl">
@@ -8,7 +8,7 @@
             <div class="col-md-6">
                 <div class="card border-success">
                     <div class="card-header bg-success text-white text-center">
-                        <h3 class="mb-0">✅ Payment Successful</h3>
+                        <h3 class="mb-0">✅ Pembayaran Berhasil</h3>
                     </div>
                     <div class="card-body text-center">
                         <div class="mb-4">
@@ -18,40 +18,40 @@
                             </svg>
                         </div>
 
-                        <h4 class="text-success mb-3">Payment Completed Successfully!</h4>
+                        <h4 class="text-success mb-3">Pembayaran Berhasil Diselesaikan!</h4>
 
                         <div class="alert alert-success">
-                            <h5>Transaction Details</h5>
-                            <p><strong>Invoice:</strong> {{ $transaksi->kode }}</p>
-                            <p><strong>Customer:</strong> {{ $transaksi->pelanggan->nama }}</p>
-                            <p><strong>Amount:</strong> Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-                            <p><strong>Payment Method:</strong> {{ ucfirst($transaksi->payment_method ?? 'Online') }}</p>
-                            <p><strong>Status:</strong> {{ ucfirst($transaksi->status ?? 'Completed') }}</p>
+                            <h5>Detail Transaksi</h5>
+                            <p><strong>Faktur:</strong> {{ $transaksi->kode }}</p>
+                            <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan->nama }}</p>
+                            <p><strong>Jumlah:</strong> Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
+                            <p><strong>Metode Pembayaran:</strong> {{ ucfirst($transaksi->payment_method ?? 'Online') }}</p>
+                            <p><strong>Status:</strong> {{ ucfirst($transaksi->status ?? 'Selesai') }}</p>
                             @if ($transaksi->xendit_payment_id)
                                 <p><strong>Payment ID:</strong> {{ $transaksi->xendit_payment_id }}</p>
                             @endif
                         </div>
 
                         <div class="alert alert-info">
-                            <h6>Next Steps</h6>
+                            <h6>Langkah Selanjutnya</h6>
                             <ul class="list-unstyled mb-0">
-                                <li>• Print receipt for customer</li>
-                                <li>• Process order fulfillment</li>
-                                <li>• Update inventory if needed</li>
-                                <li>• Send confirmation to customer</li>
+                                <li>• Cetak struk untuk pelanggan</li>
+                                <li>• Proses pemenuhan pesanan</li>
+                                <li>• Perbarui inventaris jika diperlukan</li>
+                                <li>• Kirim konfirmasi ke pelanggan</li>
                             </ul>
                         </div>
 
                         <div class="d-grid gap-2">
                             <a href="{{ route('vendor.pos.invoice.print', $transaksi->id) }}" class="btn btn-success">
-                                🖨️ Print Receipt
+                                🖨️ Cetak Struk
                             </a>
                             <a href="{{ route('vendor.pos.invoice.show', $transaksi->id) }}"
                                 class="btn btn-outline-primary">
-                                📄 View Invoice
+                                📄 Lihat Faktur
                             </a>
                             <a href="{{ route('vendor.pos.index') }}" class="btn btn-outline-secondary">
-                                🏪 New Transaction
+                                🏪 Transaksi Baru
                             </a>
                         </div>
                     </div>

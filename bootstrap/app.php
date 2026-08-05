@@ -39,7 +39,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 ]
             )
             ->validateCsrfTokens(except: [
-                'xendit/webhook',
                 'api/xendit/webhook',
             ]);
     })

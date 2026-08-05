@@ -43,7 +43,7 @@
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('vendor.wallet.store-withdrawal') }}">
+                    <form method="POST" action="{{ route('vendor.wallet.store-withdrawal') }}" data-loading>
                         @csrf
 
                         <div class="row">

@@ -42,10 +42,7 @@ class XenditWebhookController extends Controller
                 Log::warning('Skipping webhook signature verification in debug mode');
             } else {
                 if (!$this->xenditService->verifyWebhookSignature($payload, $signature)) {
-                    Log::warning('Xendit webhook signature verification failed', [
-                        'signature' => $signature,
-                        'payload' => $payload
-                    ]);
+                    Log::warning('Xendit webhook signature verification failed');
 
                     // Return 200 to prevent retries, but log the issue
                     return response()->json(['status' => 'ignored', 'reason' => 'Invalid signature']);
@@ -193,7 +190,8 @@ class XenditWebhookController extends Controller
     {
         try {
             // Extract auction ID from external_id (format: auction_{id}_{timestamp})
-            if (preg_match('/^auction_(\d+)_/', $payment->external_id, $matches)) {
+            // Support both formats: auction_{id}_{ts} and auction-{id}-{ts}
+            if (preg_match('/^auction[_-](\d+)[_-]/', $payment->external_id, $matches)) {
                 $auctionId = $matches[1];
                 $auction = Auction::find($auctionId);
 
@@ -203,7 +201,7 @@ class XenditWebhookController extends Controller
 
                     // Find winning bid
                     $winningBid = $auction->bids()
-                        ->where('status', 'accepted')
+                        ->where('is_winning', true)
                         ->first();
 
                     if ($winningBid) {

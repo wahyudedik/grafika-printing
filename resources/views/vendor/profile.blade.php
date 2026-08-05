@@ -1,4 +1,4 @@
-@extends('layouts.user')
+@extends('layouts.vendor')
 
 @section('title', 'Profile Vendor - ' . $vendor->name)
 

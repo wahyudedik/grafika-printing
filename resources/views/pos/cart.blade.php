@@ -1,12 +1,12 @@
 @extends('layouts.vendor')
 
-@section('title', 'Shopping Cart')
+@section('title', 'Keranjang Belanja')
 
 @section('content')
     {{-- Add CSRF token meta tag --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- header --}}
-    <div class="col-md-12 mt-4">
+    <div class="col-12 mt-4">
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-header bg-white border-0 py-4">
                 <div class="d-flex justify-content-between align-items-center">
@@ -25,25 +25,25 @@
         </div>
     </div>
 
-    <div class="col-md-12 mt-3">
+    <div class="col-12 mt-3">
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-4">
                 {{-- Cart Details --}}
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold text-black mb-0">Cart Details</h3>
+                    <h3 class="fw-bold text-black mb-0">Detail Keranjang</h3>
                     <a href="{{ route('vendor.pos.index') }}" data-no-loading
                         class="btn btn-outline-primary rounded-pill px-4">
-                        <i class="fas fa-arrow-left me-2"></i>Back to Products
+                        <i class="fas fa-arrow-left me-2"></i>Kembali ke Produk
                     </a>
                 </div>
 
                 @if (empty($cartItems))
                     <div class="text-center py-5">
                         <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                        <h4>Your Cart is Empty</h4>
-                        <p class="text-muted">Add some products to your cart to continue shopping</p>
+                        <h4>Keranjang Kosong</h4>
+                        <p class="text-muted">Tambahkan produk ke keranjang untuk melanjutkan belanja</p>
                         <a href="{{ route('vendor.pos.index') }}" class="btn btn-primary mt-3">
-                            <i class="fas fa-shopping-bag me-2"></i>Browse Products
+                            <i class="fas fa-shopping-bag me-2"></i>Lihat Produk
                         </a>
                     </div>
                 @else
@@ -60,7 +60,7 @@
                                     </div>
 
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Quantity</span>
+                                        <span class="text-muted">Jumlah</span>
                                         <span class="fw-medium">{{ $item['quantity'] }} pcs</span>
                                     </div>
 
@@ -152,22 +152,22 @@
                             </div>
                         @endforeach
 
-                        <!-- Cart Summary -->
+                        <!-- Ringkasan Keranjang -->
                         <div class="mt-4 pt-4">
                             <!-- Order Summary -->
                             <div class="card shadow-sm border-0 rounded-4 mb-3">
                                 <div class="card-body">
-                                    <h5 class="fw-bold mb-3">Order Summary</h5>
+                                    <h5 class="fw-bold mb-3">Ringkasan Pesanan</h5>
 
                                     <!-- Total Items -->
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Total Items</span>
-                                        <span class="fw-medium">{{ count($cartItems) }} items</span>
+                                        <span class="text-muted">Total Item</span>
+                                        <span class="fw-medium">{{ count($cartItems) }} item</span>
                                     </div>
 
                                     <!-- Total Quantity -->
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Total Quantity</span>
+                                        <span class="text-muted">Total Jumlah</span>
                                         <span class="fw-medium">
                                             {{ collect($cartItems)->sum('quantity') }} pcs
                                         </span>
@@ -175,13 +175,13 @@
 
                                     <!-- Total Production Time -->
                                     <div class="d-flex justify-content-between border-bottom py-2">
-                                        <span class="text-muted">Total Production Time</span>
+                                        <span class="text-muted">Total Waktu Produksi</span>
                                         <span class="fw-medium">
                                             {{ collect($cartItems)->sum(function ($item) {
                                                 $product = \App\Models\Vendor\Produk::with('estimasiProduk.alat')->find($item['product_id']);
                                                 return $product ? $product->getEstimatedProductionTime($item['quantity']) : 0;
                                             }) }}
-                                            minutes
+                                            menit
                                         </span>
                                     </div>
 
@@ -200,10 +200,10 @@
                         <!-- Action Buttons -->
                         <div class="mt-4 d-flex justify-content-end gap-2">
                             <button class="btn btn-outline-danger rounded-pill px-4" type="button" onclick="clearCart()">
-                                <i class="fas fa-trash me-2"></i>Clear Cart
+                                <i class="fas fa-trash me-2"></i>Kosongkan Keranjang
                             </button>
                             <button class="btn btn-primary rounded-pill px-4" type="button" onclick="proceedToCheckout()">
-                                <i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout
+                                <i class="fas fa-shopping-cart me-2"></i>Lanjut ke Pembayaran
                             </button>
                         </div>
                     </div>
@@ -215,17 +215,17 @@
     <script>
         function removeItem(index) {
             Swal.fire({
-                title: 'Remove Item?',
-                text: "Are you sure you want to remove this item from your cart?",
+                title: 'Hapus Item?',
+                text: "Apakah Anda yakin ingin menghapus item ini dari keranjang?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, remove it!',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    showLoading('Removing item...');
+                    showLoading('Menghapus item...');
                     window.location.href = `{{ route('vendor.pos.removeItem', '') }}/${index}`;
                 }
             });
@@ -233,24 +233,24 @@
 
         function clearCart() {
             Swal.fire({
-                title: 'Clear Cart?',
-                text: "Are you sure you want to clear your entire cart?",
+                title: 'Kosongkan Keranjang?',
+                text: "Apakah Anda yakin ingin mengosongkan seluruh keranjang?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, clear it!',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: 'Ya, kosongkan!',
+                cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    showLoading('Clearing cart...');
+                    showLoading('Mengosongkan keranjang...');
                     window.location.href = "{{ route('vendor.pos.clearCart') }}";
                 }
             });
         }
 
         function proceedToCheckout() {
-            showLoading('Proceeding to checkout...');
+            showLoading('Melanjutkan ke pembayaran...');
             window.location.href = "{{ route('vendor.pos.checkout') }}";
         }
     </script>

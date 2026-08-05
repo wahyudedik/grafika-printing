@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Models\FinancialAuditLog;
 use App\Models\User;
 use App\Models\Vendor;
-use App\Models\VendorWithdrawal;
 use App\Services\AuditLogService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -21,12 +20,15 @@ class AuditLogServiceTest extends TestCase
         // Create test user
         $this->user = User::factory()->create(['usertype' => 'dev']);
         $this->actingAs($this->user);
+
+        // Create a real vendor for FK references
+        $this->vendor = Vendor::factory()->create();
     }
 
     public function test_logs_financial_transaction()
     {
         $data = [
-            'vendor_id' => 1,
+            'vendor_id' => $this->vendor->id,
             'action_type' => 'create',
             'entity_type' => 'withdrawal',
             'entity_id' => 1,
@@ -62,12 +64,10 @@ class AuditLogServiceTest extends TestCase
 
     public function test_gets_vendor_logs()
     {
-        $vendor = Vendor::factory()->create();
-
         // Create some audit logs
         FinancialAuditLog::create([
             'user_id' => $this->user->id,
-            'vendor_id' => $vendor->id,
+            'vendor_id' => $this->vendor->id,
             'action_type' => 'create',
             'entity_type' => 'withdrawal',
             'entity_id' => 1,
@@ -77,20 +77,17 @@ class AuditLogServiceTest extends TestCase
             'user_agent' => 'Test Agent'
         ]);
 
-        $logs = AuditLogService::getVendorLogs($vendor->id);
+        $logs = AuditLogService::getVendorLogs($this->vendor->id);
 
         $this->assertCount(1, $logs);
-        $this->assertEquals($vendor->id, $logs->first()->vendor_id);
+        $this->assertEquals($this->vendor->id, $logs->first()->vendor_id);
     }
 
     public function test_gets_admin_logs()
     {
-        // Create admin user
-        $adminUser = User::factory()->create(['usertype' => 'dev']);
-
         // Create audit log
         FinancialAuditLog::create([
-            'user_id' => $adminUser->id,
+            'user_id' => $this->user->id,
             'vendor_id' => null,
             'action_type' => 'create',
             'entity_type' => 'admin_fee',
@@ -112,7 +109,7 @@ class AuditLogServiceTest extends TestCase
         // Create high risk transaction
         FinancialAuditLog::create([
             'user_id' => $this->user->id,
-            'vendor_id' => 1,
+            'vendor_id' => $this->vendor->id,
             'action_type' => 'withdraw',
             'entity_type' => 'withdrawal',
             'entity_id' => 1,

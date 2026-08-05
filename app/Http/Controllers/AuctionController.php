@@ -158,7 +158,7 @@ class AuctionController extends Controller
         // Handle file upload
         if ($request->hasFile('file')) {
             // Delete old file if exists
-            if ($auction->file_path && Storage::disk('public')->exists('auction_files/' . $auction->file_path)) {
+            if (!empty($auction->file_path) && Storage::disk('public')->exists('auction_files/' . $auction->file_path)) {
                 Storage::disk('public')->delete('auction_files/' . $auction->file_path);
             }
 
@@ -271,7 +271,8 @@ class AuctionController extends Controller
                     'OVO',
                     'DANA',
                     'LINKAJA',
-                    'SHOPEEPAY'
+                    'SHOPEEPAY',
+                    'QRIS'
                 ]
             ];
 

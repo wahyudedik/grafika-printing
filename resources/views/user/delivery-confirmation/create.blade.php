@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('content')
     <div class="container">
@@ -11,7 +11,7 @@
                     </div>
                     <div class="card-body">
                         <form action="{{ route('delivery-confirmation.store', $auction) }}" method="POST"
-                            enctype="multipart/form-data">
+                            enctype="multipart/form-data" data-loading>
                             @csrf
 
                             <!-- Auction Info -->

@@ -1,39 +1,39 @@
 @extends('layouts.app')
 
-@section('title', 'Payment Confirmation')
+@section('title', 'Konfirmasi Pembayaran')
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto">
             <!-- Header -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">Payment Confirmation</h1>
-                <p class="text-gray-600">Please review your payment details before proceeding</p>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Konfirmasi Pembayaran</h1>
+                <p class="text-gray-600">Silakan review detail pembayaran Anda sebelum melanjutkan</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Auction Details -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Auction Details</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Detail Lelang</h2>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-sm font-medium text-gray-500">Auction Title</label>
+                            <label class="text-sm font-medium text-gray-500">Judul Lelang</label>
                             <p class="text-gray-900">{{ $auction->title }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm font-medium text-gray-500">Description</label>
+                            <label class="text-sm font-medium text-gray-500">Deskripsi</label>
                             <p class="text-gray-900">{{ $auction->description }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm font-medium text-gray-500">Winning Vendor</label>
+                            <label class="text-sm font-medium text-gray-500">Vendor Pemenang</label>
                             <p class="text-gray-900">{{ $winningBid->vendor->name }}</p>
                         </div>
 
                         <div>
-                            <label class="text-sm font-medium text-gray-500">Winning Bid Amount</label>
+                            <label class="text-sm font-medium text-gray-500">Jumlah Tawaran Menang</label>
                             <p class="text-2xl font-bold text-green-600">Rp
                                 {{ number_format($winningBid->bid_amount, 0, ',', '.') }}</p>
                         </div>
@@ -42,32 +42,32 @@
 
                 <!-- Payment Breakdown -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Payment Breakdown</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4">Rincian Pembayaran</h2>
 
                     <div class="space-y-3">
                         <!-- Bid Amount -->
                         <div class="flex justify-between items-center py-2 border-b">
-                            <span class="text-gray-600">Winning Bid</span>
+                            <span class="text-gray-600">Tawaran Menang</span>
                             <span class="font-medium">Rp {{ number_format($winningBid->bid_amount, 0, ',', '.') }}</span>
                         </div>
 
                         <!-- Admin Fee -->
                         <div class="flex justify-between items-center py-2 border-b">
-                            <span class="text-gray-600">Admin Fee ({{ $feeCalculation['admin_fee_percentage'] }}%)</span>
+                            <span class="text-gray-600">Biaya Admin ({{ $feeCalculation['admin_fee_percentage'] }}%)</span>
                             <span class="font-medium text-orange-600">+ Rp
                                 {{ number_format($feeCalculation['admin_fee'], 0, ',', '.') }}</span>
                         </div>
 
                         <!-- Payment Gateway Fee -->
                         <div class="flex justify-between items-center py-2 border-b">
-                            <span class="text-gray-600">Payment Gateway Fee</span>
+                            <span class="text-gray-600">Biaya Payment Gateway</span>
                             <span class="font-medium text-orange-600">+ Rp
                                 {{ number_format($feeCalculation['payment_gateway_fee'], 0, ',', '.') }}</span>
                         </div>
 
                         <!-- Total -->
                         <div class="flex justify-between items-center py-3 bg-gray-50 rounded-lg px-4">
-                            <span class="text-lg font-semibold text-gray-900">Total Payment</span>
+                            <span class="text-lg font-semibold text-gray-900">Total Pembayaran</span>
                             <span class="text-2xl font-bold text-green-600">Rp
                                 {{ number_format($feeCalculation['total_amount'], 0, ',', '.') }}</span>
                         </div>
@@ -76,7 +76,7 @@
                     <!-- Vendor Receives -->
                     <div class="mt-4 p-3 bg-blue-50 rounded-lg">
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-blue-700">Vendor will receive</span>
+                            <span class="text-sm text-blue-700">Vendor menerima</span>
                             <span class="font-semibold text-blue-800">Rp
                                 {{ number_format($feeCalculation['vendor_receives'], 0, ',', '.') }}</span>
                         </div>
@@ -86,9 +86,9 @@
 
             <!-- Payment Method Selection -->
             <div class="bg-white rounded-lg shadow-md p-6 mt-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Select Payment Method</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Pilih Metode Pembayaran</h2>
 
-                <form action="{{ route('payments.process', $auction) }}" method="POST" id="paymentForm">
+                <form action="{{ route('payments.process', $auction) }}" method="POST" id="paymentForm" data-loading>
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -98,7 +98,7 @@
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
                                 <div class="text-2xl mb-2">🏦</div>
-                                <div class="font-medium">Bank Transfer</div>
+                                <div class="font-medium">Transfer Bank</div>
                                 <div class="text-sm text-gray-500">1.5% fee</div>
                             </div>
                         </label>
@@ -109,7 +109,7 @@
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
                                 <div class="text-2xl mb-2">💳</div>
-                                <div class="font-medium">Credit Card</div>
+                                <div class="font-medium">Kartu Kredit</div>
                                 <div class="text-sm text-gray-500">2.9% fee</div>
                             </div>
                         </label>
@@ -131,7 +131,7 @@
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
                                 <div class="text-2xl mb-2">🏪</div>
-                                <div class="font-medium">Retail Outlet</div>
+                                <div class="font-medium">Toko Retail</div>
                                 <div class="text-sm text-gray-500">1.0% fee</div>
                             </div>
                         </label>
@@ -142,23 +142,23 @@
                         <label class="flex items-start">
                             <input type="checkbox" name="agree_terms" class="mt-1 mr-3" required>
                             <span class="text-sm text-gray-600">
-                                I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and
-                                    Conditions</a>
-                                and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+                                Saya setuju dengan <a href="#" class="text-blue-600 hover:underline">Syarat dan
+                                    Ketentuan</a>
+                                dan <a href="#" class="text-blue-600 hover:underline">Kebijakan Privasi</a>
                             </span>
                         </label>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex justify-between items-center">
-                        <a href="{{ route('auctions.show', $auction) }}"
+                        <a href="{{ route('user.auctions.show', $auction) }}"
                             class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-                            Cancel
+                            Batal
                         </a>
 
                         <button type="submit"
                             class="px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium">
-                            Proceed to Payment
+                            Lanjutkan ke Pembayaran
                         </button>
                     </div>
                 </form>

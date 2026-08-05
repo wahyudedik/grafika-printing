@@ -125,7 +125,7 @@
                                 <h4 class="card-title">Penawaran dari Vendor</h4>
                             </div>
                             <div class="card-body">
-                                <form method="POST" action="{{ route('user.auctions.close', $auction) }}">
+                                <form method="POST" action="{{ route('user.auctions.close', $auction) }}" data-loading>
                                     @csrf
                                     <div class="row">
                                         @foreach ($auction->bids->where('status', 'pending') as $bid)

@@ -205,7 +205,7 @@
                     </div>
                     <div class="mt-3">
                         <p class="text-muted">Lacak status pesanan dari lelang yang Anda menangkan</p>
-                        <a href="{{ route('user.tracking.index') }}" class="btn btn-primary btn-sm">Lacak Pesanan</a>
+                        <a href="{{ route('user.orders.index') }}" class="btn btn-primary btn-sm">Lacak Pesanan</a>
                     </div>
                 </div>
             </div>

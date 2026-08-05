@@ -110,8 +110,10 @@
             letter-spacing: -0.5px;
         }
 
-        .navbar-nav {
+        .navbar-custom .navbar-nav {
             display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
             align-items: center;
             gap: 4px;
             list-style: none;
@@ -119,7 +121,11 @@
             padding: 0;
         }
 
-        .navbar-nav a {
+        .navbar-custom .navbar-nav li {
+            white-space: nowrap;
+        }
+
+        .navbar-custom .navbar-nav a {
             padding: 8px 16px;
             color: var(--text-secondary);
             text-decoration: none;
@@ -127,15 +133,19 @@
             font-weight: 500;
             border-radius: var(--radius-sm);
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
         }
 
-        .navbar-nav a:hover {
+        .navbar-custom .navbar-nav a:hover {
             color: var(--primary);
             background: rgba(102, 126, 234, 0.08);
         }
 
-        .navbar-actions {
+        .navbar-custom .navbar-actions {
             display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
             align-items: center;
             gap: 8px;
         }
@@ -945,9 +955,9 @@
         }
 
         @media (max-width: 768px) {
-            .navbar-nav { display: none; }
+            .navbar-custom .navbar-nav { display: none; }
             .mobile-toggle { display: block; }
-            .navbar-nav.active {
+            .navbar-custom .navbar-nav.active {
                 display: flex;
                 flex-direction: column;
                 position: absolute;
@@ -958,6 +968,14 @@
                 border-bottom: 1px solid var(--border);
                 padding: 12px;
                 box-shadow: var(--shadow-lg);
+                z-index: 1001;
+            }
+            .navbar-custom .navbar-nav.active li {
+                width: 100%;
+            }
+            .navbar-custom .navbar-nav.active a {
+                padding: 12px 16px;
+                width: 100%;
             }
             .hero { padding: 120px 24px 60px; }
             .hero h1 { font-size: 32px; }
@@ -1011,8 +1029,8 @@
     <nav class="navbar-custom" id="navbar">
         <div class="navbar-inner">
             <a href="/" class="navbar-brand">
-                <div class="logo-icon">CMYK</div>
-                <span class="brand-text">GRAFIKA</span>
+                <img src="{{ asset('logo.png') }}" alt="Grafika" class="logo-icon" style="width: 36px; height: 36px; border-radius: 8px; object-fit: cover;">
+                <span class="brand-text">GRAFIKA PRINTING</span>
             </a>
 
             <ul class="navbar-nav" id="navMenu">
@@ -1052,8 +1070,8 @@
                     <i class="fas fa-circle" style="font-size: 6px;"></i>
                     {{ \App\Models\CmsSetting::get('site_tagline', 'Platform Percetakan #1 di Indonesia') }}
                 </div>
-                <h1>{{ \App\Models\CmsSetting::get('hero_title', 'Solusi Percetakan<br><span>Mudah & Terpercaya</span>') }}</h1>
-                <p>{{ \App\Models\CmsSetting::get('hero_subtitle', 'Temukan vendor percetakan terbaik dengan harga kompetitif melalui sistem lelang transparan. Pembayaran aman via Xendit.') }}</p>
+                <h1>{!! \App\Models\CmsSetting::get('hero_title', 'Solusi Percetakan<br><span>Mudah & Terpercaya</span>') !!}</h1>
+                <p>{!! \App\Models\CmsSetting::get('hero_subtitle', 'Temukan vendor percetakan terbaik dengan harga kompetitif melalui sistem lelang transparan. Pembayaran aman via Xendit.') !!}</p>
                 <div class="hero-actions">
                     @auth
                         @if (auth()->user()->usertype === 'user')

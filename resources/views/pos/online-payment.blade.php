@@ -1,6 +1,6 @@
 @extends('layouts.vendor')
 
-@section('title', 'Online Payment - ' . $transaksi->kode)
+@section('title', 'Pembayaran Online - ' . $transaksi->kode)
 
 @section('content')
     <div class="container-xl">
@@ -8,21 +8,21 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="mb-0">🌐 Online Payment Setup</h3>
+                        <h3 class="mb-0">🌐 Pengaturan Pembayaran Online</h3>
                     </div>
                     <div class="card-body">
                         <!-- Transaction Summary -->
                         <div class="alert alert-info">
-                            <h5>Transaction Details</h5>
+                            <h5>Detail Transaksi</h5>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Invoice:</strong> {{ $transaksi->kode }}</p>
-                                    <p><strong>Customer:</strong> {{ $transaksi->pelanggan->nama }}</p>
+                                    <p><strong>Faktur:</strong> {{ $transaksi->kode }}</p>
+                                    <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan->nama }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> Rp
+                                    <p><strong>Total:</strong> Rp
                                         {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-                                    <p><strong>Items:</strong> {{ $transaksi->transaksiItems->count() }} items</p>
+                                    <p><strong>Item:</strong> {{ $transaksi->transaksiItems->count() }} item</p>
                                 </div>
                             </div>
                         </div>
@@ -35,14 +35,14 @@
                                 <!-- Payment Method Selection -->
                                 <div class="col-md-6">
                                     <div class="mb-4">
-                                        <label class="form-label">Payment Method</label>
+                                        <label class="form-label">Metode Pembayaran</label>
                                         <div class="row">
                                             <div class="col-6">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="payment_type"
                                                         id="bank_transfer" value="bank_transfer" checked>
                                                     <label class="form-check-label" for="bank_transfer">
-                                                        <i class="fas fa-university"></i> Bank Transfer
+                                                        <i class="fas fa-university"></i> Transfer Bank
                                                     </label>
                                                 </div>
                                             </div>
@@ -60,7 +60,7 @@
                                                     <input class="form-check-input" type="radio" name="payment_type"
                                                         id="retail" value="retail">
                                                     <label class="form-check-label" for="retail">
-                                                        <i class="fas fa-store"></i> Retail Outlet
+                                                        <i class="fas fa-store"></i> Toko Retail
                                                     </label>
                                                 </div>
                                             </div>
@@ -80,7 +80,7 @@
                                 <!-- Customer Information -->
                                 <div class="col-md-6">
                                     <div class="mb-4">
-                                        <label for="customer_email" class="form-label">Customer Email</label>
+                                        <label for="customer_email" class="form-label">Email Pelanggan</label>
                                         <input type="email"
                                             class="form-control @error('customer_email') is-invalid @enderror"
                                             id="customer_email" name="customer_email"
@@ -91,7 +91,7 @@
                                     </div>
 
                                     <div class="mb-4">
-                                        <label for="customer_phone" class="form-label">Customer Phone</label>
+                                        <label for="customer_phone" class="form-label">Telepon Pelanggan</label>
                                         <input type="tel"
                                             class="form-control @error('customer_phone') is-invalid @enderror"
                                             id="customer_phone" name="customer_phone"
@@ -105,12 +105,12 @@
 
                             <!-- Payment Instructions -->
                             <div class="alert alert-warning">
-                                <h6>Payment Instructions</h6>
+                                <h6>Instruksi Pembayaran</h6>
                                 <ul class="mb-0">
-                                    <li>Customer will receive payment link via email/SMS</li>
-                                    <li>Payment must be completed within 24 hours</li>
-                                    <li>Transaction will be automatically confirmed upon payment</li>
-                                    <li>Receipt will be generated after successful payment</li>
+                                    <li>Pelanggan akan menerima link pembayaran via email/SMS</li>
+                                    <li>Pembayaran harus diselesaikan dalam 24 jam</li>
+                                    <li>Transaksi akan otomatis terkonfirmasi setelah pembayaran</li>
+                                    <li>Struk akan dibuat setelah pembayaran berhasil</li>
                                 </ul>
                             </div>
 
@@ -118,10 +118,10 @@
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <a href="{{ route('vendor.pos.payment.options', $transaksi->id) }}"
                                     class="btn btn-outline-secondary me-md-2">
-                                    ← Back to Payment Options
+                                    ← Kembali ke Opsi Pembayaran
                                 </a>
                                 <button type="submit" class="btn btn-success">
-                                    🚀 Create Payment Link
+                                    🚀 Buat Link Pembayaran
                                 </button>
                             </div>
                         </form>

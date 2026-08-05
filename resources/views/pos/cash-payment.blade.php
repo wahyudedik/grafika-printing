@@ -1,6 +1,6 @@
 @extends('layouts.vendor')
 
-@section('title', 'Cash Payment - ' . $transaksi->kode)
+@section('title', 'Pembayaran Tunai - ' . $transaksi->kode)
 
 @section('content')
     <div class="container-xl">
@@ -8,21 +8,21 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="mb-0">💵 Cash Payment</h3>
+                        <h3 class="mb-0">💵 Pembayaran Tunai</h3>
                     </div>
                     <div class="card-body">
                         <!-- Transaction Summary -->
                         <div class="alert alert-info">
-                            <h5>Transaction Summary</h5>
+                            <h5>Ringkasan Transaksi</h5>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Invoice:</strong> {{ $transaksi->kode }}</p>
-                                    <p><strong>Customer:</strong> {{ $transaksi->pelanggan->nama }}</p>
+                                    <p><strong>Faktur:</strong> {{ $transaksi->kode }}</p>
+                                    <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan->nama }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> Rp
+                                    <p><strong>Total:</strong> Rp
                                         {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-                                    <p><strong>Items:</strong> {{ $transaksi->transaksiItems->count() }} items</p>
+                                    <p><strong>Item:</strong> {{ $transaksi->transaksiItems->count() }} item</p>
                                 </div>
                             </div>
                         </div>
@@ -32,7 +32,7 @@
                             @csrf
 
                             <div class="mb-4">
-                                <label for="payment_amount" class="form-label">Payment Amount Received</label>
+                                <label for="payment_amount" class="form-label">Jumlah Pembayaran Diterima</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
                                     <input type="number" class="form-control @error('payment_amount') is-invalid @enderror"
@@ -47,7 +47,7 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="change_amount" class="form-label">Change Amount</label>
+                                <label for="change_amount" class="form-label">Jumlah Kembalian</label>
                                 <div class="input-group">
                                     <span class="input-group-text">Rp</span>
                                     <input type="number" class="form-control @error('change_amount') is-invalid @enderror"
@@ -57,13 +57,13 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                                <div class="form-text">Calculated automatically</div>
+                                <div class="form-text">Dihitung secara otomatis</div>
                             </div>
 
                             <div class="mb-4">
-                                <label for="notes" class="form-label">Notes (Optional)</label>
+                                <label for="notes" class="form-label">Catatan (Opsional)</label>
                                 <textarea class="form-control @error('notes') is-invalid @enderror" id="notes" name="notes" rows="3"
-                                    placeholder="Additional notes for this payment..."></textarea>
+                                    placeholder="Catatan tambahan untuk pembayaran ini..."></textarea>
                                 @error('notes')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -71,12 +71,12 @@
 
                             <!-- Payment Summary -->
                             <div class="alert alert-success">
-                                <h6>Payment Summary</h6>
+                                <h6>Ringkasan Pembayaran</h6>
                                 <div class="row">
                                     <div class="col-6">
-                                        <p class="mb-1"><strong>Total Amount:</strong></p>
-                                        <p class="mb-1"><strong>Payment Received:</strong></p>
-                                        <p class="mb-0"><strong>Change:</strong></p>
+                                        <p class="mb-1"><strong>Total:</strong></p>
+                                        <p class="mb-1"><strong>Pembayaran Diterima:</strong></p>
+                                        <p class="mb-0"><strong>Kembalian:</strong></p>
                                     </div>
                                     <div class="col-6 text-end">
                                         <p class="mb-1" id="total-amount">Rp
@@ -91,10 +91,10 @@
                             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                                 <a href="{{ route('vendor.pos.payment.options', $transaksi->id) }}"
                                     class="btn btn-outline-secondary me-md-2">
-                                    ← Back to Payment Options
+                                    ← Kembali ke Opsi Pembayaran
                                 </a>
                                 <button type="submit" class="btn btn-success">
-                                    💵 Process Cash Payment
+                                    💵 Proses Pembayaran Tunai
                                 </button>
                             </div>
                         </form>

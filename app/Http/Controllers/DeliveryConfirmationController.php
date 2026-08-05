@@ -13,6 +13,19 @@ use Illuminate\Support\Facades\Storage;
 class DeliveryConfirmationController extends Controller
 {
     /**
+     * Display listing of user's delivery confirmations
+     */
+    public function index()
+    {
+        $confirmations = DeliveryConfirmation::with(['auction', 'vendor'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('user.delivery-confirmation.index', compact('confirmations'));
+    }
+
+    /**
      * Show delivery confirmation form
      */
     public function create(Auction $auction)

@@ -1,6 +1,6 @@
 @extends('layouts.vendor')
 
-@section('title', 'Payment Options - ' . $transaksi->kode)
+@section('title', 'Opsi Pembayaran - ' . $transaksi->kode)
 
 @section('content')
     <div class="container-xl">
@@ -8,21 +8,21 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="mb-0">💳 Choose Payment Method</h3>
+                        <h3 class="mb-0">💳 Pilih Metode Pembayaran</h3>
                     </div>
                     <div class="card-body">
                         <!-- Transaction Summary -->
                         <div class="alert alert-info">
-                            <h5>Transaction Summary</h5>
+                            <h5>Ringkasan Transaksi</h5>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p><strong>Invoice:</strong> {{ $transaksi->kode }}</p>
-                                    <p><strong>Customer:</strong> {{ $transaksi->pelanggan->nama }}</p>
+                                    <p><strong>Faktur:</strong> {{ $transaksi->kode }}</p>
+                                    <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan->nama }}</p>
                                 </div>
                                 <div class="col-md-6">
-                                    <p><strong>Total Amount:</strong> Rp
+                                    <p><strong>Total:</strong> Rp
                                         {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-                                    <p><strong>Items:</strong> {{ $transaksi->transaksiItems->count() }} items</p>
+                                    <p><strong>Item:</strong> {{ $transaksi->transaksiItems->count() }} item</p>
                                 </div>
                             </div>
                         </div>
@@ -40,17 +40,17 @@
                                                     d="M0 3a2 2 0 0 1 2-2h13a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2a1 1 0 0 0 0 2h11a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-2V3zm0 4a2 2 0 0 1 2-2h11a.5.5 0 0 1 0 1H2a1 1 0 0 0 0 2h11a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-2V7zm0 4a2 2 0 0 1 2-2h11a.5.5 0 0 1 0 1H2a1 1 0 0 0 0 2h11a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-2v-1z" />
                                             </svg>
                                         </div>
-                                        <h5 class="card-title">Cash Payment</h5>
-                                        <p class="card-text">Process payment with cash on hand</p>
+                                        <h5 class="card-title">Pembayaran Tunai</h5>
+                                        <p class="card-text">Proses pembayaran dengan uang tunai</p>
                                         <ul class="list-unstyled text-start">
-                                            <li>✅ Instant confirmation</li>
-                                            <li>✅ No processing fees</li>
-                                            <li>✅ Immediate receipt</li>
-                                            <li>✅ No internet required</li>
+                                            <li>✅ Konfirmasi instan</li>
+                                            <li>✅ Tanpa biaya admin</li>
+                                            <li>✅ Struk langsung</li>
+                                            <li>✅ Tanpa internet</li>
                                         </ul>
                                         <a href="{{ route('vendor.pos.payment.cash', $transaksi->id) }}"
                                             class="btn btn-primary">
-                                            💵 Process Cash Payment
+                                            💵 Proses Pembayaran Tunai
                                         </a>
                                     </div>
                                 </div>
@@ -67,17 +67,17 @@
                                                     d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2.5 0a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5h-11zm1 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z" />
                                             </svg>
                                         </div>
-                                        <h5 class="card-title">Online Payment</h5>
-                                        <p class="card-text">Process payment via Xendit (Transfer/QRIS)</p>
+                                        <h5 class="card-title">Pembayaran Online</h5>
+                                        <p class="card-text">Proses pembayaran via Xendit (Transfer/QRIS)</p>
                                         <ul class="list-unstyled text-start">
-                                            <li>💳 Bank Transfer (VA)</li>
-                                            <li>📱 E-Wallet (OVO, DANA, etc.)</li>
-                                            <li>🏪 Retail Outlets</li>
-                                            <li>🔒 Secure & Verified</li>
+                                            <li>💳 Transfer Bank (VA)</li>
+                                            <li>📱 E-Wallet (OVO, DANA, dll.)</li>
+                                            <li>🏪 Toko Retail</li>
+                                            <li>🔒 Aman & Terverifikasi</li>
                                         </ul>
                                         <a href="{{ route('vendor.pos.payment.online', $transaksi->id) }}"
                                             class="btn btn-success">
-                                            🌐 Process Online Payment
+                                            🌐 Proses Pembayaran Online
                                         </a>
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@
                         <div class="text-center mt-4">
                             <a href="{{ route('vendor.pos.invoice.show', $transaksi->id) }}"
                                 class="btn btn-outline-secondary">
-                                ← Back to Invoice
+                                ← Kembali ke Faktur
                             </a>
                         </div>
                     </div>

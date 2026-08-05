@@ -28,7 +28,7 @@
                             <h3 class="card-title">Form Penawaran</h3>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('vendor.auctions.store-bid', $auction) }}" method="POST">
+                            <form action="{{ route('vendor.auctions.store-bid', $auction) }}" method="POST" data-loading>
                                 @csrf
 
                                 <div class="row g-3">

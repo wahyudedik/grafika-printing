@@ -28,7 +28,7 @@
                             <h3 class="card-title">Form Edit Penawaran</h3>
                         </div>
                         <div class="card-body">
-                            <form action="{{ route('vendor.auctions.update-bid', $bid) }}" method="POST">
+                            <form action="{{ route('vendor.auctions.update-bid', $bid) }}" method="POST" data-loading>
                                 @csrf
                                 @method('PUT')
 
