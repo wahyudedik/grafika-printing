@@ -3,218 +3,157 @@
 @section('title', 'Detail Order ' . $order->order_number)
 
 @section('content')
-<div class="page-header d-print-none mb-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="d-flex align-items-center mb-1">
-                <a href="{{ route('vendor.manual-transfers.index') }}" class="btn btn-icon btn-ghost-secondary me-2">
-                    ← Kembali
-                </a>
-                <h2 class="page-title">Order {{ $order->order_number }}</h2>
-            </div>
-        </div>
-        <div class="col-auto">
-            <span class="badge bg-{{ $order->status_color }} fs-5">{{ $order->status_label }}</span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div class="flex items-center gap-3">
+        <a href="{{ route('vendor.manual-transfers.index') }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"><i class="fas fa-arrow-left text-sm"></i></a>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Order {{ $order->order_number }}</h2>
         </div>
     </div>
+    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-{{ $order->status_color }}-100 text-{{ $order->status_color }}-800">{{ $order->status_label }}</span>
 </div>
 
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible">{{ session('success') }}<a class="btn-close" data-bs-dismiss="alert"></a></div>
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-2 text-green-800"><i class="fas fa-check-circle"></i><span>{{ session('success') }}</span></div>
+        <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+    </div>
 @endif
 
 @if(session('error'))
-    <div class="alert alert-danger alert-dismissible">{{ session('error') }}<a class="btn-close" data-bs-dismiss="alert"></a></div>
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-2 text-red-800"><i class="fas fa-exclamation-circle"></i><span>{{ session('error') }}</span></div>
+        <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
+    </div>
 @endif
 
-<div class="row">
-    <div class="col-lg-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Main Content --}}
+    <div class="lg:col-span-2 space-y-6">
         {{-- Customer Info --}}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h3 class="card-title">Informasi Pelanggan</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <div class="text-muted">Nama</div>
-                            <div class="fw-bold">{{ $order->customer_name }}</div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="text-muted">Telepon</div>
-                            <div>{{ $order->customer_phone ?? '-' }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-2">
-                            <div class="text-muted">Email</div>
-                            <div>{{ $order->customer_email ?? '-' }}</div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="text-muted">Tanggal Order</div>
-                            <div>{{ $order->created_at->format('d/m/Y H:i') }}</div>
-                        </div>
-                    </div>
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Informasi Pelanggan</h3></div>
+            <div class="p-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><div class="text-sm text-gray-500">Nama</div><div class="font-bold">{{ $order->customer_name }}</div></div>
+                    <div><div class="text-sm text-gray-500">Telepon</div><div>{{ $order->customer_phone ?? '-' }}</div></div>
+                    <div><div class="text-sm text-gray-500">Email</div><div>{{ $order->customer_email ?? '-' }}</div></div>
+                    <div><div class="text-sm text-gray-500">Tanggal Order</div><div>{{ $order->created_at->format('d/m/Y H:i') }}</div></div>
                 </div>
             </div>
         </div>
 
         {{-- Items --}}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h3 class="card-title">Items</h3>
-            </div>
-            <div class="card-body p-0">
-                <table class="table table-vcenter">
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Harga</th>
-                            <th>Qty</th>
-                            <th class="text-end">Subtotal</th>
-                        </tr>
-                    </thead>
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Items</h3></div>
+            <div class="p-0">
+                <table class="w-full text-sm">
+                    <thead><tr class="border-b border-gray-200">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Item</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Harga</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Qty</th>
+                        <th class="text-right py-3 px-4 font-semibold text-gray-600">Subtotal</th>
+                    </tr></thead>
                     <tbody>
                         @if($order->items && is_array($order->items))
                             @foreach($order->items as $item)
-                                <tr>
-                                    <td>{{ $item['name'] ?? '-' }}</td>
-                                    <td>Rp {{ number_format($item['price'] ?? 0, 0, ',', '.') }}</td>
-                                    <td>{{ $item['quantity'] ?? 1 }}</td>
-                                    <td class="text-end">Rp {{ number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 0, ',', '.') }}</td>
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-4">{{ $item['name'] ?? '-' }}</td>
+                                    <td class="py-3 px-4">Rp {{ number_format($item['price'] ?? 0, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4">{{ $item['quantity'] ?? 1 }}</td>
+                                    <td class="py-3 px-4 text-right">Rp {{ number_format(($item['price'] ?? 0) * ($item['quantity'] ?? 1), 0, ',', '.') }}</td>
                                 </tr>
                             @endforeach
                         @endif
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" class="text-end fw-bold">Total</td>
-                            <td class="text-end fw-bold fs-4">{{ $order->formatted_total }}</td>
-                        </tr>
-                    </tfoot>
+                    <tfoot><tr class="border-t border-gray-200">
+                        <td colspan="3" class="py-3 px-4 text-right font-bold">Total</td>
+                        <td class="py-3 px-4 text-right font-bold text-lg">{{ $order->formatted_total }}</td>
+                    </tr></tfoot>
                 </table>
             </div>
         </div>
 
         {{-- Transfer Proof --}}
         @if($order->transfer_proof)
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h3 class="card-title">Bukti Transfer</h3>
-                </div>
-                <div class="card-body text-center">
-                    <img src="{{ asset('storage/manual_transfer_proofs/' . $order->transfer_proof) }}"
-                         alt="Bukti Transfer" class="img-fluid rounded" style="max-height: 400px;">
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Bukti Transfer</h3></div>
+                <div class="p-5 text-center">
+                    <img src="{{ asset('storage/manual_transfer_proofs/' . $order->transfer_proof) }}" alt="Bukti Transfer" class="max-h-96 mx-auto rounded-lg">
                 </div>
             </div>
         @endif
 
         {{-- Notes --}}
         @if($order->notes)
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h3 class="card-title">Catatan</h3>
-                </div>
-                <div class="card-body">
-                    <p class="mb-0">{{ $order->notes }}</p>
-                </div>
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Catatan</h3></div>
+                <div class="p-5"><p class="mb-0">{{ $order->notes }}</p></div>
             </div>
         @endif
 
         {{-- Rejection Reason --}}
         @if($order->rejection_reason)
-            <div class="card mb-3 border-danger">
-                <div class="card-header bg-danger-lt">
-                    <h3 class="card-title text-danger">Alasan Penolakan</h3>
-                </div>
-                <div class="card-body">
-                    <p class="mb-0">{{ $order->rejection_reason }}</p>
-                </div>
+            <div class="bg-white rounded-xl border border-red-200">
+                <div class="px-5 py-4 border-b border-red-200 bg-red-50"><h3 class="text-lg font-semibold text-red-700">Alasan Penolakan</h3></div>
+                <div class="p-5"><p class="mb-0">{{ $order->rejection_reason }}</p></div>
             </div>
         @endif
     </div>
 
-    <div class="col-lg-4">
+    {{-- Sidebar --}}
+    <div class="space-y-6">
         {{-- Payment Info --}}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h3 class="card-title">Info Pembayaran</h3>
-            </div>
-            <div class="card-body">
-                <div class="mb-2">
-                    <div class="text-muted">Bank</div>
-                    <div class="fw-bold">{{ $order->bank_name ?? '-' }}</div>
-                </div>
-                <div class="mb-2">
-                    <div class="text-muted">No. Rekening</div>
-                    <div class="fw-bold font-monospace">{{ $order->account_number ?? '-' }}</div>
-                </div>
-                <div class="mb-2">
-                    <div class="text-muted">Atas Nama</div>
-                    <div class="fw-bold">{{ $order->account_name ?? '-' }}</div>
-                </div>
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Info Pembayaran</h3></div>
+            <div class="p-5 space-y-3">
+                <div><div class="text-sm text-gray-500">Bank</div><div class="font-bold">{{ $order->bank_name ?? '-' }}</div></div>
+                <div><div class="text-sm text-gray-500">No. Rekening</div><div class="font-bold font-mono">{{ $order->account_number ?? '-' }}</div></div>
+                <div><div class="text-sm text-gray-500">Atas Nama</div><div class="font-bold">{{ $order->account_name ?? '-' }}</div></div>
                 @if($order->paid_at)
-                    <div class="mb-2">
-                        <div class="text-muted">Dibayar Pada</div>
-                        <div>{{ $order->paid_at->format('d/m/Y H:i') }}</div>
-                    </div>
+                    <div><div class="text-sm text-gray-500">Dibayar Pada</div><div>{{ $order->paid_at->format('d/m/Y H:i') }}</div></div>
                 @endif
             </div>
         </div>
 
         {{-- Actions --}}
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Aksi</h3>
-            </div>
-            <div class="card-body">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Aksi</h3></div>
+            <div class="p-5 space-y-3">
                 @if($order->isPaid())
-                    <form action="{{ route('vendor.manual-transfers.confirm', $order) }}" method="POST" class="mb-2">
+                    <form action="{{ route('vendor.manual-transfers.confirm', $order) }}" method="POST" @submit="return confirm('Konfirmasi order ini sebagai selesai?')">
                         @csrf
-                        <button type="submit" class="btn btn-success w-100" onclick="return confirm('Konfirmasi order ini sebagai selesai?')">
-                            ✅ Konfirmasi Selesai
-                        </button>
+                        <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">✅ Konfirmasi Selesai</button>
                     </form>
                 @endif
 
                 @if($order->status !== 'completed' && $order->status !== 'rejected')
-                    <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#rejectModal">
-                        ❌ Tolak Order
-                    </button>
+                    <div x-data="{ open: false }">
+                        <button @click="open = true" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">❌ Tolak Order</button>
+                        <div x-show="open" x-transition @keydown.escape.window="open = false" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
+                            <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="open = false"></div>
+                            <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Tolak Order</h3>
+                                <form action="{{ route('vendor.manual-transfers.reject', $order) }}" method="POST">
+                                    @csrf
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Penolakan <span class="text-red-500">*</span></label>
+                                        <textarea name="rejection_reason" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="3" required placeholder="Masukkan alasan penolakan..."></textarea>
+                                    </div>
+                                    <div class="flex justify-end gap-3">
+                                        <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</button>
+                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">Tolak Order</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 @endif
 
                 @if($order->status === 'pending')
-                    <div class="text-muted text-center mt-3 small">
-                        Menunggu bukti transfer dari pelanggan
-                    </div>
+                    <div class="text-center text-sm text-gray-500 mt-3">Menunggu bukti transfer dari pelanggan</div>
                 @endif
             </div>
-        </div>
-    </div>
-</div>
-
-{{-- Reject Modal --}}
-<div class="modal modal-blur fade" id="rejectModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Tolak Order</h3>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ route('vendor.manual-transfers.reject', $order) }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
-                        <textarea name="rejection_reason" class="form-control" rows="3" required placeholder="Masukkan alasan penolakan..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">Tolak Order</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

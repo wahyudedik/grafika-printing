@@ -208,14 +208,17 @@ class XenditWebhookController extends Controller
                         // Create order in vendor's POS system
                         $this->createVendorOrder($auction, $winningBid);
 
-                        // Add funds to vendor wallet
-                        $this->addToVendorWallet($winningBid->vendor_id, (float) $payment->amount);
+                        // NOTE: Do NOT add funds to vendor wallet here!
+                        // Funds are only released to vendor wallet after user confirms delivery
+                        // via DeliveryConfirmationController::processVendorPayment()
+                        // This prevents double-payment to vendors.
 
                         Log::info('Auction payment processed successfully', [
                             'auction_id' => $auction->id,
                             'payment_id' => $payment->id,
                             'vendor_id' => $winningBid->vendor_id,
-                            'amount' => $payment->amount
+                            'amount' => $payment->amount,
+                            'note' => 'Payment received. Funds held until delivery confirmation.'
                         ]);
                     }
                 }

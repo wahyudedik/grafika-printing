@@ -3,117 +3,106 @@
 @section('title', 'CMS Management')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-cogs me-2"></i>CMS Management
-                        </h3>
-                        <div class="card-actions">
-                            <div class="btn-group" role="group">
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSettingModal">
-                                    <i class="fas fa-plus me-1"></i>Add New Setting
-                                </button>
-                                <a href="{{ route('admin.cms.preview') }}" class="btn btn-info" target="_blank">
-                                    <i class="fas fa-eye me-1"></i>Preview Landing
-                                </a>
-                                <a href="{{ route('admin.cms.statistics') }}" class="btn btn-success">
-                                    <i class="fas fa-chart-bar me-1"></i>Statistics
-                                </a>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-outline-secondary dropdown-toggle"
-                                        data-bs-toggle="dropdown">
-                                        <i class="fas fa-cog me-1"></i>Tools
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('admin.cms.export') }}">
-                                                <i class="fas fa-download me-2"></i>Export Settings
-                                            </a></li>
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                data-bs-target="#importModal">
-                                                <i class="fas fa-upload me-2"></i>Import Settings
-                                            </a></li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li><a class="dropdown-item text-danger" href="#" onclick="resetSettings()">
-                                                <i class="fas fa-undo me-2"></i>Reset to Default
-                                            </a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+    <div x-data="{ showAddModal: false, showImportModal: false, showToolsDropdown: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Header --}}
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cogs text-blue-600"></i>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach ($categories as $categoryKey => $categoryName)
-                                <div class="col-md-6 col-lg-4 mb-4">
-                                    <div class="card h-100">
-                                        <div class="card-header">
-                                            <h5 class="card-title mb-0">
-                                                <i
-                                                    class="fas fa-{{ $categoryKey === 'general' ? 'cog' : ($categoryKey === 'hero' ? 'image' : ($categoryKey === 'footer' ? 'footer' : ($categoryKey === 'contact' ? 'phone' : 'share'))) }} me-2"></i>
-                                                {{ $categoryName }}
-                                            </h5>
-                                        </div>
-                                        <div class="card-body">
-                                            @if (isset($settings[$categoryKey]) && $settings[$categoryKey]->count() > 0)
-                                                <p class="text-muted mb-3">{{ $settings[$categoryKey]->count() }} settings
-                                                    configured</p>
-                                                <div class="d-flex gap-2">
-                                                    <a href="{{ route('admin.cms.show', $categoryKey) }}"
-                                                        class="btn btn-outline-primary btn-sm">
-                                                        <i class="fas fa-edit me-1"></i>Edit
-                                                    </a>
-                                                    <a href="{{ route('admin.cms.show', $categoryKey) }}"
-                                                        class="btn btn-outline-info btn-sm">
-                                                        <i class="fas fa-eye me-1"></i>View
-                                                    </a>
-                                                </div>
-                                            @else
-                                                <p class="text-muted mb-3">No settings configured</p>
-                                                <a href="{{ route('admin.cms.show', $categoryKey) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-plus me-1"></i>Configure
-                                                </a>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
+                    <h2 class="text-2xl font-bold text-gray-900">CMS Management</h2>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button @click="showAddModal = true" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus"></i>
+                        Add New Setting
+                    </button>
+                    <a href="{{ route('admin.cms.preview') }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 transition-colors">
+                        <i class="fas fa-eye"></i>
+                        Preview Landing
+                    </a>
+                    <a href="{{ route('admin.cms.statistics') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-chart-bar"></i>
+                        Statistics
+                    </a>
+                    <div class="relative" @click.away="showToolsDropdown = false">
+                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" @click="showToolsDropdown = !showToolsDropdown">
+                            <i class="fas fa-cog"></i>
+                            Tools
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div x-show="showToolsDropdown" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
+                            <a class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" href="{{ route('admin.cms.export') }}">
+                                <i class="fas fa-download text-xs text-gray-400"></i>Export Settings
+                            </a>
+                            <a class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" href="#" @click="showToolsDropdown = false; showImportModal = true">
+                                <i class="fas fa-upload text-xs text-gray-400"></i>Import Settings
+                            </a>
+                            <hr class="my-1 border-gray-100">
+                            <a class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50" href="#" @click="showToolsDropdown = false; resetSettings()">
+                                <i class="fas fa-undo text-xs"></i>Reset to Default
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Add Setting Modal -->
-    <div class="modal fade" id="addSettingModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Setting</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('admin.cms.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="key" class="form-label">Key <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="key" name="key" required>
-                                    <div class="form-text">Unique identifier for this setting</div>
+            {{-- Category Cards --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach ($categories as $categoryKey => $categoryName)
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h5 class="text-base font-semibold text-gray-900 flex items-center gap-2">
+                                <i class="fas fa-{{ $categoryKey === 'general' ? 'cog' : ($categoryKey === 'hero' ? 'image' : ($categoryKey === 'footer' ? 'footer' : ($categoryKey === 'contact' ? 'phone' : 'share'))) }} text-gray-400"></i>
+                                {{ $categoryName }}
+                            </h5>
+                        </div>
+                        <div class="p-6">
+                            @if (isset($settings[$categoryKey]) && $settings[$categoryKey]->count() > 0)
+                                <p class="text-sm text-gray-500 mb-4">{{ $settings[$categoryKey]->count() }} settings configured</p>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                                        <i class="fas fa-edit text-xs"></i>Edit
+                                    </a>
+                                    <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-cyan-600 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100 transition-colors">
+                                        <i class="fas fa-eye text-xs"></i>View
+                                    </a>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="category" class="form-label">Category <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select" id="category" name="category" required>
+                            @else
+                                <p class="text-sm text-gray-500 mb-4">No settings configured</p>
+                                <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-plus text-xs"></i>Configure
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Add Setting Modal --}}
+        <div x-show="showAddModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="showAddModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity bg-gray-500/75" @click="showAddModal = false"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                <div x-show="showAddModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-bottom transition-all transform bg-white shadow-xl rounded-xl sm:align-middle" @click.outside="showAddModal = false">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Add New Setting</h3>
+                        <button type="button" @click="showAddModal = false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+                    </div>
+                    <form action="{{ route('admin.cms.store') }}" method="POST">
+                        @csrf
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Key <span class="text-red-500">*</span></label>
+                                    <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="key" name="key" required>
+                                    <p class="mt-1 text-xs text-gray-500">Unique identifier for this setting</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Category <span class="text-red-500">*</span></label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="category" name="category" required>
                                         <option value="">Select Category</option>
                                         @foreach ($categories as $categoryKey => $categoryName)
                                             <option value="{{ $categoryKey }}">{{ $categoryName }}</option>
@@ -121,13 +110,10 @@
                                     </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="type" class="form-label">Type <span
-                                            class="text-danger">*</span></label>
-                                    <select class="form-select" id="type" name="type" required>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+                                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="type" name="type" required>
                                         <option value="">Select Type</option>
                                         <option value="text">Text</option>
                                         <option value="textarea">Textarea</option>
@@ -138,64 +124,62 @@
                                         <option value="social">Social Media</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="sort_order" class="form-label">Sort Order</label>
-                                    <input type="number" class="form-control" id="sort_order" name="sort_order"
-                                        value="0">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="sort_order" name="sort_order" value="0">
                                 </div>
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Label <span class="text-red-500">*</span></label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="label" name="label" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Value</label>
+                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="value" name="value">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="description" name="description" rows="3"></textarea>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="label" class="form-label">Label <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="label" name="label" required>
+                        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                            <button type="button" @click="showAddModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Create Setting</button>
                         </div>
-                        <div class="mb-3">
-                            <label for="value" class="form-label">Value</label>
-                            <input type="text" class="form-control" id="value" name="value">
-                        </div>
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Setting</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Import Settings Modal -->
-    <div class="modal fade" id="importModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Import CMS Settings</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        {{-- Import Settings Modal --}}
+        <div x-show="showImportModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                <div x-show="showImportModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity bg-gray-500/75" @click="showImportModal = false"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                <div x-show="showImportModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-bottom transition-all transform bg-white shadow-xl rounded-xl sm:align-middle" @click.outside="showImportModal = false">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Import CMS Settings</h3>
+                        <button type="button" @click="showImportModal = false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+                    </div>
+                    <form action="{{ route('admin.cms.import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Select JSON File</label>
+                                <input type="file" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" id="file" name="file" accept=".json" required>
+                                <p class="mt-1 text-xs text-gray-500">Upload a JSON file exported from CMS settings</p>
+                            </div>
+                            <div class="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                                <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
+                                <p class="text-sm text-amber-800"><strong>Warning:</strong> This will overwrite existing settings with the same keys.</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                            <button type="button" @click="showImportModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Import Settings</button>
+                        </div>
+                    </form>
                 </div>
-                <form action="{{ route('admin.cms.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="file" class="form-label">Select JSON File</label>
-                            <input type="file" class="form-control" id="file" name="file" accept=".json"
-                                required>
-                            <div class="form-text">Upload a JSON file exported from CMS settings</div>
-                        </div>
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Warning:</strong> This will overwrite existing settings with the same keys.
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Import Settings</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -203,41 +187,37 @@
 
 @section('scripts')
     <script>
-        // Auto-generate key from label
         document.getElementById('label').addEventListener('input', function() {
             const label = this.value;
             const key = label.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '_');
             document.getElementById('key').value = key;
         });
 
-        // Reset settings function
         function resetSettings() {
             if (confirm('Are you sure you want to reset all CMS settings to default? This action cannot be undone.')) {
                 fetch('{{ route('admin.cms.reset') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert('Error: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while resetting settings');
-                    });
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while resetting settings');
+                });
             }
         }
 
-        // Real-time preview functionality
         function previewSetting(key, value) {
-            // Update preview elements in real-time
             const previewElements = document.querySelectorAll(`[data-cms-key="${key}"]`);
             previewElements.forEach(element => {
                 if (element.tagName === 'IMG') {
@@ -248,9 +228,7 @@
             });
         }
 
-        // Auto-save functionality
         let saveTimeout;
-
         function autoSave() {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(() => {
@@ -258,10 +236,9 @@
                 if (form) {
                     form.submit();
                 }
-            }, 2000); // Auto-save after 2 seconds of inactivity
+            }, 2000);
         }
 
-        // Add auto-save to form inputs
         document.addEventListener('DOMContentLoaded', function() {
             const inputs = document.querySelectorAll('input, textarea, select');
             inputs.forEach(input => {

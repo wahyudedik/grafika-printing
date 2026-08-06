@@ -2,78 +2,70 @@
 
 @section('title', 'Detail Bahan')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Detail Bahan</h3>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Detail Bahan</h3>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Bahan</label>
-                                    <div class="form-control-plaintext">{{ $bahan->nama_bahan }}</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Satuan</label>
-                                    <div class="form-control-plaintext">{{ $bahan->satuan }}</div>
-                                </div>
+                    <div class="px-6 py-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Nama Bahan</label>
+                                <div class="text-sm text-gray-900">{{ $bahan->nama_bahan }}</div>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Harga Pokok Produksi (HPP)</label>
-                                    <div class="form-control-plaintext">Rp
-                                        {{ number_format((float) $bahan->hpp, 0, ',', '.') }}
-                                    </div>
-                                </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Satuan</label>
+                                <div class="text-sm text-gray-900">{{ $bahan->satuan }}</div>
+                            </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Stok</label>
-                                    <div>
-                                        @if ($bahan->stok == 0)
-                                            <span class="badge bg-danger text-white">Habis</span>
-                                        @elseif($bahan->stok < 10)
-                                            <span class="badge bg-warning text-white">Rendah ({{ $bahan->stok }})</span>
-                                        @else
-                                            <span class="badge bg-success text-white">{{ $bahan->stok }}</span>
-                                        @endif
-                                    </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Harga Pokok Produksi (HPP)</label>
+                                <div class="text-sm text-gray-900">Rp {{ number_format((float) $bahan->hpp, 0, ',', '.') }}</div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 mb-1">Stok</label>
+                                <div>
+                                    @if ($bahan->stok == 0)
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">Habis</span>
+                                    @elseif($bahan->stok < 10)
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-700">Rendah ({{ $bahan->stok }})</span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">{{ $bahan->stok }}</span>
+                                    @endif
                                 </div>
                             </div>
 
                             @if ($bahan->vendor)
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Vendor/Supplier</label>
-                                        <div class="form-control-plaintext">{{ $bahan->vendor->name }}</div>
-                                    </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500 mb-1">Vendor/Supplier</label>
+                                    <div class="text-sm text-gray-900">{{ $bahan->vendor->name }}</div>
                                 </div>
                             @endif
                         </div>
 
                         <!-- Wholesale Prices Section -->
                         @if ($bahan->wholesalePrices && $bahan->wholesalePrices->count() > 0)
-                            <div class="mt-4">
-                                <h4 class="mb-3">Harga Grosir</h4>
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter card-table">
-                                        <thead>
+                            <div class="mt-6">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-3">Harga Grosir</h4>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
                                             <tr>
-                                                <th>Min Quantity</th>
-                                                <th>Max Quantity</th>
-                                                <th>Harga</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Min Quantity</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Max Quantity</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody class="bg-white divide-y divide-gray-200">
                                             @foreach ($bahan->wholesalePrices()->orderBy('min_quantity', 'asc')->get() as $price)
                                                 <tr>
-                                                    <td>{{ $price->min_quantity }}</td>
-                                                    <td>{{ $price->max_quantity ?? 'Unlimited' }}</td>
-                                                    <td>Rp {{ number_format((float) $price->harga, 0, ',', '.') }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $price->min_quantity }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $price->max_quantity ?? 'Unlimited' }}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rp {{ number_format((float) $price->harga, 0, ',', '.') }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -81,49 +73,28 @@
                                 </div>
                             </div>
                         @else
-                            <div class="alert alert-info mt-4">
-                                <div class="d-flex">
-                                    <div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24"
-                                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M12 9h.01"></path>
-                                            <path d="M11 12h1v4h1"></path>
-                                            <path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9 -9 9s-9 -1.8 -9 -9s1.8 -9 9 -9z"></path>
-                                        </svg>
+                            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-400"></i>
                                     </div>
-                                    <div>
-                                        <h4 class="alert-title">Tidak ada harga grosir untuk bahan ini</h4>
-                                        <div class="text-muted">Harga bahan akan menggunakan HPP standar untuk semua
-                                            kuantitas.</div>
+                                    <div class="ml-3">
+                                        <h4 class="text-sm font-medium text-blue-800">Tidak ada harga grosir untuk bahan ini</h4>
+                                        <p class="text-sm text-blue-600">Harga bahan akan menggunakan HPP standar untuk semua kuantitas.</p>
                                     </div>
                                 </div>
                             </div>
                         @endif
                     </div>
-                    <div class="card-footer text-end">
-                        <a href="{{ route('vendor.materials.edit', $bahan->id) }}" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
-                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
-                                <path d="M16 5l3 3"></path>
-                            </svg>
+                    <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                        <a href="{{ route('vendor.materials.edit', $bahan->id) }}"
+                            class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                            <i class="fas fa-edit"></i>
                             Edit
                         </a>
-
-                        <a href="{{ route('vendor.materials.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M5 12l14 0"></path>
-                                <path d="M5 12l6 6"></path>
-                                <path d="M5 12l6 -6"></path>
-                            </svg>
+                        <a href="{{ route('vendor.materials.index') }}"
+                            class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+                            <i class="fas fa-arrow-left"></i>
                             Kembali
                         </a>
                     </div>

@@ -2,13 +2,13 @@
 
 @section('title', 'Tambah Produk')
 @section('content')
-    <div class="container-xl">
-        <div class="row g-3">
-            <div class="col-12">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
                 @if ($errors->any())
-                    <div class="alert alert-danger mb-3">
-                        <h4 class="alert-title">Error!</h4>
-                        <ul class="mb-0">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                        <h4 class="text-sm font-medium text-red-800 mb-2">Error!</h4>
+                        <ul class="list-disc list-inside text-sm text-red-600">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -16,164 +16,123 @@
                     </div>
                 @endif
 
-                <form action="{{ route('vendor.products.store') }}" method="POST" class="card" enctype="multipart/form-data"
+                <form action="{{ route('vendor.products.store') }}" method="POST" enctype="multipart/form-data"
                     onsubmit="showLoading('Menambahkan produk...')">
                     @csrf
-                    <div class="card-header">
-                        <h3 class="card-title">Tambah Produk Baru</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label required">Nama Produk</label>
-                                    <input type="text" class="form-control @error('nama_produk') is-invalid @enderror"
-                                        name="nama_produk" value="{{ old('nama_produk') }}"
-                                        placeholder="Masukkan nama produk">
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Tambah Produk Baru</h3>
+                        </div>
+                        <div class="px-6 py-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Nama Produk <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" name="nama_produk" value="{{ old('nama_produk') }}"
+                                        placeholder="Masukkan nama produk"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm @error('nama_produk') border-red-500 @enderror">
                                     @error('nama_produk')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <div class="col-md-6">
-                                <div class="form-group mb-3">
-                                    <label class="form-label required">Kategori</label>
-                                    <div class="input-group">
-                                        <select class="form-select @error('kategori_id') is-invalid @enderror"
-                                            name="kategori_id" id="kategori-select">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Kategori <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="flex gap-2">
+                                        <select name="kategori_id" id="kategori-select"
+                                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm @error('kategori_id') border-red-500 @enderror">
                                             <option value="">Pilih Kategori</option>
                                             @foreach ($kategories as $kategori)
-                                                <option value="{{ $kategori->id }}"
-                                                    {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
+                                                <option value="{{ $kategori->id }}" {{ old('kategori_id') == $kategori->id ? 'selected' : '' }}>
                                                     {{ $kategori->nama_kategori }}
                                                 </option>
                                             @endforeach
                                             <option value="new">+ Kategori Baru</option>
                                         </select>
-                                        <button class="btn btn-outline-secondary" type="button" id="toggle-new-category">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path d="M12 5l0 14"></path>
-                                                <path d="M5 12l14 0"></path>
-                                            </svg>
+                                        <button type="button" id="toggle-new-category"
+                                            class="px-3 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
                                     @error('kategori_id')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
-                                </div>
 
-                                <div id="new-category-container" class="mb-3" style="display: none;">
-                                    <label class="form-label">Nama Kategori Baru</label>
-                                    <input type="text" class="form-control @error('new_kategori') is-invalid @enderror"
-                                        name="new_kategori" value="{{ old('new_kategori') }}"
-                                        placeholder="Masukkan nama kategori baru">
-                                    @error('new_kategori')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">Deskripsi</label>
-                                    <textarea class="form-control @error('deskripsi') is-invalid @enderror" name="deskripsi" rows="4"
-                                        placeholder="Masukkan deskripsi produk">{{ old('deskripsi') }}</textarea>
-                                    @error('deskripsi')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-12">
-                                <div class="form-group mb-3">
-                                    <label class="form-label">Gambar Produk</label>
-                                    <input type="file" class="form-control @error('gambar.*') is-invalid @enderror"
-                                        name="gambar[]" multiple accept="image/*">
-                                    <div class="form-text">
-                                        Anda dapat memilih beberapa gambar. Format yang didukung: JPG, PNG, GIF. Maks 2MB
-                                        per file.
+                                    <div id="new-category-container" class="mt-2 hidden">
+                                        <input type="text" name="new_kategori" value="{{ old('new_kategori') }}"
+                                            placeholder="Masukkan nama kategori baru"
+                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm @error('new_kategori') border-red-500 @enderror">
+                                        @error('new_kategori')
+                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
                                     </div>
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                                    <textarea name="deskripsi" rows="4" placeholder="Masukkan deskripsi produk"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm @error('deskripsi') border-red-500 @enderror">{{ old('deskripsi') }}</textarea>
+                                    @error('deskripsi')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Gambar Produk</label>
+                                    <input type="file" name="gambar[]" multiple accept="image/*"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm @error('gambar.*') border-red-500 @enderror">
+                                    <p class="mt-1 text-xs text-gray-500">Anda dapat memilih beberapa gambar. Format: JPG, PNG, GIF. Maks 2MB per file.</p>
                                     @error('gambar.*')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Specifications Section -->
-                        <div class="mt-4">
-                            <h4>Spesifikasi Produk</h4>
-                            <p class="text-muted">Tambahkan spesifikasi yang dapat dipilih pelanggan saat memesan produk ini
-                            </p>
+                            <!-- Specifications Section -->
+                            <div class="mt-6">
+                                <h4 class="text-sm font-semibold text-gray-900">Spesifikasi Produk</h4>
+                                <p class="text-sm text-gray-500 mb-3">Tambahkan spesifikasi yang dapat dipilih pelanggan saat memesan produk ini</p>
 
-                            <div id="specifications-container">
-                                <!-- Dynamic rows will be added here -->
+                                <div id="specifications-container"></div>
+
+                                <div class="mt-3">
+                                    <button type="button" class="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors" id="add-specification-row">
+                                        <i class="fas fa-plus"></i>
+                                        Tambah Spesifikasi
+                                    </button>
+                                </div>
                             </div>
 
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-outline-primary" id="add-specification-row">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 5l0 14" />
-                                        <path d="M5 12l14 0" />
-                                    </svg>
-                                    Tambah Spesifikasi
-                                </button>
-                            </div>
-                        </div>
+                            <!-- Production Estimates Section -->
+                            <div class="mt-6">
+                                <h4 class="text-sm font-semibold text-gray-900">Estimasi Produksi</h4>
+                                <p class="text-sm text-gray-500 mb-3">Tambahkan estimasi waktu produksi untuk setiap alat yang digunakan</p>
 
-                        <!-- Production Estimates Section -->
-                        <div class="mt-4">
-                            <h4>Estimasi Produksi</h4>
-                            <p class="text-muted">Tambahkan estimasi waktu produksi untuk setiap alat yang digunakan</p>
+                                <div id="estimates-container"></div>
 
-                            <div id="estimates-container">
-                                <!-- Dynamic rows will be added here -->
-                            </div>
-
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-outline-primary" id="add-estimate-row">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 5l0 14" />
-                                        <path d="M5 12l14 0" />
-                                    </svg>
-                                    Tambah Estimasi Produksi
-                                </button>
+                                <div class="mt-3">
+                                    <button type="button" class="inline-flex items-center gap-2 border border-primary text-primary px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors" id="add-estimate-row">
+                                        <i class="fas fa-plus"></i>
+                                        Tambah Estimasi Produksi
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
-                                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                                <path d="M14 4l0 4l-6 0l0 -4"></path>
-                            </svg>
-                            Simpan
-                        </button>
-
-                        <a href="{{ route('vendor.products.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M18 6l-12 12"></path>
-                                <path d="M6 6l12 12"></path>
-                            </svg>
-                            Batal
-                        </a>
+                        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                                <i class="fas fa-save"></i>
+                                Simpan
+                            </button>
+                            <a href="{{ route('vendor.products.index') }}"
+                                class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+                                <i class="fas fa-times"></i>
+                                Batal
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -191,7 +150,6 @@
                 const newCategoryContainer = document.getElementById('new-category-container');
                 const toggleNewCategoryBtn = document.getElementById('toggle-new-category');
                 const newKategoriInput = document.querySelector('input[name="new_kategori"]');
-                const form = document.querySelector('form');
 
                 let specRowCount = 0;
                 let estimateRowCount = 0;
@@ -199,32 +157,30 @@
                 // Category handling
                 kategoriSelect.addEventListener('change', function() {
                     if (this.value === 'new') {
-                        newCategoryContainer.style.display = 'block';
+                        newCategoryContainer.classList.remove('hidden');
                         newKategoriInput.setAttribute('required', 'required');
                     } else {
-                        newCategoryContainer.style.display = 'none';
+                        newCategoryContainer.classList.add('hidden');
                         newKategoriInput.removeAttribute('required');
                     }
                 });
 
                 toggleNewCategoryBtn.addEventListener('click', function() {
-                    if (newCategoryContainer.style.display === 'none') {
-                        newCategoryContainer.style.display = 'block';
+                    if (newCategoryContainer.classList.contains('hidden')) {
+                        newCategoryContainer.classList.remove('hidden');
                         kategoriSelect.value = 'new';
                         newKategoriInput.setAttribute('required', 'required');
                     } else {
-                        newCategoryContainer.style.display = 'none';
+                        newCategoryContainer.classList.add('hidden');
                         kategoriSelect.value = '';
                         newKategoriInput.removeAttribute('required');
                     }
                 });
 
-                // Add specification row
                 addSpecificationButton.addEventListener('click', function() {
                     addSpecificationRow();
                 });
 
-                // Add estimate row
                 addEstimateButton.addEventListener('click', function() {
                     addEstimateRow();
                 });
@@ -234,59 +190,56 @@
                     const spesifikasis = @json($spesifikasis);
                     const bahans = @json($bahans);
 
-                    let spesifikasiOptions = '';
+                    let spesifikasiOptions = '<option value="">Pilih Spesifikasi</option>';
                     spesifikasis.forEach(spec => {
-                        spesifikasiOptions +=
-                            `<option value="${spec.id}">${spec.nama_spesifikasi} (${spec.tipe_input})</option>`;
+                        spesifikasiOptions += `<option value="${spec.id}">${spec.nama_spesifikasi} (${spec.tipe_input})</option>`;
                     });
 
-                    let bahanOptions = '';
+                    let bahanOptions = '<option value="">Pilih Bahan</option>';
                     bahans.forEach(bahan => {
-                        bahanOptions +=
-                            `<option value="${bahan.id}">${bahan.nama_bahan} (${bahan.satuan})</option>`;
+                        bahanOptions += `<option value="${bahan.id}">${bahan.nama_bahan} (${bahan.satuan})</option>`;
                     });
 
                     const html = `
-                    <div class="row g-3 mb-3 spec-row" id="${rowId}">
-                        <div class="col-md-3">
-                            <label class="form-label">Jenis Spesifikasi</label>
-                            <select class="form-select spec-select" name="spesifikasi[${specRowCount}][spesifikasi_id]" required onchange="updateSpecOptions('${rowId}')">
-                                <option value="">Pilih Spesifikasi</option>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-3 spec-row items-end" id="${rowId}">
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Spesifikasi</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm spec-select"
+                                name="spesifikasi[${specRowCount}][spesifikasi_id]" required onchange="updateSpecOptions('${rowId}')">
                                 ${spesifikasiOptions}
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Wajib Diisi</label>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" name="spesifikasi[${specRowCount}][wajib_diisi]" value="1">
-                                <label class="form-check-label">Ya</label>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Wajib Diisi</label>
+                            <div class="flex items-center mt-2">
+                                <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+                                    name="spesifikasi[${specRowCount}][wajib_diisi]" value="1">
+                                <label class="ml-2 text-sm text-gray-700">Ya</label>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Pilihan (untuk dropdown/radio)</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="${rowId}-option-input" placeholder="Tambahkan pilihan">
-                                <button type="button" class="btn btn-outline-secondary" onclick="addOption('${rowId}')">+</button>
-                                                       </div>
-                            <small class="form-hint">Tekan + untuk menambahkan setiap pilihan</small>
-                            <div class="mt-2" id="${rowId}-options-container">
-                                <!-- Options will be added here -->
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Pilihan (untuk dropdown/radio)</label>
+                            <div class="flex gap-1">
+                                <input type="text" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                    id="${rowId}-option-input" placeholder="Tambahkan pilihan">
+                                <button type="button" class="px-3 py-2 border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors text-sm"
+                                    onclick="addOption('${rowId}')">+</button>
                             </div>
+                            <p class="mt-1 text-xs text-gray-500">Tekan + untuk menambahkan setiap pilihan</p>
+                            <div class="mt-2 flex flex-wrap gap-1" id="${rowId}-options-container"></div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Bahan yang Digunakan</label>
-                            <select class="form-select" name="spesifikasi[${specRowCount}][bahan_ids][]" multiple>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Bahan yang Digunakan</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                name="spesifikasi[${specRowCount}][bahan_ids][]" multiple>
                                 ${bahanOptions}
                             </select>
-                            <small class="form-hint">Tahan Ctrl untuk memilih beberapa bahan</small>
+                            <p class="mt-1 text-xs text-gray-500">Tahan Ctrl untuk memilih beberapa bahan</p>
                         </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-danger" onclick="removeSpecRow('${rowId}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M18 6l-12 12" />
-                                    <path d="M6 6l12 12" />
-                                </svg>
+                        <div class="md:col-span-1 flex items-end">
+                            <button type="button" class="w-full px-3 py-2 border border-red-500 text-red-500 rounded-lg text-sm hover:bg-red-50 transition-colors"
+                                onclick="removeSpecRow('${rowId}')">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -300,37 +253,36 @@
                     const rowId = `estimate-row-${estimateRowCount}`;
                     const alats = @json($alats);
 
-                    let alatOptions = '';
+                    let alatOptions = '<option value="">Pilih Alat</option>';
                     alats.forEach(alat => {
                         alatOptions += `<option value="${alat.id}">${alat.nama_alat}</option>`;
                     });
 
                     const html = `
-                    <div class="row g-3 mb-3 estimate-row" id="${rowId}">
-                        <div class="col-md-4">
-                            <label class="form-label">Alat Produksi</label>
-                            <select class="form-select" name="estimasi[${estimateRowCount}][alat_id]" required>
-                                <option value="">Pilih Alat</option>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-3 estimate-row items-end" id="${rowId}">
+                        <div class="md:col-span-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alat Produksi</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                name="estimasi[${estimateRowCount}][alat_id]" required>
                                 ${alatOptions}
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Waktu Persiapan (menit)</label>
-                            <input type="number" class="form-control" name="estimasi[${estimateRowCount}][waktu_persiapan]" 
-                                step="0.01" min="0" required placeholder="Waktu setup">
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Waktu Persiapan (menit)</label>
+                            <input type="number" step="0.01" min="0" required placeholder="Waktu setup"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                name="estimasi[${estimateRowCount}][waktu_persiapan]">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Waktu Per Unit (menit)</label>
-                            <input type="number" class="form-control" name="estimasi[${estimateRowCount}][waktu_produksi_per_unit]" 
-                                step="0.01" min="0" required placeholder="Waktu produksi per unit">
+                        <div class="md:col-span-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Waktu Per Unit (menit)</label>
+                            <input type="number" step="0.01" min="0" required placeholder="Waktu produksi per unit"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                                name="estimasi[${estimateRowCount}][waktu_produksi_per_unit]">
                         </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="button" class="btn btn-outline-danger" onclick="removeEstimateRow('${rowId}')">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M18 6l-12 12" />
-                                    <path d="M6 6l12 12" />
-                                </svg>
+                        <div class="md:col-span-1 flex items-end">
+                            <button type="button" class="w-full px-3 py-2 border border-red-500 text-red-500 rounded-lg text-sm hover:bg-red-50 transition-colors"
+                                onclick="removeEstimateRow('${rowId}')">
+                                <i class="fas fa-times"></i>
                             </button>
                         </div>
                     </div>
@@ -340,41 +292,31 @@
                     estimateRowCount++;
                 }
 
-                // Add at least one row of each by default
                 addSpecificationRow();
                 addEstimateRow();
             });
 
-            // Function to remove specification row
             function removeSpecRow(rowId) {
                 document.getElementById(rowId).remove();
             }
 
-            // Function to remove estimate row
             function removeEstimateRow(rowId) {
                 document.getElementById(rowId).remove();
             }
 
-            // Function to add option to a specification
             function addOption(rowId) {
                 const optionInput = document.getElementById(`${rowId}-option-input`);
                 const optionsContainer = document.getElementById(`${rowId}-options-container`);
 
                 if (!optionInput.value.trim()) return;
 
-                const optionIndex = optionsContainer.children.length;
-                const specIndex = rowId.split('-')[2]; // Extract the spec index from rowId
-
+                const specIndex = rowId.split('-')[2];
                 const html = `
-                <div class="d-flex align-items-center mt-1 option-item">
+                <div class="inline-flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs">
                     <input type="hidden" name="spesifikasi[${specIndex}][pilihan][]" value="${optionInput.value.trim()}">
-                    <span class="badge bg-primary me-2">${optionInput.value.trim()}</span>
-                    <button type="button" class="btn btn-sm btn-ghost-danger" onclick="this.parentElement.remove()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M18 6l-12 12" />
-                            <path d="M6 6l12 12" />
-                        </svg>
+                    <span>${optionInput.value.trim()}</span>
+                    <button type="button" class="text-primary hover:text-red-500" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times text-xs"></i>
                     </button>
                 </div>
                 `;
@@ -383,7 +325,6 @@
                 optionInput.value = '';
             }
 
-            // Function to update specification options based on spec type
             function updateSpecOptions(rowId) {
                 const row = document.getElementById(rowId);
                 if (!row) return;
@@ -394,19 +335,15 @@
                 const optionsSection = row.querySelector('[id$="-options-container"]').parentElement;
                 const bahanSection = optionsSection.nextElementSibling;
 
-                // Get the selected specification
                 const spesifikasis = @json($spesifikasis);
                 const selectedSpec = spesifikasis.find(spec => spec.id == specSelect.value);
 
                 if (selectedSpec) {
-                    // Show options section only for select or radio types
                     if (selectedSpec.tipe_input === 'select' || selectedSpec.tipe_input === 'radio') {
                         optionsSection.style.display = 'block';
                     } else {
                         optionsSection.style.display = 'none';
                     }
-
-                    // Always show bahan selection
                     bahanSection.style.display = 'block';
                 }
             }

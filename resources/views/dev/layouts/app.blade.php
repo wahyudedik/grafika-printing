@@ -1,772 +1,247 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@yield('title', 'Dashboard') - Admin Grafika Printing</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Grafika Printing</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="{{ asset('css/dashboard-improvements.css') }}">
-    <style>
-        /* Responsive navbar improvements */
-        @media (max-width: 768px) {
-            .navbar-collapse {
-                max-height: 70vh;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .navbar-nav {
-                flex-direction: column;
-                width: 100%;
-                padding-bottom: 0.5rem;
-            }
-
-            .navbar-nav .nav-item {
-                width: 100%;
-                margin-bottom: 2px;
-            }
-
-            .navbar-nav .nav-link {
-                padding: 0.6rem 0.75rem;
-                text-align: left;
-                border-radius: 0.375rem;
-                font-size: 0.9rem;
-            }
-
-            .navbar-nav .nav-link:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-
-            .navbar-nav .dropdown-menu {
-                position: static !important;
-                transform: none !important;
-                box-shadow: none;
-                border: none;
-                background-color: rgba(0, 0, 0, 0.03);
-                margin-left: 1rem;
-                margin-bottom: 0.25rem;
-                border-radius: 0.375rem;
-            }
-
-            .navbar-nav .dropdown-menu .dropdown-item {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.85rem;
-            }
-
-            /* Page header responsive */
-            .page-header {
-                flex-wrap: wrap;
-            }
-
-            .page-header .col-auto {
-                margin-top: 0.5rem;
-            }
-
-            .page-header .btn-list {
-                flex-wrap: wrap;
-                gap: 0.25rem;
-            }
-
-            .page-header .btn-list .btn {
-                font-size: 0.8rem;
-                padding: 0.35rem 0.6rem;
-            }
-
-            /* Mobile card/table improvements */
-            .page-body .container-xl {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-            }
-
-            .table-responsive {
-                font-size: 0.82rem;
-            }
-
-            .btn {
-                font-size: 0.85rem;
-                padding: 0.4rem 0.7rem;
-            }
-
-            .page-header h2 {
-                font-size: 1.15rem;
-            }
-
-            .page-pretitle {
-                font-size: 0.75rem;
-            }
-
-            /* Card improvements */
-            .card-body {
-                padding: 0.875rem;
-            }
-
-            .card-header {
-                padding: 0.75rem 0.875rem;
-            }
-
-            .card-title {
-                font-size: 0.95rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .nav-link-title {
-                font-size: 0.78rem;
-            }
-
-            .navbar-brand {
-                font-size: 0.95rem;
-            }
-
-            /* Stack columns on very small screens */
-            .row > .col-sm-6,
-            .row > .col-md-4,
-            .row > .col-lg-3 {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-
-            .card-body {
-                padding: 0.75rem;
-            }
-
-            .stat-card .stat-card-title {
-                font-size: 0.8rem;
-            }
-
-            .stat-card .h3 {
-                font-size: 1.25rem;
-            }
-        }
-
-        /* Touch-friendly improvements */
-        @media (hover: none) and (pointer: coarse) {
-            .nav-link {
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-
-            .btn {
-                min-height: 44px;
-            }
-
-            .dropdown-item {
-                min-height: 40px;
-                display: flex;
-                align-items: center;
-            }
-        }
-
-        /* Hover shadow effect for interactive elements */
-        .hover-shadow-sm {
-            transition: box-shadow 0.15s ease-in-out;
-        }
-        .hover-shadow-sm:hover {
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
 
-<body>
-    <header class="navbar navbar-expand-md navbar-light d-print-none">
-        <div class="container-xl">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                <span class="navbar-toggler-icon"></span>
+<body class="bg-gray-50 font-sans text-gray-900 antialiased"
+    x-data="{ sidebarOpen: false }"
+    x-init="$store.sidebar = { collapsed: localStorage.getItem('sidebarCollapsed') === 'true' }; $watch('$store.sidebar.collapsed', v => localStorage.setItem('sidebarCollapsed', v))">
+
+    @php
+        // Icon SVGs
+        $iconHome = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"/></svg>';
+        $iconGrid = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>';
+        $iconBuilding = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>';
+        $iconUsers = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>';
+        $iconUserGroup = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+        $iconPencil = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>';
+        $iconLightning = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>';
+        $iconChart = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>';
+        $iconCash = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        $iconWallet = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>';
+        $iconTruck = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17a2 2 0 100-4 2 2 0 000 4zm8 0a2 2 0 100-4 2 2 0 000 4zM9.5 4.5l2-2h5l2 2M4 10h16v7H4V10z"/></svg>';
+        $iconReceipt = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>';
+        $iconShield = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>';
+        $iconCog = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+        $iconChat = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+
+        $adminMenus = [
+            [
+                'items' => [
+                    ['label' => 'Beranda',   'url' => route('welcome'), 'route' => 'welcome', 'icon' => $iconHome],
+                    ['label' => 'Dashboard', 'url' => route('admin.dashboard'), 'route' => 'admin.dashboard', 'icon' => $iconGrid],
+                ]
+            ],
+            [
+                'label' => 'Manajemen',
+                'items' => [
+                    ['label' => 'Vendor',      'url' => route('admin.vendors.index'), 'route' => 'admin.vendors.*', 'icon' => $iconBuilding],
+                    ['label' => 'Pengguna',    'url' => route('admin.users.index'), 'route' => 'admin.users.*', 'icon' => $iconUsers],
+                    ['label' => 'User Lelang', 'url' => route('admin.user-lelang.index'), 'route' => 'admin.user-lelang.*', 'icon' => $iconUserGroup],
+                    ['label' => 'CMS',         'url' => route('admin.cms.index'), 'route' => 'admin.cms.*', 'icon' => $iconPencil],
+                ]
+            ],
+            [
+                'label' => 'Lelang & Mediasi',
+                'items' => [
+                    [
+                        'label' => 'Lelang',
+                        'route' => 'admin.auctions.*',
+                        'icon' => $iconLightning,
+                        'children' => [
+                            ['label' => 'Daftar Lelang', 'url' => route('admin.auctions.index'), 'route' => 'admin.auctions.index'],
+                            ['label' => 'Statistik',     'url' => route('admin.auctions.statistics'), 'route' => 'admin.auctions.statistics'],
+                        ]
+                    ],
+                    ['label' => 'Mediasi', 'url' => route('admin.mediation.index'), 'route' => 'admin.mediation.*', 'icon' => $iconChat],
+                ]
+            ],
+            [
+                'label' => 'Keuangan',
+                'items' => [
+                    [
+                        'label' => 'Admin Fee',
+                        'route' => 'admin.admin-fees.*',
+                        'icon' => $iconCash,
+                        'children' => [
+                            ['label' => 'Pengaturan',  'url' => route('admin.admin-fees.index'), 'route' => 'admin.admin-fees.index'],
+                            ['label' => 'Transaksi',   'url' => route('admin.admin-fees.transactions'), 'route' => 'admin.admin-fees.transactions'],
+                            ['label' => 'Statistik',   'url' => route('admin.admin-fees.statistics'), 'route' => 'admin.admin-fees.statistics'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Keuangan',
+                        'route' => 'admin.withdrawals.*|admin.payments.*|admin.wallets.*',
+                        'icon' => $iconWallet,
+                        'children' => [
+                            ['label' => 'Withdrawals', 'url' => route('admin.withdrawals.index'), 'route' => 'admin.withdrawals.*'],
+                            ['label' => 'Payments',    'url' => route('admin.payments.index'), 'route' => 'admin.payments.*'],
+                            ['label' => 'Wallets',     'url' => route('admin.wallets.index'), 'route' => 'admin.wallets.*'],
+                        ]
+                    ],
+                ]
+            ],
+            [
+                'label' => 'Operasional',
+                'items' => [
+                    [
+                        'label' => 'Pengiriman',
+                        'route' => 'admin.shipping.*|admin.delivery.*',
+                        'icon' => $iconTruck,
+                        'children' => [
+                            ['label' => 'Shipping Tracking',      'url' => route('admin.shipping.index'), 'route' => 'admin.shipping.index'],
+                            ['label' => 'Delivery Confirmations', 'url' => route('admin.delivery.index'), 'route' => 'admin.delivery.index'],
+                            ['label' => 'Shipping Invoices',      'url' => route('admin.shipping.invoices'), 'route' => 'admin.shipping.invoices'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Audit & Keamanan',
+                        'route' => 'admin.audit-logs.*',
+                        'icon' => $iconShield,
+                        'children' => [
+                            ['label' => 'Audit Logs',  'url' => route('admin.audit-logs.index'), 'route' => 'admin.audit-logs.index'],
+                            ['label' => 'High Risk',   'url' => route('admin.audit-logs.high-risk'), 'route' => 'admin.audit-logs.high-risk'],
+                            ['label' => 'Financial',   'url' => route('admin.audit-logs.financial'), 'route' => 'admin.audit-logs.financial'],
+                        ]
+                    ],
+                    [
+                        'label' => 'Statistik Server',
+                        'route' => 'admin.analytics.*',
+                        'icon' => $iconChart,
+                        'children' => [
+                            ['label' => 'Dashboard',        'url' => route('admin.analytics.pulse'), 'route' => 'admin.analytics.pulse'],
+                            ['label' => 'Server Stats',     'url' => route('admin.analytics.pulse.statistics'), 'route' => 'admin.analytics.pulse.statistics'],
+                            ['label' => 'Performance',      'url' => route('admin.analytics.pulse.performance'), 'route' => 'admin.analytics.pulse.performance'],
+                            ['label' => 'User Activity',    'url' => route('admin.analytics.pulse.activity'), 'route' => 'admin.analytics.pulse.activity'],
+                            ['label' => 'Data Pendapatan',  'url' => route('admin.analytics.vendor-revenue'), 'route' => 'admin.analytics.vendor-revenue'],
+                        ]
+                    ],
+                    ['label' => 'Konfigurasi', 'url' => route('admin.service-configs.index'), 'route' => 'admin.service-configs.*', 'icon' => $iconCog],
+                ]
+            ],
+        ];
+    @endphp
+
+    {{-- ========== SIDEBAR ========== --}}
+    <x-sidebar :menus="$adminMenus" brandName="Admin Panel" brandSubtitle="Grafika Printing" />
+
+    {{-- ========== SIDEBAR OVERLAY (mobile) ========== --}}
+    <div x-show="sidebarOpen"
+        x-transition:enter="transition-opacity ease-linear duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition-opacity ease-linear duration-300"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @click="sidebarOpen = false"
+        class="fixed inset-0 z-30 bg-gray-900/50 lg:hidden"
+        x-cloak>
+    </div>
+
+    {{-- ========== MAIN AREA ========== --}}
+    <div class="lg:pl-64 transition-all duration-300" :class="$store.sidebar.collapsed ? 'lg:pl-[72px]' : 'lg:pl-64'">
+
+        {{-- ========== TOP BAR ========== --}}
+        <header class="sticky top-0 z-40 flex items-center h-16 px-4 bg-white border-b border-gray-200 sm:px-6 lg:px-8 print:hidden">
+            {{-- Hamburger (mobile) --}}
+            <button @click="sidebarOpen = !sidebarOpen" class="p-2 -ml-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
             </button>
-            <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <a href="{{ route('welcome') }}" class="d-flex align-items-center text-decoration-none">
-                    <img src="{{ asset('logo.png') }}" alt="Grafika Printing" height="32" width="32" style="border-radius: 6px; margin-right: 8px;">
-                    Grafika Printing
-                </a>
-            </h1>
-            <div class="navbar-nav flex-row order-md-last">
-                <div class="d-none d-md-flex me-3">
-                    <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1"
-                        aria-label="Show notifications">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path
-                                d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6">
-                            </path>
-                            <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+
+            <div class="flex items-center gap-2 ml-auto">
+                {{-- Notifications --}}
+                <div class="relative" x-data="{ notifDropdown: false }" @click.away="notifDropdown = false">
+                    <button @click="notifDropdown = !notifDropdown" class="relative p-2 text-gray-500 rounded-lg hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H6a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v1a3 3 0 0 0 6 0v-1"/>
                         </svg>
-                        {{-- Notification badge --}}
                         @if(auth()->user()->unreadNotifications->count() > 0)
-                            <span class="badge bg-red">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                                {{ auth()->user()->unreadNotifications->count() > 9 ? '9+' : auth()->user()->unreadNotifications->count() }}
+                            </span>
                         @endif
-                    </a>
+                    </button>
+                    <div x-show="notifDropdown" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50" x-cloak>
+                        <div class="px-4 py-2 text-sm font-semibold text-gray-900 border-b border-gray-100">Notifikasi</div>
+                        <div class="px-4 py-6 text-center text-sm text-gray-500">Belum ada notifikasi baru</div>
+                    </div>
                 </div>
 
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                        aria-label="Open user menu">
-                        <span class="avatar avatar-sm">{{ substr(auth()->user()->name, 0, 2) }}</span>
-                        <div class="d-none d-xl-block ps-2">
-                            <div>{{ auth()->user()->name }}</div>
-                            <div class="mt-1 small text-muted">{{ auth()->user()->usertype }}</div>
+                {{-- User Dropdown --}}
+                <div class="relative" x-data="{ userDropdown: false }" @click.away="userDropdown = false">
+                    <button @click="userDropdown = !userDropdown" class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <span class="flex items-center justify-center w-8 h-8 text-xs font-semibold text-white rounded-full bg-red-600">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        </span>
+                        <div class="hidden md:block text-left">
+                            <div class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</div>
+                            <div class="text-xs text-gray-500">Superadmin</div>
                         </div>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ url('/admin/profile') }}">Profile</a>
-                        <div class="dropdown-divider"></div>
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div x-show="userDropdown" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50" x-cloak>
+                        <a href="{{ url('/admin/profile') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            Profil
+                        </a>
+                        <div class="my-1 border-t border-gray-100"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="dropdown-item">Logout</button>
+                            <button type="submit" class="flex items-center w-full gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                Logout
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
-        </div>
-    </header>
-    <div class="navbar-expand-md">
-        <div class="collapse navbar-collapse" id="navbar-menu">
-            <div class="navbar navbar-light">
-                <div class="container-xl">
-                    <ul class="navbar-nav flex-wrap">
-                        <li class="nav-item {{ request()->routeIs('welcome') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('welcome') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <polyline points="5 12 3 12 12 3 21 12 19 12" />
-                                        <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-                                        <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">Beranda</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.dashboard') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                        <line x1="16" y1="2" x2="16" y2="6" />
-                                        <line x1="8" y1="2" x2="8" y2="6" />
-                                        <line x1="3" y1="10" x2="21" y2="10" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Dashboard</span>
-                                <span class="nav-link-title d-sm-none">Dash.</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('admin.vendors.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.vendors.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M3 21h18" />
-                                        <path d="M5 21v-16l8 -4v16" />
-                                        <path d="M19 21v-11l-6 -4" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Vendor</span>
-                                <span class="nav-link-title d-sm-none">Vendor</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.users.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Pengguna</span>
-                                <span class="nav-link-title d-sm-none">User</span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown {{ request()->routeIs('admin.auctions.*') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-auctions"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
-                                aria-expanded="false">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 8l-4 4l4 4" />
-                                        <path d="M17 8l4 4l-4 4" />
-                                        <path d="M14 4l-4 16" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Lelang</span>
-                                <span class="nav-link-title d-sm-none">Lelang</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.auctions.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 8l-4 4l4 4" />
-                                        <path d="M17 8l4 4l-4 4" />
-                                        <path d="M14 4l-4 16" />
-                                    </svg>
-                                    Daftar Lelang
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.auctions.statistics') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                                        <path d="M12 7v5l3 3" />
-                                    </svg>
-                                    Statistik
-                                </a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown {{ request()->routeIs('admin.pulse.*') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-pulse"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
-                                aria-expanded="false">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8z" />
-                                        <path d="M15 13l-3 -3l-3 3" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Statistik Server</span>
-                                <span class="nav-link-title d-sm-none">Stats</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <rect x="3" y="4" width="18" height="18" rx="2"
-                                            ry="2" />
-                                        <line x1="16" y1="2" x2="16" y2="6" />
-                                        <line x1="8" y1="2" x2="8" y2="6" />
-                                        <line x1="3" y1="10" x2="21" y2="10" />
-                                    </svg>
-                                    Dashboard
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse.statistics') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8z" />
-                                        <path d="M15 13l-3 -3l-3 3" />
-                                    </svg>
-                                    Server Statistics
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse.performance') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 13a3 3 0 1 0 0 -6a3 3 0 0 0 0 6z" />
-                                        <path d="M12 1v6" />
-                                        <path d="M12 17v6" />
-                                    </svg>
-                                    Performance
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.analytics.pulse.activity') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                    </svg>
-                                    User Activity
-                                </a>
-                            </div>
-                        </li>
+        </header>
 
-                        <li
-                            class="nav-item {{ request()->routeIs('admin.analytics.vendor-revenue.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.analytics.vendor-revenue') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                                        <path d="M12 7v5l3 3" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Data Pendapatan Vendor</span>
-                                <span class="nav-link-title d-sm-none">Revenue</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('admin.admin-fees.index') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.admin-fees.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 8l-4 4l4 4" />
-                                        <path d="M17 8l4 4l-4 4" />
-                                        <path d="M14 4l-4 16" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Biaya Admin</span>
-                                <span class="nav-link-title d-sm-none">Admin Fee</span>
-                            </a>
-                        </li>
-                        <!-- Financial Management -->
-                        <li
-                            class="nav-item dropdown {{ request()->routeIs('admin.withdrawals.*') || request()->routeIs('admin.payments.*') || request()->routeIs('admin.wallets.*') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-financial"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
-                                aria-expanded="false">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                        <path d="M12 6v6l4 2" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Keuangan</span>
-                                <span class="nav-link-title d-sm-none">Keuang.</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.withdrawals.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 7h10v3l-4 5l-4 -5z" />
-                                    </svg>
-                                    Withdrawals
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.payments.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                        <path
-                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                    </svg>
-                                    Payments
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.wallets.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M17 8v-3a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-3" />
-                                    </svg>
-                                    Wallets
-                                </a>
-                            </div>
-                        </li>
-
-                        <!-- Shipping & Delivery -->
-                        <li
-                            class="nav-item dropdown {{ request()->routeIs('admin.shipping.*') || request()->routeIs('admin.delivery.*') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-shipping"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
-                                aria-expanded="false">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                        <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Pengiriman</span>
-                                <span class="nav-link-title d-sm-none">Kirim</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.shipping.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                        <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
-                                    </svg>
-                                    Shipping Tracking
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.delivery.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 12l2 2l4 -4" />
-                                        <path d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
-                                        <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
-                                    </svg>
-                                    Delivery Confirmations
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.shipping.invoices') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                        <path
-                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                    </svg>
-                                    Shipping Invoices
-                                </a>
-                            </div>
-                        </li>
-
-                        <!-- Transactions & Orders -->
-                        <li
-                            class="nav-item dropdown {{ request()->routeIs('admin.admin-fees.transactions') || request()->routeIs('admin.admin-fees.statistics') || request()->routeIs('admin.admin-fees.show') || request()->routeIs('admin.admin-fees.edit') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-transactions"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
-                                aria-expanded="false">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                        <path
-                                            d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Transaksi</span>
-                                <span class="nav-link-title d-sm-none">Trans.</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.admin-fees.transactions') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                    </svg>
-                                    Admin Fee Transactions
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.admin-fees.statistics') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                                    </svg>
-                                    Fee Statistics
-                                </a>
-                            </div>
-                        </li>
-
-                        <!-- Audit & Security -->
-                        <li class="nav-item dropdown {{ request()->routeIs('admin.audit-logs.*') ? 'active' : '' }}">
-                            <a class="nav-link dropdown-toggle hover-shadow-sm" href="#navbar-audit"
-                                data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button"
-                                aria-expanded="false">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 12l2 2l4 -4" />
-                                        <path d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
-                                        <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Audit & Keamanan</span>
-                                <span class="nav-link-title d-sm-none">Audit</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{{ route('admin.audit-logs.index') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                    </svg>
-                                    Audit Logs
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.audit-logs.high-risk') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 9v2m0 4v.01" />
-                                        <path
-                                            d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.84 2.75" />
-                                    </svg>
-                                    High Risk Transactions
-                                </a>
-                                <a class="dropdown-item" href="{{ route('admin.audit-logs.financial') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
-                                        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
-                                        <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
-                                    </svg>
-                                    Financial Logs
-                                </a>
-                            </div>
-                        </li>
-
-                        <!-- CMS Management -->
-                        <li class="nav-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.cms.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 12l2 2l4 -4" />
-                                        <path d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
-                                        <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Manajemen CMS</span>
-                                <span class="nav-link-title d-sm-none">CMS</span>
-                            </a>
-                        </li>
-
-                        <!-- User Lelang Management -->
-                        <li class="nav-item {{ request()->routeIs('admin.user-lelang.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.user-lelang.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                        <path d="M12 11l0 3" />
-                                        <path d="M10.5 13.5l3 0" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">User Lelang</span>
-                                <span class="nav-link-title d-sm-none">Lelang</span>
-                            </a>
-                        </li>
-
-                        <!-- Mediation -->
-                        <li class="nav-item {{ request()->routeIs('admin.mediation.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.mediation.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-                                        <path d="M8 14l2 2l4 -4" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Mediasi</span>
-                                <span class="nav-link-title d-sm-none">Mediasi</span>
-                            </a>
-                        </li>
-
-                        <!-- Service Configurations -->
-                        <li class="nav-item {{ request()->routeIs('admin.service-configs.*') ? 'active' : '' }}">
-                            <a class="nav-link hover-shadow-sm" href="{{ route('admin.service-configs.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                        <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-                                        <path d="M12 12l3.5 -2" />
-                                        <path d="M12 12l-3.5 -2" />
-                                        <path d="M12 12l0 3.5" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title d-none d-sm-inline">Konfigurasi Layanan</span>
-                                <span class="nav-link-title d-sm-none">Config</span>
-                            </a>
-                        </li>
-                    </ul>
+        {{-- ========== MAIN CONTENT ========== --}}
+        <main class="min-h-[calc(100vh-4rem)]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                {{-- Page Header --}}
+                <div class="mb-6 print:hidden">
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        @yield('title', 'Dashboard')
+                    </h1>
                 </div>
+
+                {{-- Page Content --}}
+                @yield('content')
             </div>
-        </div>
-    </div>
-    <div class="page-wrapper">
-        <div class="container-xl">
-            <div class="page-header d-print-none">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h2 class="page-title">
-                            @yield('title', 'Dashboard')
-                        </h2>
+        </main>
+
+        {{-- ========== FOOTER ========== --}}
+        <footer class="border-t border-gray-200 bg-white print:hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                        <a href="{{ route('admin.dashboard') }}" class="hover:text-gray-700 transition-colors">Dashboard</a>
+                        <a href="{{ route('admin.audit-logs.index') }}" class="hover:text-gray-700 transition-colors">Audit Logs</a>
+                        <a href="https://grafika.noteds.com" class="hover:text-gray-700 transition-colors" target="_blank">Website</a>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        &copy; {{ date('Y') }} <a href="#" class="hover:text-gray-700">Grafika Printing</a>. All rights reserved.
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="page-body">
-            <div class="container-xl">
-                @yield('content')
-            </div>
-        </div>
+        </footer>
     </div>
 
-    <footer class="footer footer-transparent d-print-none">
-        <div class="container-xl">
-            <div class="row text-center align-items-center flex-row-reverse">
-                <div class="col-lg-auto ms-lg-auto">
-                    <ul class="list-inline list-inline-dots mb-0">
-                        <li class="list-inline-item">
-                            <a href="{{ route('admin.dashboard') }}" class="link-secondary">Dashboard</a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a href="{{ route('admin.audit-logs.index') }}" class="link-secondary">Audit Logs</a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a href="https://grafika.noteds.com" class="link-secondary" target="_blank">Website</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                    <ul class="list-inline list-inline-dots mb-0">
-                        <li class="list-inline-item">
-                            Copyright © {{ date('Y') }}
-                            <a href="#" class="link-secondary">Grafika Printing</a>.
-                            All rights reserved.
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/js/tabler.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @include('dev.components.alert')
     <script src="{{ asset('js/file-upload-validation.js') }}"></script>
     @stack('scripts')

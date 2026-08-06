@@ -3,294 +3,285 @@
 @section('title', 'Wallet Management')
 
 @section('content')
-    <div class="container-xl">
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">Wallet Management</h2>
-                    <div class="text-muted mt-1">Manage vendor wallets and transactions</div>
-                </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <a href="{{ route('admin.wallets.statistics') }}"
-                            class="btn btn-outline-primary d-none d-sm-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8" />
-                                <path d="M15 13l-3 -3l-3 3" />
-                            </svg>
-                            Statistics
-                        </a>
-                    </div>
-                </div>
-            </div>
+<div class="space-y-6" x-data="{ showFreezeModal: false, showUnfreezeModal: false, freezeWalletId: null, unfreezeWalletId: null, freezeReason: '', unfreezeReason: '' }">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Wallet Management</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage vendor wallets and transactions</p>
         </div>
-
-        <!-- Statistics Cards -->
-        <div class="row row-deck row-cards mb-4">
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="subheader">Total Wallets</div>
-                        </div>
-                        <div class="h1 mb-3">{{ $stats['total_wallets'] }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="subheader">Active Wallets</div>
-                        </div>
-                        <div class="h1 mb-3 text-success">{{ $stats['active_wallets'] }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="subheader">Frozen Wallets</div>
-                        </div>
-                        <div class="h1 mb-3 text-danger">{{ $stats['frozen_wallets'] }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="subheader">Total Balance</div>
-                        </div>
-                        <div class="h1 mb-3">Rp {{ number_format($stats['total_balance'], 0, ',', '.') }}</div>
-                    </div>
-                </div>
-            </div>
+        <div class="hidden sm:block">
+            <a href="{{ route('admin.wallets.statistics') }}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-sm transition-colors">
+                <i class="fas fa-chart-pie text-xs"></i>
+                Statistics
+            </a>
         </div>
+    </div>
 
-        <!-- Filters -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="GET" action="{{ route('admin.wallets.index') }}">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Vendor</label>
-                            <select name="vendor_id" class="form-select">
-                                <option value="">All Vendors</option>
-                                @foreach ($vendors as $vendor)
-                                    <option value="{{ $vendor->id }}"
-                                        {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>
-                                        {{ $vendor->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+    {{-- Statistics Cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Wallets</span>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2">{{ $stats['total_wallets'] }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Active Wallets</span>
+            <div class="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">{{ $stats['active_wallets'] }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Frozen Wallets</span>
+            <div class="text-3xl font-bold text-red-600 dark:text-red-400 mt-2">{{ $stats['frozen_wallets'] }}</div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Balance</span>
+            <div class="text-3xl font-bold text-gray-900 dark:text-white mt-2">Rp {{ number_format($stats['total_balance'], 0, ',', '.') }}</div>
+        </div>
+    </div>
+
+    {{-- Filters --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+        <form method="GET" action="{{ route('admin.wallets.index') }}">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vendor</label>
+                    <select name="vendor_id" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">All Vendors</option>
+                        @foreach ($vendors as $vendor)
+                            <option value="{{ $vendor->id }}" {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>
+                                {{ $vendor->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <select name="status" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">All Status</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="frozen" {{ request('status') == 'frozen' ? 'selected' : '' }}>Frozen</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                    <input type="text" name="search" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500" placeholder="Search by vendor name or email..." value="{{ request('search') }}">
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors">
+                        <i class="fas fa-filter text-xs"></i>
+                        Filter
+                    </button>
+                    <a href="{{ route('admin.wallets.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors">
+                        Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- Wallets Table --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Vendor Wallets</h3>
+        </div>
+        @if ($wallets->count() > 0)
+            {{-- Desktop Table --}}
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vendor</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Balance</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Available</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pending</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Transaction</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @foreach ($wallets as $wallet)
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                <td class="px-5 py-4">
+                                    <div class="font-medium text-gray-900 dark:text-white">{{ $wallet->vendor->name ?? 'N/A' }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ $wallet->vendor->email ?? 'N/A' }}</div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($wallet->balance, 0, ',', '.') }}</div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="text-emerald-600 dark:text-emerald-400">Rp {{ number_format($wallet->available_balance, 0, ',', '.') }}</div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="text-amber-600 dark:text-amber-400">Rp {{ number_format($wallet->pending_balance, 0, ',', '.') }}</div>
+                                </td>
+                                <td class="px-5 py-4">
+                                    @if ($wallet->status === 'active')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Active</span>
+                                    @elseif($wallet->status === 'frozen')
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Frozen</span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">{{ ucfirst($wallet->status) }}</span>
+                                    @endif
+                                </td>
+                                <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                    @if ($wallet->transactions->count() > 0)
+                                        {{ $wallet->transactions->first()->created_at->diffForHumans() }}
+                                    @else
+                                        No transactions
+                                    @endif
+                                </td>
+                                <td class="px-5 py-4">
+                                    <div class="flex flex-wrap gap-1">
+                                        <a href="{{ route('admin.wallets.show', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-xs transition-colors">
+                                            <i class="fas fa-eye text-xs"></i>
+                                            View
+                                        </a>
+                                        <a href="{{ route('admin.wallets.transactions', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 font-medium text-xs transition-colors">
+                                            <i class="fas fa-list text-xs"></i>
+                                            Transactions
+                                        </a>
+                                        @if ($wallet->status === 'active')
+                                            <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 font-medium text-xs transition-colors" @click="freezeWalletId = {{ $wallet->id }}; freezeReason = ''; showFreezeModal = true">
+                                                <i class="fas fa-snowflake text-xs"></i>
+                                                Freeze
+                                            </button>
+                                        @elseif($wallet->status === 'frozen')
+                                            <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 font-medium text-xs transition-colors" @click="unfreezeWalletId = {{ $wallet->id }}; unfreezeReason = ''; showUnfreezeModal = true">
+                                                <i class="fas fa-sun text-xs"></i>
+                                                Unfreeze
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Mobile Cards --}}
+            <div class="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                @foreach ($wallets as $wallet)
+                    <div class="p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="font-medium text-gray-900 dark:text-white">{{ $wallet->vendor->name ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $wallet->vendor->email ?? 'N/A' }}</div>
+                            </div>
+                            @if ($wallet->status === 'active')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Active</span>
+                            @elseif($wallet->status === 'frozen')
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Frozen</span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">{{ ucfirst($wallet->status) }}</span>
+                            @endif
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="">All Status</option>
-                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                                <option value="frozen" {{ request('status') == 'frozen' ? 'selected' : '' }}>Frozen
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Search</label>
-                            <input type="text" name="search" class="form-control"
-                                placeholder="Search by vendor name or email..." value="{{ request('search') }}">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">&nbsp;</label>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">Filter</button>
-                                <a href="{{ route('admin.wallets.index') }}" class="btn btn-outline-secondary">Reset</a>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs">Balance:</span>
+                                <div class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($wallet->balance, 0, ',', '.') }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs">Available:</span>
+                                <div class="font-medium text-emerald-600 dark:text-emerald-400">Rp {{ number_format($wallet->available_balance, 0, ',', '.') }}</div>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 dark:text-gray-400 text-xs">Pending:</span>
+                                <div class="font-medium text-amber-600 dark:text-amber-400">Rp {{ number_format($wallet->pending_balance, 0, ',', '.') }}</div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Wallets Table -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Vendor Wallets</h3>
-            </div>
-            <div class="card-body">
-                @if ($wallets->count() > 0)
-                    <div class="table-responsive">
-                        <table class="table table-vcenter">
-                            <thead>
-                                <tr>
-                                    <th>Vendor</th>
-                                    <th>Balance</th>
-                                    <th>Available</th>
-                                    <th>Pending</th>
-                                    <th>Status</th>
-                                    <th>Last Transaction</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($wallets as $wallet)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div>
-                                                    <div class="font-weight-medium">{{ $wallet->vendor->name ?? 'N/A' }}
-                                                    </div>
-                                                    <div class="text-muted">{{ $wallet->vendor->email ?? 'N/A' }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="font-weight-medium">Rp
-                                                {{ number_format($wallet->balance, 0, ',', '.') }}</div>
-                                        </td>
-                                        <td>
-                                            <div class="text-success">Rp
-                                                {{ number_format($wallet->available_balance, 0, ',', '.') }}</div>
-                                        </td>
-                                        <td>
-                                            <div class="text-warning">Rp
-                                                {{ number_format($wallet->pending_balance, 0, ',', '.') }}</div>
-                                        </td>
-                                        <td>
-                                            @if ($wallet->status === 'active')
-                                                <span class="badge bg-success">Active</span>
-                                            @elseif($wallet->status === 'frozen')
-                                                <span class="badge bg-danger">Frozen</span>
-                                            @else
-                                                <span class="badge bg-secondary">{{ ucfirst($wallet->status) }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($wallet->transactions->count() > 0)
-                                                <div class="text-muted">
-                                                    {{ $wallet->transactions->first()->created_at->diffForHumans() }}</div>
-                                            @else
-                                                <div class="text-muted">No transactions</div>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="btn-list">
-                                                <a href="{{ route('admin.wallets.show', $wallet->id) }}"
-                                                    class="btn btn-sm btn-outline-primary">
-                                                    View
-                                                </a>
-                                                <a href="{{ route('admin.wallets.transactions', $wallet->id) }}"
-                                                    class="btn btn-sm btn-outline-info">
-                                                    Transactions
-                                                </a>
-                                                @if ($wallet->status === 'active')
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        onclick="freezeWallet({{ $wallet->id }})">
-                                                        Freeze
-                                                    </button>
-                                                @elseif($wallet->status === 'frozen')
-                                                    <button type="button" class="btn btn-sm btn-outline-success"
-                                                        onclick="unfreezeWallet({{ $wallet->id }})">
-                                                        Unfreeze
-                                                    </button>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-center">
-                        {{ $wallets->links() }}
-                    </div>
-                @else
-                    <div class="empty">
-                        <div class="empty-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path
-                                    d="M17 8v-3a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h10a1 1 0 0 0 1 -1v-3" />
-                            </svg>
+                        <div class="flex gap-2">
+                            <a href="{{ route('admin.wallets.show', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-xs transition-colors">
+                                <i class="fas fa-eye text-xs"></i> View
+                            </a>
+                            <a href="{{ route('admin.wallets.transactions', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 font-medium text-xs transition-colors">
+                                <i class="fas fa-list text-xs"></i> Transactions
+                            </a>
+                            @if ($wallet->status === 'active')
+                                <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 font-medium text-xs transition-colors" @click="freezeWalletId = {{ $wallet->id }}; freezeReason = ''; showFreezeModal = true">
+                                    <i class="fas fa-snowflake text-xs"></i> Freeze
+                                </button>
+                            @elseif($wallet->status === 'frozen')
+                                <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 font-medium text-xs transition-colors" @click="unfreezeWalletId = {{ $wallet->id }}; unfreezeReason = ''; showUnfreezeModal = true">
+                                    <i class="fas fa-sun text-xs"></i> Unfreeze
+                                </button>
+                            @endif
                         </div>
-                        <p class="empty-title">No wallets found</p>
-                        <p class="empty-subtitle text-muted">
-                            No vendor wallets match your current filters.
-                        </p>
                     </div>
-                @endif
+                @endforeach
             </div>
-        </div>
+
+            {{-- Pagination --}}
+            <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-center">
+                {{ $wallets->links() }}
+            </div>
+        @else
+            <div class="flex flex-col items-center justify-center py-16 text-center">
+                <i class="fas fa-wallet text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">No wallets found</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">No vendor wallets match your current filters.</p>
+            </div>
+        @endif
     </div>
 
-    <!-- Freeze Wallet Modal -->
-    <div class="modal modal-blur fade" id="freezeModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Freeze Wallet</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    {{-- Freeze Wallet Modal (Alpine.js) --}}
+    <div x-show="showFreezeModal" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="flex min-h-full items-end sm:items-center justify-center p-4">
+            <div x-show="showFreezeModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75" @click="showFreezeModal = false"></div>
+            <div x-show="showFreezeModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative w-full max-w-lg transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl transition-all">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Freeze Wallet</h3>
+                        <button type="button" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" @click="showFreezeModal = false">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
                 </div>
-                <form id="freezeForm" method="POST">
+                <form :action="'/admin/wallets/' + freezeWalletId + '/freeze'" method="POST">
                     @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Reason for freezing</label>
-                            <textarea name="reason" class="form-control" rows="3" placeholder="Enter reason for freezing this wallet..."
-                                required></textarea>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for freezing</label>
+                            <textarea x-model="freezeReason" name="reason" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500" rows="3" placeholder="Enter reason for freezing this wallet..." required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Freeze Wallet</button>
+                    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors" @click="showFreezeModal = false">Cancel</button>
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm transition-colors">Freeze Wallet</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Unfreeze Wallet Modal -->
-    <div class="modal modal-blur fade" id="unfreezeModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Unfreeze Wallet</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    {{-- Unfreeze Wallet Modal (Alpine.js) --}}
+    <div x-show="showUnfreezeModal" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="flex min-h-full items-end sm:items-center justify-center p-4">
+            <div x-show="showUnfreezeModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75" @click="showUnfreezeModal = false"></div>
+            <div x-show="showUnfreezeModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative w-full max-w-lg transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-xl transition-all">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Unfreeze Wallet</h3>
+                        <button type="button" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300" @click="showUnfreezeModal = false">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
                 </div>
-                <form id="unfreezeForm" method="POST">
+                <form :action="'/admin/wallets/' + unfreezeWalletId + '/unfreeze'" method="POST">
                     @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Reason for unfreezing</label>
-                            <textarea name="reason" class="form-control" rows="3"
-                                placeholder="Enter reason for unfreezing this wallet..." required></textarea>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for unfreezing</label>
+                            <textarea x-model="unfreezeReason" name="reason" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500" rows="3" placeholder="Enter reason for unfreezing this wallet..." required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">Unfreeze Wallet</button>
+                    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors" @click="showUnfreezeModal = false">Cancel</button>
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors">Unfreeze Wallet</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <script>
-        function freezeWallet(walletId) {
-            document.getElementById('freezeForm').action = `/admin/wallets/${walletId}/freeze`;
-            new bootstrap.Modal(document.getElementById('freezeModal')).show();
-        }
-
-        function unfreezeWallet(walletId) {
-            document.getElementById('unfreezeForm').action = `/admin/wallets/${walletId}/unfreeze`;
-            new bootstrap.Modal(document.getElementById('unfreezeModal')).show();
-        }
-    </script>
+</div>
 @endsection

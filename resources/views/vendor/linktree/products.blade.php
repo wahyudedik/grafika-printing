@@ -3,259 +3,193 @@
 @section('title', 'Katalog Produk - ' . $linktree->title)
 
 @section('content')
-<div class="page-header d-print-none mb-4">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <h2 class="page-title">📦 Katalog Produk Linktree</h2>
-            <div class="text-muted mt-1">{{ $linktree->title }} (/{{ $linktree->custom_url }})</div>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.linktree.show', $linktree) }}" class="btn btn-ghost-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l-5l5l5l5"/><path d="M15 11l5l-5l-5-5"/></svg>
-                Kembali
-            </a>
-            <a href="{{ url('/l/' . $linktree->custom_url) }}" target="_blank" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/></svg>
-                Lihat Publik
-            </a>
-        </div>
-    </div>
-</div>
-
-@if(session('success'))
-<div class="alert alert-success alert-dismissible" role="alert">
-    <div class="d-flex">
+<div x-data="productsManager()" class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/></svg>
+            <h1 class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-box-open mr-2 text-primary-600"></i>Katalog Produk Linktree
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">{{ $linktree->title }} (/{{ $linktree->custom_url }})</p>
         </div>
-        <div>{{ session('success') }}</div>
-    </div>
-    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-</div>
-@endif
-
-@if(session('error'))
-<div class="alert alert-danger alert-dismissible" role="alert">
-    <div class="d-flex">
-        <div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('vendor.linktree.show', $linktree) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali
+            </a>
+            <a href="{{ url('/l/' . $linktree->custom_url) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
+                <i class="fas fa-external-link-alt mr-2"></i>Lihat Publik
+            </a>
         </div>
-        <div>{{ session('error') }}</div>
     </div>
-    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-</div>
-@endif
 
-<div class="row">
-    <!-- Form Tambah Produk -->
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">➕ Tambah Produk</h3>
-            </div>
-            <div class="card-body">
-                @if($availableProduks->count() > 0)
-                <form action="{{ route('vendor.linktree.products.store', $linktree) }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label class="form-label">Pilih Produk <span class="text-danger">*</span></label>
-                        <select name="produk_id" class="form-select" required>
-                            <option value="">-- Pilih Produk --</option>
-                            @foreach($availableProduks as $produk)
-                            <option value="{{ $produk->id }}">
-                                {{ $produk->nama_produk }}
-                                @if(isset($produk->harga_dasar)) - Rp {{ number_format($produk->harga_dasar, 0, ',', '.') }} @endif
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('produk_id')
-                        <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
+    {{-- Flash Messages --}}
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
+        <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-600"></i><span class="text-sm text-emerald-800">{{ session('success') }}</span></div>
+        <button @click="show = false" class="text-emerald-600 hover:text-emerald-800"><i class="fas fa-times"></i></button>
+    </div>
+    @endif
+    @if(session('error'))
+    <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
+        <div class="flex items-center gap-3"><i class="fas fa-exclamation-circle text-red-600"></i><span class="text-sm text-red-800">{{ session('error') }}</span></div>
+        <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
+    </div>
+    @endif
 
-                    <div class="mb-3">
-                        <label class="form-label">Harga Khusus (Opsional)</label>
-                        <input type="text" name="custom_price" class="form-control" placeholder="Contoh: Rp 50.000" value="{{ old('custom_price') }}">
-                        <div class="form-hint">Kosongkan untuk menggunakan harga default produk</div>
-                        @error('custom_price')
-                        <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Deskripsi Khusus (Opsional)</label>
-                        <textarea name="custom_description" class="form-control" rows="3" placeholder="Deskripsi untuk linktree...">{{ old('custom_description') }}</textarea>
-                        <div class="form-hint">Kosongkan untuk menggunakan deskripsi default produk</div>
-                        @error('custom_description')
-                        <div class="text-danger small">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg>
-                        Tambah ke Katalog
-                    </button>
-                </form>
-                @else
-                <div class="text-center text-muted py-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg>
-                    <p>Semua produk sudah ditambahkan ke linktree ini.</p>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {{-- Add Product Form --}}
+        <div class="lg:col-span-1 space-y-5">
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h2 class="text-base font-semibold text-gray-900"><i class="fas fa-plus mr-2 text-primary-600"></i>Tambah Produk</h2>
                 </div>
-                @endif
+                <div class="p-5">
+                    @if($availableProduks->count() > 0)
+                    <form action="{{ route('vendor.linktree.products.store', $linktree) }}" method="POST">
+                        @csrf
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Produk <span class="text-red-500">*</span></label>
+                                <select name="produk_id" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                    <option value="">-- Pilih Produk --</option>
+                                    @foreach($availableProduks as $produk)
+                                    <option value="{{ $produk->id }}">{{ $produk->nama_produk }} @if(isset($produk->harga_dasar)) - Rp {{ number_format($produk->harga_dasar, 0, ',', '.') }} @endif</option>
+                                    @endforeach
+                                </select>
+                                @error('produk_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Khusus (Opsional)</label>
+                                <input type="text" name="custom_price" placeholder="Contoh: Rp 50.000" value="{{ old('custom_price') }}" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                <p class="mt-1 text-xs text-gray-500">Kosongkan untuk menggunakan harga default produk</p>
+                                @error('custom_price')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Khusus (Opsional)</label>
+                                <textarea name="custom_description" rows="3" placeholder="Deskripsi untuk linktree..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ old('custom_description') }}</textarea>
+                                <p class="mt-1 text-xs text-gray-500">Kosongkan untuk menggunakan deskripsi default produk</p>
+                                @error('custom_description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            </div>
+                            <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
+                                <i class="fas fa-plus mr-2"></i>Tambah ke Katalog
+                            </button>
+                        </div>
+                    </form>
+                    @else
+                    <div class="text-center py-6">
+                        <i class="fas fa-check-circle text-3xl text-gray-300 mb-3"></i>
+                        <p class="text-sm text-gray-500">Semua produk sudah ditambahkan ke linktree ini.</p>
+                    </div>
+                    @endif
+                </div>
             </div>
-        </div>
 
-        <!-- Info -->
-        <div class="card mt-3">
-            <div class="card-body">
-                <h4 class="card-title">ℹ️ Informasi</h4>
-                <ul class="list-unstyled list-unstyled-py-3 mb-0">
-                    <li class="mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-blue me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                        Produk yang ditambahkan akan tampil di halaman publik linktree Anda
-                    </li>
-                    <li class="mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-blue me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                        Geser produk untuk mengubah urutan tampilan
-                    </li>
-                    <li class="mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-blue me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                        Aktifkan/nonaktifkan produk tanpa menghapusnya
-                    </li>
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-blue me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                        Harga dan deskripsi bisa dikhususkan untuk linktree
-                    </li>
+            {{-- Info --}}
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3"><i class="fas fa-info-circle mr-2 text-primary-600"></i>Informasi</h3>
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2"><i class="fas fa-check text-blue-500 mt-0.5"></i>Produk yang ditambahkan akan tampil di halaman publik linktree Anda</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check text-blue-500 mt-0.5"></i>Geser produk untuk mengubah urutan tampilan</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check text-blue-500 mt-0.5"></i>Aktifkan/nonaktifkan produk tanpa menghapusnya</li>
+                    <li class="flex items-start gap-2"><i class="fas fa-check text-blue-500 mt-0.5"></i>Harga dan deskripsi bisa dikhususkan untuk linktree</li>
                 </ul>
             </div>
         </div>
-    </div>
 
-    <!-- Daftar Produk di Linktree -->
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">📋 Produk di Linktree ({{ $linktree->linktreeProducts->count() }})</h3>
-            </div>
-            <div class="card-body p-0">
-                @if($linktree->linktreeProducts->count() > 0)
-                <div id="product-list" class="list-group list-group-flush">
-                    @foreach($linktree->linktreeProducts as $product)
-                    <div class="list-group-item product-item" data-id="{{ $product->id }}" style="cursor: grab;">
-                        <div class="row align-items-center">
-                            <!-- Drag Handle -->
-                            <div class="col-auto text-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M9 5a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2z"/><path d="M9 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M9 19a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-2a2 2 0 0 0 -2 2v2z"/><path d="M14 5a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"/><path d="M14 19a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-2a2 2 0 0 0 -2 2v2z"/></svg>
+        {{-- Product List --}}
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h2 class="text-base font-semibold text-gray-900">
+                        <i class="fas fa-list mr-2 text-primary-600"></i>Produk di Linktree ({{ $linktree->linktreeProducts->count() }})
+                    </h2>
+                </div>
+                <div class="p-0">
+                    @if($linktree->linktreeProducts->count() > 0)
+                    <div id="product-list" class="divide-y divide-gray-100">
+                        @foreach($linktree->linktreeProducts as $product)
+                        <div class="product-item flex items-center gap-4 px-5 py-4 hover:bg-gray-50" data-id="{{ $product->id }}" style="cursor: grab;">
+                            {{-- Drag Handle --}}
+                            <div class="text-gray-400 cursor-grab">
+                                <i class="fas fa-grip-vertical"></i>
                             </div>
-
-                            <!-- Product Image -->
-                            <div class="col-auto">
+                            {{-- Product Image --}}
+                            <div class="flex-shrink-0">
                                 @if($product->display_image)
-                                <img src="{{ asset('produk_gambar/' . $product->display_image) }}" alt="{{ $product->display_name }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                                    <img src="{{ asset('produk_gambar/' . $product->display_image) }}" alt="{{ $product->display_name }}" class="w-14 h-14 rounded-lg object-cover">
                                 @else
-                                <div class="rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; background: #f1f5f9; color: #94a3b8;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/></svg>
-                                </div>
+                                    <div class="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400"><i class="fas fa-image"></i></div>
                                 @endif
                             </div>
-
-                            <!-- Product Info -->
-                            <div class="col">
-                                <div class="d-flex align-items-center gap-2">
-                                    <strong>{{ $product->display_name }}</strong>
-                                    @if($product->is_active)
-                                    <span class="badge bg-success-lt">Aktif</span>
-                                    @else
-                                    <span class="badge bg-secondary">Nonaktif</span>
-                                    @endif
+                            {{-- Product Info --}}
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-gray-900 truncate">{{ $product->display_name }}</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $product->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600' }}">{{ $product->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                                 </div>
-                                <div class="text-muted small mt-1">
-                                    @if($product->display_price)
-                                    💰 {{ $product->display_price }}
-                                    @else
-                                    <span class="text-muted">Harga tidak diatur</span>
-                                    @endif
+                                <div class="text-sm text-gray-500 mt-0.5">
+                                    @if($product->display_price)💰 {{ $product->display_price }} @else <span class="text-gray-400">Harga tidak diatur</span> @endif
                                 </div>
                                 @if($product->custom_description)
-                                <div class="text-muted small mt-1" style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    📝 {{ Str::limit($product->custom_description, 80) }}
-                                </div>
+                                    <div class="text-xs text-gray-400 mt-0.5 truncate max-w-md">📝 {{ Str::limit($product->custom_description, 80) }}</div>
                                 @endif
                             </div>
-
-                            <!-- Actions -->
-                            <div class="col-auto">
-                                <div class="btn-list">
-                                    <!-- Toggle Active -->
-                                    <form action="{{ route('vendor.linktree.products.toggle', [$linktree, $product]) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm {{ $product->is_active ? 'btn-success' : 'btn-secondary' }}" title="{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
-                                            @if($product->is_active)
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                                            @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/></svg>
-                                            @endif
-                                        </button>
-                                    </form>
-
-                                    <!-- Edit -->
-                                    <button type="button" class="btn btn-sm btn-ghost-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ $product->id }}" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12l2 2l4 -4"/></svg>
-                                    </button>
-
-                                    <!-- Delete -->
-                                    <form action="{{ route('vendor.linktree.products.destroy', [$linktree, $product]) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus produk ini dari linktree?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-ghost-danger" title="Hapus">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7l0 -3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1l0 3"/></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Edit Modal -->
-                    <div class="modal modal-blur fade" id="editModal{{ $product->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered" role="document">
-                            <div class="modal-content">
-                                <form action="{{ route('vendor.linktree.products.update', [$linktree, $product]) }}" method="POST">
+                            {{-- Actions --}}
+                            <div class="flex items-center gap-2">
+                                <form action="{{ route('vendor.linktree.products.toggle', [$linktree, $product]) }}" method="POST" class="inline">
                                     @csrf
-                                    @method('PUT')
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Edit: {{ $product->display_name }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Harga Khusus</label>
-                                            <input type="text" name="custom_price" class="form-control" placeholder="Contoh: Rp 50.000" value="{{ $product->custom_price }}">
-                                            <div class="form-hint">Kosongkan untuk menggunakan harga default</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Deskripsi Khusus</label>
-                                            <textarea name="custom_description" class="form-control" rows="3" placeholder="Deskripsi untuk linktree...">{{ $product->custom_description }}</textarea>
-                                            <div class="form-hint">Kosongkan untuk menggunakan deskripsi default</div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-ghost-secondary" data-bs-dismiss="modal">Batal</button>
-                                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                    </div>
+                                    <button type="submit" class="p-1.5 rounded-lg {{ $product->is_active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-gray-400 hover:bg-gray-100' }}" title="{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                        <i class="fas {{ $product->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
+                                    </button>
+                                </form>
+                                <button @click="openEditModal({{ $product->id }}, '{{ addslashes($product->custom_price) }}', '{{ addslashes($product->custom_description) }}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form action="{{ route('vendor.linktree.products.destroy', [$linktree, $product]) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus produk ini dari linktree?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus"><i class="fas fa-trash"></i></button>
                                 </form>
                             </div>
                         </div>
+
+                        {{-- Edit Modal --}}
+                        <div x-show="editProductId === {{ $product->id }}" x-transition class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+                            <div class="flex items-center justify-center min-h-screen px-4">
+                                <div class="fixed inset-0 bg-gray-500/75" @click="editProductId = null"></div>
+                                <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit: {{ $product->display_name }}</h3>
+                                    <form action="{{ route('vendor.linktree.products.update', [$linktree, $product]) }}" method="POST">
+                                        @csrf @method('PUT')
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Khusus</label>
+                                                <input type="text" name="custom_price" :value="editPrice" placeholder="Contoh: Rp 50.000" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                                <p class="mt-1 text-xs text-gray-500">Kosongkan untuk menggunakan harga default</p>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Khusus</label>
+                                                <textarea name="custom_description" rows="3" placeholder="Deskripsi untuk linktree..." class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" x-text="editDescription"></textarea>
+                                                <p class="mt-1 text-xs text-gray-500">Kosongkan untuk menggunakan deskripsi default</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-6 flex justify-end gap-3">
+                                            <button type="button" @click="editProductId = null" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
+                                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">Simpan Perubahan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
-                    @endforeach
+                    @else
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center"><i class="fas fa-plus text-2xl text-gray-400"></i></div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada Produk</h3>
+                        <p class="text-sm text-gray-500">Tambahkan produk dari form di sebelah kiri untuk menampilkannya di linktree.</p>
+                    </div>
+                    @endif
                 </div>
-                @else
-                <div class="text-center py-5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-muted mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                    <h4 class="text-muted">Belum Ada Produk</h4>
-                    <p class="text-muted">Tambahkan produk dari form di sebelah kiri untuk menampilkannya di linktree.</p>
-                </div>
-                @endif
             </div>
         </div>
     </div>
@@ -264,43 +198,45 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const productList = document.getElementById('product-list');
-    if (productList) {
-        new Sortable(productList, {
-            handle: '.text-muted',
-            animation: 150,
-            ghostClass: 'bg-light',
-            onEnd: function() {
-                const order = Array.from(productList.querySelectorAll('.product-item'))
-                    .map(item => item.dataset.id);
-
-                fetch('{{ route("vendor.linktree.products.reorder", $linktree) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ product_order: order })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show subtle success feedback
-                        const toast = document.createElement('div');
-                        toast.className = 'position-fixed bottom-0 end-0 p-3';
-                        toast.style.zIndex = '9999';
-                        toast.innerHTML = '<div class="toast show" role="alert"><div class="toast-body text-success">✅ Urutan produk diperbarui</div></div>';
-                        document.body.appendChild(toast);
-                        setTimeout(() => toast.remove(), 2000);
+function productsManager() {
+    return {
+        editProductId: null,
+        editPrice: '',
+        editDescription: '',
+        openEditModal(id, price, description) {
+            this.editProductId = id;
+            this.editPrice = price;
+            this.editDescription = description;
+        },
+        init() {
+            const productList = document.getElementById('product-list');
+            if (productList) {
+                new Sortable(productList, {
+                    handle: '.fa-grip-vertical',
+                    animation: 150,
+                    ghostClass: 'bg-gray-50',
+                    onEnd: function() {
+                        const order = Array.from(productList.querySelectorAll('.product-item'))
+                            .map(item => item.dataset.id);
+                        fetch('{{ route("vendor.linktree.products.reorder", $linktree) }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                            body: JSON.stringify({ product_order: order })
+                        }).then(r => r.json()).then(data => {
+                            if (data.success) {
+                                const toast = document.createElement('div');
+                                toast.className = 'fixed bottom-4 right-4 z-50 px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg shadow-lg';
+                                toast.textContent = '✅ Urutan produk diperbarui';
+                                document.body.appendChild(toast);
+                                setTimeout(() => toast.remove(), 2000);
+                            }
+                        }).catch(() => {});
                     }
-                })
-                .catch(() => {});
+                });
             }
-        });
-    }
-});
+        }
+    };
+}
 </script>
 @endpush
 @endsection

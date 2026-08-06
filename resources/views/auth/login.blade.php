@@ -1,15 +1,5 @@
 @extends('layouts.auth')
 
-@section('styles')
-<style>
-    .form-label-description {
-        float: right;
-        font-size: 0.8rem;
-        font-weight: 500;
-    }
-</style>
-@endsection
-
 @section('content')
 <div class="auth-form-header">
     <h1>Selamat Datang</h1>

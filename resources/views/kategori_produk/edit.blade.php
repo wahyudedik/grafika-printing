@@ -2,69 +2,56 @@
 
 @section('title', 'Edit Kategori Produk')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                @if ($errors->any())
-                    <div class="alert alert-danger mb-3">
-                        <h4 class="alert-title">Error!</h4>
-                        <ul class="mb-0">
+    <div class="max-w-2xl mx-auto">
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+                    <div>
+                        <h4 class="text-sm font-semibold text-red-800">Error!</h4>
+                        <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
-                @endif
-
-                <form action="{{ route('vendor.categories.update', $kategoriProduk->id) }}" method="POST" class="card"
-                    onsubmit="showLoading('Memperbarui kategori...')">
-                    @csrf
-                    @method('PUT')
-                    <div class="card-header">
-                        <h3 class="card-title">Edit Kategori Produk</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label required">Nama Kategori</label>
-                                    <input type="text" class="form-control @error('nama_kategori') is-invalid @enderror"
-                                        name="nama_kategori"
-                                        value="{{ old('nama_kategori', $kategoriProduk->nama_kategori) }}"
-                                        placeholder="Masukkan nama kategori">
-                                    @error('nama_kategori')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
-                                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                                <path d="M14 4l0 4l-6 0l0 -4"></path>
-                            </svg>
-                            Update
-                        </button>
-
-                        <a href="{{ route('vendor.categories.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M18 6l-12 12"></path>
-                                <path d="M6 6l12 12"></path>
-                            </svg>
-                            Batal
-                        </a>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+        @endif
+
+        <form action="{{ route('vendor.categories.update', $kategoriProduk->id) }}" method="POST"
+            class="bg-white rounded-xl shadow-sm" onsubmit="showLoading('Memperbarui kategori...')">
+            @csrf
+            @method('PUT')
+            <div class="border-b border-gray-200 px-6 py-4">
+                <h3 class="text-lg font-semibold text-gray-900">Edit Kategori Produk</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Nama Kategori <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="nama_kategori"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('nama_kategori') border-red-500 @enderror"
+                            value="{{ old('nama_kategori', $kategoriProduk->nama_kategori) }}"
+                            placeholder="Masukkan nama kategori">
+                        @error('nama_kategori')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3">
+                <a href="{{ route('vendor.categories.index') }}"
+                    class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-times mr-1"></i> Batal
+                </a>
+                <button type="submit"
+                    class="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-save mr-1"></i> Update
+                </button>
+            </div>
+        </form>
     </div>
 @endsection

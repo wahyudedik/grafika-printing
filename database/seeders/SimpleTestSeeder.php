@@ -16,7 +16,7 @@ class SimpleTestSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🌱 Creating simple test users...'); 
+        $this->command->info('🌱 Creating simple test users...');
 
         // Clear existing data (optional - be careful in production!)
         // User::truncate();
@@ -24,7 +24,7 @@ class SimpleTestSeeder extends Seeder
 
         // Create Dev User (Super Admin)
         $devUser = User::firstOrCreate(
-            ['email' => 'dev@grafika-printing.com'],
+            ['email' => 'dev@gmail.com'],
             [
                 'name' => 'Developer Admin',
                 'password' => Hash::make('password'),
@@ -38,7 +38,7 @@ class SimpleTestSeeder extends Seeder
 
         // Create Regular User
         $regularUser = User::firstOrCreate(
-            ['email' => 'user@example.com'],
+            ['email' => 'user@gmail.com'],
             [
                 'name' => 'John Doe',
                 'password' => Hash::make('password'),
@@ -52,7 +52,7 @@ class SimpleTestSeeder extends Seeder
 
         // Create Vendor
         $vendorUser = User::firstOrCreate(
-            ['email' => 'vendor@example.com'],
+            ['email' => 'vendor@gmail.com'],
             [
                 'name' => 'Jane Vendor',
                 'password' => Hash::make('password'),
@@ -64,8 +64,8 @@ class SimpleTestSeeder extends Seeder
 
         $this->command->info("✅ Created VENDOR user: {$vendorUser->email} (password: password)");
 
-        // Create Vendor Company
-        $vendor = Vendor::firstOrCreate(
+        // Create Vendor Company (idempotent - safe to re-run)
+        $vendor = Vendor::updateOrCreate(
             ['email' => 'vendor@example.com'],
             [
                 'name' => 'Grafika Printing Vendor',
@@ -78,13 +78,11 @@ class SimpleTestSeeder extends Seeder
             ]
         );
 
-        // Link vendor user to vendor company
-        DB::table('vendor_user')->insert([
-            'user_id' => $vendorUser->id,
-            'vendor_id' => $vendor->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Link vendor user to vendor company (idempotent)
+        DB::table('vendor_user')->updateOrInsert(
+            ['user_id' => $vendorUser->id, 'vendor_id' => $vendor->id],
+            ['created_at' => now(), 'updated_at' => now()]
+        );
 
         $this->command->info("✅ Created VENDOR company: {$vendor->name}");
 

@@ -2,10 +2,10 @@
 
 namespace App\Models\Vendor;
 
-use App\Models\Vendor\TenantModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class LinktreeProduct extends TenantModel
+class LinktreeProduct extends Model
 {
     protected $table = 'linktree_products';
 

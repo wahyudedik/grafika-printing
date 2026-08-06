@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\DeliveryConfirmation;
 use App\Models\Auction;
 use App\Models\VendorWallet;
+use App\Models\XenditPayment;
+use App\Models\FinancialAuditLog;
+use App\Services\XenditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class DeliveryConfirmationController extends Controller
@@ -183,7 +187,7 @@ class DeliveryConfirmationController extends Controller
         $auction->update(['status' => 'completed']);
 
         // Log the payment process
-        \Log::info('Vendor payment processed', [
+        Log::info('Vendor payment processed', [
             'auction_id' => $auction->id,
             'vendor_id' => $auction->winner_vendor_id,
             'amount_paid_to_vendor' => $amount,
@@ -242,14 +246,95 @@ class DeliveryConfirmationController extends Controller
     }
 
     /**
-     * Process refund
+     * Process refund via Xendit
+     * Flow: Admin resolve dispute → Refund via Xendit → Vendor wallet deducted → User notified
      */
     private function processRefund(Auction $auction, $amount)
     {
-        // Implement refund logic here
-        // This would typically involve:
-        // 1. Creating refund request to Xendit
-        // 2. Updating auction status
-        // 3. Notifying user
+        // Find the original payment for this auction
+        $payment = XenditPayment::where('auction_id', $auction->id)
+            ->where('status', 'paid')
+            ->first();
+
+        if (!$payment) {
+            throw new \Exception('No paid payment found for auction #' . $auction->id);
+        }
+
+        // Validate refund amount doesn't exceed original payment
+        if ($amount > $payment->amount) {
+            throw new \Exception('Refund amount (' . number_format($amount) . ') exceeds original payment amount (' . number_format($payment->amount) . ')');
+        }
+
+        // Call Xendit refund API
+        $xenditService = app(XenditService::class);
+        $refundResult = $xenditService->createRefund(
+            $payment->xendit_id,
+            (int) $amount,
+            'Refund for auction #' . $auction->id . ' - Dispute resolved'
+        );
+
+        if (!$refundResult) {
+            throw new \Exception('Failed to process refund via Xendit. Please try again or contact support.');
+        }
+
+        // Deduct from vendor wallet if payment was already released
+        if ($auction->status === 'completed') {
+            $wallet = VendorWallet::where('vendor_id', $auction->winner_vendor_id)->first();
+            if ($wallet && $wallet->balance >= $amount) {
+                $wallet->addDebit(
+                    $amount,
+                    'auction_refund',
+                    'Refund deducted for auction #' . $auction->id . ' - Dispute resolved',
+                    $auction->id,
+                    'auction',
+                    [
+                        'auction_id' => $auction->id,
+                        'refund_id' => $refundResult['id'] ?? null,
+                        'refund_amount' => $amount,
+                        'reason' => 'dispute_refund'
+                    ]
+                );
+            }
+        }
+
+        // Update auction status
+        $auction->update([
+            'status' => 'refunded',
+            'delivery_status' => 'refunded'
+        ]);
+
+        // Log the refund in financial audit
+        FinancialAuditLog::create([
+            'user_id' => Auth::id(),
+            'vendor_id' => $auction->winner_vendor_id,
+            'action_type' => 'refund',
+            'entity_type' => 'auction',
+            'entity_id' => $auction->id,
+            'old_data' => [
+                'status' => $auction->getOriginal('status'),
+                'amount_paid' => $payment->amount
+            ],
+            'new_data' => [
+                'status' => 'refunded',
+                'refund_amount' => $amount,
+                'refund_id' => $refundResult['id'] ?? null
+            ],
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'transaction_reference' => $refundResult['id'] ?? null,
+            'amount' => $amount,
+            'status' => 'completed',
+            'notes' => 'Refund processed for auction #' . $auction->id . ' - Dispute resolved',
+            'risk_level' => FinancialAuditLog::RISK_HIGH
+        ]);
+
+        Log::info('Refund processed successfully', [
+            'auction_id' => $auction->id,
+            'payment_id' => $payment->id,
+            'xendit_refund_id' => $refundResult['id'] ?? null,
+            'refund_amount' => $amount,
+            'vendor_id' => $auction->winner_vendor_id,
+            'admin_id' => Auth::id()
+        ]);
     }
 }

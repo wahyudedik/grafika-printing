@@ -2,151 +2,118 @@
 
 @section('title', 'Manajemen Kategori Produk')
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-center">
-                <div>
-                    <h3 class="card-title">Daftar Kategori Produk</h3>
-                </div>
-                <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('vendor.categories.index') }}" method="GET" class="flex-grow-1">
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+    <div class="bg-white rounded-xl shadow-sm">
+        <div class="border-b border-gray-200 px-6 py-4">
+            <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+                <h3 class="text-lg font-semibold text-gray-900">Daftar Kategori Produk</h3>
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <form action="{{ route('vendor.categories.index') }}" method="GET" class="flex-1">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 placeholder="Cari kategori...">
                         </div>
                     </form>
 
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                        <button @click="open = !open"
+                            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 whitespace-nowrap">
                             Sort: {{ request('sort', 'nama_kategori') }} ({{ request('order', 'asc') }})
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item"
+                        <div x-show="open" x-transition
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'nama_kategori', 'order' => 'asc'])) }}">Nama
                                 (A-Z)</a>
-                            <a class="dropdown-item"
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'nama_kategori', 'order' => 'desc'])) }}">Nama
                                 (Z-A)</a>
-                            <a class="dropdown-item"
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'created_at', 'order' => 'desc'])) }}">Terbaru</a>
-                            <a class="dropdown-item"
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.categories.index', array_merge(request()->except(['sort', 'order']), ['sort' => 'created_at', 'order' => 'asc'])) }}">Terlama</a>
                         </div>
                     </div>
 
-                    <a href="{{ route('vendor.categories.create') }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Tambah Kategori
+                    <a href="{{ route('vendor.categories.create') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap">
+                        <i class="fas fa-plus"></i> Tambah Kategori
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap">
-                <thead>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th>Nama Kategori</th>
-                        <th>Slug</th>
-                        <th>Jumlah Produk</th>
-                        <th>Tanggal Dibuat</th>
-                        <th class="w-1">Actions</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nama Kategori</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Slug</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Jumlah Produk</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Tanggal Dibuat</th>
+                        <th scope="col" class="relative px-6 py-3">
+                            <span class="sr-only">Actions</span>
+                        </th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($kategori as $item)
-                        <tr>
-                            <td class="font-medium">{{ $item->nama_kategori }}</td>
-                            <td>{{ $item->slug }}</td>
-                            <td>{{ $item->produk->count() }}</td>
-                            <td>{{ $item->created_at->format('d M Y, H:i') }}</td>
-                            <td>
-                                <div class="btn-list flex-nowrap">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {{ $item->nama_kategori }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                                {{ $item->slug }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $item->produk->count() }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $item->created_at->format('d M Y, H:i') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-1">
                                     <a href="{{ route('vendor.categories.show', $item->id) }}"
-                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                            <path
-                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                        </svg>
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View">
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('vendor.categories.edit', $item->id) }}"
-                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                        </svg>
+                                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                        <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-icon btn-ghost-danger delete-btn"
-                                        data-id="{{ $item->id }}" data-bs-toggle="tooltip" title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
+                                    <button type="button"
+                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors delete-btn"
+                                        data-id="{{ $item->id }}" title="Delete">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4">
-                                <div class="empty">
-                                    <div class="empty-img">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128"
-                                            height="128" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                            <path d="M9 10l.01 0" />
-                                            <path d="M15 10l.01 0" />
-                                            <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
-                                        </svg>
+                            <td colspan="5" class="px-6 py-12">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                        <i class="fas fa-folder-open text-gray-400 text-2xl"></i>
                                     </div>
-                                    <p class="empty-title">Tidak ada data kategori</p>
-                                    <p class="empty-subtitle text-muted">
-                                        Silahkan tambahkan kategori produk baru atau ubah filter pencarian
-                                    </p>
-                                    <div class="empty-action">
-                                        <a href="{{ route('vendor.categories.create') }}" class="btn btn-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <line x1="12" y1="5" x2="12" y2="19" />
-                                                <line x1="5" y1="12" x2="19" y2="12" />
-                                            </svg>
-                                            Tambah Kategori
-                                        </a>
-                                    </div>
+                                    <p class="text-sm font-medium text-gray-900">Tidak ada data kategori</p>
+                                    <p class="text-sm text-gray-500 mt-1">Silahkan tambahkan kategori produk baru atau ubah filter pencarian</p>
+                                    <a href="{{ route('vendor.categories.create') }}"
+                                        class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-plus"></i> Tambah Kategori
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -154,13 +121,16 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
-            {{ $kategori->links('components.pagination') }}
-        </div>
+
+        @if ($kategori->hasPages())
+            <div class="border-t border-gray-200 px-6 py-4">
+                {{ $kategori->links('components.pagination') }}
+            </div>
+        @endif
     </div>
 
-    <!-- Hidden delete form -->
-    <form id="delete-form" action="" method="POST" style="display: none;">
+    {{-- Hidden delete form --}}
+    <form id="delete-form" action="" method="POST" class="hidden">
         @csrf
         @method('DELETE')
     </form>

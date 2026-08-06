@@ -437,6 +437,14 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::post('/{order}/confirm', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'confirm'])->name('confirm');
         Route::post('/{order}/reject', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'reject'])->name('reject');
     });
+
+    // Vendor Audit Logs
+    Route::prefix('audit-logs')->name('audit-logs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\VendorAuditLogController::class, 'index'])->name('index');
+        Route::get('/financial', [\App\Http\Controllers\VendorAuditLogController::class, 'financial'])->name('financial');
+        Route::get('/export', [\App\Http\Controllers\VendorAuditLogController::class, 'export'])->name('export');
+        Route::get('/{id}', [\App\Http\Controllers\VendorAuditLogController::class, 'show'])->name('show');
+    });
 });
 
 // ============================================================================
@@ -451,6 +459,7 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->name('user.')->
         Route::get('/{auction}/create', [\App\Http\Controllers\DeliveryConfirmationController::class, 'create'])->name('create');
         Route::post('/{auction}', [\App\Http\Controllers\DeliveryConfirmationController::class, 'store'])->name('store');
         Route::get('/{confirmation}', [\App\Http\Controllers\DeliveryConfirmationController::class, 'show'])->name('show');
+        Route::post('/{confirmation}/resolve-dispute', [\App\Http\Controllers\DeliveryConfirmationController::class, 'resolveDispute'])->name('resolve-dispute');
     });
 
     // Dashboard
@@ -521,13 +530,6 @@ Route::prefix('api')->name('api.')->group(function () {
         Route::get('/account-details', [\App\Http\Controllers\VendorBankAccountController::class, 'getAccountDetails'])->name('account-details');
         Route::post('/withdrawal/calculate-fee', [\App\Http\Controllers\VendorWithdrawalController::class, 'calculateFee'])->name('withdrawal.calculate-fee');
 
-        // Vendor Audit Logs
-        Route::prefix('audit-logs')->name('audit-logs.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\VendorAuditLogController::class, 'index'])->name('index');
-            Route::get('/financial', [\App\Http\Controllers\VendorAuditLogController::class, 'financial'])->name('financial');
-            Route::get('/export', [\App\Http\Controllers\VendorAuditLogController::class, 'export'])->name('export');
-            Route::get('/{id}', [\App\Http\Controllers\VendorAuditLogController::class, 'show'])->name('show');
-        });
     });
 
     // Mobile API

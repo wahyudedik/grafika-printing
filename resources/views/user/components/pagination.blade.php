@@ -1,77 +1,64 @@
+{{--
+    Pagination Component
+    Usage: @include('user.components.pagination', ['paginator' => $items])
+    or: <x-user.pagination :paginator="$items" />
+--}}
 @if ($paginator->hasPages())
-    <nav>
-        <ul class="pagination m-0 ms-auto">
-            {{-- Previous Page Link --}}
-            @if ($paginator->onFirstPage())
-                <li class="page-item disabled">
-                    <span class="page-link" tabindex="-1" aria-disabled="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <polyline points="15 6 9 12 15 18" />
-                        </svg>
-                        prev
-                    </span>
-                </li>
-            @else
-                <li class="page-item">
-                    <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <polyline points="15 6 9 12 15 18" />
-                        </svg>
-                        prev
-                    </a>
-                </li>
-            @endif
+<nav class="flex items-center justify-between" role="navigation" aria-label="Navigasi Halaman">
+    <div class="text-sm text-gray-500">
+        Menampilkan {{ $paginator->firstItem() }}-{{ $paginator->lastItem() }} dari {{ $paginator->total() }} data
+    </div>
 
-            {{-- Pagination Elements --}}
+    <div class="flex items-center gap-1">
+        {{-- Tombol Sebelumnya --}}
+        @if ($paginator->onFirstPage())
+            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
+                <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
+            </span>
+        @else
+            <a href="{{ $paginator->previousPageUrl() }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
+            </a>
+        @endif
+
+        {{-- Nomor Halaman --}}
+        <div class="hidden sm:flex items-center gap-1">
             @foreach ($elements as $element)
                 @if (is_string($element))
-                    <li class="page-item disabled"><span class="page-link">{{ $element }}</span></li>
+                    <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500">{{ $element }}</span>
                 @endif
 
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <li class="page-item active"><span class="page-link">{{ $page }}</span></li>
+                            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-lg">
+                                {{ $page }}
+                            </span>
                         @else
-                            <li class="page-item"><a class="page-link"
-                                    href="{{ $url }}">{{ $page }}</a></li>
+                            <a href="{{ $url }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                                {{ $page }}
+                            </a>
                         @endif
                     @endforeach
                 @endif
             @endforeach
+        </div>
 
-            {{-- Next Page Link --}}
-            @if ($paginator->hasMorePages())
-                <li class="page-item">
-                    <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next">
-                        next
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <polyline points="9 6 15 12 9 18" />
-                        </svg>
-                    </a>
-                </li>
-            @else
-                <li class="page-item disabled">
-                    <span class="page-link">
-                        next
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <polyline points="9 6 15 12 9 18" />
-                        </svg>
-                    </span>
-                </li>
-            @endif
-        </ul>
-    </nav>
+        {{-- Indikator Halaman Mobile --}}
+        <span class="sm:hidden inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg">
+            {{ $paginator->currentPage() }} / {{ $paginator->lastPage() }}
+        </span>
+
+        {{-- Tombol Selanjutnya --}}
+        @if ($paginator->hasMorePages())
+            <a href="{{ $paginator->nextPageUrl() }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-primary-600 transition-colors">
+                Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
+            </a>
+        @else
+            <span class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-300 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
+                Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
+            </span>
+        @endif
+    </div>
+</nav>
 @endif

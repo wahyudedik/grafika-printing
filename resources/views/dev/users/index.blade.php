@@ -2,106 +2,63 @@
 
 @section('title', 'Users Management')
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex flex-column flex-md-row gap-3">
-                <div>
-                    <h3 class="card-title">Users List</h3>
-                </div>
-                <div class="d-flex gap-2 flex-grow-1">
-                    <form action="{{ route('admin.users.index') }}" method="GET" class="flex-grow-1">
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                                placeholder="Search users...">
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {{-- Header --}}
+        <div class="px-4 py-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h3 class="text-lg font-semibold text-gray-900">Users List</h3>
+                <div class="flex items-center gap-3">
+                    <form action="{{ route('admin.users.index') }}" method="GET" class="flex-1 sm:flex-none">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                   class="w-full sm:w-64 pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                                   placeholder="Search users...">
                         </div>
                     </form>
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Add User
+                    <a href="{{ route('admin.users.create') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex-shrink-0">
+                        <i class="fas fa-plus text-xs"></i> Add User
                     </a>
                 </div>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap">
-                <thead>
+
+        {{-- Desktop Table --}}
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Usertype</th>
-                        <th>Created At</th>
-                        <th class="w-1">Actions</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Name</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Email</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Usertype</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Created At</th>
+                        <th class="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-100">
                     @foreach ($users as $user)
-                        <tr>
-                            <td class="font-medium">{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td><span class="badge bg-primary-lt">{{ $user->usertype }}</span></td>
-                            <td>{{ $user->created_at->format('d M Y') }}</td>
-                            <td>
-                                <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-icon btn-ghost-info"
-                                        data-bs-toggle="tooltip" title="View">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                            <path
-                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                        </svg>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 font-medium text-gray-900">{{ $user->name }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">{{ $user->usertype }}</span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-500 text-sm">{{ $user->created_at->format('d M Y') }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('admin.users.show', $user->id) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View">
+                                        <i class="fas fa-eye text-sm"></i>
                                     </a>
-                                    <a href="{{ route('admin.users.edit', $user->id) }}"
-                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                        </svg>
+                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                        <i class="fas fa-edit text-sm"></i>
                                     </a>
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
-                                        class="inline" id="delete-form-{{ $user->id }}">
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" id="delete-form-{{ $user->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn btn-icon btn-ghost-danger"
-                                            data-bs-toggle="tooltip" title="Delete"
-                                            onclick="confirmDelete('delete-form-{{ $user->id }}')">
-                                            <!-- Delete icon SVG -->
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                fill="none">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 7l16 0" />
-                                                <path d="M10 11l0 6" />
-                                                <path d="M14 11l0 6" />
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                            </svg>
+                                        <button type="button" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete" onclick="confirmDelete('delete-form-{{ $user->id }}')">
+                                            <i class="fas fa-trash text-sm"></i>
                                         </button>
                                     </form>
-
-
                                 </div>
                             </td>
                         </tr>
@@ -109,7 +66,31 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
+
+        {{-- Mobile Cards --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @foreach ($users as $user)
+                <div class="p-4 space-y-2">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-gray-900">{{ $user->name }}</p>
+                            <p class="text-sm text-gray-500">{{ $user->email }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 ml-2 flex-shrink-0">{{ $user->usertype }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-400">{{ $user->created_at->format('d M Y') }}</span>
+                        <div class="flex items-center gap-1">
+                            <a href="{{ route('admin.users.show', $user->id) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><i class="fas fa-eye text-sm"></i></a>
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"><i class="fas fa-edit text-sm"></i></a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Pagination --}}
+        <div class="px-4 py-3 border-t border-gray-200">
             {{ $users->links('dev.components.pagination') }}
         </div>
     </div>

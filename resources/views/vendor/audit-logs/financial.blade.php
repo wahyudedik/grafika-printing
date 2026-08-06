@@ -3,39 +3,37 @@
 @section('title', 'Financial Audit Logs')
 
 @section('content')
-<div class="page-header d-print-none mb-4">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <h2 class="page-title">Financial Audit Logs</h2>
-            <p class="text-muted">Riwayat transaksi keuangan vendor Anda</p>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.audit-logs.index') }}" class="btn btn-outline-secondary me-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 11l-5 3l5 3v-6z"/><path d="M18 11v-2a2 2 0 0 0 -2 -2h-10a2 2 0 0 0 -2 2v6a2 2 0 0 0 2 2h4"/></svg>
-                Kembali ke Audit Logs
-            </a>
-            <a href="{{ route('vendor.audit-logs.export', ['action_type' => request('action_type'), 'entity_type' => request('entity_type'), 'date_from' => request('date_from'), 'date_to' => request('date_to')]) }}" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 14l-2 -2m0 0l2 -2m-2 2h9a4 4 0 0 0 1 -8v-1"/><path d="M14 11a4 4 0 1 0 -4 4"/></svg>
-                Export CSV
-            </a>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Financial Audit Logs</h1>
+        <p class="text-sm text-gray-500 mt-1">Riwayat transaksi keuangan vendor Anda</p>
+    </div>
+    <div class="flex items-center gap-2">
+        <a href="{{ route('vendor.audit-logs.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Kembali ke Audit Logs
+        </a>
+        <a href="{{ route('vendor.audit-logs.export', ['action_type' => request('action_type'), 'entity_type' => request('entity_type'), 'date_from' => request('date_from'), 'date_to' => request('date_to')]) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export CSV
+        </a>
     </div>
 </div>
 
-<!-- Filter Form -->
-<div class="card mb-4">
-    <div class="card-header">
-        <h3 class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z"/></svg>
+{{-- Filter Form --}}
+<div class="bg-white rounded-xl border border-gray-200 mb-6">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
             Filter
         </h3>
     </div>
-    <div class="card-body">
+    <div class="p-6">
         <form method="GET" action="{{ route('vendor.audit-logs.financial') }}">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Action Type</label>
-                    <select name="action_type" class="form-select">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                    <select name="action_type" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">Semua Action</option>
                         <option value="payment" {{ request('action_type') == 'payment' ? 'selected' : '' }}>Payment</option>
                         <option value="withdrawal" {{ request('action_type') == 'withdrawal' ? 'selected' : '' }}>Withdrawal</option>
@@ -47,9 +45,9 @@
                         <option value="wallet_debit" {{ request('action_type') == 'wallet_debit' ? 'selected' : '' }}>Wallet Debit</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Entity Type</label>
-                    <select name="entity_type" class="form-select">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Entity Type</label>
+                    <select name="entity_type" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">Semua Entity</option>
                         <option value="order" {{ request('entity_type') == 'order' ? 'selected' : '' }}>Order</option>
                         <option value="auction" {{ request('entity_type') == 'auction' ? 'selected' : '' }}>Auction</option>
@@ -59,148 +57,150 @@
                         <option value="admin_fee" {{ request('entity_type') == 'admin_fee' ? 'selected' : '' }}>Admin Fee</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Dari Tanggal</label>
-                    <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Dari Tanggal</label>
+                    <input type="date" name="date_from" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_from') }}">
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Sampai Tanggal</label>
-                    <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Sampai Tanggal</label>
+                    <input type="date" name="date_to" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_to') }}">
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Cari</label>
-                    <input type="text" name="search" class="form-control" placeholder="Ref / Catatan..." value="{{ request('search') }}">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cari</label>
+                    <input type="text" name="search" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ref / Catatan..." value="{{ request('search') }}">
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>
-                        Filter
-                    </button>
-                    <a href="{{ route('vendor.audit-logs.financial') }}" class="btn btn-outline-secondary ms-2">Reset</a>
-                </div>
+            <div class="flex items-center gap-2 mt-4">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    Filter
+                </button>
+                <a href="{{ route('vendor.audit-logs.financial') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Reset
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Logs Table -->
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6l0 13"/><path d="M12 6l0 13"/><path d="M21 6l0 13"/></svg>
+{{-- Logs Table --}}
+<div class="bg-white rounded-xl border border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             Financial Logs ({{ $logs->total() }} total)
         </h3>
     </div>
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
             <thead>
-                <tr>
-                    <th style="width: 1%">ID</th>
-                    <th>Waktu</th>
-                    <th>Action</th>
-                    <th>Entity</th>
-                    <th>Jumlah</th>
-                    <th>Status</th>
-                    <th>Risk</th>
-                    <th>Reference</th>
-                    <th>Catatan</th>
-                    <th style="width: 1%">Aksi</th>
+                <tr class="border-b border-gray-100">
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Entity</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Risk</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan</th>
+                    <th class="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-gray-100">
                 @forelse($logs as $log)
-                <tr>
-                    <td class="text-muted">#{{ $log->id }}</td>
-                    <td>
-                        <div>{{ $log->created_at->format('d/m/Y') }}</div>
-                        <div class="text-muted small">{{ $log->created_at->format('H:i:s') }}</div>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 text-gray-500">#{{ $log->id }}</td>
+                    <td class="px-6 py-4">
+                        <div class="text-gray-900">{{ $log->created_at->format('d/m/Y') }}</div>
+                        <div class="text-xs text-gray-500">{{ $log->created_at->format('H:i:s') }}</div>
                     </td>
-                    <td>
+                    <td class="px-6 py-4">
                         @php
-                            $actionColors = [
-                                'payment' => 'bg-success-lt',
-                                'withdrawal' => 'bg-warning-lt',
-                                'transfer' => 'bg-info-lt',
-                                'refund' => 'bg-danger-lt',
-                                'admin_fee' => 'bg-secondary-lt',
-                                'escrow_release' => 'bg-primary-lt',
-                                'wallet_credit' => 'bg-success-lt',
-                                'wallet_debit' => 'bg-danger-lt',
+                            $actionClasses = [
+                                'payment' => 'bg-green-100 text-green-800',
+                                'withdrawal' => 'bg-yellow-100 text-yellow-800',
+                                'transfer' => 'bg-blue-100 text-blue-800',
+                                'refund' => 'bg-red-100 text-red-800',
+                                'admin_fee' => 'bg-gray-100 text-gray-800',
+                                'escrow_release' => 'bg-purple-100 text-purple-800',
+                                'wallet_credit' => 'bg-green-100 text-green-800',
+                                'wallet_debit' => 'bg-red-100 text-red-800',
                             ];
                         @endphp
-                        <span class="badge {{ $actionColors[$log->action_type] ?? 'bg-secondary-lt' }}">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $actionClasses[$log->action_type] ?? 'bg-gray-100 text-gray-800' }}">
                             {{ $log->action_type }}
                         </span>
                     </td>
-                    <td>
-                        <span class="badge bg-light text-dark">{{ $log->entity_type }}</span>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {{ $log->entity_type }}
+                        </span>
                         @if($log->entity_id)
-                            <small class="text-muted">#{{ $log->entity_id }}</small>
+                            <span class="text-xs text-gray-500 ml-1">#{{ $log->entity_id }}</span>
                         @endif
                     </td>
-                    <td>
+                    <td class="px-6 py-4">
                         @if($log->amount !== null)
-                            <strong class="{{ $log->amount >= 0 ? 'text-success' : 'text-danger' }}">
+                            <span class="font-semibold {{ $log->amount >= 0 ? 'text-green-600' : 'text-red-600' }}">
                                 Rp {{ number_format($log->amount, 0, ',', '.') }}
-                            </strong>
+                            </span>
                         @else
-                            <span class="text-muted">-</span>
+                            <span class="text-gray-400">-</span>
                         @endif
                     </td>
-                    <td>
+                    <td class="px-6 py-4">
                         @php
-                            $statusColors = [
-                                'completed' => 'bg-success',
-                                'pending' => 'bg-warning',
-                                'failed' => 'bg-danger',
-                                'cancelled' => 'bg-secondary',
-                                'processing' => 'bg-info',
+                            $statusClasses = [
+                                'completed' => 'bg-green-100 text-green-800',
+                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                'failed' => 'bg-red-100 text-red-800',
+                                'cancelled' => 'bg-gray-100 text-gray-800',
+                                'processing' => 'bg-blue-100 text-blue-800',
                             ];
                         @endphp
-                        <span class="badge {{ $statusColors[$log->status] ?? 'bg-secondary' }}">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClasses[$log->status] ?? 'bg-gray-100 text-gray-800' }}">
                             {{ $log->status }}
                         </span>
                     </td>
-                    <td>
+                    <td class="px-6 py-4">
                         @php
-                            $riskColors = [
-                                'low' => 'text-success',
-                                'medium' => 'text-warning',
-                                'high' => 'text-danger',
-                                'critical' => 'text-danger fw-bold',
+                            $riskClasses = [
+                                'low' => 'text-green-600',
+                                'medium' => 'text-yellow-600',
+                                'high' => 'text-red-600',
+                                'critical' => 'text-red-700 font-bold',
                             ];
                         @endphp
-                        <span class="{{ $riskColors[$log->risk_level] ?? 'text-muted' }}">
+                        <span class="{{ $riskClasses[$log->risk_level] ?? 'text-gray-500' }}">
                             {{ ucfirst($log->risk_level) }}
                         </span>
                     </td>
-                    <td>
+                    <td class="px-6 py-4">
                         @if($log->transaction_reference)
-                            <code class="small">{{ $log->transaction_reference }}</code>
+                            <code class="text-xs bg-gray-100 px-2 py-1 rounded">{{ $log->transaction_reference }}</code>
                         @else
-                            <span class="text-muted">-</span>
+                            <span class="text-gray-400">-</span>
                         @endif
                     </td>
-                    <td>
-                        <span class="text-truncate d-inline-block" style="max-width: 200px;" title="{{ $log->notes ?? '' }}">
+                    <td class="px-6 py-4">
+                        <span class="block max-w-[200px] truncate text-gray-600" title="{{ $log->notes ?? '' }}">
                             {{ $log->notes ?? '-' }}
                         </span>
                     </td>
-                    <td>
-                        <a href="{{ route('vendor.audit-logs.show', $log->id) }}" class="btn btn-sm btn-outline-primary">
+                    <td class="px-6 py-4 text-right">
+                        <a href="{{ route('vendor.audit-logs.show', $log->id) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
                             Detail
                         </a>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="10" class="text-center py-4 text-muted">
-                        <div class="py-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 14l-2 -2m0 0l2 -2m-2 2h9a4 4 0 0 0 1 -8v-1"/><path d="M14 11a4 4 0 1 0 -4 4"/></svg>
-                            <h4>Tidak ada data</h4>
-                            <p>Belum ada log transaksi keuangan ditemukan.</p>
+                    <td colspan="10" class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <h4 class="text-sm font-medium text-gray-900">Tidak ada data</h4>
+                            <p class="text-sm text-gray-500 mt-1">Belum ada log transaksi keuangan ditemukan.</p>
                         </div>
                     </td>
                 </tr>
@@ -209,11 +209,11 @@
         </table>
     </div>
     @if($logs->hasPages())
-    <div class="card-footer d-flex align-items-center">
-        <div class="text-muted text-sm">
+    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+        <div class="text-sm text-gray-500">
             Menampilkan {{ $logs->firstItem() }} - {{ $logs->lastItem() }} dari {{ $logs->total() }} data
         </div>
-        <div class="ms-auto">
+        <div>
             {{ $logs->withQueryString()->links() }}
         </div>
     </div>

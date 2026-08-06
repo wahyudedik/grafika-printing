@@ -400,6 +400,59 @@ class XenditService
     }
 
     /**
+     * Create a refund for a paid invoice or payment
+     *
+     * @param string $paymentId The Xendit payment ID (invoice_id or payment_id)
+     * @param int $amount Refund amount in IDR (must be <= original amount)
+     * @param string $reason Reason for refund
+     * @return array|null Refund data or null on failure
+     */
+    public function createRefund(string $paymentId, int $amount, string $reason = 'Customer requested refund'): ?array
+    {
+        try {
+            $url = $this->baseUrl . '/v2/refunds';
+
+            $payload = [
+                'payment_id' => $paymentId,
+                'amount' => $amount,
+                'reason' => $reason
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Basic ' . base64_encode($this->apiKey . ':'),
+                'Content-Type' => 'application/json'
+            ])->post($url, $payload);
+
+            if ($response->successful()) {
+                $result = $response->json();
+                Log::info('Xendit Refund Created', [
+                    'refund_id' => $result['id'] ?? null,
+                    'payment_id' => $paymentId,
+                    'amount' => $amount,
+                    'status' => $result['status'] ?? null
+                ]);
+                return $result;
+            } else {
+                Log::error('Xendit Refund API Error', [
+                    'status' => $response->status(),
+                    'response' => $response->body(),
+                    'payment_id' => $paymentId,
+                    'amount' => $amount
+                ]);
+                return null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Xendit Refund Creation Error', [
+                'message' => $e->getMessage(),
+                'payment_id' => $paymentId,
+                'amount' => $amount,
+                'trace' => $e->getTraceAsString()
+            ]);
+            return null;
+        }
+    }
+
+    /**
      * Validate payment data before sending to Xendit
      */
     private function validatePaymentData(array $data)

@@ -2,90 +2,83 @@
 
 @section('title', 'Create User')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <form action="{{ route('vendor.users.store') }}" method="POST" class="card"
-                    onsubmit="showLoading('Creating user...')" enctype="multipart/form-data">
-                    @csrf
-                    <div class="card-header">
-                        <h3 class="card-title">Create New User</h3>
+    <div class="max-w-2xl mx-auto">
+        <form action="{{ route('vendor.users.store') }}" method="POST"
+            onsubmit="showLoading('Creating user...')" enctype="multipart/form-data">
+            @csrf
+
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Create New User</h3>
+                </div>
+
+                <div class="px-6 py-6 space-y-5">
+                    {{-- Full Name --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Enter full name"
+                            class="block w-full rounded-lg border {{ $errors->has('name') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label required">Full Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                value="{{ old('name') }}" placeholder="Enter full name">
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label required">Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" name="email"
-                                value="{{ old('email') }}" placeholder="Enter email address">
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                name="password" placeholder="Enter password">
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Confirm Password</label>
-                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                                name="password_confirmation" placeholder="Confirm password">
-                            @error('password_confirmation')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Usertype</label>
-                            <select class="form-select @error('usertype') is-invalid @enderror" name="usertype">
-                                <option value="">Select usertype</option>
-                                <option value="dev" {{ old('usertype') == 'dev' ? 'selected' : '' }}>Dev</option>
-                                <option value="vendor" {{ old('usertype') == 'vendor' ? 'selected' : '' }}>Vendor</option>
-                            </select>
-                            @error('usertype')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                    {{-- Email --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="Enter email address"
+                            class="block w-full rounded-lg border {{ $errors->has('email') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                    <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
-                                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                                <path d="M14 4l0 4l-6 0l0 -4"></path>
-                            </svg>
-                            Save
-                        </button>
 
-                        <a href="{{ route('vendor.users.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M18 6l-12 12"></path>
-                                <path d="M6 6l12 12"></path>
-                            </svg>
-                            Cancel
-                        </a>
+                    {{-- Password --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
+                        <input type="password" name="password" placeholder="Enter password"
+                            class="block w-full rounded-lg border {{ $errors->has('password') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('password')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
-                </form>
+
+                    {{-- Confirm Password --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span class="text-red-500">*</span></label>
+                        <input type="password" name="password_confirmation" placeholder="Confirm password"
+                            class="block w-full rounded-lg border {{ $errors->has('password_confirmation') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('password_confirmation')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Usertype --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Usertype <span class="text-red-500">*</span></label>
+                        <select name="usertype"
+                            class="block w-full rounded-lg border {{ $errors->has('usertype') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                            <option value="">Select usertype</option>
+                            <option value="dev" {{ old('usertype') == 'dev' ? 'selected' : '' }}>Dev</option>
+                            <option value="vendor" {{ old('usertype') == 'vendor' ? 'selected' : '' }}>Vendor</option>
+                        </select>
+                        @error('usertype')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+                    <a href="{{ route('vendor.users.index') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fa-solid fa-xmark"></i> Cancel
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                        <i class="fa-solid fa-floppy-disk"></i> Save
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 @endsection

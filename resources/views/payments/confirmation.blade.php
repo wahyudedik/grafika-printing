@@ -88,7 +88,7 @@
             <div class="bg-white rounded-lg shadow-md p-6 mt-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Pilih Metode Pembayaran</h2>
 
-                <form action="{{ route('payments.process', $auction) }}" method="POST" id="paymentForm" data-loading>
+                <form action="{{ route('user.payments.process', $auction) }}" method="POST" id="paymentForm" data-loading>
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

@@ -3,171 +3,166 @@
 @section('title', 'Detail Penarikan Wallet')
 
 @section('content')
-<div class="page-header d-print-none">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <div class="page-pretitle">Vendor Panel</div>
-            <h2 class="page-title">Detail Penarikan Wallet</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.wallet.withdrawals') }}" class="btn btn-outline-primary">
-                Kembali
-            </a>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <p class="text-xs font-medium text-primary-600 uppercase tracking-wider mb-1">Vendor Panel</p>
+        <h1 class="text-2xl font-bold text-gray-900">Detail Penarikan Wallet</h1>
     </div>
+    <a href="{{ route('vendor.wallet.withdrawals') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Kembali
+    </a>
 </div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Detail Penarikan #{{ $withdrawal->withdrawal_code }}</h3>
-                        <div class="card-actions">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Main Detail --}}
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-900">Detail Penarikan #{{ $withdrawal->withdrawal_code }}</h3>
+                @if($withdrawal->status === 'pending')
+                <form action="{{ route('vendor.wallet.cancel-withdrawal', $withdrawal) }}" method="POST" class="inline"
+                      x-data x-submit="if(!confirm('Apakah Anda yakin ingin membatalkan penarikan ini?')) $event.preventDefault()">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                        Batalkan
+                    </button>
+                </form>
+                @endif
+            </div>
+            <div class="p-6 space-y-6">
+                {{-- Withdrawal Code & Status --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Penarikan</div>
+                        <div class="mt-1 text-sm font-semibold text-gray-900">{{ $withdrawal->withdrawal_code }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</div>
+                        <div class="mt-1">
                             @if($withdrawal->status === 'pending')
-                            <form action="{{ route('vendor.wallet.cancel-withdrawal', $withdrawal) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penarikan ini?')">
-                                @csrf
-                                @method('POST')
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    Batalkan
-                                </button>
-                            </form>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>
+                            @elseif($withdrawal->status === 'approved')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disetujui</span>
+                            @elseif($withdrawal->status === 'processing')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diproses</span>
+                            @elseif($withdrawal->status === 'completed')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-600 text-white">Selesai</span>
+                            @elseif($withdrawal->status === 'rejected')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Ditolak</span>
+                            @elseif($withdrawal->status === 'cancelled')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Dibatalkan</span>
                             @endif
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="text-muted small">Kode Penarikan</div>
-                                <div class="fw-bold">{{ $withdrawal->withdrawal_code }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-muted small">Status</div>
-                                <div>
-                                    @if($withdrawal->status === 'pending')
-                                        <span class="badge bg-warning-lt">Menunggu</span>
-                                    @elseif($withdrawal->status === 'approved')
-                                        <span class="badge bg-success-lt">Disetujui</span>
-                                    @elseif($withdrawal->status === 'processing')
-                                        <span class="badge bg-info-lt">Diproses</span>
-                                    @elseif($withdrawal->status === 'completed')
-                                        <span class="badge bg-success">Selesai</span>
-                                    @elseif($withdrawal->status === 'rejected')
-                                        <span class="badge bg-danger-lt">Ditolak</span>
-                                    @elseif($withdrawal->status === 'cancelled')
-                                        <span class="badge bg-secondary-lt">Dibatalkan</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
+                </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="text-muted small">Jumlah Penarikan</div>
-                                <div class="h4 mb-0 text-success">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-muted small">Biaya Admin</div>
-                                <div class="h5 mb-0">Rp {{ number_format($withdrawal->fee ?? 0, 0, ',', '.') }}</div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="text-muted small">Yang Diterima</div>
-                                <div class="h4 mb-0 text-primary">Rp {{ number_format($withdrawal->net_amount ?? ($withdrawal->amount - ($withdrawal->fee ?? 0)), 0, ',', '.') }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-muted small">Metode</div>
-                                <div>
-                                    @if($withdrawal->method === 'bank_transfer')
-                                        <span class="badge bg-blue-lt">Transfer Bank</span>
-                                    @elseif($withdrawal->method === 'e_wallet')
-                                        <span class="badge bg-purple-lt">E-Wallet</span>
-                                    @else
-                                        <span class="badge bg-green-lt">Tunai</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="text-muted small">Bank / Penyedia</div>
-                                <div>{{ $withdrawal->bank_name ?? '-' }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-muted small">Nomor Rekening</div>
-                                <div>{{ $withdrawal->account_number }}</div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="text-muted small">Nama Pemilik</div>
-                                <div>{{ $withdrawal->account_name }}</div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="text-muted small">Tanggal Pengajuan</div>
-                                <div>{{ $withdrawal->created_at->format('d M Y H:i') }}</div>
-                            </div>
-                        </div>
-
-                        @if($withdrawal->notes)
-                        <div class="mb-3">
-                            <div class="text-muted small">Catatan</div>
-                            <div>{{ $withdrawal->notes }}</div>
-                        </div>
-                        @endif
-
-                        @if($withdrawal->admin_notes)
-                        <div class="mb-3">
-                            <div class="text-muted small">Catatan Admin</div>
-                            <div class="card bg-light">
-                                <div class="card-body">{{ $withdrawal->admin_notes }}</div>
-                            </div>
-                        </div>
-                        @endif
+                {{-- Amount & Fee --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Penarikan</div>
+                        <div class="mt-1 text-xl font-bold text-green-600">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya Admin</div>
+                        <div class="mt-1 text-lg font-semibold text-gray-900">Rp {{ number_format($withdrawal->fee ?? 0, 0, ',', '.') }}</div>
                     </div>
                 </div>
+
+                {{-- Net Amount & Method --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Yang Diterima</div>
+                        <div class="mt-1 text-xl font-bold text-primary-600">Rp {{ number_format($withdrawal->net_amount ?? ($withdrawal->amount - ($withdrawal->fee ?? 0)), 0, ',', '.') }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Metode</div>
+                        <div class="mt-1">
+                            @if($withdrawal->method === 'bank_transfer')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Transfer Bank</span>
+                            @elseif($withdrawal->method === 'e_wallet')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">E-Wallet</span>
+                            @else
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Tunai</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-100">
+
+                {{-- Bank & Account --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Bank / Penyedia</div>
+                        <div class="mt-1 text-sm text-gray-900">{{ $withdrawal->bank_name ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Rekening</div>
+                        <div class="mt-1 text-sm text-gray-900">{{ $withdrawal->account_number }}</div>
+                    </div>
+                </div>
+
+                {{-- Owner & Date --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pemilik</div>
+                        <div class="mt-1 text-sm text-gray-900">{{ $withdrawal->account_name }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pengajuan</div>
+                        <div class="mt-1 text-sm text-gray-900">{{ $withdrawal->created_at->format('d M Y H:i') }}</div>
+                    </div>
+                </div>
+
+                {{-- Notes --}}
+                @if($withdrawal->notes)
+                <div>
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan</div>
+                    <div class="mt-1 text-sm text-gray-700">{{ $withdrawal->notes }}</div>
+                </div>
+                @endif
+
+                {{-- Admin Notes --}}
+                @if($withdrawal->admin_notes)
+                <div>
+                    <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Catatan Admin</div>
+                    <div class="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700">
+                        {{ $withdrawal->admin_notes }}
+                    </div>
+                </div>
+                @endif
             </div>
+        </div>
+    </div>
 
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Informasi</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="text-muted small">Status Penarikan</div>
-                            <div class="mt-1">
-                                @if($withdrawal->status === 'pending')
-                                    <span class="badge bg-warning-lt badge-lg">Menunggu Persetujuan</span>
-                                    <p class="text-muted small mt-2">Penarikan Anda sedang menunggu persetujuan dari admin.</p>
-                                @elseif($withdrawal->status === 'approved')
-                                    <span class="badge bg-success-lt badge-lg">Disetujui</span>
-                                    <p class="text-muted small mt-2">Penarikan Anda telah disetujui dan akan segera diproses.</p>
-                                @elseif($withdrawal->status === 'processing')
-                                    <span class="badge bg-info-lt badge-lg">Sedang Diproses</span>
-                                    <p class="text-muted small mt-2">Penarikan Anda sedang diproses oleh tim kami.</p>
-                                @elseif($withdrawal->status === 'completed')
-                                    <span class="badge bg-success badge-lg">Selesai</span>
-                                    <p class="text-muted small mt-2">Penarikan Anda telah berhasil diproses.</p>
-                                @elseif($withdrawal->status === 'rejected')
-                                    <span class="badge bg-danger-lt badge-lg">Ditolak</span>
-                                    <p class="text-muted small mt-2">Penarikan Anda ditolak. Silakan hubungi admin.</p>
-                                @elseif($withdrawal->status === 'cancelled')
-                                    <span class="badge bg-secondary-lt badge-lg">Dibatalkan</span>
-                                    <p class="text-muted small mt-2">Penarikan ini telah Anda batalkan.</p>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    {{-- Sidebar: Info --}}
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-900">Informasi</h3>
+            </div>
+            <div class="p-6">
+                <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Status Penarikan</div>
+                @if($withdrawal->status === 'pending')
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">Menunggu Persetujuan</span>
+                    <p class="text-sm text-gray-500 mt-3">Penarikan Anda sedang menunggu persetujuan dari admin.</p>
+                @elseif($withdrawal->status === 'approved')
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800">Disetujui</span>
+                    <p class="text-sm text-gray-500 mt-3">Penarikan Anda telah disetujui dan akan segera diproses.</p>
+                @elseif($withdrawal->status === 'processing')
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">Sedang Diproses</span>
+                    <p class="text-sm text-gray-500 mt-3">Penarikan Anda sedang diproses oleh tim kami.</p>
+                @elseif($withdrawal->status === 'completed')
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-600 text-white">Selesai</span>
+                    <p class="text-sm text-gray-500 mt-3">Penarikan Anda telah berhasil diproses.</p>
+                @elseif($withdrawal->status === 'rejected')
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 text-red-800">Ditolak</span>
+                    <p class="text-sm text-gray-500 mt-3">Penarikan Anda ditolak. Silakan hubungi admin.</p>
+                @elseif($withdrawal->status === 'cancelled')
+                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800">Dibatalkan</span>
+                    <p class="text-sm text-gray-500 mt-3">Penarikan ini telah Anda batalkan.</p>
+                @endif
             </div>
         </div>
     </div>

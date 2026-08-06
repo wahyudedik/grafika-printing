@@ -2,120 +2,87 @@
 
 @section('title', 'Spesifikasi Manajemen')
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-center">
-                <div>
-                    <h3 class="card-title">Daftar Spesifikasi</h3>
-                </div>
-                <div class="d-flex gap-2 flex-grow-1 justify-content-end ">
-                    <form action="{{ route('vendor.specifications.index') }}" method="GET" class="flex-grow-1">
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
+    <div class="bg-white rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">Daftar Spesifikasi</h3>
+                <div class="flex gap-2 flex-grow justify-end">
+                    <form action="{{ route('vendor.specifications.index') }}" method="GET" class="flex-grow max-w-xs">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400 text-sm"></i>
                             </span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"
                                 placeholder="Cari spesifikasi...">
                         </div>
                     </form>
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button @click="open = !open"
+                            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                             Filter Tipe: {{ request('tipe_input') ? ucfirst(request('tipe_input')) : 'Semua' }}
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item"
+                        <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => ''])) }}">Semua</a>
-                            <a class="dropdown-item"
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'number'])) }}">Number</a>
-                            <a class="dropdown-item"
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'select'])) }}">Select</a>
-                            <a class="dropdown-item"
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.specifications.index', array_merge(request()->except('tipe_input'), ['tipe_input' => 'text'])) }}">Text</a>
                         </div>
                     </div>
-                    <a href="{{ route('vendor.specifications.create') }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
+                    <a href="{{ route('vendor.specifications.create') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition">
+                        <i class="fas fa-plus"></i>
                         Tambah Spesifikasi
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap">
-                <thead>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th>Nama Spesifikasi</th>
-                        <th>Tipe Input</th>
-                        <th>Satuan</th>
-                        <th class="w-1">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Spesifikasi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe Input</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satuan</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($spesifikasi as $item)
-                        <tr>
-                            <td class="font-medium">{{ $item->nama_spesifikasi }}</td>
-                            <td>
-                                <span
-                                    class="badge bg-{{ $item->isNumeric() ? 'blue' : ($item->isSelect() ? 'purple' : 'green') }}-lt">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $item->nama_spesifikasi }}</td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
+                                    {{ $item->isNumeric() ? 'bg-blue-100 text-blue-700' : ($item->isSelect() ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700') }}">
                                     {{ $item->tipe_input }}
                                 </span>
                             </td>
-                            <td>{{ $item->satuan ?? '-' }}</td>
-                            <td>
-                                <div class="btn-list flex-nowrap">
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $item->satuan ?? '-' }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
                                     <a href="{{ route('vendor.specifications.show', $item->id) }}"
-                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="Show">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                            <path
-                                                d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7" />
-                                        </svg>
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Show">
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('vendor.specifications.edit', $item->id) }}"
-                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                        </svg>
+                                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit">
+                                        <i class="fas fa-edit"></i>
                                     </a>
                                     <form action="{{ route('vendor.specifications.destroy', $item->id) }}" method="POST"
                                         class="inline" id="delete-form-{{ $item->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="btn btn-icon btn-ghost-danger"
-                                            data-bs-toggle="tooltip" title="Delete"
+                                        <button type="button"
+                                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                            title="Delete"
                                             onclick="confirmDelete('delete-form-{{ $item->id }}')">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                fill="none">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 7l16 0" />
-                                                <path d="M10 11l0 6" />
-                                                <path d="M14 11l0 6" />
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                            </svg>
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -125,58 +92,29 @@
 
                     @if ($spesifikasi->count() == 0)
                         <tr>
-                            <td colspan="4" class="text-center py-4">
-                                <div class="empty">
-                                    <div class="empty-img">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-database-off" width="50"
-                                            height="50" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path
-                                                d="M12.983 8.978c3.955 -.182 7.017 -1.446 7.017 -2.978c0 -1.657 -3.582 -3 -8 -3c-1.661 0 -3.204 .19 -4.483 .515m-2.783 1.228c-.535 .337 -.734 .715 -.734 1.257c0 1.22 1.944 2.271 4.734 2.74">
-                                            </path>
-                                            <path
-                                                d="M4 6v6c0 1.657 3.582 3 8 3c.986 0 1.93 -.067 2.802 -.19m3.187 -.82c1.251 -.53 2.011 -1.228 2.011 -1.99v-6">
-                                            </path>
-                                            <path
-                                                d="M4 12v6c0 1.657 3.582 3 8 3c3.217 0 5.991 -.712 7.261 -1.74m.739 -3.26v-4">
-                                            </path>
-                                            <path d="M3 3l18 18"></path>
-                                        </svg>
-                                    </div>
-                                    <p class="empty-title">Tidak ada data</p>
-                                    <p class="empty-subtitle text-muted">
-                                        Tidak ada data spesifikasi yang tersedia.
-                                    </p>
-                                    <div class="empty-action">
-                                        <a href="{{ route('vendor.specifications.create') }}" class="btn btn-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <line x1="12" y1="5" x2="12" y2="19" />
-                                                <line x1="5" y1="12" x2="19" y2="12" />
-                                            </svg>
+                            <td colspan="4" class="px-6 py-12 text-center">
+                                <x-ui.empty-state icon="fas fa-database" title="Tidak ada data" description="Tidak ada data spesifikasi yang tersedia.">
+                                    <x-slot:actions>
+                                        <a href="{{ route('vendor.specifications.create') }}"
+                                            class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition">
+                                            <i class="fas fa-plus"></i>
                                             Tambah Spesifikasi
                                         </a>
-                                    </div>
-                                </div>
+                                    </x-slot:actions>
+                                </x-ui.empty-state>
                             </td>
                         </tr>
                     @endif
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
+        <div class="px-6 py-4 border-t border-gray-200">
             {{ $spesifikasi->links('dev.components.pagination') }}
         </div>
     </div>
 
     @push('scripts')
         <script>
-            // Confirm single item delete
             function confirmDelete(formId) {
                 Swal.fire({
                     title: 'Are you sure?',

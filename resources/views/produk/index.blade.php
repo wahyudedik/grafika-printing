@@ -2,38 +2,37 @@
 
 @section('title', 'Manajemen Produk')
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-center">
+    <div class="bg-white rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
                 <div>
-                    <h3 class="card-title">Daftar Produk</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Daftar Produk</h3>
                 </div>
-                <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('vendor.products.index') }}" method="GET" class="flex-grow-1">
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
+                <div class="flex gap-2 flex-grow justify-end">
+                    <form action="{{ route('vendor.products.index') }}" method="GET" class="flex-grow">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-search"></i>
                             </span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                                 placeholder="Cari produk...">
                         </div>
                     </form>
 
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    {{-- Filter Kategori --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary">
                             Kategori: {{ $selectedCategory ? $selectedCategory->nama_kategori : 'Semua' }}
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item"
+                        <div x-show="open" @click.outside="open = false" x-transition
+                            class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 href="{{ route('vendor.products.index', array_merge(request()->except('kategori_id'), ['kategori_id' => ''])) }}">Semua</a>
                             @foreach ($kategories as $kategori)
-                                <a class="dropdown-item"
+                                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                     href="{{ route('vendor.products.index', array_merge(request()->except('kategori_id'), ['kategori_id' => $kategori->id])) }}">
                                     {{ $kategori->nama_kategori }}
                                 </a>
@@ -41,129 +40,83 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('vendor.products.create') }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
+                    <a href="{{ route('vendor.products.create') }}"
+                        class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                        <i class="fas fa-plus"></i>
                         Tambah Produk
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap">
-                <thead>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th>Produk</th>
-                        <th>Kategori</th>
-                        <th>Spesifikasi</th>
-                        <th>Estimasi Waktu</th>
-                        <th class="w-1">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spesifikasi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimasi Waktu</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($produks as $produk)
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
                                     @if (!empty($produk->gambar) && isset($produk->gambar[0]))
-                                        <span class="avatar me-2"
-                                            style="background-image: url({{ asset($produk->gambar[0]) }})"></span>
+                                        <img class="h-10 w-10 rounded-full object-cover" src="{{ asset($produk->gambar[0]) }}" alt="{{ $produk->nama_produk }}">
                                     @else
-                                        <span class="avatar me-2">{{ substr($produk->nama_produk, 0, 2) }}</span>
+                                        <div class="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold">
+                                            {{ substr($produk->nama_produk, 0, 2) }}
+                                        </div>
                                     @endif
-                                    <div>
-                                        <div class="font-weight-medium">{{ $produk->nama_produk }}</div>
-                                        <div class="text-muted">{{ Str::limit($produk->deskripsi, 50) }}</div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">{{ $produk->nama_produk }}</div>
+                                        <div class="text-sm text-gray-500">{{ Str::limit($produk->deskripsi, 50) }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $produk->kategori->nama_kategori ?? 'Tidak ada kategori' }}</td>
-                            <td>{{ $produk->spesifikasiProduk->count() }} spesifikasi</td>
-                            <td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $produk->kategori->nama_kategori ?? 'Tidak ada kategori' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $produk->spesifikasiProduk->count() }} spesifikasi</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($produk->estimasiProduk->count() > 0)
-                                    <span class="text-success">Tersedia</span>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Tersedia</span>
                                 @else
-                                    <span class="text-muted">Belum diatur</span>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">Belum diatur</span>
                                 @endif
                             </td>
-                            <td>
-                                <div class="btn-list flex-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-1">
                                     <a href="{{ route('vendor.products.show', $produk->id) }}"
-                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                            <path
-                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                        </svg>
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat">
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('vendor.products.edit', $produk->id) }}"
-                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                        </svg>
+                                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                        <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-icon btn-ghost-danger delete-btn"
-                                        data-id="{{ $produk->id }}" data-bs-toggle="tooltip" title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
+                                    <button type="button"
+                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors delete-btn"
+                                        data-id="{{ $produk->id }}" title="Hapus">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4">
-                                <div class="empty">
-                                    <div class="empty-img">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128"
-                                            height="128" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                            <path d="M9 10l.01 0" />
-                                            <path d="M15 10l.01 0" />
-                                            <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
-                                        </svg>
-                                    </div>
-                                    <p class="empty-title">Tidak ada data produk</p>
-                                    <p class="empty-subtitle text-muted">
-                                        Silahkan tambahkan produk baru atau ubah filter pencarian
-                                    </p>
-                                    <div class="empty-action">
-                                        <a href="{{ route('vendor.products.create') }}" class="btn btn-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <line x1="12" y1="5" x2="12" y2="19" />
-                                                <line x1="5" y1="12" x2="19" y2="12" />
-                                            </svg>
-                                            Tambah Produk
-                                        </a>
-                                    </div>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
+                                    <p class="text-lg font-medium text-gray-900 mb-1">Tidak ada data produk</p>
+                                    <p class="text-sm text-gray-500 mb-4">Silahkan tambahkan produk baru atau ubah filter pencarian</p>
+                                    <a href="{{ route('vendor.products.create') }}"
+                                        class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                                        <i class="fas fa-plus"></i>
+                                        Tambah Produk
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -171,7 +124,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
+        <div class="px-6 py-4 border-t border-gray-200">
             {{ $produks->links('dev.components.pagination') }}
         </div>
     </div>
@@ -188,7 +141,6 @@
                 const deleteForm = document.getElementById('delete-form');
                 const deleteButtons = document.querySelectorAll('.delete-btn');
 
-                // Setup delete buttons
                 deleteButtons.forEach(btn => {
                     btn.addEventListener('click', function() {
                         const id = this.getAttribute('data-id');
@@ -196,7 +148,6 @@
                     });
                 });
 
-                // Individual delete confirmation
                 window.confirmDelete = function(id) {
                     Swal.fire({
                         title: 'Anda yakin?',

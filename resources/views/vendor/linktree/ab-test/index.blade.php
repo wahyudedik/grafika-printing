@@ -1,190 +1,174 @@
 @extends('layouts.vendor')
 
 @section('content')
-<div class="page-wrapper">
-    <div class="container-xl">
-        {{-- Page Header --}}
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-a-b" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M16 21v-2a4 4 0 0 0 -4 -4h-4a4 4 0 0 0 -4 4v2"/>
-                            <path d="M8.5 4l3.5 16"/>
-                            <path d="M13 4l-3.5 16"/>
-                        </svg>
-                        A/B Testing
-                    </h2>
-                    <div class="page-pretitle">
-                        <a href="{{ route('vendor.linktree.show', $linktree) }}">{{ $linktree->title }}</a> / A/B Testing
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <div class="btn-list">
-                        <a href="{{ route('vendor.linktree.show', $linktree) }}" class="btn btn-ghost">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/></svg>
-                            Kembali
-                        </a>
-                        <a href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg>
-                            Buat A/B Test Baru
-                        </a>
-                    </div>
-                </div>
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <i class="fas fa-vial text-purple-500"></i>
+                A/B Testing
+            </h1>
+            <p class="text-sm text-gray-500 mt-1">
+                <a href="{{ route('vendor.linktree.show', $linktree) }}" class="text-primary-600 hover:underline">{{ $linktree->title }}</a>
+                <span class="mx-1">/</span> A/B Testing
+            </p>
         </div>
-
-        <div class="page-body">
-            {{-- Flash Messages --}}
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible" role="alert">
-                <div class="d-flex">
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                    </div>
-                    <div>{{ session('success') }}</div>
-                </div>
-                <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-            </div>
-            @endif
-
-            @if(session('error'))
-            <div class="alert alert-danger alert-dismissible" role="alert">
-                <div class="d-flex">
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M12 11v2"/><path d="M12 15v.01"/></svg>
-                    </div>
-                    <div>{{ session('error') }}</div>
-                </div>
-                <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-            </div>
-            @endif
-
-            {{-- Info Alert --}}
-            <div class="alert alert-info mb-4">
-                <div class="d-flex">
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M12 11v2"/><path d="M12 15v.01"/></svg>
-                    </div>
-                    <div>
-                        <strong>A/B Testing</strong> memungkinkan Anda menguji dua template berbeda secara bersamaan.
-                        Pengunjung akan dilihatkan salah satu varian secara acak, dan sistem akan melacak mana yang menghasilkan lebih banyak klik.
-                        <br><strong>Catatan:</strong> Hanya satu A/B test yang bisa berjalan per linktree.
-                    </div>
-                </div>
-            </div>
-
-            @if($abTests->isEmpty())
-            {{-- Empty State --}}
-            <div class="card">
-                <div class="card-body text-center py-5">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-glyph" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 21v-2a4 4 0 0 0 -4 -4h-4a4 4 0 0 0 -4 4v2"/><path d="M8.5 4l3.5 16"/><path d="M13 4l-3.5 16"/></svg>
-                    <h3 class="mt-3">Belum Ada A/B Test</h3>
-                    <p class="text-muted">Buat A/B test pertama untuk membandingkan performa dua template berbeda.</p>
-                    <a href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg>
-                        Buat A/B Test Baru
-                    </a>
-                </div>
-            </div>
-            @else
-            {{-- A/B Tests List --}}
-            <div class="row row-cards">
-                @foreach($abTests as $test)
-                <div class="col-md-6 col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <h3 class="card-title">{{ $test->name }}</h3>
-                                <span class="badge bg-{{ $test->status_color }}">{{ $test->status_label }}</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            {{-- Variant Info --}}
-                            <div class="mb-3">
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <div class="text-center p-2 rounded {{ $test->winner === 'variant_a' ? 'bg-success-lt' : '' }}">
-                                            <div class="text-muted small">Variant A</div>
-                                            <div class="fw-bold">{{ ucfirst($test->variant_a) }}</div>
-                                            <div class="text-muted small">{{ $test->traffic_split }}% traffic</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="text-center p-2 rounded {{ $test->winner === 'variant_b' ? 'bg-success-lt' : '' }}">
-                                            <div class="text-muted small">Variant B</div>
-                                            <div class="fw-bold">{{ ucfirst($test->variant_b) }}</div>
-                                            <div class="text-muted small">{{ 100 - $test->traffic_split }}% traffic</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- Stats --}}
-                            <div class="row text-center mb-3">
-                                <div class="col">
-                                    <div class="text-muted small">Impressions</div>
-                                    <div class="fw-bold">{{ number_format($test->results_count) }}</div>
-                                </div>
-                                <div class="col">
-                                    <div class="text-muted small">Klik</div>
-                                    <div class="fw-bold">{{ number_format($test->clicks_count) }}</div>
-                                </div>
-                                <div class="col">
-                                    <div class="text-muted small">Min. Sampel</div>
-                                    <div class="fw-bold">{{ number_format($test->min_samples) }}</div>
-                                </div>
-                            </div>
-
-                            {{-- Progress --}}
-                            @php $progress = min(100, ($test->results_count / $test->min_samples) * 100); @endphp
-                            <div class="progress progress-sm mb-2">
-                                <div class="progress-bar bg-blue" style="width: {{ $progress }}%"></div>
-                            </div>
-                            <div class="text-muted small text-center">
-                                {{ round($progress) }}% dari minimum sampel tercapai
-                            </div>
-
-                            {{-- Winner Badge --}}
-                            @if($test->winner)
-                            <div class="mt-3 p-2 rounded bg-success-lt text-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6l-4 6h8z"/><path d="M5 18h14"/></svg>
-                                <strong>Pemenang: {{ ucfirst($test->winner === 'variant_a' ? $test->variant_a : $test->variant_b) }}</strong>
-                            </div>
-                            @endif
-                        </div>
-                        <div class="card-footer">
-                            <div class="btn-list">
-                                <a href="{{ route('vendor.linktree.ab-test.show', [$linktree, $test]) }}" class="btn btn-sm btn-primary">
-                                    Detail
-                                </a>
-                                @if($test->status === 'draft')
-                                <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $test]) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success">Mulai</button>
-                                </form>
-                                @endif
-                                @if($test->status === 'running')
-                                <form action="{{ route('vendor.linktree.ab-test.pause', [$linktree, $test]) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-warning">Jeda</button>
-                                </form>
-                                @endif
-                                @if($test->status === 'paused')
-                                <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $test]) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success">Lanjut</button>
-                                </form>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @endif
+        <div class="flex items-center gap-2">
+            <a href="{{ route('vendor.linktree.show', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <a href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
+                <i class="fas fa-plus"></i> Buat A/B Test Baru
+            </a>
         </div>
     </div>
+
+    {{-- Flash Messages --}}
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000"
+         class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-check-circle text-green-500 text-lg"></i>
+            <span class="text-green-800 text-sm">{{ session('success') }}</span>
+        </div>
+        <button @click="show = false" class="text-green-500 hover:text-green-700"><i class="fas fa-times"></i></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div x-data="{ show: true }" x-show="show" x-transition
+         class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-exclamation-circle text-red-500 text-lg"></i>
+            <span class="text-red-800 text-sm">{{ session('error') }}</span>
+        </div>
+        <button @click="show = false" class="text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button>
+    </div>
+    @endif
+
+    {{-- Info Alert --}}
+    <div x-data="{ show: true }" x-show="show" class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div class="flex items-start gap-3">
+            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+            <div class="flex-1 text-sm text-blue-800">
+                <strong>A/B Testing</strong> memungkinkan Anda menguji dua template berbeda secara bersamaan.
+                Pengunjung akan dilihatkan salah satu varian secara acak, dan sistem akan melacak mana yang menghasilkan lebih banyak klik.
+                <br><strong>Catatan:</strong> Hanya satu A/B test yang bisa berjalan per linktree.
+            </div>
+            <button @click="show = false" class="text-blue-500 hover:text-blue-700"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    @if($abTests->isEmpty())
+    {{-- Empty State --}}
+    <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
+        <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-vial text-2xl text-purple-500"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada A/B Test</h3>
+        <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">Buat A/B test pertama untuk membandingkan performa dua template berbeda.</p>
+        <a href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
+            <i class="fas fa-plus"></i> Buat A/B Test Baru
+        </a>
+    </div>
+    @else
+    {{-- A/B Tests Grid --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach($abTests as $test)
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-900">{{ $test->name }}</h3>
+                    @php
+                        $statusColors = ['draft' => 'gray', 'running' => 'green', 'paused' => 'yellow', 'completed' => 'blue'];
+                        $sc = $statusColors[$test->status] ?? 'gray';
+                    @endphp
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $sc }}-100 text-{{ $sc }}-800">
+                        {{ $test->status_label }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-4">
+                {{-- Variant Info --}}
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="text-center p-3 rounded-lg {{ $test->winner === 'variant_a' ? 'bg-green-50 ring-2 ring-green-300' : 'bg-gray-50' }}">
+                        <div class="text-xs text-gray-500">Variant A</div>
+                        <div class="font-bold text-sm text-gray-900">{{ ucfirst($test->variant_a) }}</div>
+                        <div class="text-xs text-gray-500">{{ $test->traffic_split }}% traffic</div>
+                    </div>
+                    <div class="text-center p-3 rounded-lg {{ $test->winner === 'variant_b' ? 'bg-green-50 ring-2 ring-green-300' : 'bg-gray-50' }}">
+                        <div class="text-xs text-gray-500">Variant B</div>
+                        <div class="font-bold text-sm text-gray-900">{{ ucfirst($test->variant_b) }}</div>
+                        <div class="text-xs text-gray-500">{{ 100 - $test->traffic_split }}% traffic</div>
+                    </div>
+                </div>
+
+                {{-- Stats --}}
+                <div class="grid grid-cols-3 gap-2 text-center mb-4">
+                    <div>
+                        <div class="text-xs text-gray-500">Impressions</div>
+                        <div class="font-bold text-gray-900">{{ number_format($test->results_count) }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500">Klik</div>
+                        <div class="font-bold text-gray-900">{{ number_format($test->clicks_count) }}</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500">Min. Sampel</div>
+                        <div class="font-bold text-gray-900">{{ number_format($test->min_samples) }}</div>
+                    </div>
+                </div>
+
+                {{-- Progress --}}
+                @php $progress = min(100, ($test->results_count / $test->min_samples) * 100); @endphp
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                    <div class="bg-blue-500 h-2 rounded-full transition-all" style="width: {{ $progress }}%"></div>
+                </div>
+                <p class="text-xs text-gray-500 text-center">{{ round($progress) }}% dari minimum sampel tercapai</p>
+
+                {{-- Winner Badge --}}
+                @if($test->winner)
+                <div class="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg text-center">
+                    <i class="fas fa-trophy text-green-600 text-sm mr-1"></i>
+                    <strong class="text-sm text-green-800">Pemenang: {{ ucfirst($test->winner === 'variant_a' ? $test->variant_a : $test->variant_b) }}</strong>
+                </div>
+                @endif
+            </div>
+
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center gap-2">
+                <a href="{{ route('vendor.linktree.ab-test.show', [$linktree, $test]) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition">
+                    <i class="fas fa-eye"></i> Detail
+                </a>
+                @if($test->status === 'draft')
+                <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $test]) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition">
+                        <i class="fas fa-play"></i> Mulai
+                    </button>
+                </form>
+                @endif
+                @if($test->status === 'running')
+                <form action="{{ route('vendor.linktree.ab-test.pause', [$linktree, $test]) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition">
+                        <i class="fas fa-pause"></i> Jeda
+                    </button>
+                </form>
+                @endif
+                @if($test->status === 'paused')
+                <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $test]) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition">
+                        <i class="fas fa-play"></i> Lanjut
+                    </button>
+                </form>
+                @endif
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
 </div>
 @endsection

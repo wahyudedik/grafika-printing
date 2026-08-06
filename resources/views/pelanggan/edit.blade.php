@@ -2,114 +2,101 @@
 
 @section('title', 'Edit Pelanggan')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                @if ($errors->any())
-                    <div class="alert alert-danger mb-3">
-                        <h4 class="alert-title">Error!</h4>
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+    <div class="max-w-3xl mx-auto">
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <h4 class="text-sm font-semibold text-red-800 mb-2">Error!</h4>
+                <ul class="list-disc list-inside text-sm text-red-600">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-                <form action="{{ route('vendor.customers.update', $pelanggan->id) }}" method="POST" class="card"
-                    onsubmit="showLoading('Memperbarui pelanggan...')" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="card-header">
-                        <h3 class="card-title">Edit Pelanggan</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Kode Pelanggan</label>
-                                    <input type="text" class="form-control" value="{{ $pelanggan->kode }}" readonly
-                                        disabled>
-                                </div>
+        <form action="{{ route('vendor.customers.update', $pelanggan->id) }}" method="POST"
+            onsubmit="showLoading('Memperbarui pelanggan...')" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Edit Pelanggan</h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Pelanggan</label>
+                            <input type="text"
+                                class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500"
+                                value="{{ $pelanggan->kode }}" readonly disabled>
+                        </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label required">Nama Pelanggan</label>
-                                    <input type="text" class="form-control @error('nama') is-invalid @enderror"
-                                        name="nama" value="{{ old('nama', $pelanggan->nama) }}"
-                                        placeholder="Masukkan nama pelanggan">
-                                    @error('nama')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pelanggan <span class="text-red-500">*</span></label>
+                            <input type="text"
+                                class="w-full px-4 py-2 border {{ $errors->has('nama') ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary' }} rounded-lg text-sm transition"
+                                name="nama" value="{{ old('nama', $pelanggan->nama) }}"
+                                placeholder="Masukkan nama pelanggan">
+                            @error('nama')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                        name="email" value="{{ old('email', $pelanggan->email) }}"
-                                        placeholder="Masukkan email pelanggan">
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email"
+                                class="w-full px-4 py-2 border {{ $errors->has('email') ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary' }} rounded-lg text-sm transition"
+                                name="email" value="{{ old('email', $pelanggan->email) }}"
+                                placeholder="Masukkan email pelanggan">
+                            @error('email')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Nomor Telepon</label>
-                                    <input type="text" class="form-control @error('no_telp') is-invalid @enderror"
-                                        name="no_telp" value="{{ old('no_telp', $pelanggan->no_telp) }}"
-                                        placeholder="Masukkan nomor telepon">
-                                    @error('no_telp')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                            <input type="text"
+                                class="w-full px-4 py-2 border {{ $errors->has('no_telp') ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary' }} rounded-lg text-sm transition"
+                                name="no_telp" value="{{ old('no_telp', $pelanggan->no_telp) }}"
+                                placeholder="Masukkan nomor telepon">
+                            @error('no_telp')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Transaksi Terakhir</label>
-                                    <input type="text" class="form-control"
-                                        value="{{ $pelanggan->transaksi_terakhir ? $pelanggan->transaksi_terakhir->format('d M Y H:i') : 'Belum ada transaksi' }}"
-                                        readonly disabled>
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Transaksi Terakhir</label>
+                            <input type="text"
+                                class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-gray-500"
+                                value="{{ $pelanggan->transaksi_terakhir ? $pelanggan->transaksi_terakhir->format('d M Y H:i') : 'Belum ada transaksi' }}"
+                                readonly disabled>
+                        </div>
 
-                            <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="form-label">Alamat</label>
-                                    <textarea class="form-control @error('alamat') is-invalid @enderror" name="alamat" rows="3"
-                                        placeholder="Masukkan alamat pelanggan">{{ old('alamat', $pelanggan->alamat) }}</textarea>
-                                    @error('alamat')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                            <textarea
+                                class="w-full px-4 py-2 border {{ $errors->has('alamat') ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-primary focus:border-primary' }} rounded-lg text-sm transition"
+                                name="alamat" rows="3"
+                                placeholder="Masukkan alamat pelanggan">{{ old('alamat', $pelanggan->alamat) }}</textarea>
+                            @error('alamat')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
-                    <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
-                                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                                <path d="M14 4l0 4l-6 0l0 -4"></path>
-                            </svg>
-                            Update
-                        </button>
-
-                        <a href="{{ route('vendor.customers.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M18 6l-12 12"></path>
-                                <path d="M6 6l12 12"></path>
-                            </svg>
-                            Batal
-                        </a>
-                    </div>
-                </form>
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition">
+                        <i class="fas fa-save"></i>
+                        Update
+                    </button>
+                    <a href="{{ route('vendor.customers.index') }}"
+                        class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+                        <i class="fas fa-times"></i>
+                        Batal
+                    </a>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 @endsection

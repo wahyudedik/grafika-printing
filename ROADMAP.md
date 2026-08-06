@@ -5,7 +5,22 @@
 **Fase:** Phase 2 - Review & Enhancement (Post-Production)
 **Laravel Version:** 13.24.0 (di-upgrade dari 11.41.3 pada Agustus 2026)
 
-Platform sudah memiliki fitur POS, Auction, Wallet, dan integrasi **Xendit full** (payment gateway). Brief client meminta Xendit sebagai payment gateway untuk semua pembayaran (lelang + linktree), tambahan fitur Linktree, dan deployment scripts.
+### Tech Stack
+| Layer | Teknologi | Versi |
+|-------|-----------|-------|
+| Backend | Laravel | 13.24.0 |
+| Language | PHP | 8.2+ |
+| Database | MySQL | 5.7+ |
+| Frontend CSS | **Tailwind CSS** | 3.1.0+ |
+| Frontend JS | **Alpine.js** | 3.4.2 |
+| Icons | FontAwesome | 6.4.0 |
+| Build Tool | Vite | 6.0.11 |
+| Payment | Xendit | Full integration |
+| Shipping | RajaOngkir | API integration |
+
+> **Catatan:** Migrasi **Bootstrap Tabler → Tailwind CSS** sudah selesai (Agustus 2026). Seluruh ~150+ views dan 6 layout files sudah dikonversi ke Tailwind CSS + Alpine.js.
+
+Platform sudah memiliki fitur POS, Auction, Wallet, Linktree, dan integrasi **Xendit full** (payment gateway). Brief client meminta Xendit sebagai payment gateway untuk semua pembayaran (lelang + linktree), tambahan fitur Linktree, dan deployment scripts.
 
 ---
 
@@ -331,3 +346,51 @@ graph TB
 4. **Test coverage minim** - Perlu tambah test untuk semua fitur baru
 
 5. **Mixed language kode** - Campuran Bahasa Indonesia dan Inggris, perlu standardisasi
+
+---
+
+## Completed: Migrasi ke Tailwind CSS (Agustus 2026) ✅
+
+Migrasi **FULL** dari Bootstrap Tabler ke **Tailwind CSS** telah selesai. Ini adalah perubahan frontend terbesar dalam sejarah projek.
+
+### Yang Sudah Dilakukan
+- **Layouts** (6 file): vendor, user, dev/admin, app, auth, vendor/layouts/app — semua di-redesign dengan Tailwind CSS
+- **Views** (~150+ file): Semua panel (Admin, Vendor, User, POS, Payments) sudah dikonversi dari Tabler ke Tailwind utility classes
+- **Design System**: 12 UI components (`components/ui/`) dengan Tailwind CSS + Alpine.js
+- **JavaScript**: Bootstrap JS → Alpine.js (modals, dropdowns, alerts, toasts, collapsibles)
+- **Build**: Vite production build berhasil (CSS 95 kB gzip 15 kB, JS 155 kB gzip 49 kB)
+- **Cleanup**: Hapus `@tabler/core` dari npm, hapus semua CDN references, hapus dead CSS shims
+- **Dev Header**: Konversi ke pure Tailwind (sebelumnya Bootstrap-style)
+
+## Code Quality Improvements (Agustus 2026) ✅
+
+### Yang Sudah Dilakukan
+- **Error Pages** (403, 404, 500): Self-contained CSS, tidak bergantung pada CDN Tailwind
+- **x-cloak**: Menggantikan `style="display: none"` di 20+ files Alpine.js → mencegah FOUC
+- **Auth Inline Styles**: Dipindahkan dari inline `<style>` ke `resources/css/app.css`
+- **Welcome Page CSS**: ~1000 baris inline CSS dipindahkan ke `resources/css/welcome.css` (external, compiled via Vite)
+- **Empty State Component**: `<x.ui.empty-state>` reusable — menggantikan 7+ tempat raw HTML empty state
+- **UI Components Terdaftar**: 13 components di `components/ui/` (tambah `empty-state`, `confirmation-dialog`, `form-group`, `stat-card`)
+
+### Masih Perlu Dikerjakan (Deferred)
+- Adopt `<x.ui.button>` component di views yang masih pakai raw HTML buttons (~200+ instances)
+- Fix responsive mobile pada views tertentu
+- Tambah breadcrumbs pada halaman vendor/admin
+- Standardisasi card styling across views
+
+### Teknologi Frontend Saat Ini
+| Teknologi | Versi | Fungsi |
+|-----------|-------|--------|
+| **Tailwind CSS** | 3.1.0+ | Seluruh styling (utility-first) |
+| **Alpine.js** | 3.4.2 | Client-side interactivity |
+| FontAwesome | 6.4.0 | Ikon |
+| Vite | 6.0.11 | Build assets |
+| SweetAlert2 | 11.17.2 | Dialog & notifikasi (npm) |
+| ApexCharts | - | Grafik dashboard |
+| Chart.js | - | Grafik tambahan |
+
+### Tailwind CSS Configuration
+- **Config:** [`tailwind.config.js`](tailwind.config.js)
+- **Custom primary colors** (blue palette)
+- **Custom font:** Inter, Figtree
+- **Plugins:** `@tailwindcss/forms`

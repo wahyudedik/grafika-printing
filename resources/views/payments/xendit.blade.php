@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Payment - Xendit')
+@section('title', 'Pembayaran - Xendit')
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
@@ -9,7 +9,7 @@
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">Payment Details</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">Detail Pembayaran</h1>
                         <p class="text-gray-600 mt-1">{{ $payment->description }}</p>
                     </div>
                     <div class="text-right">
@@ -25,23 +25,23 @@
 
             <!-- Payment Status -->
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment Status</h2>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Status Pembayaran</h2>
 
                 <div class="flex items-center space-x-4">
                     @if ($payment->status === 'pending')
                         <div class="flex items-center">
                             <div class="w-4 h-4 bg-yellow-400 rounded-full mr-2"></div>
-                            <span class="text-yellow-600 font-medium">Pending Payment</span>
+                            <span class="text-yellow-600 font-medium">Menunggu Pembayaran</span>
                         </div>
                     @elseif($payment->status === 'paid')
                         <div class="flex items-center">
                             <div class="w-4 h-4 bg-green-400 rounded-full mr-2"></div>
-                            <span class="text-green-600 font-medium">Payment Successful</span>
+                            <span class="text-green-600 font-medium">Pembayaran Berhasil</span>
                         </div>
                     @elseif($payment->status === 'expired')
                         <div class="flex items-center">
                             <div class="w-4 h-4 bg-red-400 rounded-full mr-2"></div>
-                            <span class="text-red-600 font-medium">Payment Expired</span>
+                            <span class="text-red-600 font-medium">Pembayaran Kedaluwarsa</span>
                         </div>
                     @else
                         <div class="flex items-center">
@@ -52,7 +52,7 @@
 
                     @if ($payment->expires_at)
                         <div class="text-sm text-gray-500">
-                            Expires: {{ $payment->expires_at->format('d M Y H:i') }}
+                            Berlaku hingga: {{ $payment->expires_at->format('d M Y H:i') }}
                         </div>
                     @endif
                 </div>
@@ -61,12 +61,12 @@
             <!-- Payment Methods -->
             @if ($payment->status === 'pending')
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Choose Payment Method</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Pilih Metode Pembayaran</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <!-- Bank Transfer -->
                         <div class="border rounded-lg p-4 hover:border-blue-500 transition-colors">
-                            <h3 class="font-semibold text-gray-900 mb-2">Bank Transfer</h3>
+                            <h3 class="font-semibold text-gray-900 mb-2">Transfer Bank</h3>
                             <div class="space-y-2 text-sm text-gray-600">
                                 <div>BCA, BNI, BRI, BSI</div>
                                 <div>Mandiri, Permata</div>
@@ -84,10 +84,10 @@
 
                         <!-- Retail Outlet -->
                         <div class="border rounded-lg p-4 hover:border-blue-500 transition-colors">
-                            <h3 class="font-semibold text-gray-900 mb-2">Retail Outlet</h3>
+                            <h3 class="font-semibold text-gray-900 mb-2">Toko Retail</h3>
                             <div class="space-y-2 text-sm text-gray-600">
                                 <div>Alfamart, Indomaret</div>
-                                <div>Pay at store</div>
+                                <div>Bayar di toko</div>
                             </div>
                         </div>
                     </div>
@@ -101,13 +101,13 @@
                         <div class="space-y-4">
                             <a href="{{ $payment->checkout_url }}" target="_blank"
                                 class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold text-center block hover:bg-blue-700 transition-colors">
-                                Pay Now with Xendit
+                                Bayar Sekarang dengan Xendit
                             </a>
 
                             <div class="text-center">
                                 <button onclick="checkPaymentStatus()"
                                     class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Check Payment Status
+                                    Cek Status Pembayaran
                                 </button>
                             </div>
                         </div>
@@ -120,7 +120,7 @@
                             <div class="text-center">
                                 <button onclick="checkPaymentStatus()"
                                     class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Check Payment Status
+                                    Cek Status Pembayaran
                                 </button>
                             </div>
                         </div>
@@ -128,57 +128,69 @@
                 @elseif($payment->status === 'paid')
                     <div class="text-center">
                         <div class="text-green-600 text-lg font-semibold mb-4">
-                            ✅ Payment Successful!
+                            ✅ Pembayaran Berhasil!
                         </div>
                         <p class="text-gray-600 mb-4">
-                            Your payment has been processed successfully. You will receive a confirmation email shortly.
+                            Pembayaran Anda berhasil diproses. Anda akan menerima email konfirmasi segera.
                         </p>
-                        <a href="{{ route('user.auctions.show', $payment->external_id) }}"
-                            class="bg-green-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                            View Auction Details
-                        </a>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <a href="{{ route('user.auctions.show', $payment->external_id) }}"
+                                class="bg-green-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                                Lihat Detail Lelang
+                            </a>
+                            <a href="{{ route('user.dashboard') }}"
+                                class="border border-gray-300 text-gray-700 py-2 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                                Kembali ke Dashboard
+                            </a>
+                        </div>
                     </div>
                 @elseif($payment->status === 'expired')
                     <div class="text-center">
                         <div class="text-red-600 text-lg font-semibold mb-4">
-                            ❌ Payment Expired
+                            ❌ Pembayaran Kedaluwarsa
                         </div>
                         <p class="text-gray-600 mb-4">
-                            This payment link has expired. Please create a new payment to continue.
+                            Tautan pembayaran ini sudah kedaluwarsa. Silakan buat pembayaran baru untuk melanjutkan.
                         </p>
-                        <button onclick="createNewPayment()"
-                            class="bg-blue-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                            Create New Payment
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button onclick="createNewPayment()"
+                                class="bg-blue-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                Buat Pembayaran Baru
+                            </button>
+                            <a href="{{ route('user.dashboard') }}"
+                                class="border border-gray-300 text-gray-700 py-2 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+                                Kembali ke Dashboard
+                            </a>
+                        </div>
                     </div>
                 @endif
             </div>
 
-            <!-- Payment Details -->
+            <!-- Payment Information -->
             <div class="bg-white rounded-lg shadow-md p-6 mt-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Payment Information</h2>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Informasi Pembayaran</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">External ID</label>
+                        <label class="block text-sm font-medium text-gray-700">ID Eksternal</label>
                         <p class="text-sm text-gray-900">{{ $payment->external_id }}</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Payment Type</label>
+                        <label class="block text-sm font-medium text-gray-700">Tipe Pembayaran</label>
                         <p class="text-sm text-gray-900">{{ ucfirst($payment->type) }}</p>
                     </div>
 
                     @if ($payment->payment_method)
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+                            <label class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
                             <p class="text-sm text-gray-900">{{ $payment->payment_method }}</p>
                         </div>
                     @endif
 
                     @if ($payment->paid_at)
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Paid At</label>
+                            <label class="block text-sm font-medium text-gray-700">Dibayar Pada</label>
                             <p class="text-sm text-gray-900">{{ $payment->paid_at->format('d M Y H:i') }}</p>
                         </div>
                     @endif
@@ -211,7 +223,7 @@
 
     <script>
         function checkPaymentStatus() {
-            fetch('{{ route('xendit.payment.status', $payment->id) }}', {
+            fetch('{{ route('api.xendit.payment.status', $payment->id) }}', {
                     method: 'GET',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -224,12 +236,12 @@
                     if (data.status === 'paid') {
                         location.reload();
                     } else {
-                        alert('Payment is still pending. Please try again in a moment.');
+                        alert('Pembayaran masih diproses. Silakan coba lagi sebentar.');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Failed to check payment status. Please try again.');
+                    alert('Gagal memeriksa status pembayaran. Silakan coba lagi.');
                 });
         }
 

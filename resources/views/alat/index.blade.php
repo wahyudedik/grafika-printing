@@ -2,173 +2,141 @@
 
 @section('title', 'Manajemen Alat')
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-center">
+    <div class="bg-white rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
                 <div>
-                    <h3 class="card-title">Daftar Alat</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Daftar Alat</h3>
                 </div>
-                <div class="d-flex gap-2 flex-grow-1 justify-content-end">
-                    <form action="{{ route('vendor.tools.index') }}" method="GET" class="flex-grow-1" data-no-loading>
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
+                <div class="flex gap-2 flex-grow justify-end">
+                    <form action="{{ route('vendor.tools.index') }}" method="GET" class="flex-grow" data-no-loading>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-search"></i>
                             </span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                                 placeholder="Cari alat...">
                         </div>
                     </form>
 
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-no-loading>
+                    {{-- Filter Status --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                            data-no-loading>
                             Filter Status: {{ request('status') ? ucfirst(request('status')) : 'Semua' }}
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" data-no-loading
+                        <div x-show="open" @click.outside="open = false" x-transition
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
                                 href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => ''])) }}">Semua</a>
-                            <a class="dropdown-item" data-no-loading
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
                                 href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => 'aktif'])) }}">Aktif</a>
-                            <a class="dropdown-item" data-no-loading
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
                                 href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => 'maintenance'])) }}">Maintenance</a>
-                            <a class="dropdown-item" data-no-loading
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
                                 href="{{ route('vendor.tools.index', array_merge(request()->except('status'), ['status' => 'rusak'])) }}">Rusak</a>
                         </div>
                     </div>
 
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-no-loading>
-                            Ketersediaan:
-                            {{ request('tersedia') !== null ? (request('tersedia') === 'yes' ? 'Tersedia' : 'Tidak Tersedia') : 'Semua' }}
+                    {{-- Filter Ketersediaan --}}
+                    <div x-data="{ open: false }" class="relative">
+                        <button @click="open = !open"
+                            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary"
+                            data-no-loading>
+                            Ketersediaan: {{ request('tersedia') !== null ? (request('tersedia') === 'yes' ? 'Tersedia' : 'Tidak Tersedia') : 'Semua' }}
+                            <i class="fas fa-chevron-down text-xs"></i>
                         </button>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" data-no-loading
+                        <div x-show="open" @click.outside="open = false" x-transition
+                            class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
                                 href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => ''])) }}">Semua</a>
-                            <a class="dropdown-item" data-no-loading
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
                                 href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => 'yes'])) }}">Tersedia</a>
-                            <a class="dropdown-item" data-no-loading
-                                href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => 'no'])) }}">Tidak
-                                Tersedia</a>
+                            <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" data-no-loading
+                                href="{{ route('vendor.tools.index', array_merge(request()->except('tersedia'), ['tersedia' => 'no'])) }}">Tidak Tersedia</a>
                         </div>
                     </div>
 
-                    <a href="{{ route('vendor.tools.create') }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
+                    <a href="{{ route('vendor.tools.create') }}"
+                        class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                        <i class="fas fa-plus"></i>
                         Tambah Alat
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap">
-                <thead>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th>Nama Alat</th>
-                        <th>Merek</th>
-                        <th>Model</th>
-                        <th>Spesifikasi</th>
-                        <th>Status</th>
-                        <th>Tanggal Pembelian</th>
-                        <th>Kapasitas/Jam</th>
-                        <th>Tersedia</th>
-                        <th class="w-1">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Alat</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merek</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spesifikasi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Pembelian</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kapasitas/Jam</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tersedia</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($alat as $item)
-                        <tr>
-                            <td class="font-medium">{{ $item->nama_alat }}</td>
-                            <td>{{ $item->merek }}</td>
-                            <td>{{ $item->model }}</td>
-                            <td>{{ \Illuminate\Support\Str::limit($item->spesifikasi_alat, 50) }}</td>
-                            <td><span class="badge bg-{{ $item->status_color }}-lt">{{ $item->status }}</span></td>
-                            <td>{{ $item->tanggal_pembelian->format('d M Y') }}</td>
-                            <td>{{ $item->kapasitas_cetak_per_jam }}</td>
-                            <td>{{ $item->availability_label }}</td>
-                            <td>
-                                <div class="btn-list flex-nowrap">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->nama_alat }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->merek }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->model }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ \Illuminate\Support\Str::limit($item->spesifikasi_alat, 50) }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                    @if($item->status === 'aktif') bg-green-100 text-green-700
+                                    @elseif($item->status === 'maintenance') bg-amber-100 text-amber-700
+                                    @else bg-red-100 text-red-700
+                                    @endif">
+                                    {{ ucfirst($item->status) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->tanggal_pembelian->format('d M Y') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->kapasitas_cetak_per_jam }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full {{ $item->tersedia ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
+                                    {{ $item->tersedia ? 'Ya' : 'Tidak' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-1">
                                     <a href="{{ route('vendor.tools.show', $item->id) }}"
-                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                            <path
-                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                        </svg>
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat">
+                                        <i class="fas fa-eye"></i>
                                     </a>
                                     <a href="{{ route('vendor.tools.edit', $item->id) }}"
-                                        class="btn btn-icon btn-ghost-warning" data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                        </svg>
+                                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                        <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-icon btn-ghost-danger delete-btn"
-                                        data-id="{{ $item->id }}" data-bs-toggle="tooltip" title="Delete">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
+                                    <button type="button"
+                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors delete-btn"
+                                        data-id="{{ $item->id }}" title="Hapus">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-4">
-                                <div class="empty">
-                                    <div class="empty-img">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128"
-                                            height="128" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                            <path d="M9 10l.01 0" />
-                                            <path d="M15 10l.01 0" />
-                                            <path d="M9.5 15.25a3.5 3.5 0 0 1 5 0" />
-                                        </svg>
-                                    </div>
-                                    <p class="empty-title">Tidak ada data alat</p>
-                                    <p class="empty-subtitle text-muted">
-                                        Silahkan tambahkan alat baru atau ubah filter pencarian
-                                    </p>
-                                    <div class="empty-action">
-                                        <a href="{{ route('vendor.tools.create') }}" class="btn btn-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <line x1="12" y1="5" x2="12" y2="19" />
-                                                <line x1="5" y1="12" x2="19" y2="12" />
-                                            </svg>
-                                            Tambah Alat
-                                        </a>
-                                    </div>
+                            <td colspan="9" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-tools text-6xl text-gray-300 mb-4"></i>
+                                    <p class="text-lg font-medium text-gray-900 mb-1">Tidak ada data alat</p>
+                                    <p class="text-sm text-gray-500 mb-4">Silahkan tambahkan alat baru atau ubah filter pencarian</p>
+                                    <a href="{{ route('vendor.tools.create') }}"
+                                        class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                                        <i class="fas fa-plus"></i>
+                                        Tambah Alat
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -176,7 +144,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
+        <div class="px-6 py-4 border-t border-gray-200">
             {{ $alat->links('components.pagination') }}
         </div>
     </div>

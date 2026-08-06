@@ -3,188 +3,145 @@
 @section('title', 'Transaksi Biaya Admin')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Transaksi Biaya Admin</h3>
-                    <div class="card-actions">
-                        <a href="{{ route('admin.admin-fees.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M18 6l-12 12" />
-                                <path d="M6 6l12 12" />
-                            </svg>
-                            Kembali ke Pengaturan
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Filter Form -->
-                    <form method="GET" class="row g-3 mb-4">
-                        <div class="col-md-3">
-                            <label class="form-label">Tanggal Mulai</label>
-                            <input type="date" class="form-control" name="start_date"
-                                value="{{ request('start_date') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Tanggal Selesai</label>
-                            <input type="date" class="form-control" name="end_date" value="{{ request('end_date') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Status</label>
-                            <select class="form-select" name="status">
-                                <option value="">Semua Status</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending
-                                </option>
-                                <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
-                                <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
-                                <option value="refunded" {{ request('status') == 'refunded' ? 'selected' : '' }}>Refunded
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Vendor</label>
-                            <select class="form-select" name="vendor_id">
-                                <option value="">Semua Vendor</option>
-                                @foreach (\App\Models\Vendor::all() as $vendor)
-                                    <option value="{{ $vendor->id }}"
-                                        {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>
-                                        {{ $vendor->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                    <path d="M21 21l-6 -6" />
-                                </svg>
-                                Filter
-                            </button>
-                            <a href="{{ route('admin.admin-fees.transactions') }}" class="btn btn-outline-secondary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M18 6l-12 12" />
-                                    <path d="M6 6l12 12" />
-                                </svg>
-                                Reset
-                            </a>
-                        </div>
-                    </form>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h1 class="text-2xl font-bold text-gray-900">Transaksi Biaya Admin</h1>
+        <a href="{{ route('admin.admin-fees.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <i class="fas fa-times mr-1"></i>Kembali ke Pengaturan
+        </a>
+    </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-vcenter card-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Lelang</th>
-                                    <th>Vendor</th>
-                                    <th>User</th>
-                                    <th>Jumlah Lelang</th>
-                                    <th>Biaya Admin</th>
-                                    <th>Biaya Payment</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                    <th>Tanggal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($transactions as $transaction)
-                                    <tr>
-                                        <td>
-                                            <span class="text-muted">#{{ $transaction->id }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex py-1 align-items-center">
-                                                <div class="flex-fill">
-                                                    <div class="font-weight-medium">
-                                                        {{ $transaction->auction->title ?? 'N/A' }}</div>
-                                                    <div class="text-muted">{{ $transaction->auction->kode ?? 'N/A' }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex py-1 align-items-center">
-                                                <div class="flex-fill">
-                                                    <div class="font-weight-medium">
-                                                        {{ $transaction->vendor->name ?? 'N/A' }}</div>
-                                                    <div class="text-muted">{{ $transaction->vendor->email ?? 'N/A' }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex py-1 align-items-center">
-                                                <div class="flex-fill">
-                                                    <div class="font-weight-medium">{{ $transaction->user->name ?? 'N/A' }}
-                                                    </div>
-                                                    <div class="text-muted">{{ $transaction->user->email ?? 'N/A' }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold">Rp
-                                                {{ number_format($transaction->auction_amount, 0, ',', '.') }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold text-warning">Rp
-                                                {{ number_format($transaction->admin_fee_amount, 0, ',', '.') }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold text-info">Rp
-                                                {{ number_format($transaction->payment_gateway_fee, 0, ',', '.') }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="fw-bold text-primary">Rp
-                                                {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $transaction->status_color }}-lt">
-                                                {{ $transaction->status_label }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="text-muted">{{ $transaction->created_at->format('d/m/Y H:i') }}</span>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="11" class="text-center py-4">
-                                            <div class="empty">
-                                                <div class="empty-img">
-                                                    <img src="{{ asset('demo/empty.svg') }}" height="128"
-                                                        alt="">
-                                                </div>
-                                                <p class="empty-title">Tidak ada transaksi biaya admin</p>
-                                                <p class="empty-subtitle text-muted">
-                                                    Belum ada transaksi biaya admin yang tercatat.
-                                                </p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    @if ($transactions->hasPages())
-                        <div class="d-flex justify-content-center mt-4">
-                            {{ $transactions->links() }}
-                        </div>
-                    @endif
-                </div>
+    <!-- Filter Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+                <input type="date" name="start_date" value="{{ request('start_date') }}"
+                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
             </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
+                <input type="date" name="end_date" value="{{ request('end_date') }}"
+                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select name="status" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                    <option value="">Semua Status</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                    <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                    <option value="refunded" {{ request('status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
+                <select name="vendor_id" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                    <option value="">Semua Vendor</option>
+                    @foreach (\App\Models\Vendor::all() as $vendor)
+                        <option value="{{ $vendor->id }}" {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>
+                            {{ $vendor->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                    <i class="fas fa-search mr-1"></i>Filter
+                </button>
+                <a href="{{ route('admin.admin-fees.transactions') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lelang</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Lelang</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya Admin</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Biaya Payment</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($transactions as $transaction)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="text-sm text-gray-500">#{{ $transaction->id }}</span>
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $transaction->auction->title ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500">{{ $transaction->auction->kode ?? 'N/A' }}</div>
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $transaction->vendor->name ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500">{{ $transaction->vendor->email ?? 'N/A' }}</div>
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $transaction->user->name ?? 'N/A' }}</div>
+                                <div class="text-xs text-gray-500">{{ $transaction->user->email ?? 'N/A' }}</div>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="text-sm font-bold text-gray-900">Rp {{ number_format($transaction->auction_amount, 0, ',', '.') }}</span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="text-sm font-bold text-yellow-600">Rp {{ number_format($transaction->admin_fee_amount, 0, ',', '.') }}</span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="text-sm font-bold text-cyan-600">Rp {{ number_format($transaction->payment_gateway_fee, 0, ',', '.') }}</span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="text-sm font-bold text-primary-600">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                @php
+                                    $statusColors = [
+                                        'pending' => 'bg-yellow-100 text-yellow-800',
+                                        'paid' => 'bg-green-100 text-green-800',
+                                        'failed' => 'bg-red-100 text-red-800',
+                                        'refunded' => 'bg-gray-100 text-gray-800',
+                                    ];
+                                    $colorClass = $statusColors[$transaction->status] ?? 'bg-gray-100 text-gray-800';
+                                @endphp
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $colorClass }}">
+                                    {{ $transaction->status_label }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="text-sm text-gray-500">{{ $transaction->created_at->format('d/m/Y H:i') }}</span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="10" class="px-5 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-receipt text-gray-400 text-xl"></i>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-900 mb-1">Tidak ada transaksi biaya admin</p>
+                                    <p class="text-xs text-gray-500">Belum ada transaksi biaya admin yang tercatat.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+
+        @if ($transactions->hasPages())
+            <div class="px-5 py-4 border-t border-gray-100 flex justify-center">
+                {{ $transactions->links() }}
+            </div>
+        @endif
     </div>
 @endsection

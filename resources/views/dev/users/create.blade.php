@@ -2,90 +2,70 @@
 
 @section('title', 'Create User')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <form action="{{ route('admin.users.store') }}" method="POST" class="card"
-                    onsubmit="showLoading('Creating user...')" enctype="multipart/form-data">
-                    @csrf
-                    <div class="card-header">
-                        <h3 class="card-title">Create New User</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label required">Full Name</label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" name="name"
-                                value="{{ old('name') }}" placeholder="Enter full name">
-                            @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" name="email"
-                                value="{{ old('email') }}" placeholder="Enter email address">
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                name="password" placeholder="Enter password">
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Confirm Password</label>
-                            <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                                name="password_confirmation" placeholder="Confirm password">
-                            @error('password_confirmation')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label required">Usertype</label>
-                            <select class="form-select @error('usertype') is-invalid @enderror" name="usertype">
-                                <option value="">Select usertype</option>
-                                <option value="dev" {{ old('usertype') == 'dev' ? 'selected' : '' }}>Dev</option>
-                                <option value="vendor" {{ old('usertype') == 'vendor' ? 'selected' : '' }}>Vendor</option>
-                            </select>
-                            @error('usertype')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
-                                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                                <path d="M14 4l0 4l-6 0l0 -4"></path>
-                            </svg>
-                            Save
-                        </button>
-
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M18 6l-12 12"></path>
-                                <path d="M6 6l12 12"></path>
-                            </svg>
-                            Cancel
-                        </a>
-                    </div>
-                </form>
+    <div class="max-w-2xl mx-auto">
+        <form action="{{ route('admin.users.store') }}" method="POST" class="bg-white rounded-xl border border-gray-200 overflow-hidden" data-loading>
+            @csrf
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Create New User</h3>
             </div>
-        </div>
+            <div class="p-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Enter full name"
+                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('name') border-red-500 @enderror">
+                    @error('name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                    <input type="email" name="email" value="{{ old('email') }}" placeholder="Enter email address"
+                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('email') border-red-500 @enderror">
+                    @error('email')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password <span class="text-red-500">*</span></label>
+                    <input type="password" name="password" placeholder="Enter password"
+                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('password') border-red-500 @enderror">
+                    @error('password')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password <span class="text-red-500">*</span></label>
+                    <input type="password" name="password_confirmation" placeholder="Confirm password"
+                           class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('password_confirmation') border-red-500 @enderror">
+                    @error('password_confirmation')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Usertype <span class="text-red-500">*</span></label>
+                    <select name="usertype"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('usertype') border-red-500 @enderror">
+                        <option value="">Select usertype</option>
+                        <option value="dev" {{ old('usertype') == 'dev' ? 'selected' : '' }}>Dev</option>
+                        <option value="vendor" {{ old('usertype') == 'vendor' ? 'selected' : '' }}>Vendor</option>
+                    </select>
+                    @error('usertype')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            <div class="flex items-center justify-end gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                <a href="{{ route('admin.users.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-times mr-1"></i> Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-save mr-1"></i> Save
+                </button>
+            </div>
+        </form>
     </div>
 @endsection

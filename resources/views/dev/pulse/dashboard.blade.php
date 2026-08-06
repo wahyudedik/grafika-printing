@@ -3,251 +3,127 @@
 @section('title', 'Statistik Server')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                        </svg>
-                        Laravel Pulse Dashboard
-                    </h3>
-                    <div class="card-actions">
-                        <a href="{{ route('admin.analytics.pulse.statistics') }}" class="btn btn-primary btn-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8z" />
-                                <path d="M15 13l-3 -3l-3 3" />
-                            </svg>
-                            Refresh
-                        </a>
-                    </div>
+<div class="space-y-6">
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Laravel Pulse Dashboard</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitoring real-time performa aplikasi</p>
+        </div>
+        <a href="{{ route('admin.analytics.pulse.statistics') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium">
+            <i class="fas fa-sync-alt"></i>
+            Refresh
+        </a>
+    </div>
+
+    {{-- Status Cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {{-- Server Status --}}
+        <div class="bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-white/80">Server Status</p>
+                    <p class="text-2xl font-bold mt-1">Online</p>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-primary text-white">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-fill">
-                                            <div class="h3 mb-0">Server Status</div>
-                                            <div class="text-white-50">Online</div>
-                                        </div>
-                                        <div class="flex-shrink-0">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M9 12l2 2l4 -4" />
-                                                <path d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
-                                                <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="flex-fill">
-                                            <div class="h3 mb-0">Response Time</div>
-                                            <div class="text-white-50">
-                                                < 100ms</div>
-                                            </div>
-                                            <div class="flex-shrink-0">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 13a3 3 0 1 0 0 -6a3 3 0 0 0 0 6z" />
-                                                    <path d="M12 1v6" />
-                                                    <path d="M12 17v6" />
-                                                    <path d="M4.22 4.22l4.24 4.24" />
-                                                    <path d="M15.54 15.54l4.24 4.24" />
-                                                    <path d="M1 12h6" />
-                                                    <path d="M17 12h6" />
-                                                    <path d="M4.22 19.78l4.24 -4.24" />
-                                                    <path d="M15.54 8.46l4.24 -4.24" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-warning text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-fill">
-                                                <div class="h3 mb-0">Memory Usage</div>
-                                                <div class="text-white-50">45%</div>
-                                            </div>
-                                            <div class="flex-shrink-0">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-11a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2z" />
-                                                    <path d="M8 8h6" />
-                                                    <path d="M8 12h6" />
-                                                    <path d="M8 16h4" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-info text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-fill">
-                                                <div class="h3 mb-0">Active Users</div>
-                                                <div class="text-white-50">24</div>
-                                            </div>
-                                            <div class="flex-shrink-0">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <circle cx="9" cy="7" r="4" />
-                                                    <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                                    <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pulse Dashboard Embed -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Real-time Monitoring</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="alert alert-info">
-                                            <h4 class="alert-title">Laravel Pulse Dashboard</h4>
-                                            <div class="text-muted">
-                                                Dashboard monitoring real-time untuk melihat performa aplikasi, request, dan
-                                                aktivitas sistem.
-                                            </div>
-                                        </div>
-
-                                        <!-- Pulse Dashboard akan di-embed di sini -->
-                                        <div class="pulse-dashboard">
-                                            <iframe src="{{ route('admin.analytics.pulse') }}" width="100%"
-                                                height="800" frameborder="0"
-                                                style="border: 1px solid #e9ecef; border-radius: 8px;">
-                                            </iframe>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Quick Actions -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Quick Actions</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.analytics.pulse.statistics') }}"
-                                                    class="btn btn-outline-primary w-100">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
-                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                        stroke-width="2" stroke="currentColor" fill="none"
-                                                        stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M9 19c-4.3 0 -8 -3.7 -8 -8s3.7 -8 8 -8s8 3.7 8 8s-3.7 8 -8 8z" />
-                                                        <path d="M15 13l-3 -3l-3 3" />
-                                                    </svg>
-                                                    Server Statistics
-                                                </a>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.analytics.pulse.performance') }}"
-                                                    class="btn btn-outline-success w-100">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
-                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                        stroke-width="2" stroke="currentColor" fill="none"
-                                                        stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 13a3 3 0 1 0 0 -6a3 3 0 0 0 0 6z" />
-                                                        <path d="M12 1v6" />
-                                                        <path d="M12 17v6" />
-                                                    </svg>
-                                                    Performance
-                                                </a>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.analytics.pulse.activity') }}"
-                                                    class="btn btn-outline-warning w-100">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
-                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                        stroke-width="2" stroke="currentColor" fill="none"
-                                                        stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <circle cx="9" cy="7" r="4" />
-                                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                                    </svg>
-                                                    User Activity
-                                                </a>
-                                            </div>
-                                            <div class="col-md-3 mb-3">
-                                                <a href="{{ route('admin.analytics.pulse') }}"
-                                                    class="btn btn-outline-info w-100">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2"
-                                                        width="24" height="24" viewBox="0 0 24 24"
-                                                        stroke-width="2" stroke="currentColor" fill="none"
-                                                        stroke-linecap="round" stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                                    </svg>
-                                                    Full Dashboard
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-server text-xl"></i>
                 </div>
             </div>
         </div>
-    @endsection
 
-    @push('scripts')
-        <script>
-            // Auto refresh setiap 30 detik
-            setInterval(function() {
-                location.reload();
-            }, 30000);
-        </script>
-    @endpush
+        {{-- Response Time --}}
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-white/80">Response Time</p>
+                    <p class="text-2xl font-bold mt-1">< 100ms</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-bolt text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        {{-- Memory Usage --}}
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-white/80">Memory Usage</p>
+                    <p class="text-2xl font-bold mt-1">45%</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-memory text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        {{-- Active Users --}}
+        <div class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl p-5 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-white/80">Active Users</p>
+                    <p class="text-2xl font-bold mt-1">24</p>
+                </div>
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Pulse Dashboard Embed --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Real-time Monitoring</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Dashboard monitoring real-time untuk melihat performa aplikasi, request, dan aktivitas sistem.</p>
+        </div>
+        <div class="p-6">
+            <iframe src="{{ route('admin.analytics.pulse') }}" width="100%" height="800" frameborder="0" class="rounded-xl border border-gray-200 dark:border-gray-700"></iframe>
+        </div>
+    </div>
+
+    {{-- Quick Actions --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="{{ route('admin.analytics.pulse.statistics') }}" class="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-pie text-primary-600 dark:text-primary-400"></i>
+                    </div>
+                    <span class="font-medium text-gray-900 dark:text-white text-sm">Server Statistics</span>
+                </a>
+                <a href="{{ route('admin.analytics.pulse.performance') }}" class="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-tachometer-alt text-emerald-600 dark:text-emerald-400"></i>
+                    </div>
+                    <span class="font-medium text-gray-900 dark:text-white text-sm">Performance</span>
+                </a>
+                <a href="{{ route('admin.analytics.pulse.activity') }}" class="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-amber-600 dark:text-amber-400"></i>
+                    </div>
+                    <span class="font-medium text-gray-900 dark:text-white text-sm">User Activity</span>
+                </a>
+                <a href="{{ route('admin.analytics.pulse') }}" class="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <div class="w-10 h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-desktop text-sky-600 dark:text-sky-400"></i>
+                    </div>
+                    <span class="font-medium text-gray-900 dark:text-white text-sm">Full Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    // Auto refresh setiap 30 detik
+    setInterval(function() {
+        location.reload();
+    }, 30000);
+</script>
+@endpush
+@endsection

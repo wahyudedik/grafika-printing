@@ -3,166 +3,159 @@
 @section('title', 'Tambah User Lelang Baru')
 
 @section('content')
-<div class="row row-deck row-cards">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Form Tambah User Lelang</h3>
+<div class="space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Form --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Form Tambah User Lelang</h2>
+                </div>
+                <form action="{{ route('admin.user-lelang.store') }}" method="POST">
+                    @csrf
+                    <div class="p-5 space-y-5">
+                        {{-- User Selection --}}
+                        <div>
+                            <label for="user_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pilih User <span class="text-red-500">*</span></label>
+                            <select name="user_id" id="user_id" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:ring-primary-500 @error('user_id') border-red-500 @enderror" required>
+                                <option value="">-- Pilih User --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }} ({{ $user->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('user_id')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                            @if($users->isEmpty())
+                                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Semua user sudah memiliki profil lelang.</p>
+                            @endif
+                        </div>
+
+                        {{-- Company Info --}}
+                        <div>
+                            <label for="company_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Perusahaan</label>
+                            <input type="text" name="company_name" id="company_name" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('company_name') border-red-500 @enderror" value="{{ old('company_name') }}" placeholder="PT. contoh">
+                            @error('company_name')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Contact Info --}}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nomor Telepon</label>
+                                <input type="text" name="phone_number" id="phone_number" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('phone_number') border-red-500 @enderror" value="{{ old('phone_number') }}" placeholder="08123456789">
+                                @error('phone_number')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="postal_code" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kode Pos</label>
+                                <input type="text" name="postal_code" id="postal_code" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('postal_code') border-red-500 @enderror" value="{{ old('postal_code') }}" placeholder="12345" maxlength="10">
+                                @error('postal_code')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Address --}}
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Alamat</label>
+                            <textarea name="address" id="address" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('address') border-red-500 @enderror" rows="2" placeholder="Alamat lengkap...">{{ old('address') }}</textarea>
+                            @error('address')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="city" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kota</label>
+                                <input type="text" name="city" id="city" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('city') border-red-500 @enderror" value="{{ old('city') }}" placeholder="Jakarta">
+                                @error('city')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="province" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Provinsi</label>
+                                <input type="text" name="province" id="province" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('province') border-red-500 @enderror" value="{{ old('province') }}" placeholder="DKI Jakarta">
+                                @error('province')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Status & Notes --}}
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status <span class="text-red-500">*</span></label>
+                            <select name="status" id="status" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:ring-primary-500 @error('status') border-red-500 @enderror" required>
+                                <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>Aktif</option>
+                                <option value="pending" {{ old('status', 'pending') === 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="suspended" {{ old('status') === 'suspended' ? 'selected' : '' }}>Ditangguhkan</option>
+                            </select>
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catatan Admin</label>
+                            <textarea name="notes" id="notes" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 @error('notes') border-red-500 @enderror" rows="3" placeholder="Catatan internal...">{{ old('notes') }}</textarea>
+                            @error('notes')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="px-5 py-4 border-t border-gray-200 dark:border-gray-700 flex gap-3">
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed" {{ $users->isEmpty() ? 'disabled' : '' }}>
+                            <i class="fas fa-plus text-xs"></i>
+                            Simpan
+                        </button>
+                        <a href="{{ route('admin.user-lelang.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors">
+                            Batal
+                        </a>
+                    </div>
+                </form>
             </div>
-            <form action="{{ route('admin.user-lelang.store') }}" method="POST">
-                @csrf
-                <div class="card-body">
-                    <!-- User Selection -->
-                    <div class="mb-3">
-                        <label for="user_id" class="form-label">Pilih User <span class="text-danger">*</span></label>
-                        <select name="user_id" id="user_id" class="form-select @error('user_id') is-invalid @enderror" required>
-                            <option value="">-- Pilih User --</option>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                    {{ $user->name }} ({{ $user->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('user_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        @if($users->isEmpty())
-                            <div class="text-muted small mt-1">Semua user sudah memiliki profil lelang.</div>
-                        @endif
-                    </div>
-
-                    <!-- Company Info -->
-                    <div class="mb-3">
-                        <label for="company_name" class="form-label">Nama Perusahaan</label>
-                        <input type="text" name="company_name" id="company_name"
-                            class="form-control @error('company_name') is-invalid @enderror"
-                            value="{{ old('company_name') }}" placeholder="PT. contoh">
-                        @error('company_name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- Contact Info -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label for="phone_number" class="form-label">Nomor Telepon</label>
-                            <input type="text" name="phone_number" id="phone_number"
-                                class="form-control @error('phone_number') is-invalid @enderror"
-                                value="{{ old('phone_number') }}" placeholder="08123456789">
-                            @error('phone_number')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="postal_code" class="form-label">Kode Pos</label>
-                            <input type="text" name="postal_code" id="postal_code"
-                                class="form-control @error('postal_code') is-invalid @enderror"
-                                value="{{ old('postal_code') }}" placeholder="12345" maxlength="10">
-                            @error('postal_code')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Address -->
-                    <div class="mb-3">
-                        <label for="address" class="form-label">Alamat</label>
-                        <textarea name="address" id="address" class="form-control @error('address') is-invalid @enderror"
-                            rows="2" placeholder="Alamat lengkap...">{{ old('address') }}</textarea>
-                        @error('address')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label for="city" class="form-label">Kota</label>
-                            <input type="text" name="city" id="city"
-                                class="form-control @error('city') is-invalid @enderror"
-                                value="{{ old('city') }}" placeholder="Jakarta">
-                            @error('city')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-md-6">
-                            <label for="province" class="form-label">Provinsi</label>
-                            <input type="text" name="province" id="province"
-                                class="form-control @error('province') is-invalid @enderror"
-                                value="{{ old('province') }}" placeholder="DKI Jakarta">
-                            @error('province')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Status & Notes -->
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Status <span class="text-danger">*</span></label>
-                        <select name="status" id="status" class="form-select @error('status') is-invalid @enderror" required>
-                            <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>Aktif</option>
-                            <option value="pending" {{ old('status', 'pending') === 'pending' ? 'selected' : '' }}>Menunggu</option>
-                            <option value="suspended" {{ old('status') === 'suspended' ? 'selected' : '' }}>Ditangguhkan</option>
-                        </select>
-                        @error('status')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="notes" class="form-label">Catatan Admin</label>
-                        <textarea name="notes" id="notes" class="form-control @error('notes') is-invalid @enderror"
-                            rows="3" placeholder="Catatan internal...">{{ old('notes') }}</textarea>
-                        @error('notes')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="card-footer d-flex gap-2">
-                    <button type="submit" class="btn btn-primary" {{ $users->isEmpty() ? 'disabled' : '' }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 5l0 14" />
-                            <path d="M5 12l14 0" />
-                        </svg>
-                        Simpan
-                    </button>
-                    <a href="{{ route('admin.user-lelang.index') }}" class="btn btn-secondary">Batal</a>
-                </div>
-            </form>
         </div>
-    </div>
 
-    <!-- Sidebar Tips -->
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-1" width="24" height="24"
-                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                        <path d="M12 16l0 -4" />
-                        <path d="M12 8l.01 0" />
-                    </svg>
-                    Panduan
-                </h3>
-            </div>
-            <div class="card-body">
-                <h5>User Lelang</h5>
-                <p class="text-muted small">
-                    User Lelang adalah pengguna yang aktif mengikuti lelang di platform.
-                    Mereka dapat membuat lelang, menawar produk, dan memenangkan lelang.
-                </p>
+        {{-- Sidebar Tips --}}
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                        <i class="fas fa-info-circle text-primary-500"></i>
+                        Panduan
+                    </h3>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 dark:text-white mb-1">User Lelang</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            User Lelang adalah pengguna yang aktif mengikuti lelang di platform.
+                            Mereka dapat membuat lelang, menawar produk, dan memenangkan lelang.
+                        </p>
+                    </div>
 
-                <h6 class="mt-3">Status:</h6>
-                <ul class="text-muted small">
-                    <li><span class="badge bg-success">Aktif</span> - Dapat mengikuti lelang</li>
-                    <li><span class="badge bg-warning">Menunggu</span> - Menunggu verifikasi</li>
-                    <li><span class="badge bg-danger">Ditangguhkan</span> - Tidak dapat mengikuti lelang</li>
-                </ul>
+                    <div>
+                        <h5 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Status:</h5>
+                        <ul class="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+                            <li class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Aktif</span>
+                                - Dapat mengikuti lelang
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Menunggu</span>
+                                - Menunggu verifikasi
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">Ditangguhkan</span>
+                                - Tidak dapat mengikuti lelang
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

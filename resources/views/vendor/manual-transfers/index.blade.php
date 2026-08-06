@@ -3,131 +3,115 @@
 @section('title', 'Manual Transfer Orders')
 
 @section('content')
-<div class="page-header d-print-none mb-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <h2 class="page-title">Manual Transfer Orders</h2>
-            <div class="page-pretitle">Pesanan transfer bank manual</div>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900">Manual Transfer Orders</h2>
+        <div class="text-sm text-gray-500">Pesanan transfer bank manual</div>
     </div>
 </div>
 
 @if(session('success'))
-    <div class="alert alert-success alert-dismissible">
-        {{ session('success') }}
-        <a class="btn-close" data-bs-dismiss="alert"></a>
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-2 text-green-800">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+        <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
     </div>
 @endif
 
 @if(session('error'))
-    <div class="alert alert-danger alert-dismissible">
-        {{ session('error') }}
-        <a class="btn-close" data-bs-dismiss="alert"></a>
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-2 text-red-800">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+        <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
     </div>
 @endif
 
 {{-- Statistics --}}
-<div class="row row-cards mb-4">
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="subheader">Total</div>
-                <div class="h1 mb-0">{{ $statistics['total'] }}</div>
-            </div>
-        </div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500">Total</div>
+        <div class="text-2xl font-bold mt-1">{{ $statistics['total'] }}</div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="subheader">Menunggu</div>
-                <div class="h1 mb-0 text-yellow">{{ $statistics['pending'] }}</div>
-            </div>
-        </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500">Menunggu</div>
+        <div class="text-2xl font-bold mt-1 text-amber-600">{{ $statistics['pending'] }}</div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="subheader">Dibayar</div>
-                <div class="h1 mb-0 text-blue">{{ $statistics['paid'] }}</div>
-            </div>
-        </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500">Dibayar</div>
+        <div class="text-2xl font-bold mt-1 text-blue-600">{{ $statistics['paid'] }}</div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="subheader">Selesai</div>
-                <div class="h1 mb-0 text-green">{{ $statistics['completed'] }}</div>
-            </div>
-        </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500">Selesai</div>
+        <div class="text-2xl font-bold mt-1 text-green-600">{{ $statistics['completed'] }}</div>
     </div>
 </div>
 
 {{-- Filters --}}
-<div class="card mb-4">
-    <div class="card-body">
-        <form method="GET" class="row g-2 align-items-end">
-            <div class="col">
-                <input type="text" name="search" class="form-control" placeholder="Cari nomor order, nama, HP..." value="{{ request('search') }}">
-            </div>
-            <div class="col-auto">
-                <select name="status" class="form-select">
-                    <option value="">Semua Status</option>
-                    <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu</option>
-                    <option value="paid" {{ request('status') === 'paid' ? 'selected' : '' }}>Dibayar</option>
-                    <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
-                    <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                </select>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="{{ route('vendor.manual-transfers.index') }}" class="btn btn-ghost">Reset</a>
-            </div>
-        </form>
-    </div>
+<div class="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+    <form method="GET" class="flex flex-col sm:flex-row gap-3 items-end">
+        <div class="flex-1 w-full">
+            <input type="text" name="search" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Cari nomor order, nama, HP..." value="{{ request('search') }}">
+        </div>
+        <div class="w-full sm:w-auto">
+            <select name="status" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <option value="">Semua Status</option>
+                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu</option>
+                <option value="paid" {{ request('status') === 'paid' ? 'selected' : '' }}>Dibayar</option>
+                <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
+                <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Ditolak</option>
+            </select>
+        </div>
+        <div class="flex gap-2">
+            <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Filter</button>
+            <a href="{{ route('vendor.manual-transfers.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Reset</a>
+        </div>
+    </form>
 </div>
 
 {{-- Orders Table --}}
-<div class="card">
-    <div class="table-responsive">
-        <table class="table table-vcenter card-table">
+<div class="bg-white rounded-xl border border-gray-200">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
             <thead>
-                <tr>
-                    <th>No. Order</th>
-                    <th>Pelanggan</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Tanggal</th>
-                    <th class="w-1">Aksi</th>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">No. Order</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Pelanggan</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Items</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Total</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Tanggal</th>
+                    <th class="text-left py-3 px-4 font-semibold text-gray-600">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($orders as $order)
-                    <tr>
-                        <td>
-                            <code>{{ $order->order_number }}</code>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="py-3 px-4">
+                            <code class="bg-gray-100 px-2 py-0.5 rounded text-sm">{{ $order->order_number }}</code>
                         </td>
-                        <td>
-                            <div class="fw-bold">{{ $order->customer_name }}</div>
+                        <td class="py-3 px-4">
+                            <div class="font-medium">{{ $order->customer_name }}</div>
                             @if($order->customer_phone)
-                                <div class="text-muted small">{{ $order->customer_phone }}</div>
+                                <div class="text-xs text-gray-500">{{ $order->customer_phone }}</div>
                             @endif
                         </td>
-                        <td>{{ $order->items_summary }}</td>
-                        <td class="fw-bold">{{ $order->formatted_total }}</td>
-                        <td>
-                            <span class="badge bg-{{ $order->status_color }}-lt">{{ $order->status_label }}</span>
+                        <td class="py-3 px-4">{{ $order->items_summary }}</td>
+                        <td class="py-3 px-4 font-bold">{{ $order->formatted_total }}</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $order->status_color }}-100 text-{{ $order->status_color }}-800">{{ $order->status_label }}</span>
                         </td>
-                        <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                        <td>
-                            <a href="{{ route('vendor.manual-transfers.show', $order) }}" class="btn btn-sm btn-ghost">
-                                Detail
-                            </a>
+                        <td class="py-3 px-4 text-gray-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="py-3 px-4">
+                            <a href="{{ route('vendor.manual-transfers.show', $order) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Detail</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="7" class="text-center py-12 text-gray-500">
                             Belum ada order manual transfer.
                         </td>
                     </tr>
@@ -135,7 +119,7 @@
             </tbody>
         </table>
     </div>
-    <div class="card-footer d-flex align-items-center justify-content-between">
+    <div class="px-5 py-3 border-t border-gray-200">
         {{ $orders->links() }}
     </div>
 </div>

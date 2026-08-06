@@ -1,385 +1,328 @@
 @extends('layouts.vendor')
 
 @section('content')
-<div class="page-wrapper">
-    <div class="container-xl">
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">Kalkulator Ongkir</h2>
-                    <div class="page-pretitle">RajaOngkir Integration</div>
-                </div>
-            </div>
+<div x-data="shippingCalc()" x-init="init()">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Kalkulator Ongkir</h1>
+            <p class="text-sm text-gray-500 mt-1">RajaOngkir Integration</p>
         </div>
+    </div>
 
-        @if(session('success'))
-        <div class="alert alert-success alert-dismissible" role="alert">
-            <div class="d-flex">
-                <div>{{ session('success') }}</div>
-            </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-        </div>
-        @endif
+    {{-- Flash Messages --}}
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-6 flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-sm text-green-700 flex-1">{{ session('success') }}</span>
+        <button @click="show = false" class="text-green-600 hover:text-green-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    @endif
 
-        @if(session('error'))
-        <div class="alert alert-danger alert-dismissible" role="alert">
-            <div class="d-flex">
-                <div>{{ session('error') }}</div>
-            </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-        </div>
-        @endif
+    @if(session('error'))
+    <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-sm text-red-700 flex-1">{{ session('error') }}</span>
+        <button @click="show = false" class="text-red-600 hover:text-red-800"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    @endif
 
-        <div class="row">
-            <!-- Calculator Form -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 7v5l3 3"/></svg>
-                            Hitung Ongkos Kirim
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <form id="shippingForm" onsubmit="return false;">
-                            <div class="row g-3">
-                                <!-- Origin City -->
-                                <div class="col-md-6">
-                                    <label class="form-label">Kota Asal <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="origin" name="origin" required>
-                                        <option value="">Pilih Kota Asal</option>
-                                        @foreach($cities as $city)
-                                        <option value="{{ $city['city_id'] }}" {{ $vendor->city ?? '' === $city['city_name'] ? 'selected' : '' }}>
-                                            {{ $city['city_name'] }}, {{ $city['province'] }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <!-- Destination City -->
-                                <div class="col-md-6">
-                                    <label class="form-label">Kota Tujuan <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="destination" name="destination" required>
-                                        <option value="">Pilih Kota Tujuan</option>
-                                        @foreach($cities as $city)
-                                        <option value="{{ $city['city_id'] }}">
-                                            {{ $city['city_name'] }}, {{ $city['province'] }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <!-- Weight -->
-                                <div class="col-md-4">
-                                    <label class="form-label">Berat (gram) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="weight" name="weight"
-                                           min="1" max="30000" placeholder="Contoh: 1000" required>
-                                    <div class="form-hint">Maksimal 30.000 gram (30 kg)</div>
-                                </div>
-
-                                <!-- Courier -->
-                                <div class="col-md-4">
-                                    <label class="form-label">Kurir <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="courier" name="courier" required>
-                                        <option value="">Pilih Kurir</option>
-                                        <option value="jne">JNE</option>
-                                        <option value="tiki">TIKI</option>
-                                        <option value="pos">POS Indonesia</option>
-                                        <option value="jnt">J&T Express</option>
-                                        <option value="lion">Lion Parcel</option>
-                                        <option value="wahana">Wahana</option>
-                                        <option value="sap">SAP</option>
-                                        <option value="anteraja">AnterAja</option>
-                                    </select>
-                                </div>
-
-                                <!-- Service Type -->
-                                <div class="col-md-4">
-                                    <label class="form-label">Layanan</label>
-                                    <select class="form-select" id="service" name="service">
-                                        <option value="">Semua Layanan</option>
-                                    </select>
-                                    <div class="form-hint">Pilih layanan spesifik (opsional)</div>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="mt-4 d-flex gap-2">
-                                <button type="button" class="btn btn-primary" id="calculateBtn" onclick="calculateShipping()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 7v5l3 3"/></svg>
-                                    <span id="btnText">Hitung Ongkir</span>
-                                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 14l-4.5 -4.5"/><path d="M5 14l7 -7"/><path d="M14 7l4.5 4.5"/><path d="M17 14l-7 -7"/></svg>
-                                    Reset
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Calculator Form --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Hitung Ongkos Kirim
+                    </h3>
                 </div>
-
-                <!-- Results Section -->
-                <div id="resultsSection" class="d-none">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg>
-                                Hasil Perhitungan
-                            </h3>
-                        </div>
-                        <div class="card-body p-0">
-                            <div id="resultsTable" class="table-responsive">
-                                <table class="table table-vcenter card-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Kurir</th>
-                                            <th>Layanan</th>
-                                            <th>Estimasi</th>
-                                            <th class="text-end">Biaya</th>
-                                            <th class="w-1">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="resultsBody">
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div id="noResults" class="empty d-none">
-                                <p class="empty-title">Tidak ada hasil</p>
-                                <p class="empty-subtitle text-secondary">Silakan masukkan data pengiriman dan klik "Hitung Ongkir".</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Error Alert -->
-                <div id="errorAlert" class="alert alert-danger d-none" role="alert">
-                    <div class="d-flex">
+                <div class="p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {{-- Origin City --}}
                         <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01"/><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"/></svg>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kota Asal <span class="text-red-500">*</span></label>
+                            <select x-model="form.origin" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                <option value="">Pilih Kota Asal</option>
+                                @foreach($cities as $city)
+                                <option value="{{ $city['city_id'] }}" {{ $vendor->city ?? '' === $city['city_name'] ? 'selected' : '' }}>
+                                    {{ $city['city_name'] }}, {{ $city['province'] }}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div id="errorMessage">Terjadi kesalahan saat menghitung ongkir.</div>
+
+                        {{-- Destination City --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kota Tujuan <span class="text-red-500">*</span></label>
+                            <select x-model="form.destination" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                <option value="">Pilih Kota Tujuan</option>
+                                @foreach($cities as $city)
+                                <option value="{{ $city['city_id'] }}">
+                                    {{ $city['city_name'] }}, {{ $city['province'] }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Weight --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Berat (gram) <span class="text-red-500">*</span></label>
+                            <input type="number" x-model="form.weight" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" min="1" max="30000" placeholder="Contoh: 1000" required>
+                            <p class="text-xs text-gray-500 mt-1">Maksimal 30.000 gram (30 kg)</p>
+                        </div>
+
+                        {{-- Courier --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kurir <span class="text-red-500">*</span></label>
+                            <select x-model="form.courier" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                <option value="">Pilih Kurir</option>
+                                <option value="jne">JNE</option>
+                                <option value="tiki">TIKI</option>
+                                <option value="pos">POS Indonesia</option>
+                                <option value="jnt">J&T Express</option>
+                                <option value="lion">Lion Parcel</option>
+                                <option value="wahana">Wahana</option>
+                                <option value="sap">SAP</option>
+                                <option value="anteraja">AnterAja</option>
+                            </select>
+                        </div>
+
+                        {{-- Service Type --}}
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Layanan</label>
+                            <select x-model="form.service" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                                <option value="">Semua Layanan</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Pilih layanan spesifik (opsional)</p>
+                        </div>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="flex items-center gap-3 mt-6">
+                        <button type="button" @click="calculate()" :disabled="calculating" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                            <svg x-show="!calculating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <svg x-show="calculating" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
+                            <span x-text="calculating ? 'Menghitung...' : 'Hitung Ongkir'"></span>
+                        </button>
+                        <button type="button" @click="resetForm()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Reset
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Sidebar: Info -->
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Informasi</h3>
+            {{-- Results Section --}}
+            <div x-show="showResults" x-transition class="mt-6 bg-white rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Hasil Perhitungan
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Kurir</th>
+                                <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Layanan</th>
+                                <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Estimasi</th>
+                                <th class="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">Biaya</th>
+                                <th class="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <template x-for="(item, idx) in results" :key="idx">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-3">
+                                        <div class="font-semibold text-gray-900" x-text="item.code ? item.code.toUpperCase() : ''"></div>
+                                        <div class="text-xs text-gray-500" x-text="item.name || ''"></div>
+                                    </td>
+                                    <td class="px-6 py-3">
+                                        <div class="font-semibold text-gray-900" x-text="item.description || '-'"></div>
+                                    </td>
+                                    <td class="px-6 py-3 text-gray-600" x-text="item.etd || '-'"></td>
+                                    <td class="px-6 py-3 text-right font-bold text-gray-900">Rp <span x-text="item.price.toLocaleString('id-ID')"></span></td>
+                                    <td class="px-6 py-3 text-right">
+                                        <button type="button" @click="selectShipping(item)" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                                            Pilih
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                {{-- Empty State --}}
+                <div x-show="results.length === 0" class="px-6 py-12 text-center">
+                    <p class="text-sm text-gray-500">Tidak ada hasil. Silakan masukkan data pengiriman dan klik "Hitung Ongkir".</p>
+                </div>
+            </div>
+
+            {{-- Error Alert --}}
+            <div x-show="errorMessage" x-transition class="mt-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+                <span class="text-sm text-red-700" x-text="errorMessage"></span>
+            </div>
+        </div>
+
+        {{-- Sidebar: Info --}}
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-900">Informasi</h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    {{-- Cara Menggunakan --}}
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Cara Menggunakan</h4>
+                        <ol class="space-y-2 text-sm text-gray-600 list-decimal list-inside">
+                            <li>Pilih <strong>kota asal</strong> (lokasi vendor)</li>
+                            <li>Pilih <strong>kota tujuan</strong> (lokasi pelanggan)</li>
+                            <li>Masukkan <strong>berat barang</strong> dalam gram</li>
+                            <li>Pilih <strong>kurir</strong> yang diinginkan</li>
+                            <li>Klik <strong>"Hitung Ongkir"</strong></li>
+                        </ol>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <h5 class="card-title">Cara Menggunakan</h5>
-                            <ol class="ps-3 text-muted">
-                                <li class="mb-2">Pilih <strong>kota asal</strong> (lokasi vendor)</li>
-                                <li class="mb-2">Pilih <strong>kota tujuan</strong> (lokasi pelanggan)</li>
-                                <li class="mb-2">Masukkan <strong>berat barang</strong> dalam gram</li>
-                                <li class="mb-2">Pilih <strong>kurir</strong> yang diinginkan</li>
-                                <li class="mb-2">Klik <strong>"Hitung Ongkir"</strong></li>
-                            </ol>
-                        </div>
 
-                        <div class="mb-3">
-                            <h5 class="card-title">Kurir Tersedia</h5>
-                            <div class="d-flex flex-wrap gap-2">
-                                <span class="badge bg-blue-lt">JNE</span>
-                                <span class="badge bg-blue-lt">TIKI</span>
-                                <span class="badge bg-blue-lt">POS</span>
-                                <span class="badge bg-blue-lt">J&T</span>
-                                <span class="badge bg-blue-lt">Lion</span>
-                                <span class="badge bg-blue-lt">Wahana</span>
-                                <span class="badge bg-blue-lt">SAP</span>
-                                <span class="badge bg-blue-lt">AnterAja</span>
-                            </div>
+                    {{-- Kurir Tersedia --}}
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Kurir Tersedia</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">JNE</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">TIKI</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">POS</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">J&T</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Lion</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Wahana</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">SAP</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">AnterAja</span>
                         </div>
+                    </div>
 
-                        <div>
-                            <h5 class="card-title">Catatan</h5>
-                            <ul class="list-unstyled text-muted">
-                                <li class="mb-1">• Harga belum termasuk asuransi</li>
-                                <li class="mb-1">• Estimasi waktu dapat berubah</li>
-                                <li class="mb-1">• Berat minimum 1 gram</li>
-                                <li>• Berat maksimum 30 kg</li>
-                            </ul>
-                        </div>
+                    {{-- Catatan --}}
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Catatan</h4>
+                        <ul class="space-y-1 text-sm text-gray-600">
+                            <li>• Harga belum termasuk asuransi</li>
+                            <li>• Estimasi waktu dapat berubah</li>
+                            <li>• Berat minimum 1 gram</li>
+                            <li>• Berat maksimum 30 kg</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- Success Toast --}}
+    <div x-show="showSuccessToast" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-2" class="fixed top-5 right-5 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg" x-cloak>
+        <span x-text="successMessage"></span>
+    </div>
 </div>
 
 <script>
-    let isCalculating = false;
+    function shippingCalc() {
+        return {
+            calculating: false,
+            showResults: false,
+            errorMessage: null,
+            showSuccessToast: false,
+            successMessage: '',
+            results: [],
+            form: {
+                origin: '',
+                destination: '',
+                weight: '',
+                courier: '',
+                service: ''
+            },
+            init() {
+                // Set default origin if vendor city matches
+            },
+            async calculate() {
+                if (this.calculating) return;
 
-    async function calculateShipping() {
-        if (isCalculating) return;
+                const { origin, destination, weight, courier } = this.form;
 
-        const origin = document.getElementById('origin').value;
-        const destination = document.getElementById('destination').value;
-        const weight = document.getElementById('weight').value;
-        const courier = document.getElementById('courier').value;
+                if (!origin || !destination || !weight || !courier) {
+                    this.errorMessage = 'Mohon lengkapi semua field yang diperlukan (Kota Asal, Kota Tujuan, Berat, dan Kurir).';
+                    return;
+                }
 
-        // Validation
-        if (!origin || !destination || !weight || !courier) {
-            showError('Mohon lengkapi semua field yang diperlukan (Kota Asal, Kota Tujuan, Berat, dan Kurir).');
-            return;
-        }
+                if (origin === destination) {
+                    this.errorMessage = 'Kota asal dan tujuan tidak boleh sama.';
+                    return;
+                }
 
-        if (origin === destination) {
-            showError('Kota asal dan tujuan tidak boleh sama.');
-            return;
-        }
+                if (parseInt(weight) < 1 || parseInt(weight) > 30000) {
+                    this.errorMessage = 'Berat harus antara 1 hingga 30.000 gram.';
+                    return;
+                }
 
-        if (parseInt(weight) < 1 || parseInt(weight) > 30000) {
-            showError('Berat harus antara 1 hingga 30.000 gram.');
-            return;
-        }
+                this.calculating = true;
+                this.errorMessage = null;
+                this.showResults = false;
 
-        setLoading(true);
-        hideError();
-        hideResults();
+                try {
+                    const response = await fetch('{{ route("vendor.shipping.calculate") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(this.form)
+                    });
 
-        try {
-            const response = await fetch('{{ route("vendor.shipping.calculate") }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ origin, destination, weight, courier })
-            });
+                    const data = await response.json();
 
-            const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Gagal menghitung ongkir. Status: ' + response.status);
+                    }
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Gagal menghitung ongkir. Status: ' + response.status);
+                    if (data.success && data.data) {
+                        this.results = [];
+                        data.data.forEach(item => {
+                            if (item.costs && item.costs.length > 0) {
+                                item.costs.forEach(cost => {
+                                    this.results.push({
+                                        code: item.code,
+                                        name: item.name,
+                                        description: cost.description || '-',
+                                        etd: cost.etd || '-',
+                                        price: cost.cost && cost.cost[0] ? cost.cost[0].value : 0
+                                    });
+                                });
+                            }
+                        });
+                        this.showResults = true;
+                    } else {
+                        throw new Error(data.message || 'Tidak ada data ongkir ditemukan.');
+                    }
+                } catch (error) {
+                    console.error('Shipping calculation error:', error);
+                    this.errorMessage = error.message || 'Terjadi kesalahan saat menghitung ongkir. Silakan coba lagi.';
+                } finally {
+                    this.calculating = false;
+                }
+            },
+            selectShipping(item) {
+                const data = { courier: item.code, service: item.description, cost: item.price, etd: item.etd };
+                localStorage.setItem('selectedShipping', JSON.stringify(data));
+                this.successMessage = `Pengiriman dipilih: ${item.code.toUpperCase()} ${item.description} - Rp ${item.price.toLocaleString('id-ID')}`;
+                this.showSuccessToast = true;
+                setTimeout(() => { this.showSuccessToast = false; }, 5000);
+            },
+            resetForm() {
+                this.form = { origin: '', destination: '', weight: '', courier: '', service: '' };
+                this.showResults = false;
+                this.errorMessage = null;
+                this.results = [];
+                this.calculating = false;
             }
-
-            if (data.success && data.data) {
-                displayResults(data.data);
-            } else {
-                throw new Error(data.message || 'Tidak ada data ongkir ditemukan.');
-            }
-        } catch (error) {
-            console.error('Shipping calculation error:', error);
-            showError(error.message || 'Terjadi kesalahan saat menghitung ongkir. Silakan coba lagi.');
-        } finally {
-            setLoading(false);
         }
-    }
-
-    function setLoading(loading) {
-        isCalculating = loading;
-        const btn = document.getElementById('calculateBtn');
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
-
-        if (loading) {
-            btn.disabled = true;
-            btnText.textContent = 'Menghitung...';
-            btnSpinner.classList.remove('d-none');
-        } else {
-            btn.disabled = false;
-            btnText.textContent = 'Hitung Ongkir';
-            btnSpinner.classList.add('d-none');
-        }
-    }
-
-    function showError(message) {
-        const alert = document.getElementById('errorAlert');
-        const errorMsg = document.getElementById('errorMessage');
-        errorMsg.textContent = message;
-        alert.classList.remove('d-none');
-    }
-
-    function hideError() {
-        document.getElementById('errorAlert').classList.add('d-none');
-    }
-
-    function displayResults(results) {
-        const section = document.getElementById('resultsSection');
-        const tbody = document.getElementById('resultsBody');
-        const noResults = document.getElementById('noResults');
-
-        tbody.innerHTML = '';
-
-        if (!results || results.length === 0) {
-            section.classList.remove('d-none');
-            noResults.classList.remove('d-none');
-            return;
-        }
-
-        noResults.classList.add('d-none');
-        section.classList.remove('d-none');
-
-        results.forEach(item => {
-            if (item.costs && item.costs.length > 0) {
-                item.costs.forEach(cost => {
-                    const etd = cost.etd || '-';
-                    const description = cost.description || '-';
-                    const price = cost.cost && cost.cost[0] ? cost.cost[0].value : 0;
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>
-                            <div class="fw-bold">{{ item.code ? item.code.toUpperCase() : '' }}</div>
-                            <small class="text-muted">${item.name || ''}</small>
-                        </td>
-                        <td>
-                            <div class="fw-bold">${description}</div>
-                        </td>
-                        <td>${etd}</td>
-                        <td class="text-end fw-bold">Rp ${price.toLocaleString('id-ID')}</td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-ghost-primary" onclick="selectShipping('${item.code}', '${description}', ${price}, '${etd}')">
-                                Pilih
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            }
-        });
-
-        if (tbody.children.length === 0) {
-            section.classList.remove('d-none');
-            noResults.classList.remove('d-none');
-        }
-    }
-
-    function hideResults() {
-        document.getElementById('resultsSection').classList.add('d-none');
-    }
-
-    function selectShipping(courier, service, cost, etd) {
-        // Store selected shipping data
-        const data = { courier, service, cost, etd };
-        localStorage.setItem('selectedShipping', JSON.stringify(data));
-
-        // Show success message
-        const successMsg = document.createElement('div');
-        successMsg.className = 'alert alert-success alert-dismissible position-fixed';
-        successMsg.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        successMsg.innerHTML = `
-            <div class="d-flex">
-                <div>Pengiriman dipilih: <strong>${courier.toUpperCase()} ${service}</strong> - Rp ${cost.toLocaleString('id-ID')}</div>
-            </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-        `;
-        document.body.appendChild(successMsg);
-
-        setTimeout(() => successMsg.remove(), 5000);
-    }
-
-    function resetForm() {
-        document.getElementById('shippingForm').reset();
-        hideResults();
-        hideError();
-        isCalculating = false;
     }
 </script>
 @endsection

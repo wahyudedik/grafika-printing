@@ -2,380 +2,306 @@
 
 @section('title', 'Shipping Tracking')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Shipping Tracking</h3>
-                        <div class="card-actions">
-                            <a href="{{ route('admin.shipping.export', request()->query()) }}" class="btn btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                    <path d="M9 9l1 1l3 -3" />
-                                </svg>
-                                Export CSV
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <!-- Statistics Cards -->
-                        <div class="row mb-4">
-                            <div class="col-md-2">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-primary text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                                        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                                        <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Total</div>
-                                                <div class="text-muted">{{ number_format($stats['total_shipments']) }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-warning text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 9v2m0 4v.01" />
-                                                        <path
-                                                            d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.84 2.75" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Pending</div>
-                                                <div class="text-muted">{{ number_format($stats['pending_shipments']) }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-info text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                                        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                                        <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">In Transit</div>
-                                                <div class="text-muted">{{ number_format($stats['in_transit']) }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-success text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M9 12l2 2l4 -4" />
-                                                        <path d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
-                                                        <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Delivered</div>
-                                                <div class="text-muted">{{ number_format($stats['delivered']) }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-danger text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 9v2m0 4v.01" />
-                                                        <path
-                                                            d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.84 2.75" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Failed</div>
-                                                <div class="text-muted">{{ number_format($stats['failed']) }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-info text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                                                        <path d="M12 7v5l3 3" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Today</div>
-                                                <div class="text-muted">{{ number_format($stats['today_shipments']) }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+<div class="space-y-6" x-data="{ tracking: null, showTrackModal: false }">
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Shipping Tracking</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitoring pengiriman semua vendor</p>
+        </div>
+        <a href="{{ route('admin.shipping.export', request()->query()) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium">
+            <i class="fas fa-download"></i>
+            Export CSV
+        </a>
+    </div>
 
-                        <!-- Filters -->
-                        <form method="GET" class="mb-4">
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Status</label>
-                                    <select name="status" class="form-select">
-                                        <option value="">All Status</option>
-                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
-                                            Pending</option>
-                                        <option value="in_transit"
-                                            {{ request('status') == 'in_transit' ? 'selected' : '' }}>In Transit</option>
-                                        <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>
-                                            Delivered</option>
-                                        <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>
-                                            Failed</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Vendor</label>
-                                    <select name="vendor_id" class="form-select">
-                                        <option value="">All Vendors</option>
-                                        @foreach ($vendors as $vendor)
-                                            <option value="{{ $vendor->id }}"
-                                                {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>
-                                                {{ $vendor->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Date From</label>
-                                    <input type="date" name="date_from" class="form-control"
-                                        value="{{ request('date_from') }}">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Date To</label>
-                                    <input type="date" name="date_to" class="form-control"
-                                        value="{{ request('date_to') }}">
-                                </div>
-                            </div>
-                            <div class="row g-3 mt-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">Search</label>
-                                    <input type="text" name="search" class="form-control"
-                                        placeholder="Search by code, resi, transaction..."
-                                        value="{{ request('search') }}">
-                                </div>
-                                <div class="col-md-6 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary me-2">Filter</button>
-                                    <a href="{{ route('admin.shipping.index') }}"
-                                        class="btn btn-outline-secondary">Clear</a>
-                                </div>
-                            </div>
-                        </form>
+    {{-- Statistics Cards --}}
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        {{-- Total --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-truck text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['total_shipments']) }}</p>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Shipping Table -->
-                        <div class="table-responsive">
-                            <table class="table table-vcenter card-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Code</th>
-                                        <th>Vendor</th>
-                                        <th>Transaction</th>
-                                        <th>Resi</th>
-                                        <th>Status</th>
-                                        <th>Service</th>
-                                        <th>Cost</th>
-                                        <th>Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($shippingInvoices as $shipping)
-                                        <tr>
-                                            <td>{{ $shipping->id }}</td>
-                                            <td>
-                                                <code>{{ $shipping->kode }}</code>
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-sm me-2">
-                                                        <span class="avatar-initial rounded-circle bg-primary text-white">
-                                                            {{ substr($shipping->vendor->name ?? 'V', 0, 1) }}
-                                                        </span>
-                                                    </div>
-                                                    <div>
-                                                        <div class="font-weight-medium">
-                                                            {{ $shipping->vendor->name ?? 'N/A' }}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <code>{{ $shipping->transaction->kode_transaksi ?? 'N/A' }}</code>
-                                            </td>
-                                            <td>
-                                                @if ($shipping->resi)
-                                                    <code>{{ $shipping->resi }}</code>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-{{ $shipping->status == 'delivered' ? 'success' : ($shipping->status == 'failed' ? 'danger' : ($shipping->status == 'in_transit' ? 'info' : 'warning')) }}">
-                                                    {{ ucfirst(str_replace('_', ' ', $shipping->status)) }}
-                                                </span>
-                                            </td>
-                                            <td>{{ $shipping->service ?? 'N/A' }}</td>
-                                            <td>
-                                                @if ($shipping->cost)
-                                                    <span class="font-weight-medium">Rp
-                                                        {{ number_format($shipping->cost, 0, ',', '.') }}</span>
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div>{{ $shipping->created_at->format('d M Y') }}</div>
-                                                <div class="text-muted">{{ $shipping->created_at->format('H:i:s') }}</div>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group">
-                                                    <a href="{{ route('admin.shipping.show', $shipping->id) }}"
-                                                        class="btn btn-sm btn-outline-primary">
-                                                        View
-                                                    </a>
-                                                    @if ($shipping->resi)
-                                                        <button class="btn btn-sm btn-outline-info"
-                                                            onclick="trackShipping({{ $shipping->id }})">
-                                                            Track
-                                                        </button>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="10" class="text-center py-4">
-                                                <div class="empty">
-                                                    <div class="empty-icon">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                            width="24" height="24" viewBox="0 0 24 24"
-                                                            stroke-width="2" stroke="currentColor" fill="none"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                                            <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                                                            <path d="M5 17h-2v-6l2 -5h9l4 5v6h-2m-4 0h-6m-2 -5h4m-4 -3h3" />
-                                                        </svg>
-                                                    </div>
-                                                    <p class="empty-title">No shipping data found</p>
-                                                    <p class="empty-subtitle text-muted">Try adjusting your filters or
-                                                        search criteria.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+        {{-- Pending --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-clock text-amber-600 dark:text-amber-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Pending</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['pending_shipments']) }}</p>
+                </div>
+            </div>
+        </div>
 
-                        <!-- Pagination -->
-                        <div class="d-flex justify-content-center">
-                            {{ $shippingInvoices->links() }}
-                        </div>
-                    </div>
+        {{-- In Transit --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shipping-fast text-sky-600 dark:text-sky-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">In Transit</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['in_transit']) }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Delivered --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-circle text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Delivered</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['delivered']) }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Failed --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Failed</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['failed']) }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Today --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-calendar-day text-sky-600 dark:text-sky-400"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Today</p>
+                    <p class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($stats['today_shipments']) }}</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function trackShipping(id) {
-            fetch(`/admin/shipping/${id}/track`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            title: 'Tracking Result',
-                            html: `<pre>${JSON.stringify(data.data, null, 2)}</pre>`,
-                            icon: 'success'
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'Tracking Failed',
-                            text: data.message,
-                            icon: 'error'
-                        });
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Failed to track shipment',
-                        icon: 'error'
-                    });
-                });
-        }
-    </script>
+    {{-- Filters --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                    <select name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Status</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="in_transit" {{ request('status') == 'in_transit' ? 'selected' : '' }}>In Transit</option>
+                        <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                        <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vendor</label>
+                    <select name="vendor_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="">All Vendors</option>
+                        @foreach($vendors as $vendor)
+                            <option value="{{ $vendor->id }}" {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>{{ $vendor->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date From</label>
+                    <input type="date" name="date_from" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_from') }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date To</label>
+                    <input type="date" name="date_to" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_to') }}">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                    <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Search by code, resi, transaction..." value="{{ request('search') }}">
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                        <i class="fas fa-filter mr-1"></i> Filter
+                    </button>
+                    <a href="{{ route('admin.shipping.index') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                        Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- Shipping Table (Desktop) --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hidden md:block">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">ID</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Code</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Vendor</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Transaction</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Resi</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Status</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Service</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Cost</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Date</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-500 dark:text-gray-400">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse($shippingInvoices as $shipping)
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $shipping->id }}</td>
+                        <td class="px-4 py-3">
+                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->kode }}</code>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                    <span class="text-xs font-semibold text-primary-600 dark:text-primary-400">{{ substr($shipping->vendor->name ?? 'V', 0, 1) }}</span>
+                                </div>
+                                <span class="text-gray-900 dark:text-white font-medium">{{ $shipping->vendor->name ?? 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3">
+                            <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->transaction->kode_transaksi ?? 'N/A' }}</code>
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($shipping->resi)
+                                <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->resi }}</code>
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            @if($shipping->status == 'delivered')
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Delivered</span>
+                            @elseif($shipping->status == 'failed')
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">Failed</span>
+                            @elseif($shipping->status == 'in_transit')
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">In Transit</span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Pending</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $shipping->service ?? 'N/A' }}</td>
+                        <td class="px-4 py-3">
+                            @if($shipping->cost)
+                                <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($shipping->cost, 0, ',', '.') }}</span>
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
+                            <p class="text-gray-900 dark:text-white">{{ $shipping->created_at->format('d M Y') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $shipping->created_at->format('H:i:s') }}</p>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('admin.shipping.show', $shipping->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-xs font-medium">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                @if($shipping->resi)
+                                    <button @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))" class="inline-flex items-center gap-1 px-3 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors text-xs font-medium">
+                                        <i class="fas fa-map-marker-alt"></i> Track
+                                    </button>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="10" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <i class="fas fa-truck text-4xl text-gray-400 dark:text-gray-500 mb-3"></i>
+                                <p class="text-gray-500 dark:text-gray-400 font-medium">No shipping data found</p>
+                                <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Try adjusting your filters or search criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- Shipping Cards (Mobile) --}}
+    <div class="md:hidden space-y-3">
+        @forelse($shippingInvoices as $shipping)
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-start justify-between mb-3">
+                <div>
+                    <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->kode }}</code>
+                    @if($shipping->status == 'delivered')
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ml-2">Delivered</span>
+                    @elseif($shipping->status == 'failed')
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ml-2">Failed</span>
+                    @elseif($shipping->status == 'in_transit')
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 ml-2">In Transit</span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ml-2">Pending</span>
+                    @endif
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $shipping->created_at->format('d M Y') }}</span>
+            </div>
+            <div class="space-y-1 text-sm">
+                <p class="text-gray-900 dark:text-white font-medium">{{ $shipping->vendor->name ?? 'N/A' }}</p>
+                <p class="text-gray-500 dark:text-gray-400">Resi: <code class="text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ $shipping->resi ?? '-' }}</code></p>
+                <p class="text-gray-500 dark:text-gray-400">Cost: <span class="font-medium text-gray-900 dark:text-white">{{ $shipping->cost ? 'Rp ' . number_format($shipping->cost, 0, ',', '.') : '-' }}</span></p>
+            </div>
+            <div class="flex gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <a href="{{ route('admin.shipping.show', $shipping->id) }}" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-medium">
+                    <i class="fas fa-eye"></i> View
+                </a>
+                @if($shipping->resi)
+                    <button @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400 rounded-lg text-xs font-medium">
+                        <i class="fas fa-map-marker-alt"></i> Track
+                    </button>
+                @endif
+            </div>
+        </div>
+        @empty
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+            <i class="fas fa-truck text-4xl text-gray-400 dark:text-gray-500 mb-3"></i>
+            <p class="text-gray-500 dark:text-gray-400 font-medium">No shipping data found</p>
+        </div>
+        @endforelse
+    </div>
+
+    {{-- Pagination --}}
+    <div class="flex justify-center">
+        {{ $shippingInvoices->links() }}
+    </div>
+
+    {{-- Tracking Modal --}}
+    <div x-show="showTrackModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="fixed inset-0 bg-black/50" @click="showTrackModal = false"></div>
+        <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6" @click.away="showTrackModal = false">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tracking Result</h3>
+                <button @click="showTrackModal = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                <pre class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap overflow-x-auto" x-text="JSON.stringify(tracking, null, 2)"></pre>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

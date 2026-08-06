@@ -2,149 +2,105 @@
 
 @section('title', 'Edit Vendor')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <form action="{{ route('admin.vendors.update', $vendor->id) }}" method="POST" class="card"
-                    onsubmit="showLoading('Updating vendor...')" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="card-header">
-                        <h3 class="card-title">Edit Vendor</h3>
+    <div class="max-w-3xl mx-auto">
+        <form action="{{ route('admin.vendors.update', $vendor->id) }}" method="POST" class="space-y-6" data-loading enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+
+            {{-- Company Information --}}
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Company Information</h3>
+                </div>
+                <div class="p-4 grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Company Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" value="{{ old('name', $vendor->name ?? '') }}" placeholder="Enter company name"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('name') border-red-500 @enderror">
+                        @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
-                    <div class="card-body">
-                        <!-- Company Information Section -->
-                        <h4>Company Information</h4>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label required">Company Name</label>
-                                    <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        name="name" value="{{ old('name', $vendor->name ?? '') }}"
-                                        placeholder="Enter company name">
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label required">Email</label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                        name="email" value="{{ old('email', $vendor->email) }}"
-                                        placeholder="Enter company email">
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label required">Phone</label>
-                                    <input type="text" class="form-control @error('phone') is-invalid @enderror"
-                                        name="phone" value="{{ old('phone', $vendor->phone) }}"
-                                        placeholder="Enter company phone">
-                                    @error('phone')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label required">Address</label>
-                                    <textarea class="form-control @error('address') is-invalid @enderror" name="address" rows="5"
-                                        placeholder="Enter company address">{{ old('address', $vendor->address) }}</textarea>
-                                    @error('address')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Website</label>
-                                    <input type="text" class="form-control @error('website') is-invalid @enderror"
-                                        name="website" value="{{ old('website', $vendor->website) }}"
-                                        placeholder="Enter company website">
-                                    @error('website')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" name="is_active" value="1"
-                                            {{ old('is_active', $vendor->is_active) ? 'checked' : '' }}>
-                                        <span class="form-check-label">Active</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Company Logo</label>
-                            @if ($vendor->logo)
-                                <div class="mb-2">
-                                    <img src="{{ asset('vendors_logo/' . $vendor->logo) }}" alt="{{ $vendor->name }} Logo"
-                                        class="img-fluid" style="max-height: 100px;">
-                                </div>
-                            @endif
-                            <input type="file" class="form-control @error('logo') is-invalid @enderror" name="logo"
-                                accept="image/png,image/jpeg,image/jpg">
-                            <small class="form-hint">Only PNG, JPG, and JPEG files are allowed. Maximum size: 2MB. Leave
-                                empty to keep current logo.</small>
-                            @error('logo')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <hr class="my-4">
-
-                        <!-- Account Manager Section -->
-                        <h4>Account Manager</h4>
-                        @if ($users)
-                            <div class="mb-3">
-                                <label class="form-label required">Associated User</label>
-                                <input type="text" class="form-control" value="{{ $users->name }} ({{ $users->email }})"
-                                    readonly>
-                                <input type="hidden" name="user_id" value="{{ $users->id }}">
-                                <small class="form-hint">The user who manages this vendor account</small>
-                            </div>
-                        @else
-                            <div class="alert alert-warning">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M12 9v4"></path>
-                                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
-                                    <path d="M12 16h.01"></path>
-                                </svg>
-                                No user account is associated with this vendor. Please create a user first.
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" value="{{ old('email', $vendor->email) }}" placeholder="Enter company email"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('email') border-red-500 @enderror">
+                        @error('email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Phone <span class="text-red-500">*</span></label>
+                        <input type="text" name="phone" value="{{ old('phone', $vendor->phone) }}" placeholder="Enter company phone"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('phone') border-red-500 @enderror">
+                        @error('phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                        <input type="text" name="website" value="{{ old('website', $vendor->website) }}" placeholder="Enter company website"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('website') border-red-500 @enderror">
+                        @error('website') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
+                        <textarea name="address" rows="3" placeholder="Enter company address"
+                                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('address') border-red-500 @enderror">{{ old('address', $vendor->address) }}</textarea>
+                        @error('address') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Company Logo</label>
+                        @if ($vendor->logo)
+                            <div class="mb-2">
+                                <img src="{{ asset('vendors_logo/' . $vendor->logo) }}" alt="{{ $vendor->name }} Logo" class="h-20 rounded-lg object-cover">
                             </div>
                         @endif
+                        <input type="file" name="logo" accept="image/png,image/jpeg,image/jpg"
+                               class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors @error('logo') border-red-500 @enderror">
+                        <p class="mt-1 text-xs text-gray-500">Only PNG, JPG, and JPEG. Max 2MB. Leave empty to keep current logo.</p>
+                        @error('logo') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
-                    <div class="card-footer text-end">
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path>
-                                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-                                <path d="M14 4l0 4l-6 0l0 -4"></path>
-                            </svg>
-                            Update
-                        </button>
-
-                        <a href="{{ route('admin.vendors.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M18 6l-12 12"></path>
-                                <path d="M6 6l12 12"></path>
-                            </svg>
-                            Cancel
-                        </a>
+                    <div class="sm:col-span-2">
+                        <div class="flex items-center gap-3">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $vendor->is_active) ? 'checked' : '' }} class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                            </label>
+                            <span class="text-sm font-medium text-gray-700">Active</span>
+                        </div>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+
+            {{-- Account Manager --}}
+            <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Account Manager</h3>
+                </div>
+                <div class="p-4">
+                    @if ($users)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Associated User <span class="text-red-500">*</span></label>
+                            <input type="text" value="{{ $users->name }} ({{ $users->email }})" readonly
+                                   class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-500 bg-gray-50 cursor-not-allowed">
+                            <input type="hidden" name="user_id" value="{{ $users->id }}">
+                            <p class="mt-1 text-xs text-gray-500">The user who manages this vendor account</p>
+                        </div>
+                    @else
+                        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                                <p class="text-sm text-amber-800">No user account is associated with this vendor. Please create a user first.</p>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Actions --}}
+            <div class="flex items-center justify-end gap-3">
+                <a href="{{ route('admin.vendors.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-times mr-1"></i> Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-save mr-1"></i> Update
+                </button>
+            </div>
+        </form>
     </div>
 @endsection

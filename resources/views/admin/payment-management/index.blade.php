@@ -1,236 +1,187 @@
 @extends('dev.layouts.app')
 
 @section('content')
-    <div class="page-header d-print-none">
-        <div class="container-xl">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div class="page-pretitle">
-                        Manajemen
-                    </div>
-                    <h2 class="page-title">
-                        Payment Management
-                    </h2>
-                </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <button type="button" class="btn btn-outline-primary" onclick="bulkCheckStatus()">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                                <path d="M12 7v5l3 3" />
-                            </svg>
-                            Bulk Check Status
-                        </button>
-                    </div>
-                </div>
+    <div class="mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Manajemen</p>
+                <h1 class="text-2xl font-bold text-gray-900">Payment Management</h1>
             </div>
+            <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="bulkCheckStatus()">
+                <i class="fas fa-sync-alt mr-2"></i> Bulk Check Status
+            </button>
         </div>
     </div>
 
-    <div class="page-body">
-        <div class="container-xl">
-            <!-- Statistics Cards -->
-            <div class="row row-deck row-cards mb-4">
-                <div class="col-sm-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Pending Payments</div>
-                            </div>
-                            <div class="h1 mb-3">{{ $stats['pending_payments'] }}</div>
-                            <div class="d-flex mb-2">
-                                <div>Total Amount: Rp {{ number_format($stats['total_amount_pending'], 0, ',', '.') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Paid Payments</div>
-                            </div>
-                            <div class="h1 mb-3">{{ $stats['paid_payments'] }}</div>
-                            <div class="d-flex mb-2">
-                                <div>Total Amount: Rp {{ number_format($stats['total_amount_paid'], 0, ',', '.') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Failed Payments</div>
-                            </div>
-                            <div class="h1 mb-3">{{ $stats['failed_payments'] }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-lg-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Stuck Payments</div>
-                            </div>
-                            <div class="h1 mb-3">{{ $stats['stuck_payments'] }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stuck Payments -->
-            @if ($stuckPayments->count() > 0)
-                <div class="row row-deck row-cards mb-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Stuck Payments (24+ hours)</h3>
-                                <div class="card-actions">
-                                    <span class="badge bg-warning">{{ $stuckPayments->count() }} payments</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter">
-                                        <thead>
-                                            <tr>
-                                                <th>Auction ID</th>
-                                                <th>User</th>
-                                                <th>Vendor</th>
-                                                <th>Amount</th>
-                                                <th>Created</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($stuckPayments as $auction)
-                                                <tr>
-                                                    <td>
-                                                        <a href="{{ route('admin.auctions.show', $auction) }}"
-                                                            class="text-decoration-none">
-                                                            #{{ $auction->id }}
-                                                        </a>
-                                                    </td>
-                                                    <td>{{ $auction->user->name ?? 'N/A' }}</td>
-                                                    <td>{{ $auction->winnerVendor->name ?? 'N/A' }}</td>
-                                                    <td>Rp {{ number_format($auction->winning_bid, 0, ',', '.') }}</td>
-                                                    <td>{{ $auction->created_at->diffForHumans() }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary"
-                                                            onclick="createNewPaymentLink({{ $auction->id }})">
-                                                            Create New Link
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Expired Payments -->
-            @if ($expiredPayments->count() > 0)
-                <div class="row row-deck row-cards mb-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Expired Payments</h3>
-                                <div class="card-actions">
-                                    <span class="badge bg-danger">{{ $expiredPayments->count() }} payments</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter">
-                                        <thead>
-                                            <tr>
-                                                <th>Payment ID</th>
-                                                <th>User</th>
-                                                <th>Amount</th>
-                                                <th>Expired At</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($expiredPayments as $payment)
-                                                <tr>
-                                                    <td>#{{ $payment->id }}</td>
-                                                    <td>{{ $payment->auction->user->name ?? 'N/A' }}</td>
-                                                    <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
-                                                    <td>{{ $payment->expires_at->diffForHumans() }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-outline-info"
-                                                            onclick="checkPaymentStatus({{ $payment->id }})">
-                                                            Check Status
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Failed Payments -->
-            @if ($failedPayments->count() > 0)
-                <div class="row row-deck row-cards">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Failed Payments</h3>
-                                <div class="card-actions">
-                                    <span class="badge bg-danger">{{ $failedPayments->count() }} payments</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter">
-                                        <thead>
-                                            <tr>
-                                                <th>Payment ID</th>
-                                                <th>User</th>
-                                                <th>Amount</th>
-                                                <th>Failed At</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($failedPayments as $payment)
-                                                <tr>
-                                                    <td>#{{ $payment->id }}</td>
-                                                    <td>{{ $payment->auction->user->name ?? 'N/A' }}</td>
-                                                    <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
-                                                    <td>{{ $payment->updated_at->diffForHumans() }}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-sm btn-outline-info"
-                                                            onclick="checkPaymentStatus({{ $payment->id }})">
-                                                            Check Status
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endif
+    {{-- Statistics Cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <p class="text-sm font-medium text-gray-500">Pending Payments</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['pending_payments'] }}</p>
+            <p class="text-xs text-gray-500 mt-1">Total: Rp {{ number_format($stats['total_amount_pending'], 0, ',', '.') }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <p class="text-sm font-medium text-gray-500">Paid Payments</p>
+            <p class="text-3xl font-bold text-green-600 mt-2">{{ $stats['paid_payments'] }}</p>
+            <p class="text-xs text-gray-500 mt-1">Total: Rp {{ number_format($stats['total_amount_paid'], 0, ',', '.') }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <p class="text-sm font-medium text-gray-500">Failed Payments</p>
+            <p class="text-3xl font-bold text-red-600 mt-2">{{ $stats['failed_payments'] }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <p class="text-sm font-medium text-gray-500">Stuck Payments</p>
+            <p class="text-3xl font-bold text-amber-600 mt-2">{{ $stats['stuck_payments'] }}</p>
         </div>
     </div>
+
+    {{-- Stuck Payments --}}
+    @if ($stuckPayments->count() > 0)
+    <div class="bg-white rounded-xl shadow-sm mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Stuck Payments (24+ hours)</h3>
+                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-800">{{ $stuckPayments->count() }} payments</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auction ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($stuckPayments as $auction)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{{ route('admin.auctions.show', $auction) }}" class="text-sm font-medium text-blue-600 hover:text-blue-800">#{{ $auction->id }}</a>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">{{ $auction->user->name ?? 'N/A' }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">{{ $auction->winnerVendor->name ?? 'N/A' }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">Rp {{ number_format($auction->winning_bid, 0, ',', '.') }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-500">{{ $auction->created_at->diffForHumans() }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <button type="button" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="createNewPaymentLink({{ $auction->id }})">
+                                Create New Link
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
+    {{-- Expired Payments --}}
+    @if ($expiredPayments->count() > 0)
+    <div class="bg-white rounded-xl shadow-sm mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Expired Payments</h3>
+                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">{{ $expiredPayments->count() }} payments</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expired At</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($expiredPayments as $payment)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">#{{ $payment->id }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">{{ $payment->auction->user->name ?? 'N/A' }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-500">{{ $payment->expires_at->diffForHumans() }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <button type="button" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="checkPaymentStatus({{ $payment->id }})">
+                                Check Status
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
+
+    {{-- Failed Payments --}}
+    @if ($failedPayments->count() > 0)
+    <div class="bg-white rounded-xl shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Failed Payments</h3>
+                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">{{ $failedPayments->count() }} payments</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Failed At</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($failedPayments as $payment)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">#{{ $payment->id }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">{{ $payment->auction->user->name ?? 'N/A' }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-sm text-gray-500">{{ $payment->updated_at->diffForHumans() }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <button type="button" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="checkPaymentStatus({{ $payment->id }})">
+                                Check Status
+                            </button>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 @endsection
 
 @push('scripts')
@@ -283,7 +234,6 @@
 
         function bulkCheckStatus() {
             if (confirm('This will check the status of all pending payments. Continue?')) {
-                // Implementation for bulk check
                 alert('Bulk check functionality will be implemented');
             }
         }

@@ -3,290 +3,218 @@
 @section('title', 'Edit Lelang')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h3 mb-1">Edit Lelang</h2>
-                    <p class="text-muted">Edit data lelang {{ $auction->title }}</p>
+    {{-- Page Header --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Lelang</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Edit data lelang {{ $auction->title }}</p>
+        </div>
+        <a href="{{ route('admin.auctions.show', $auction) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-arrow-left"></i>
+            Kembali ke Detail
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Form --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Form Edit Lelang</h2>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.auctions.show', $auction) }}" class="btn btn-outline-secondary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M9 6l6 6l-6 6" />
-                        </svg>
-                        Kembali ke Detail
-                    </a>
+                <form action="{{ route('admin.auctions.update', $auction) }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+                    @csrf
+                    @method('PUT')
+
+                    {{-- Title --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Judul Lelang <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" value="{{ old('title', $auction->title) }}" required
+                               class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                               @error('title') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+                        @error('title')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {{-- Category --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Kategori <span class="text-red-500">*</span></label>
+                            <select name="category" required
+                                    class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                                    @error('category') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+                                <option value="">Pilih Kategori</option>
+                                @foreach(['Stiker', 'Banner', 'Flyer', 'Brochure', 'Poster', 'Kartu Nama', 'Undangan', 'Buku', 'Lainnya'] as $cat)
+                                    <option value="{{ $cat }}" {{ old('category', $auction->category) === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                                @endforeach
+                            </select>
+                            @error('category')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Quantity --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Jumlah Produksi <span class="text-red-500">*</span></label>
+                            <input type="number" name="quantity" value="{{ old('quantity', $auction->quantity) }}" min="1" required
+                                   class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                                   @error('quantity') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+                            @error('quantity')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Budget --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Budget Maksimal (Rp) <span class="text-red-500">*</span></label>
+                            <input type="number" name="budget" value="{{ old('budget', $auction->budget) }}" min="0" step="1000" required
+                                   class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                                   @error('budget') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+                            @error('budget')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Deadline --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Deadline <span class="text-red-500">*</span></label>
+                            <input type="date" name="deadline" value="{{ old('deadline', $auction->deadline->format('Y-m-d')) }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}" required
+                                   class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                                   @error('deadline') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+                            @error('deadline')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Description --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Deskripsi <span class="text-red-500">*</span></label>
+                        <textarea name="description" rows="4" required
+                                  class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                                  @error('description') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">{{ old('description', $auction->description) }}</textarea>
+                        @error('description')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- Specifications --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Spesifikasi <span class="text-red-500">*</span></label>
+                        <textarea name="specifications" rows="4" required
+                                  class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 dark:focus:ring-primary-400 dark:focus:border-primary-400
+                                  @error('specifications') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">{{ old('specifications', $auction->specifications) }}</textarea>
+                        @error('specifications')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    {{-- File Upload --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">File Pendukung</label>
+                        <input type="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                               class="w-full px-3 py-2 text-sm border rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white file:mr-3 file:py-1.5 file:px-3 file:text-sm file:font-medium file:rounded-lg file:border-0 file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/30 dark:file:text-primary-300 dark:file:hover:bg-primary-900/50
+                               @error('file') border-red-500 dark:border-red-500 @else border-gray-300 dark:border-gray-600 @enderror">
+                        @error('file')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Format: PDF, DOC, DOCX, JPG, JPEG, PNG (Maksimal 10MB)</p>
+                        @if($auction->file_path)
+                            <div class="mt-2">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">File saat ini:</p>
+                                <a href="{{ asset('storage/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
+                                    <i class="fas fa-file-alt"></i>
+                                    Lihat File
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Submit --}}
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors" data-loading>
+                            <i class="fas fa-check"></i>
+                            Simpan Perubahan
+                        </button>
+                        <a href="{{ route('admin.auctions.show', $auction) }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
+                            Batal
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Sidebar --}}
+        <div class="space-y-6">
+            {{-- Auction Info --}}
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Informasi Lelang</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">ID Lelang</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">#{{ $auction->id }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Status Saat Ini</p>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1
+                            @if($auction->status === 'pending') bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300
+                            @elseif($auction->status === 'active') bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300
+                            @elseif($auction->status === 'closed') bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300
+                            @elseif($auction->status === 'rejected') bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300
+                            @else bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
+                            {{ ucfirst($auction->status) }}
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Dibuat Oleh</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $auction->user->name }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">{{ $auction->user->email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Dibuat</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $auction->created_at->format('d M Y H:i') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Terakhir Update</p>
+                        <p class="text-sm font-bold text-gray-900 dark:text-white">{{ $auction->updated_at->format('d M Y H:i') }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Total Penawaran</p>
+                        <p class="text-sm font-bold text-primary-600 dark:text-primary-400">{{ $auction->bids->count() }}</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Form Edit Lelang</h3>
-                        </div>
-                        <div class="card-body">
-                            <form action="{{ route('admin.auctions.update', $auction) }}" method="POST"
-                                enctype="multipart/form-data" data-loading>
-                                @csrf
-                                @method('PUT')
-
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label class="form-label">Judul Lelang <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control @error('title') is-invalid @enderror"
-                                            name="title" value="{{ old('title', $auction->title) }}" required>
-                                        @error('title')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Kategori <span class="text-danger">*</span></label>
-                                        <select class="form-select @error('category') is-invalid @enderror" name="category"
-                                            required>
-                                            <option value="">Pilih Kategori</option>
-                                            <option value="Stiker"
-                                                {{ old('category', $auction->category) === 'Stiker' ? 'selected' : '' }}>
-                                                Stiker</option>
-                                            <option value="Banner"
-                                                {{ old('category', $auction->category) === 'Banner' ? 'selected' : '' }}>
-                                                Banner</option>
-                                            <option value="Flyer"
-                                                {{ old('category', $auction->category) === 'Flyer' ? 'selected' : '' }}>
-                                                Flyer</option>
-                                            <option value="Brochure"
-                                                {{ old('category', $auction->category) === 'Brochure' ? 'selected' : '' }}>
-                                                Brochure</option>
-                                            <option value="Poster"
-                                                {{ old('category', $auction->category) === 'Poster' ? 'selected' : '' }}>
-                                                Poster</option>
-                                            <option value="Kartu Nama"
-                                                {{ old('category', $auction->category) === 'Kartu Nama' ? 'selected' : '' }}>
-                                                Kartu Nama</option>
-                                            <option value="Undangan"
-                                                {{ old('category', $auction->category) === 'Undangan' ? 'selected' : '' }}>
-                                                Undangan</option>
-                                            <option value="Buku"
-                                                {{ old('category', $auction->category) === 'Buku' ? 'selected' : '' }}>Buku
-                                            </option>
-                                            <option value="Lainnya"
-                                                {{ old('category', $auction->category) === 'Lainnya' ? 'selected' : '' }}>
-                                                Lainnya</option>
-                                        </select>
-                                        @error('category')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Jumlah Produksi <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control @error('quantity') is-invalid @enderror"
-                                            name="quantity" value="{{ old('quantity', $auction->quantity) }}"
-                                            min="1" required>
-                                        @error('quantity')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Budget Maksimal (Rp) <span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control @error('budget') is-invalid @enderror"
-                                            name="budget" value="{{ old('budget', $auction->budget) }}" min="0"
-                                            step="1000" required>
-                                        @error('budget')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="form-label">Deadline <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control @error('deadline') is-invalid @enderror"
-                                            name="deadline"
-                                            value="{{ old('deadline', $auction->deadline->format('Y-m-d')) }}"
-                                            min="{{ date('Y-m-d', strtotime('+1 day')) }}" required>
-                                        @error('deadline')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Deskripsi <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="4" required>{{ old('description', $auction->description) }}</textarea>
-                                        @error('description')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Spesifikasi <span class="text-danger">*</span></label>
-                                        <textarea class="form-control @error('specifications') is-invalid @enderror" name="specifications" rows="4"
-                                            required>{{ old('specifications', $auction->specifications) }}</textarea>
-                                        @error('specifications')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">File Pendukung</label>
-                                        <input type="file" class="form-control @error('file') is-invalid @enderror"
-                                            name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                        @error('file')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <div class="form-text">
-                                            Format yang diperbolehkan: PDF, DOC, DOCX, JPG, JPEG, PNG (Maksimal 10MB)
-                                        </div>
-                                        @if ($auction->file_path)
-                                            <div class="mt-2">
-                                                <div class="text-muted small">File saat ini:</div>
-                                                <a href="{{ asset('storage/' . $auction->file_path) }}" target="_blank"
-                                                    class="btn btn-sm btn-outline-primary">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                                        height="16" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                                        <path
-                                                            d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                                        <path d="M9 9l1 1l3 -3" />
-                                                    </svg>
-                                                    Lihat File
-                                                </a>
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="mt-4">
-                                    <button type="submit" class="btn btn-primary" data-loading>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M5 12l5 5l10 -10" />
-                                        </svg>
-                                        Simpan Perubahan
-                                    </button>
-                                    <a href="{{ route('admin.auctions.show', $auction) }}"
-                                        class="btn btn-outline-secondary ms-2">
-                                        Batal
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+            {{-- Quick Actions --}}
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Aksi Cepat</h3>
                 </div>
-
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Informasi Lelang</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="text-muted small">ID Lelang</div>
-                                    <div class="fw-bold">#{{ $auction->id }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="text-muted small">Status Saat Ini</div>
-                                    <div>
-                                        <span
-                                            class="badge 
-                                            @if ($auction->status === 'pending') bg-warning
-                                            @elseif($auction->status === 'active') bg-success
-                                            @elseif($auction->status === 'closed') bg-info
-                                            @elseif($auction->status === 'rejected') bg-danger
-                                            @else bg-secondary @endif fs-6">
-                                            {{ ucfirst($auction->status) }}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="text-muted small">Dibuat Oleh</div>
-                                    <div class="fw-bold">{{ $auction->user->name }}</div>
-                                    <div class="text-muted small">{{ $auction->user->email }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="text-muted small">Dibuat</div>
-                                    <div class="fw-bold">{{ $auction->created_at->format('d M Y H:i') }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="text-muted small">Terakhir Update</div>
-                                    <div class="fw-bold">{{ $auction->updated_at->format('d M Y H:i') }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="text-muted small">Total Penawaran</div>
-                                    <div class="fw-bold text-primary">{{ $auction->bids->count() }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Aksi Cepat</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{{ route('admin.auctions.show', $auction) }}" class="btn btn-outline-primary">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                        <path
-                                            d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                    </svg>
-                                    Lihat Detail
-                                </a>
-
-                                @if ($auction->status === 'active')
-                                    <form action="{{ route('admin.auctions.close', $auction) }}" method="POST"
-                                        onsubmit="return confirm('Tutup lelang ini?')">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning w-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                                height="16" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M18 6l-12 12" />
-                                                <path d="M6 6l12 12" />
-                                            </svg>
-                                            Tutup Lelang
-                                        </button>
-                                    </form>
-                                @endif
-
-                                <form action="{{ route('admin.auctions.destroy', $auction) }}" method="POST"
-                                    onsubmit="return confirm('Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger w-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16"
-                                            height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M4 7l16 0" />
-                                            <path d="M10 11l0 6" />
-                                            <path d="M14 11l0 6" />
-                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                        </svg>
-                                        Hapus Lelang
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                <div class="px-6 py-4 space-y-3">
+                    <a href="{{ route('admin.auctions.show', $auction) }}" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
+                        <i class="fas fa-eye"></i>
+                        Lihat Detail
+                    </a>
+                    @if($auction->status === 'active')
+                        <form action="{{ route('admin.auctions.close', $auction) }}" method="POST" x-data>
+                            @csrf
+                            <button type="submit" @click="return confirm('Tutup lelang ini?')" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 dark:text-amber-300 dark:bg-amber-900/30 dark:border-amber-700 dark:hover:bg-amber-900/50 transition-colors">
+                                <i class="fas fa-times-circle"></i>
+                                Tutup Lelang
+                            </button>
+                        </form>
+                    @endif
+                    <form action="{{ route('admin.auctions.destroy', $auction) }}" method="POST" x-data>
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" @click="return confirm('Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!')" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 dark:text-red-300 dark:bg-red-900/30 dark:border-red-700 dark:hover:bg-red-900/50 transition-colors">
+                            <i class="fas fa-trash"></i>
+                            Hapus Lelang
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

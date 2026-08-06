@@ -3,95 +3,84 @@
 @section('title', 'Opsi Pembayaran - ' . $transaksi->kode)
 
 @section('content')
-    <div class="container-xl">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="mb-0">💳 Pilih Metode Pembayaran</h3>
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            {{-- Header --}}
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-credit-card mr-2 text-primary"></i>Pilih Metode Pembayaran
+                </h3>
+            </div>
+
+            <div class="p-6">
+                {{-- Transaction Summary --}}
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h5 class="font-semibold text-blue-800 mb-3">
+                        <i class="fas fa-receipt mr-1"></i>Ringkasan Transaksi
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p><span class="text-gray-600">Faktur:</span> <span class="font-medium">{{ $transaksi->kode }}</span></p>
+                            <p><span class="text-gray-600">Pelanggan:</span> <span class="font-medium">{{ $transaksi->pelanggan->nama }}</span></p>
+                        </div>
+                        <div>
+                            <p><span class="text-gray-600">Total:</span> <span class="font-bold text-primary">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span></p>
+                            <p><span class="text-gray-600">Item:</span> <span class="font-medium">{{ $transaksi->transaksiItems->count() }} item</span></p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <!-- Transaction Summary -->
-                        <div class="alert alert-info">
-                            <h5>Ringkasan Transaksi</h5>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Faktur:</strong> {{ $transaksi->kode }}</p>
-                                    <p><strong>Pelanggan:</strong> {{ $transaksi->pelanggan->nama }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Total:</strong> Rp
-                                        {{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-                                    <p><strong>Item:</strong> {{ $transaksi->transaksiItems->count() }} item</p>
-                                </div>
-                            </div>
-                        </div>
+                </div>
 
-                        <!-- Payment Methods -->
-                        <div class="row">
-                            <!-- Cash Payment -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100 border-primary">
-                                    <div class="card-body text-center">
-                                        <div class="mb-3">
-                                            <svg class="text-primary" width="48" height="48" fill="currentColor"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M0 3a2 2 0 0 1 2-2h13a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H2a1 1 0 0 0 0 2h11a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-2V3zm0 4a2 2 0 0 1 2-2h11a.5.5 0 0 1 0 1H2a1 1 0 0 0 0 2h11a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-2V7zm0 4a2 2 0 0 1 2-2h11a.5.5 0 0 1 0 1H2a1 1 0 0 0 0 2h11a.5.5 0 0 1 0 1H2a2 2 0 0 1-2-2v-1z" />
-                                            </svg>
-                                        </div>
-                                        <h5 class="card-title">Pembayaran Tunai</h5>
-                                        <p class="card-text">Proses pembayaran dengan uang tunai</p>
-                                        <ul class="list-unstyled text-start">
-                                            <li>✅ Konfirmasi instan</li>
-                                            <li>✅ Tanpa biaya admin</li>
-                                            <li>✅ Struk langsung</li>
-                                            <li>✅ Tanpa internet</li>
-                                        </ul>
-                                        <a href="{{ route('vendor.pos.payment.cash', $transaksi->id) }}"
-                                            class="btn btn-primary">
-                                            💵 Proses Pembayaran Tunai
-                                        </a>
-                                    </div>
-                                </div>
+                {{-- Payment Methods --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    {{-- Cash Payment --}}
+                    <div class="border border-primary/20 rounded-xl p-6 hover:shadow-md transition-shadow">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-money-bill-wave text-primary text-2xl"></i>
                             </div>
-
-                            <!-- Online Payment -->
-                            <div class="col-md-6 mb-4">
-                                <div class="card h-100 border-success">
-                                    <div class="card-body text-center">
-                                        <div class="mb-3">
-                                            <svg class="text-success" width="48" height="48" fill="currentColor"
-                                                viewBox="0 0 16 16">
-                                                <path
-                                                    d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2.5 0a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.5-.5h-11zm1 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1zm0 2a.5.5 0 0 0 0 1h1a.5.5 0 0 0 0-1h-1z" />
-                                            </svg>
-                                        </div>
-                                        <h5 class="card-title">Pembayaran Online</h5>
-                                        <p class="card-text">Proses pembayaran via Xendit (Transfer/QRIS)</p>
-                                        <ul class="list-unstyled text-start">
-                                            <li>💳 Transfer Bank (VA)</li>
-                                            <li>📱 E-Wallet (OVO, DANA, dll.)</li>
-                                            <li>🏪 Toko Retail</li>
-                                            <li>🔒 Aman & Terverifikasi</li>
-                                        </ul>
-                                        <a href="{{ route('vendor.pos.payment.online', $transaksi->id) }}"
-                                            class="btn btn-success">
-                                            🌐 Proses Pembayaran Online
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Back Button -->
-                        <div class="text-center mt-4">
-                            <a href="{{ route('vendor.pos.invoice.show', $transaksi->id) }}"
-                                class="btn btn-outline-secondary">
-                                ← Kembali ke Faktur
+                            <h5 class="font-semibold text-gray-800 mb-2">Pembayaran Tunai</h5>
+                            <p class="text-sm text-gray-600 mb-4">Proses pembayaran dengan uang tunai</p>
+                            <ul class="text-sm text-left space-y-1 mb-4">
+                                <li class="text-green-600"><i class="fas fa-check mr-1"></i>Konfirmasi instan</li>
+                                <li class="text-green-600"><i class="fas fa-check mr-1"></i>Tanpa biaya admin</li>
+                                <li class="text-green-600"><i class="fas fa-check mr-1"></i>Struk langsung</li>
+                                <li class="text-green-600"><i class="fas fa-check mr-1"></i>Tanpa internet</li>
+                            </ul>
+                            <a href="{{ route('vendor.pos.payment.cash', $transaksi->id) }}"
+                                class="w-full inline-flex items-center justify-center px-4 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                                <i class="fas fa-money-bill-wave mr-2"></i>Proses Pembayaran Tunai
                             </a>
                         </div>
                     </div>
+
+                    {{-- Online Payment --}}
+                    <div class="border border-success/20 rounded-xl p-6 hover:shadow-md transition-shadow">
+                        <div class="text-center">
+                            <div class="w-16 h-16 mx-auto bg-success/10 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-globe text-success text-2xl"></i>
+                            </div>
+                            <h5 class="font-semibold text-gray-800 mb-2">Pembayaran Online</h5>
+                            <p class="text-sm text-gray-600 mb-4">Proses pembayaran via Xendit (Transfer/QRIS)</p>
+                            <ul class="text-sm text-left space-y-1 mb-4">
+                                <li class="text-blue-600"><i class="fas fa-university mr-1"></i>Transfer Bank (VA)</li>
+                                <li class="text-blue-600"><i class="fas fa-mobile-alt mr-1"></i>E-Wallet (OVO, DANA, dll.)</li>
+                                <li class="text-blue-600"><i class="fas fa-store mr-1"></i>Toko Retail</li>
+                                <li class="text-blue-600"><i class="fas fa-shield-alt mr-1"></i>Aman & Terverifikasi</li>
+                            </ul>
+                            <a href="{{ route('vendor.pos.payment.online', $transaksi->id) }}"
+                                class="w-full inline-flex items-center justify-center px-4 py-3 bg-success text-white rounded-lg font-medium hover:bg-success/90 transition-colors">
+                                <i class="fas fa-globe mr-2"></i>Proses Pembayaran Online
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Back Button --}}
+                <div class="text-center">
+                    <a href="{{ route('vendor.pos.invoice.show', $transaksi->id) }}"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali ke Faktur
+                    </a>
                 </div>
             </div>
         </div>

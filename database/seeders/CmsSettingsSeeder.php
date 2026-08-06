@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\CmsSetting;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class CmsSettingsSeeder extends Seeder
 {
@@ -43,9 +43,7 @@ class CmsSettingsSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            $setting['created_at'] = now();
-            $setting['updated_at'] = now();
-            DB::table('cms_settings')->updateOrCreate(
+            CmsSetting::updateOrCreate(
                 ['key' => $setting['key']],
                 $setting
             );

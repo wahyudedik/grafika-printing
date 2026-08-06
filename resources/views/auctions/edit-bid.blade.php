@@ -3,179 +3,144 @@
 @section('title', 'Edit Penawaran')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h3 mb-1">Edit Penawaran</h2>
-                    <p class="text-muted">Perbarui penawaran Anda untuk lelang ini</p>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Edit Penawaran</h2>
+            <p class="text-sm text-gray-500 mt-1">Perbarui penawaran Anda untuk lelang ini</p>
+        </div>
+        <a href="{{ route('vendor.auctions.show', $bid->auction) }}"
+            class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Form Edit Penawaran</h3>
                 </div>
-                <a href="{{ route('vendor.auctions.show', $bid->auction) }}" class="btn btn-outline-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M9 6l6 6l-6 6" />
-                    </svg>
-                    Kembali
-                </a>
+                <div class="p-6">
+                    <form action="{{ route('vendor.auctions.update-bid', $bid) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Harga Penawaran <span class="text-red-500">*</span></label>
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-lg">Rp</span>
+                                    <input type="number"
+                                        class="flex-1 px-3 py-2.5 border border-gray-300 rounded-r-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('bid_amount') border-red-500 @enderror"
+                                        name="bid_amount" value="{{ old('bid_amount', $bid->bid_amount) }}"
+                                        placeholder="Masukkan harga penawaran" min="0" step="1000" required>
+                                </div>
+                                @error('bid_amount')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1 text-xs text-gray-500">Budget maksimal: <strong>Rp {{ number_format($bid->auction->budget) }}</strong></p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pesan (Opsional)</label>
+                                <textarea name="message" rows="4"
+                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('message') border-red-500 @enderror"
+                                    placeholder="Tambahkan pesan atau catatan untuk pemilik lelang...">{{ old('message', $bid->message) }}</textarea>
+                                @error('message')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1 text-xs text-gray-500">Maksimal 1000 karakter</p>
+                            </div>
+
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <div class="flex items-start gap-3">
+                                    <i class="fas fa-exclamation-triangle text-amber-500 mt-0.5"></i>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-amber-800">Perhatian!</h4>
+                                        <ul class="mt-1 text-sm text-amber-700 list-disc list-inside">
+                                            <li>Mengubah penawaran akan memperbarui waktu penawaran</li>
+                                            <li>Pastikan harga yang Anda berikan sudah termasuk semua biaya produksi</li>
+                                            <li>Penawaran dapat diedit selama lelang masih aktif</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 mt-6">
+                            <button type="submit"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors">
+                                <i class="fas fa-save"></i> Update Penawaran
+                            </button>
+                            <a href="{{ route('vendor.auctions.show', $bid->auction) }}"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                Batal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Detail Lelang</h3>
+                </div>
+                <div class="p-6">
+                    <dl class="space-y-3">
+                        <div>
+                            <dt class="text-xs text-gray-500">Judul</dt>
+                            <dd class="text-sm font-semibold text-gray-900">{{ $bid->auction->title }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-gray-500">Kategori</dt>
+                            <dd class="text-sm text-gray-900">{{ $bid->auction->category }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-gray-500">Jumlah Produksi</dt>
+                            <dd class="text-sm font-semibold text-gray-900">{{ number_format($bid->auction->quantity) }} pcs</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-gray-500">Budget Maksimal</dt>
+                            <dd class="text-sm font-bold text-green-600">Rp {{ number_format($bid->auction->budget) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-gray-500">Deadline</dt>
+                            <dd class="text-sm font-semibold text-gray-900">{{ $bid->auction->deadline->format('d M Y H:i') }}</dd>
+                            <dd class="text-xs text-gray-500">{{ $bid->auction->deadline->diffForHumans() }}</dd>
+                        </div>
+                    </dl>
+                </div>
             </div>
 
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Form Edit Penawaran</h3>
-                        </div>
-                        <div class="card-body">
-                            <form action="{{ route('vendor.auctions.update-bid', $bid) }}" method="POST" data-loading>
-                                @csrf
-                                @method('PUT')
-
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label class="form-label">Harga Penawaran <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">Rp</span>
-                                            <input type="number"
-                                                class="form-control @error('bid_amount') is-invalid @enderror"
-                                                name="bid_amount" value="{{ old('bid_amount', $bid->bid_amount) }}"
-                                                placeholder="Masukkan harga penawaran" min="0" step="1000"
-                                                required>
-                                            @error('bid_amount')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="form-text">
-                                            Budget maksimal: <strong>Rp {{ number_format($bid->auction->budget) }}</strong>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="form-label">Pesan (Opsional)</label>
-                                        <textarea class="form-control @error('message') is-invalid @enderror" name="message" rows="4"
-                                            placeholder="Tambahkan pesan atau catatan untuk pemilik lelang...">{{ old('message', $bid->message) }}</textarea>
-                                        @error('message')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                        <div class="form-text">
-                                            Maksimal 1000 karakter
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="alert alert-warning">
-                                            <div class="d-flex">
-                                                <div class="me-3">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 9v2m0 4v.01" />
-                                                        <path d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0" />
-                                                    </svg>
-                                                </div>
-                                                <div>
-                                                    <h4 class="alert-title">Perhatian!</h4>
-                                                    <div class="text-muted">
-                                                        <ul class="mb-0">
-                                                            <li>Mengubah penawaran akan memperbarui waktu penawaran</li>
-                                                            <li>Pastikan harga yang Anda berikan sudah termasuk semua biaya
-                                                                produksi</li>
-                                                            <li>Penawaran dapat diedit selama lelang masih aktif</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12">
-                                        <div class="d-flex gap-2">
-                                            <button type="submit" class="btn btn-warning">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                    <path
-                                                        d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                    <path d="M16 5l3 3" />
-                                                </svg>
-                                                Update Penawaran
-                                            </button>
-                                            <a href="{{ route('vendor.auctions.show', $bid->auction) }}"
-                                                class="btn btn-outline-secondary">
-                                                Batal
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+            <div class="bg-white rounded-xl shadow-sm">
+                <div class="border-b border-gray-200 px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Penawaran Saat Ini</h3>
                 </div>
-
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Detail Lelang</h3>
+                <div class="p-6">
+                    <dl class="space-y-3">
+                        <div>
+                            <dt class="text-xs text-gray-500">Harga</dt>
+                            <dd class="text-sm font-bold text-green-600">Rp {{ number_format($bid->bid_amount) }}</dd>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="form-label">Judul</div>
-                                    <div class="fw-bold">{{ $bid->auction->title }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-label">Kategori</div>
-                                    <div>{{ $bid->auction->category }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-label">Jumlah Produksi</div>
-                                    <div class="fw-bold">{{ number_format($bid->auction->quantity) }} pcs</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-label">Budget Maksimal</div>
-                                    <div class="fw-bold text-success">Rp {{ number_format($bid->auction->budget) }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-label">Deadline</div>
-                                    <div class="fw-bold">{{ $bid->auction->deadline->format('d M Y H:i') }}</div>
-                                    <div class="text-muted small">{{ $bid->auction->deadline->diffForHumans() }}</div>
-                                </div>
-                            </div>
+                        <div>
+                            <dt class="text-xs text-gray-500">Status</dt>
+                            <dd>
+                                @if ($bid->status === 'accepted')
+                                    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-800">Diterima</span>
+                                @elseif($bid->status === 'rejected')
+                                    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">Ditolak</span>
+                                @else
+                                    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Menunggu</span>
+                                @endif
+                            </dd>
                         </div>
-                    </div>
-
-                    <div class="card mt-4">
-                        <div class="card-header">
-                            <h3 class="card-title">Penawaran Saat Ini</h3>
+                        <div>
+                            <dt class="text-xs text-gray-500">Dikirim</dt>
+                            <dd class="text-sm text-gray-900">{{ $bid->created_at->format('d M Y H:i') }}</dd>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="form-label">Harga</div>
-                                    <div class="fw-bold text-success">Rp {{ number_format($bid->bid_amount) }}</div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-label">Status</div>
-                                    <div>
-                                        <span
-                                            class="badge bg-{{ $bid->status === 'accepted' ? 'success' : ($bid->status === 'rejected' ? 'danger' : 'warning') }}">
-                                            {{ $bid->status === 'accepted' ? 'Diterima' : ($bid->status === 'rejected' ? 'Ditolak' : 'Menunggu') }}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="form-label">Dikirim</div>
-                                    <div class="text-muted">{{ $bid->created_at->format('d M Y H:i') }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </dl>
                 </div>
             </div>
         </div>

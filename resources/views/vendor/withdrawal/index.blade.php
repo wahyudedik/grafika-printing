@@ -3,176 +3,119 @@
 @section('title', 'Penarikan Dana')
 
 @section('content')
-<div class="page-header d-print-none">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <div class="page-pretitle">Vendor Panel</div>
-            <h2 class="page-title">Penarikan Dana</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.withdrawal.create') }}" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 5v14"/>
-                    <path d="M5 12h14"/>
-                </svg>
-                Ajukan Penarikan
-            </a>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
+        <h2 class="text-2xl font-bold text-gray-900">Penarikan Dana</h2>
     </div>
+    <a href="{{ route('vendor.withdrawal.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12h14"/></svg>
+        Ajukan Penarikan
+    </a>
 </div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <!-- Wallet Summary -->
-        <div class="row row-deck row-cards mb-3">
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Saldo Tersedia</div>
-                                <div class="h3 mb-0 mt-1">Rp {{ number_format($wallet->available_balance ?? 0, 0, ',', '.') }}</div>
-                            </div>
-                            <div class="avatar avatar-lg bg-success-lt">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M17 9v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v6a2 2 0 0 0 2 2h3" />
-                                    <path d="M9 12h6" />
-                                    <path d="M13 15v6" />
-                                    <path d="M19 15v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-6" />
-                                </svg>
-                            </div>
-                        </div>
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{-- Wallet Summary --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-500">Saldo Tersedia</div>
+                        <div class="text-xl font-bold mt-1">Rp {{ number_format($wallet->available_balance ?? 0, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v6a2 2 0 002 2h3m0 0h6m-6 0H9m6 0v6m-6-6h6m0-3H9"/></svg>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Total Ditarik</div>
-                                <div class="h3 mb-0 mt-1">Rp {{ number_format($wallet->total_withdrawn ?? 0, 0, ',', '.') }}</div>
-                            </div>
-                            <div class="avatar avatar-lg bg-primary-lt">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M12 5v14"/>
-                                    <path d="M5 12l7 7"/>
-                                    <path d="M19 12l-7 7"/>
-                                </svg>
-                            </div>
-                        </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-500">Total Ditarik</div>
+                        <div class="text-xl font-bold mt-1">Rp {{ number_format($wallet->total_withdrawn ?? 0, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12l7 7M19 12l-7 7"/></svg>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Menunggu Proses</div>
-                                <div class="h3 mb-0 mt-1">{{ $withdrawals->where('status', 'pending')->count() }}</div>
-                            </div>
-                            <div class="avatar avatar-lg bg-warning-lt">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                                    <path d="M12 8l0 4"/>
-                                    <path d="M12 16l.01 0"/>
-                                </svg>
-                            </div>
-                        </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-500">Menunggu Proses</div>
+                        <div class="text-xl font-bold mt-1">{{ $withdrawals->where('status', 'pending')->count() }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Minimum Penarikan</div>
-                                <div class="h3 mb-0 mt-1">Rp {{ number_format($minWithdrawal, 0, ',', '.') }}</div>
-                            </div>
-                            <div class="avatar avatar-lg bg-info-lt">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                                    <path d="M12 8l0 4"/>
-                                    <path d="M12 16l.01 0"/>
-                                </svg>
-                            </div>
-                        </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-sm text-gray-500">Minimum Penarikan</div>
+                        <div class="text-xl font-bold mt-1">Rp {{ number_format($minWithdrawal, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Withdrawal List -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Riwayat Penarikan</h3>
-                <div class="card-actions">
-                    <a href="{{ route('vendor.withdrawal.history') }}" class="btn btn-sm btn-outline-primary">
-                        Lihat Semua
-                    </a>
-                </div>
+        {{-- Withdrawal List --}}
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Riwayat Penarikan</h3>
+                <a href="{{ route('vendor.withdrawal.history') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700">Lihat Semua →</a>
             </div>
-            <div class="card-body">
+            <div class="p-5">
                 @if($withdrawals->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr>
-                                <th>Kode</th>
-                                <th>Jumlah</th>
-                                <th>Metode</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th class="w-1"></th>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Kode</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Jumlah</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Metode</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Tanggal</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600"></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($withdrawals as $withdrawal)
-                            <tr>
-                                <td>
-                                    <span class="font-weight-medium">{{ $withdrawal->withdrawal_code }}</span>
-                                </td>
-                                <td>
-                                    <span class="fw-bold text-success">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 font-medium">{{ $withdrawal->withdrawal_code }}</td>
+                                <td class="py-3 px-4 font-bold text-green-600">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</td>
+                                <td class="py-3 px-4">
                                     @if($withdrawal->method === 'bank_transfer')
-                                        <span class="badge bg-blue-lt">Transfer Bank</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Transfer Bank</span>
                                     @elseif($withdrawal->method === 'e_wallet')
-                                        <span class="badge bg-purple-lt">E-Wallet</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">E-Wallet</span>
                                     @else
-                                        <span class="badge bg-green-lt">Tunai</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Tunai</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="py-3 px-4">
                                     @if($withdrawal->status === 'pending')
-                                        <span class="badge bg-warning-lt">Menunggu</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Menunggu</span>
                                     @elseif($withdrawal->status === 'approved')
-                                        <span class="badge bg-success-lt">Disetujui</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disetujui</span>
                                     @elseif($withdrawal->status === 'processing')
-                                        <span class="badge bg-info-lt">Diproses</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diproses</span>
                                     @elseif($withdrawal->status === 'completed')
-                                        <span class="badge bg-success">Selesai</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">Selesai</span>
                                     @elseif($withdrawal->status === 'rejected')
-                                        <span class="badge bg-danger-lt">Ditolak</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Ditolak</span>
                                     @elseif($withdrawal->status === 'cancelled')
-                                        <span class="badge bg-secondary-lt">Dibatalkan</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Dibatalkan</span>
                                     @endif
                                 </td>
-                                <td>
-                                    {{ $withdrawal->created_at->format('d M Y H:i') }}
-                                </td>
-                                <td>
-                                    <a href="{{ route('vendor.withdrawal.show', $withdrawal) }}" class="btn btn-sm btn-outline-primary">
-                                        Detail
-                                    </a>
+                                <td class="py-3 px-4 text-gray-500">{{ $withdrawal->created_at->format('d M Y H:i') }}</td>
+                                <td class="py-3 px-4">
+                                    <a href="{{ route('vendor.withdrawal.show', $withdrawal) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Detail</a>
                                 </td>
                             </tr>
                             @endforeach
@@ -180,18 +123,17 @@
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-center mt-3">
+                <div class="mt-4 flex justify-center">
                     {{ $withdrawals->links() }}
                 </div>
                 @else
-                <div class="empty">
-                    <p class="empty-title">Belum ada penarikan</p>
-                    <p class="empty-subtitle text-muted">Ajukan penarikan dana pertama Anda</p>
-                    <div class="empty-action">
-                        <a href="{{ route('vendor.withdrawal.create') }}" class="btn btn-primary">
-                            Ajukan Penarikan
-                        </a>
-                    </div>
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                    <p class="text-lg font-medium text-gray-900">Belum ada penarikan</p>
+                    <p class="text-sm text-gray-500 mt-1">Ajukan penarikan dana pertama Anda</p>
+                    <a href="{{ route('vendor.withdrawal.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+                        Ajukan Penarikan
+                    </a>
                 </div>
                 @endif
             </div>

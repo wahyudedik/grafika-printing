@@ -1,191 +1,161 @@
 @extends('layouts.vendor')
 
+@section('title', 'Buat Linktree Baru')
+
 @section('content')
-<div class="page-wrapper">
-    <div class="container-xl">
-        <div class="page-header d-print-none">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">Buat Linktree Baru</h2>
-                    <div class="page-pretitle">
-                        <a href="{{ route('vendor.linktree.index') }}">Linktree</a> / Buat Baru
+<div x-data="createLinktree()" class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    {{-- Breadcrumb --}}
+    <nav class="mb-4">
+        <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="{{ route('vendor.linktree.index') }}" class="hover:text-primary-600">Linktree</a></li>
+            <li><span class="mx-1">/</span></li>
+            <li class="text-gray-900 font-medium">Buat Baru</li>
+        </ol>
+    </nav>
+
+    {{-- Page Header --}}
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Buat Linktree Baru</h1>
+        <p class="mt-1 text-sm text-gray-500">Buat halaman linktree untuk berbagi tautan penting toko Anda</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Main Form --}}
+        <div class="lg:col-span-2 space-y-5">
+            <form action="{{ route('vendor.linktree.store') }}" method="POST">
+                @csrf
+
+                {{-- Basic Info --}}
+                <div class="bg-white rounded-xl border border-gray-200">
+                    <div class="px-5 py-4 border-b border-gray-200">
+                        <h2 class="text-base font-semibold text-gray-900">Informasi Dasar</h2>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Judul Linktree <span class="text-red-500">*</span></label>
+                            <input type="text" id="title" name="title" value="{{ old('title', $vendor->name) }}" placeholder="Nama toko atau brand Anda"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 @error('title') border-red-500 @enderror"
+                                oninput="document.getElementById('preview-title').textContent = this.value || 'Nama Toko'" required>
+                            @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            <p class="mt-1 text-xs text-gray-500">Judul yang ditampilkan di halaman linktree Anda.</p>
+                        </div>
+                        <div>
+                            <label for="custom_url" class="block text-sm font-medium text-gray-700 mb-1">URL Kustom <span class="text-red-500">*</span></label>
+                            <div class="flex rounded-lg border border-gray-300 overflow-hidden focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500">
+                                <span class="bg-gray-50 px-3 py-2 text-sm text-gray-500 border-r border-gray-300 whitespace-nowrap">{{ config('app.url', 'https://grafika.noteds.com') }}/l/</span>
+                                <input type="text" id="custom_url" name="custom_url" value="{{ old('custom_url') }}" placeholder="nama-toko-anda"
+                                    pattern="[a-z0-9\-]+" class="flex-1 px-3 py-2 text-sm border-0 focus:ring-0 @error('custom_url') border-red-500 @enderror" required>
+                            </div>
+                            @error('custom_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            <p class="mt-1 text-xs text-gray-500">Hanya huruf kecil, angka, dan tanda hubung (-). Contoh: <code class="bg-gray-100 px-1 rounded">my-print-shop</code></p>
+                        </div>
+                        <div>
+                            <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Bio / Deskripsi</label>
+                            <textarea id="bio" name="bio" rows="3" placeholder="Deskripsi singkat tentang toko Anda"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 @error('bio') border-red-500 @enderror"
+                                oninput="document.getElementById('preview-bio').textContent = this.value || 'Deskripsi toko Anda'">{{ old('bio') }}</textarea>
+                            @error('bio')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                            <p class="mt-1 text-xs text-gray-500">Maksimal 500 karakter.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                {{-- Template Selection --}}
+                <div class="bg-white rounded-xl border border-gray-200 mt-5">
+                    <div class="px-5 py-4 border-b border-gray-200">
+                        <h2 class="text-base font-semibold text-gray-900">Pilih Template</h2>
+                    </div>
+                    <div class="p-5">
+                        @php
+                        $templates = [
+                            'minimal' => ['name' => 'Minimal', 'desc' => 'Bersih dan simpel', 'preview' => 'bg-white border border-gray-200'],
+                            'colorful' => ['name' => 'Colorful', 'desc' => 'Ceriah dan menarik', 'preview' => 'bg-gradient-to-r from-purple-500 to-pink-500'],
+                            'dark' => ['name' => 'Dark', 'desc' => 'Gelap dan elegan', 'preview' => 'bg-gray-900'],
+                            'professional' => ['name' => 'Professional', 'desc' => 'Formal dan terpercaya', 'preview' => 'bg-slate-800'],
+                        ];
+                        @endphp
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            @foreach($templates as $key => $template)
+                            <label class="cursor-pointer">
+                                <input type="radio" name="template" value="{{ $key }}" class="hidden" {{ old('template', 'minimal') === $key ? 'checked' : '' }} onchange="selectTemplate('{{ $key }}')">
+                                <div id="template-{{ $key }}" class="border-2 rounded-xl p-3 text-center transition-all {{ old('template', 'minimal') === $key ? 'border-primary-500 shadow-md' : 'border-gray-200 hover:border-gray-300' }}">
+                                    <div class="{{ $template['preview'] }} rounded-lg mb-2 h-16"></div>
+                                    <div class="font-semibold text-sm text-gray-900">{{ $template['name'] }}</div>
+                                    <div class="text-xs text-gray-500">{{ $template['desc'] }}</div>
+                                </div>
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('template')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+
+                {{-- Button Style --}}
+                <div class="bg-white rounded-xl border border-gray-200 mt-5">
+                    <div class="px-5 py-4 border-b border-gray-200">
+                        <h2 class="text-base font-semibold text-gray-900">Pengaturan Tombol</h2>
+                    </div>
+                    <div class="p-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Gaya Tombol</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            @foreach(['rounded' => 'Rounded (Bulat)', 'square' => 'Square (Kotak)', 'pill' => 'Pill'] as $style => $label)
+                            <label class="cursor-pointer">
+                                <input type="radio" name="button_style" value="{{ $style }}" class="hidden" {{ old('button_style', 'rounded') === $style ? 'checked' : '' }}>
+                                <div class="border-2 rounded-lg p-3 text-center text-sm font-medium transition-all {{ old('button_style', 'rounded') === $style ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-600 hover:border-gray-300' }}"
+                                     style="border-radius: {{ $style === 'rounded' ? '8px' : ($style === 'square' ? '2px' : '50px') }}">
+                                    {{ $label }}
+                                </div>
+                            </label>
+                            @endforeach
+                        </div>
+                        @error('button_style')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+
+                {{-- Submit --}}
+                <div class="mt-6 flex items-center gap-3">
+                    <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                        <i class="fas fa-plus mr-2"></i>Buat Linktree
+                    </button>
+                    <a href="{{ route('vendor.linktree.index') }}" class="inline-flex items-center px-6 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
+                        Batal
+                    </a>
+                </div>
+            </form>
         </div>
 
-        <div class="row">
-            <div class="col-lg-8">
-                <form action="{{ route('vendor.linktree.store') }}" method="POST">
-                    @csrf
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Informasi Dasar</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="title" class="form-label required">Judul Linktree</label>
-                                <input type="text" class="form-control @error('title') is-invalid @enderror"
-                                    id="title" name="title" value="{{ old('title', $vendor->name) }}"
-                                    placeholder="Nama toko atau brand Anda" required>
-                                @error('title')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-hint">Judul yang ditampilkan di halaman linktree Anda.</div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="custom_url" class="form-label required">URL Kustom</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">{{ config('app.url', 'https://grafika.noteds.com') }}/l/</span>
-                                    <input type="text"
-                                        class="form-control @error('custom_url') is-invalid @enderror"
-                                        id="custom_url" name="custom_url"
-                                        value="{{ old('custom_url') }}"
-                                        placeholder="nama-toko-anda"
-                                        pattern="[a-z0-9\-]+" required>
-                                    @error('custom_url')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="form-hint">Hanya huruf kecil, angka, dan tanda hubung (-). Contoh: <code>my-print-shop</code></div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="bio" class="form-label">Bio / Deskripsi</label>
-                                <textarea class="form-control @error('bio') is-invalid @enderror"
-                                    id="bio" name="bio" rows="3"
-                                    placeholder="Deskripsi singkat tentang toko Anda">{{ old('bio') }}</textarea>
-                                @error('bio')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-hint">Maksimal 500 karakter.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card mt-3">
-                        <div class="card-header">
-                            <h3 class="card-title">Pilih Template</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                @php
-                                $templates = [
-                                    'minimal' => ['name' => 'Minimal', 'desc' => 'Bersih dan simpel', 'preview' => 'bg-white border'],
-                                    'colorful' => ['name' => 'Colorful', 'desc' => 'Ceriah dan menarik', 'preview' => 'bg-gradient-to-r from-purple-500 to-pink-500'],
-                                    'dark' => ['name' => 'Dark', 'desc' => 'Gelap dan elegan', 'preview' => 'bg-gray-900'],
-                                    'professional' => ['name' => 'Professional', 'desc' => 'Formal dan terpercaya', 'preview' => 'bg-slate-800'],
-                                ];
-                                @endphp
-
-                                @foreach($templates as $key => $template)
-                                <div class="col-sm-6 col-lg-3">
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="template" value="{{ $key }}"
-                                            class="d-none" {{ old('template', 'minimal') === $key ? 'checked' : '' }}
-                                            onchange="selectTemplate('{{ $key }}')">
-                                        <div class="card template-card {{ old('template', 'minimal') === $key ? 'border-primary border-2 shadow' : '' }}"
-                                            id="template-{{ $key }}">
-                                            <div class="card-body text-center p-3">
-                                                <div class="{{ $template['preview'] }} rounded mb-2" style="height: 60px; border-radius: 8px;"></div>
-                                                <div class="fw-bold">{{ $template['name'] }}</div>
-                                                <div class="text-muted small">{{ $template['desc'] }}</div>
-                                            </div>
-                                        </div>
-                                    </label>
-                                </div>
-                                @endforeach
-                            </div>
-                            @error('template')
-                            <div class="text-danger mt-2">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="card mt-3">
-                        <div class="card-header">
-                            <h3 class="card-title">Pengaturan Tombol</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">Gaya Tombol</label>
-                                <div class="row g-2">
-                                    @foreach(['rounded' => 'Rounded (Bulat)', 'square' => 'Square (Kotak)', 'pill' => 'Pill (Pill)'] as $style => $label)
-                                    <div class="col-sm-4">
-                                        <label class="btn btn-outline {{ old('button_style', 'rounded') === $style ? 'active border-primary' : '' }} w-100" style="border-radius: {{ $style === 'rounded' ? '8px' : ($style === 'square' ? '2px' : '50px') }}">
-                                            <input type="radio" name="button_style" value="{{ $style }}"
-                                                class="d-none" {{ old('button_style', 'rounded') === $style ? 'checked' : '' }}>
-                                            {{ $label }}
-                                        </label>
-                                    </div>
-                                    @endforeach
-                                </div>
-                                @error('button_style')
-                                <div class="text-danger mt-1">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M12 5l0 14"/>
-                                <path d="M5 12l14 0"/>
-                            </svg>
-                            Buat Linktree
-                        </button>
-                        <a href="{{ route('vendor.linktree.index') }}" class="btn btn-ghost btn-lg">Batal</a>
-                    </div>
-                </form>
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Preview</h3>
-                    </div>
-                    <div class="card-body">
-                        <div id="preview-container" class="rounded p-3 text-center" style="min-height: 200px; background: #ffffff; border: 1px solid #e5e7eb;">
-                            <div class="rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center bg-primary text-white" style="width: 48px; height: 48px; font-size: 20px;">
-                                T
-                            </div>
-                            <h5 id="preview-title" class="mb-1">Nama Toko</h5>
-                            <p id="preview-bio" class="text-muted small mb-3">Deskripsi toko Anda</p>
-                            <div class="d-grid gap-2">
-                                <div id="preview-btn" class="btn" style="border: 2px solid #e5e7eb; border-radius: 8px;">Link 1</div>
-                                <div id="preview-btn2" class="btn" style="border: 2px solid #e5e7eb; border-radius: 8px;">Link 2</div>
-                            </div>
+        {{-- Sidebar --}}
+        <div class="space-y-5">
+            {{-- Preview --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h2 class="text-base font-semibold text-gray-900">Preview</h2>
+                </div>
+                <div class="p-5">
+                    <div id="preview-container" class="rounded-xl p-4 text-center" style="min-height: 200px; background: #ffffff; border: 1px solid #e5e7eb;">
+                        <div class="w-12 h-12 rounded-full bg-primary-600 text-white flex items-center justify-center text-lg font-bold mx-auto mb-2">T</div>
+                        <h5 id="preview-title" class="font-semibold text-gray-900 mb-1">Nama Toko</h5>
+                        <p id="preview-bio" class="text-sm text-gray-500 mb-3">Deskripsi toko Anda</p>
+                        <div class="space-y-2">
+                            <div id="preview-btn" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm text-gray-600">Link 1</div>
+                            <div id="preview-btn2" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm text-gray-600">Link 2</div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h3 class="card-title">Tips</h3>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M5 12l5 5l10 -10"/></svg>
-                                Pilih URL yang mudah diingat
-                            </li>
-                            <li class="mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M5 12l5 5l10 -10"/></svg>
-                                Gunakan huruf kecil saja
-                            </li>
-                            <li class="mb-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M5 12l5 5l10 -10"/></svg>
-                                Tanda hubung sebagai pengganti spasi
-                            </li>
-                            <li>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-success" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path d="M5 12l5 5l10 -10"/></svg>
-                                Template bisa diubah kapan saja
-                            </li>
-                        </ul>
-                    </div>
+            {{-- Tips --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h2 class="text-base font-semibold text-gray-900">Tips</h2>
+                </div>
+                <div class="p-5">
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i>Pilih URL yang mudah diingat</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i>Gunakan huruf kecil saja</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i>Tanda hubung sebagai pengganti spasi</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-500 mt-0.5"></i>Template bisa diubah kapan saja</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -194,63 +164,65 @@
 
 @push('scripts')
 <script>
-    function selectTemplate(template) {
-        document.querySelectorAll('.template-card').forEach(card => {
-            card.classList.remove('border-primary', 'border-2', 'shadow');
-        });
-        document.getElementById('template-' + template).classList.add('border-primary', 'border-2', 'shadow');
+function createLinktree() {
+    return {
+        init() {
+            selectTemplate('{{ old('template', 'minimal') }}');
+        }
+    };
+}
 
-        const colors = {
-            minimal: { bg: '#ffffff', btn: '#374151', text: '#1F2937' },
-            colorful: { bg: '#F5F3FF', btn: '#8B5CF6', text: '#1F2937' },
-            dark: { bg: '#111827', btn: '#6366F1', text: '#F9FAFB' },
-            professional: { bg: '#F1F5F9', btn: '#1E3A5F', text: '#0F172A' },
-        };
-
-        const c = colors[template];
-        const preview = document.getElementById('preview-container');
-        preview.style.background = c.bg;
-        preview.style.borderColor = template === 'minimal' ? '#e5e7eb' : 'transparent';
-
-        const title = document.getElementById('preview-title');
-        title.style.color = c.text;
-
-        const bio = document.getElementById('preview-bio');
-        bio.style.color = template === 'minimal' ? '#6B7280' : c.text + '99';
-
-        ['preview-btn', 'preview-btn2'].forEach(id => {
-            const btn = document.getElementById(id);
-            if (template === 'colorful') {
-                btn.style.background = 'linear-gradient(to right, #8B5CF6, #EC4899)';
-                btn.style.border = 'none';
-                btn.style.color = '#fff';
-            } else if (template === 'dark') {
-                btn.style.background = '#374151';
-                btn.style.border = 'none';
-                btn.style.color = '#fff';
-            } else if (template === 'professional') {
-                btn.style.background = '#1E3A5F';
-                btn.style.border = 'none';
-                btn.style.color = '#fff';
-            } else {
-                btn.style.background = 'transparent';
-                btn.style.border = '2px solid #e5e7eb';
-                btn.style.color = '#374151';
-            }
-        });
+function selectTemplate(template) {
+    document.querySelectorAll('[id^="template-"]').forEach(card => {
+        card.classList.remove('border-primary-500', 'shadow-md');
+        card.classList.add('border-gray-200');
+    });
+    const selected = document.getElementById('template-' + template);
+    if (selected) {
+        selected.classList.remove('border-gray-200');
+        selected.classList.add('border-primary-500', 'shadow-md');
     }
 
-    // Live preview for title
-    document.getElementById('title').addEventListener('input', function() {
-        document.getElementById('preview-title').textContent = this.value || 'Nama Toko';
-    });
+    const colors = {
+        minimal: { bg: '#ffffff', btn: '#374151', text: '#1F2937' },
+        colorful: { bg: '#F5F3FF', btn: '#8B5CF6', text: '#1F2937' },
+        dark: { bg: '#111827', btn: '#6366F1', text: '#F9FAFB' },
+        professional: { bg: '#F1F5F9', btn: '#1E3A5F', text: '#0F172A' },
+    };
 
-    document.getElementById('bio').addEventListener('input', function() {
-        document.getElementById('preview-bio').textContent = this.value || 'Deskripsi toko Anda';
-    });
+    const c = colors[template];
+    const preview = document.getElementById('preview-container');
+    preview.style.background = c.bg;
+    preview.style.borderColor = template === 'minimal' ? '#e5e7eb' : 'transparent';
 
-    // Initialize preview
-    selectTemplate('{{ old('template', 'minimal') }}');
+    document.getElementById('preview-title').style.color = c.text;
+    document.getElementById('preview-bio').style.color = template === 'minimal' ? '#6B7280' : c.text + '99';
+
+    ['preview-btn', 'preview-btn2'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (template === 'colorful') {
+            btn.style.background = 'linear-gradient(to right, #8B5CF6, #EC4899)';
+            btn.style.border = 'none';
+            btn.style.color = '#fff';
+            btn.style.borderRadius = '8px';
+        } else if (template === 'dark') {
+            btn.style.background = '#374151';
+            btn.style.border = 'none';
+            btn.style.color = '#fff';
+            btn.style.borderRadius = '8px';
+        } else if (template === 'professional') {
+            btn.style.background = '#1E3A5F';
+            btn.style.border = 'none';
+            btn.style.color = '#fff';
+            btn.style.borderRadius = '8px';
+        } else {
+            btn.style.background = 'transparent';
+            btn.style.border = '2px solid #e5e7eb';
+            btn.style.color = '#374151';
+            btn.style.borderRadius = '8px';
+        }
+    });
+}
 </script>
 @endpush
 @endsection

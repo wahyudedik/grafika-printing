@@ -5,374 +5,402 @@
 @section('content')
     {{-- Add CSRF token meta tag --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    {{-- header --}}
-    <div class="col-md-12 mt-4">
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-header bg-white border-0 py-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="mb-0 fw-bold text-primary">Point of Sale</h2>
-                        <p class="text-muted mb-0 mt-2"><i class="fas fa-calendar-alt me-2"></i>{{ date('Y-m-d') }}</p>
-                    </div>
-                    {{-- <div class="text-end">
-                        <h5 class="mb-2 text-dark"><i class="fas fa-user-circle me-2"></i>{{ Auth::user()->name }}</h5>
-                        <p class="mb-0 text-muted"><i
-                                class="fas fa-store-alt me-2"></i>{{ Auth::user()->vendorUser->first()->name ?? 'Vendor' }}
-                        </p>
-                    </div> --}}
-                </div>
-            </div>
-        </div>
-    </div>
 
-    {{-- navigation kategori --}}
-    <div class="col-md-12 mt-3">
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-body p-4">
-                <div class="row align-items-center g-3">
-                    {{-- category --}}
-                    <div class="col-12 col-lg-5">
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="{{ route('vendor.pos.index') }}" data-no-loading
-                                class="btn {{ request()->routeIs('vendor.pos.index') && !request()->has('search') ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill px-4 py-2">
-                                <i class="fas fa-th-large me-2"></i>All Products
-                            </a>
-                            @foreach ($categories as $category)
-                                @if ($category)
-                                    <a href="{{ route('vendor.pos.category', ['slug' => $category->slug]) }}"
-                                        data-no-loading
-                                        class="btn {{ request()->is('*/pos/category/' . $category->slug) ? 'btn-primary' : 'btn-outline-primary' }} rounded-pill px-4 py-2">
-                                        <i class="fas fa-tag me-2"></i>{{ $category->nama_kategori }}
-                                    </a>
-                                @endif
-                            @endforeach
+    <div x-data="posHome()">
+        {{-- Header --}}
+        <div class="px-4 pt-4">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Point of Sale</h2>
+                            <p class="text-sm text-gray-500 mt-1"><i class="fas fa-calendar-alt mr-2"></i>{{ date('Y-m-d') }}</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    {{-- search --}}
-                    <div class="col-12 col-lg-5">
-                        <form action="{{ route('vendor.pos.search') }}" method="GET" class="d-flex gap-2" data-no-loading>
-                            <div class="input-group input-group-merge shadow-sm rounded-pill">
-                                <span class="input-group-text border-0 bg-transparent">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" name="search" class="form-control form-control-lg border-0 ps-2"
-                                    value="{{ request('search') }}" placeholder="Search products..." autocomplete="off"
-                                    style="border-radius: 20px;">
-                                @if (request('search'))
-                                    <span class="input-group-text border-0 bg-transparent">
-                                        <a href="{{ route('vendor.pos.index') }}" class="text-muted hover-danger"
-                                            data-no-loading style="text-decoration: none">
+        {{-- Navigation Kategori --}}
+        <div class="px-4 mt-3">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="p-4">
+                    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
+                        {{-- Category --}}
+                        <div class="flex-1">
+                            <div class="flex flex-wrap gap-2">
+                                <a href="{{ route('vendor.pos.index') }}" data-no-loading
+                                    class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors {{ request()->routeIs('vendor.pos.index') && !request()->has('search') ? 'bg-primary text-white' : 'border border-primary text-primary hover:bg-primary/5' }}">
+                                    <i class="fas fa-th-large mr-2"></i>All Products
+                                </a>
+                                @foreach ($categories as $category)
+                                    @if ($category)
+                                        <a href="{{ route('vendor.pos.category', ['slug' => $category->slug]) }}" data-no-loading
+                                            class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors {{ request()->is('*/pos/category/' . $category->slug) ? 'bg-primary text-white' : 'border border-primary text-primary hover:bg-primary/5' }}">
+                                            <i class="fas fa-tag mr-2"></i>{{ $category->nama_kategori }}
+                                        </a>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- Search --}}
+                        <div class="flex-1">
+                            <form action="{{ route('vendor.pos.search') }}" method="GET" class="flex gap-2" data-no-loading>
+                                <div class="relative flex-1">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" name="search"
+                                        class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                                        value="{{ request('search') }}" placeholder="Search products..." autocomplete="off">
+                                    @if (request('search'))
+                                        <a href="{{ route('vendor.pos.index') }}" data-no-loading
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-danger">
                                             <i class="fas fa-times"></i>
                                         </a>
-                                    </span>
-                                @endif
-                            </div>
-                        </form>
-                    </div>
+                                    @endif
+                                </div>
+                            </form>
+                        </div>
 
-                    {{-- cart --}}
-                    <div class="col-12 col-lg-2">
-                        <a href="{{ route('vendor.pos.cart') }}" class="btn btn-primary rounded-pill px-4 py-2 w-100">
-                            <i class="fas fa-shopping-cart me-2"></i>Cart
-                            <span class="badge bg-light text-primary ms-2">{{ count(session('cart', [])) }}</span>
-                        </a>
+                        {{-- Cart --}}
+                        <div class="lg:w-auto">
+                            <a href="{{ route('vendor.pos.cart') }}"
+                                class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-primary text-white rounded-full text-sm font-medium hover:bg-primary/90 transition-colors">
+                                <i class="fas fa-shopping-cart mr-2"></i>Cart
+                                <span class="ml-2 bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ count(session('cart', [])) }}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- produk --}}
-    <div class="col-md-12 mt-3">
-        <div class="card shadow-sm border-0 rounded-4">
-            <div class="card-body p-4">
-                @if ($products->isEmpty())
-                    <div class="text-center py-5">
-                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
-                        <h4>No Products Found</h4>
-                        <p class="text-muted">
-                            {{ request('search') ? 'Try a different search term' : 'No products available in this category' }}
-                        </p>
-                        <a href="{{ route('vendor.pos.index') }}" class="btn btn-primary mt-3">
-                            <i class="fas fa-arrow-left me-2"></i>Back to All Products
-                        </a>
-                    </div>
-                @else
-                    <div class="row g-4">
-                        @foreach ($products as $product)
-                            <div class="col-lg-3 col-md-4 col-sm-6">
-                                <div class="card h-100 border-0 shadow-hover rounded-4">
-                                    <!-- Product image with fixed size -->
-                                    <div class="product-image-wrapper"
-                                        style="height: 180px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+        {{-- Produk --}}
+        <div class="px-4 mt-3 pb-4">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="p-4">
+                    @if ($products->isEmpty())
+                        <x-ui.empty-state icon="fas fa-box-open" title="No Products Found" :description="request('search') ? 'Try a different search term' : 'No products available in this category'">
+                            <x-slot:actions>
+                                <a href="{{ route('vendor.pos.index') }}"
+                                    class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                                    <i class="fas fa-arrow-left mr-2"></i>Back to All Products
+                                </a>
+                            </x-slot:actions>
+                        </x-ui.empty-state>
+                    @else
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            @foreach ($products as $product)
+                                <div class="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                                    @click="openProductModal({{ json_encode($product->id) }}, {{ json_encode($product->nama_produk) }}, {{ json_encode($product->gambar[0] ?? 'images/no-image.jpg') }}, {{ json_encode($product->deskripsi ?? '') }})">
+                                    {{-- Product Image --}}
+                                    <div class="h-40 overflow-hidden flex items-center justify-center bg-gray-50">
                                         <img src="{{ asset($product->gambar[0] ?? 'images/no-image.jpg') }}"
-                                            class="card-img-top"
-                                            style="cursor: pointer; object-fit: cover; height: 100%; width: 100%;"
-                                            data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}">
+                                            alt="{{ $product->nama_produk }}"
+                                            class="w-full h-full object-cover">
                                     </div>
 
-                                    <div class="card-body p-4">
-                                        <h5 class="fw-bold mb-2">{{ $product->nama_produk }}</h5>
-                                        <p class="text-muted mb-3">{!! Str::limit(strip_tags($product->deskripsi), 50) !!}</p>
-
-                                        <button class="btn btn-outline-primary w-100 mb-3" data-bs-toggle="modal"
-                                            data-bs-target="#productModal{{ $product->id }}">
-                                            <i class="fas fa-shopping-cart me-2"></i>Order Now
+                                    <div class="p-3">
+                                        <h5 class="font-bold text-gray-800 text-sm mb-1 truncate">{{ $product->nama_produk }}</h5>
+                                        <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{ Str::limit(strip_tags($product->deskripsi), 50) }}</p>
+                                        <button class="w-full inline-flex items-center justify-center px-3 py-2 border border-primary text-primary rounded-lg text-xs font-medium hover:bg-primary/5 transition-colors">
+                                            <i class="fas fa-shopping-cart mr-1"></i>Order Now
                                         </button>
                                     </div>
                                 </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
 
-                                <!-- Bootstrap Modal -->
-                                <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">{{ $product->nama_produk }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <form action="{{ route('vendor.pos.addToCart') }}" method="POST"
-                                                data-no-loading>
-                                                @csrf
-                                                <div class="modal-body">
-                                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+        {{-- Single Product Modal (Alpine.js) --}}
+        <div x-show="showModal" x-cloak
+            class="fixed inset-0 z-50 overflow-y-auto"
+            aria-labelledby="product-modal-title" role="dialog" aria-modal="true">
+            {{-- Backdrop --}}
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity"
+                @click="closeModal()"
+                x-show="showModal"
+                x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"></div>
 
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Quantity</label>
-                                                        <input type="number" name="quantity" class="form-control"
-                                                            value="1" min="1">
-                                                    </div>
+            {{-- Modal Panel --}}
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full transform transition-all"
+                    x-show="showModal" x-cloak
+                    x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="ease-in duration-200"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    @click.outside="closeModal()">
 
-                                                    @foreach ($product->spesifikasiProduk as $spec)
-                                                        <div class="mb-3">
-                                                            <label class="form-label">
-                                                                {{ $spec->spesifikasi->nama_spesifikasi }}
-                                                                @if ($spec->wajib_diisi)
-                                                                    <span class="text-danger">*</span>
-                                                                @endif
-                                                            </label>
-
-                                                            @if ($spec->spesifikasi->tipe_input === 'select')
-                                                                <select name="specifications[{{ $spec->id }}]"
-                                                                    class="form-select"
-                                                                    {{ $spec->wajib_diisi ? 'required' : '' }}>
-                                                                    @foreach ($spec->bahans as $bahan)
-                                                                        <option value="{{ $bahan->id }}">
-                                                                            {{ $bahan->nama_bahan }} -
-                                                                            @if ($bahan->wholesalePrice->count() > 0)
-                                                                                @foreach ($bahan->wholesalePrice as $price)
-                                                                                    {{ $price->min_quantity }}-{{ $price->max_quantity }}
-                                                                                    pcs: Rp
-                                                                                    {{ number_format($price->harga) }}
-                                                                                @endforeach
-                                                                            @else
-                                                                                Rp
-                                                                                {{ number_format($bahan->hpp) }}
-                                                                            @endif
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            @else
-                                                                @if ($spec->spesifikasi->tipe_input === 'number')
-                                                                    <div class="input-group">
-                                                                        <input type="text"
-                                                                            name="specifications[{{ $spec->id }}]"
-                                                                            class="form-control decimal-input"
-                                                                            {{ $spec->wajib_diisi ? 'required' : '' }}
-                                                                            pattern="[0-9]*[.,]?[0-9]+"
-                                                                            inputmode="decimal">
-                                                                        @if ($spec->spesifikasi->satuan)
-                                                                            <span
-                                                                                class="input-group-text">{{ $spec->spesifikasi->satuan }}</span>
-                                                                        @endif
-                                                                    </div>
-                                                                @else
-                                                                    <div class="input-group">
-                                                                        <input type="{{ $spec->spesifikasi->tipe_input }}"
-                                                                            name="specifications[{{ $spec->id }}]"
-                                                                            class="form-control"
-                                                                            {{ $spec->wajib_diisi ? 'required' : '' }}>
-                                                                        @if ($spec->spesifikasi->satuan)
-                                                                            <span
-                                                                                class="input-group-text">{{ $spec->spesifikasi->satuan }}</span>
-                                                                        @endif
-                                                                    </div>
-                                                                @endif
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-
-                                                    {{-- rincian harga produk --}}
-                                                    <div class="mb-3">
-                                                        <div id="priceDetails{{ $product->id }}" class="mt-3"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Close</button>
-                                                    <button type="button" class="btn btn-info"
-                                                        id="cekHarga{{ $product->id }}">
-                                                        <i class="fas fa-calculator me-2"></i>Cek Harga
-                                                    </button>
-                                                    <button type="submit" class="btn btn-primary">
-                                                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
+                    {{-- Modal Header --}}
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                        <h5 class="text-lg font-semibold text-gray-800" id="product-modal-title" x-text="productName"></h5>
+                        <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                            @click="closeModal()">
+                            <i class="fas fa-times text-gray-500"></i>
+                        </button>
                     </div>
-                @endif
+
+                    {{-- Modal Body --}}
+                    <form :action="addToCartUrl" method="POST" data-no-loading>
+                        @csrf
+                        <div class="px-6 py-4">
+                            <input type="hidden" name="product_id" :value="productId">
+
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                <input type="number" name="quantity" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                                    value="1" min="1">
+                            </div>
+
+                            @foreach ($products->first()->spesifikasiProduk ?? [] as $spec)
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        {{ $spec->spesifikasi->nama_spesifikasi }}
+                                        @if ($spec->wajib_diisi)
+                                            <span class="text-danger">*</span>
+                                        @endif
+                                    </label>
+
+                                    @if ($spec->spesifikasi->tipe_input === 'select')
+                                        <select name="specifications[{{ $spec->id }}]"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                                            {{ $spec->wajib_diisi ? 'required' : '' }}>
+                                            @foreach ($spec->bahans as $bahan)
+                                                <option value="{{ $bahan->id }}">
+                                                    {{ $bahan->nama_bahan }} -
+                                                    @if ($bahan->wholesalePrice->count() > 0)
+                                                        @foreach ($bahan->wholesalePrice as $price)
+                                                            {{ $price->min_quantity }}-{{ $price->max_quantity }}
+                                                            pcs: Rp {{ number_format($price->harga) }}
+                                                        @endforeach
+                                                    @else
+                                                        Rp {{ number_format($bahan->hpp) }}
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @elseif ($spec->spesifikasi->tipe_input === 'number')
+                                        <div class="flex">
+                                            <input type="text"
+                                                name="specifications[{{ $spec->id }}]"
+                                                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition decimal-input"
+                                                {{ $spec->wajib_diisi ? 'required' : '' }}
+                                                pattern="[0-9]*[.,]?[0-9]+"
+                                                inputmode="decimal">
+                                            @if ($spec->spesifikasi->satuan)
+                                                <span class="inline-flex items-center px-4 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-sm text-gray-600">{{ $spec->spesifikasi->satuan }}</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="flex">
+                                            <input type="{{ $spec->spesifikasi->tipe_input }}"
+                                                name="specifications[{{ $spec->id }}]"
+                                                class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                                                {{ $spec->wajib_diisi ? 'required' : '' }}>
+                                            @if ($spec->spesifikasi->satuan)
+                                                <span class="inline-flex items-center px-4 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-sm text-gray-600">{{ $spec->spesifikasi->satuan }}</span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+
+                            {{-- Price Details --}}
+                            <div class="mb-4">
+                                <div :id="'priceDetails' + productId" class="mt-3"></div>
+                            </div>
+                        </div>
+
+                        {{-- Modal Footer --}}
+                        <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+                            <button type="button"
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                                @click="closeModal()">Close</button>
+                            <button type="button"
+                                class="inline-flex items-center px-4 py-2 bg-info text-white rounded-lg font-medium hover:bg-info/90 transition-colors"
+                                :id="'cekHarga' + productId"
+                                @click="checkPrice($event)">
+                                <i class="fas fa-calculator mr-2"></i>Cek Harga
+                            </button>
+                            <button type="submit"
+                                class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                                <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Tangani input desimal
-        document.querySelectorAll('.decimal-input').forEach(input => {
-            input.addEventListener('input', function(e) {
-                // Ganti koma dengan titik untuk perhitungan
-                this.value = this.value.replace(/,/g, '.');
+    <script>
+        function posHome() {
+            return {
+                showModal: false,
+                productId: null,
+                productName: '',
+                productImage: '',
+                productDescription: '',
+                addToCartUrl: '{{ route("vendor.pos.addToCart") }}',
 
-                // Hanya izinkan angka dan satu titik desimal
-                this.value = this.value.replace(/[^0-9.]/g, '');
+                openProductModal(id, name, image, description) {
+                    this.productId = id;
+                    this.productName = name;
+                    this.productImage = image;
+                    this.productDescription = description;
+                    this.showModal = true;
+                },
 
-                // Pastikan hanya ada satu titik desimal
-                const parts = this.value.split('.');
-                if (parts.length > 2) {
-                    this.value = parts[0] + '.' + parts.slice(1).join('');
-                }
-            });
-        });
+                closeModal() {
+                    this.showModal = false;
+                },
 
-        document.querySelectorAll('[id^="cekHarga"]').forEach(button => {
-            button.addEventListener('click', function() {
-                const form = this.closest('form');
-                const productId = this.id.replace('cekHarga', '');
-                const formData = new FormData(form);
-                const data = {
-                    product_id: formData.get('product_id'),
-                    quantity: formData.get('quantity'),
-                    specifications: {}
-                };
+                checkPrice(event) {
+                    const button = event.currentTarget;
+                    const form = button.closest('form');
+                    const formData = new FormData(form);
+                    const data = {
+                        product_id: formData.get('product_id'),
+                        quantity: formData.get('quantity'),
+                        specifications: {}
+                    };
 
-                // Show loading state
-                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Calculating...';
-                this.disabled = true;
+                    // Show loading state
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Calculating...';
+                    button.disabled = true;
 
-                // Clear previous price details
-                const priceDetails = document.querySelector(`#priceDetails${productId}`);
-                priceDetails.innerHTML =
-                    '<div class="alert alert-info">Calculating price...</div>';
-
-                formData.forEach((value, key) => {
-                    if (key.startsWith('specifications')) {
-                        const matches = key.match(/\[(.*?)\]/);
-                        if (matches) {
-                            const specId = matches[1];
-                            // Konversi ke float, bukan integer
-                            const numValue = parseFloat(value);
-                            data.specifications[specId] = isNaN(numValue) ? value :
-                                numValue;
-                        }
+                    // Clear previous price details
+                    const priceDetails = document.querySelector(`#priceDetails${this.productId}`);
+                    if (priceDetails) {
+                        priceDetails.innerHTML = '<div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">Calculating price...</div>';
                     }
-                });
 
-                fetch(`{{ route('vendor.pos.checkPrice') }}`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector(
-                                'meta[name="csrf-token"]').content,
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
+                    formData.forEach((value, key) => {
+                        if (key.startsWith('specifications')) {
+                            const matches = key.match(/\[(.*?)\]/);
+                            if (matches) {
+                                const specId = matches[1];
+                                const numValue = parseFloat(value);
+                                data.specifications[specId] = isNaN(numValue) ? value : numValue;
+                            }
                         }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.error) {
-                            priceDetails.innerHTML = `
-                            <div class="alert alert-danger">
-                                <p class="mb-0"><strong>Error:</strong> ${data.error}</p>
-                            </div>
-                        `;
-                        } else {
-                            priceDetails.innerHTML = `
-                            <div class="card border-0 bg-light">
-                                <div class="card-body">
-                                    <h6 class="mb-3 fw-bold"><i class="fas fa-receipt me-2"></i>Rincian Harga:</h6>
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <span>Quantity:</span>
-                                        <span class="fw-medium">${data.quantity}</span>
-                                    </div>
-                                    ${data.specifications.map(spec => `
-                                                                                <div class="d-flex justify-content-between mb-2">
-                                                                                    <span>${spec.name}:</span>
-                                                                                    <span class="fw-medium">Rp ${spec.price}</span>
-                                                                                </div>
-                                                                            `).join('')}
-                                    <hr>
-                                    <div class="d-flex justify-content-between">
-                                        <span class="fw-bold">Total Harga:</span>
-                                        <span class="fw-bold text-primary">Rp ${data.totalPrice}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        priceDetails.innerHTML = `
-                        <div class="alert alert-danger">
-                            <p class="mb-0"><strong>Error:</strong> Failed to calculate price. Please try again.</p>
-                        </div>
-                    `;
-                    })
-                    .finally(() => {
-                        // Reset button state
-                        this.innerHTML = '<i class="fas fa-calculator me-2"></i>Cek Harga';
-                        this.disabled = false;
                     });
-            });
-        });
+
+                    fetch(`{{ route('vendor.pos.checkPrice') }}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        })
+                        .then(response => {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.error) {
+                                priceDetails.innerHTML = `
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                                        <strong>Error:</strong> ${data.error}
+                                    </div>
+                                `;
+                            } else {
+                                priceDetails.innerHTML = `
+                                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                        <h6 class="mb-3 font-bold text-gray-800"><i class="fas fa-receipt mr-2"></i>Rincian Harga:</h6>
+                                        <div class="flex justify-between mb-2 text-sm">
+                                            <span class="text-gray-600">Quantity:</span>
+                                            <span class="font-medium">${data.quantity}</span>
+                                        </div>
+                                        ${data.specifications.map(spec => `
+                                            <div class="flex justify-between mb-2 text-sm">
+                                                <span class="text-gray-600">${spec.name}:</span>
+                                                <span class="font-medium">Rp ${spec.price}</span>
+                                            </div>
+                                        `).join('')}
+                                        <hr class="my-2 border-gray-200">
+                                        <div class="flex justify-between">
+                                            <span class="font-bold text-gray-800">Total Harga:</span>
+                                            <span class="font-bold text-primary">Rp ${data.totalPrice}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            priceDetails.innerHTML = `
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+                                    <strong>Error:</strong> Failed to calculate price. Please try again.
+                                </div>
+                            `;
+                        })
+                        .finally(() => {
+                            button.innerHTML = '<i class="fas fa-calculator mr-2"></i>Cek Harga';
+                            button.disabled = false;
+                        });
+                },
+
+                init() {
+                    // Handle decimal inputs
+                    this.$nextTick(() => {
+                        document.querySelectorAll('.decimal-input').forEach(input => {
+                            input.addEventListener('input', function(e) {
+                                this.value = this.value.replace(/,/g, '.');
+                                this.value = this.value.replace(/[^0-9.]/g, '');
+                                const parts = this.value.split('.');
+                                if (parts.length > 2) {
+                                    this.value = parts[0] + '.' + parts.slice(1).join('');
+                                }
+                            });
+                        });
+                    });
+                }
+            }
+        }
 
         // Form validation before submission
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const requiredFields = this.querySelectorAll('[required]');
-                let isValid = true;
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = this.querySelectorAll('[required]');
+                    let isValid = true;
 
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        isValid = false;
-                        field.classList.add('is-invalid');
-                    } else {
-                        field.classList.remove('is-invalid');
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.classList.add('border-danger');
+                        } else {
+                            field.classList.remove('border-danger');
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: 'Please fill in all required fields',
+                            confirmButtonColor: '#3085d6'
+                        });
                     }
                 });
-
-                if (!isValid) {
-                    e.preventDefault();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Validation Error',
-                        text: 'Please fill in all required fields',
-                        confirmButtonColor: '#3085d6'
-                    });
-                }
             });
         });
-    });
-</script>@endsection
+    </script>
+@endsection

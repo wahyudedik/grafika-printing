@@ -3,231 +3,133 @@
 @section('title', 'Pengaturan Biaya Admin')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Pengaturan Biaya Admin</h3>
-                    <div class="card-actions">
-                        <a href="{{ route('admin.admin-fees.preview') }}" class="btn btn-outline-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                                <path d="M21 21l-6 -6" />
-                            </svg>
-                            Preview Biaya
-                        </a>
-                        <a href="{{ route('admin.admin-fees.transactions') }}" class="btn btn-outline-info">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                                <path d="M12 7v5l3 3" />
-                            </svg>
-                            Transaksi
-                        </a>
-                        <a href="{{ route('admin.admin-fees.statistics') }}" class="btn btn-outline-success">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M3 3v18h18" />
-                                <path d="M18.7 17l-5.1-5.2l-2.8 3.3l-2.2-2.2l-6.6 8" />
-                            </svg>
-                            Statistik
-                        </a>
-                        <a href="{{ route('admin.admin-fees.create') }}" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            Tambah Pengaturan
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success alert-dismissible" role="alert">
-                            <div class="d-flex">
-                                <div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M5 12l5 5l10 -10" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    {{ session('success') }}
-                                </div>
-                            </div>
-                            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-                        </div>
-                    @endif
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h1 class="text-2xl font-bold text-gray-900">Pengaturan Biaya Admin</h1>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ route('admin.admin-fees.preview') }}" class="px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100">
+                <i class="fas fa-eye mr-1"></i>Preview Biaya
+            </a>
+            <a href="{{ route('admin.admin-fees.transactions') }}" class="px-4 py-2 text-sm font-medium text-cyan-700 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100">
+                <i class="fas fa-clock mr-1"></i>Transaksi
+            </a>
+            <a href="{{ route('admin.admin-fees.statistics') }}" class="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100">
+                <i class="fas fa-chart-line mr-1"></i>Statistik
+            </a>
+            <a href="{{ route('admin.admin-fees.create') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                <i class="fas fa-plus mr-1"></i>Tambah Pengaturan
+            </a>
+        </div>
+    </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-vcenter card-table">
-                            <thead>
-                                <tr>
-                                    <th>Nama</th>
-                                    <th>Kategori</th>
-                                    <th>Tipe</th>
-                                    <th>Nilai</th>
-                                    <th>Status</th>
-                                    <th>Efektif Dari</th>
-                                    <th>Efektif Sampai</th>
-                                    <th>Dibuat Oleh</th>
-                                    <th class="w-1">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($settings as $setting)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex py-1 align-items-center">
-                                                <div class="flex-fill">
-                                                    <div class="font-weight-medium">{{ $setting->name }}</div>
-                                                    <div class="text-muted">{{ $setting->description }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-blue-lt">{{ $setting->category }}</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $setting->type === 'fixed' ? 'green' : 'orange' }}-lt">
-                                                {{ $setting->type === 'fixed' ? 'Tetap' : 'Persentase' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @if ($setting->type === 'fixed')
-                                                Rp {{ number_format($setting->value, 0, ',', '.') }}
-                                            @else
-                                                {{ $setting->value }}%
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $setting->is_active ? 'green' : 'red' }}-lt">
-                                                {{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {{ $setting->effective_from ? $setting->effective_from->format('d/m/Y H:i') : '-' }}
-                                        </td>
-                                        <td>
-                                            {{ $setting->effective_until ? $setting->effective_until->format('d/m/Y H:i') : '-' }}
-                                        </td>
-                                        <td>
-                                            {{ $setting->createdBy->name ?? '-' }}
-                                        </td>
-                                        <td>
-                                            <div class="btn-list flex-nowrap">
-                                                <a href="{{ route('admin.admin-fees.show', $setting) }}"
-                                                    class="btn btn-sm btn-outline-primary">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <circle cx="9" cy="7" r="4" />
-                                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                                    </svg>
-                                                </a>
-                                                <a href="{{ route('admin.admin-fees.edit', $setting) }}"
-                                                    class="btn btn-sm btn-outline-warning">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                        <path
-                                                            d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                    </svg>
-                                                </a>
-                                                <form action="{{ route('admin.admin-fees.toggle', $setting) }}"
-                                                    method="POST" class="d-inline">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <button type="submit"
-                                                        class="btn btn-sm btn-outline-{{ $setting->is_active ? 'danger' : 'success' }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                            width="24" height="24" viewBox="0 0 24 24"
-                                                            stroke-width="2" stroke="currentColor" fill="none"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                                            <path
-                                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                                <form action="{{ route('admin.admin-fees.destroy', $setting) }}"
-                                                    method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                            width="24" height="24" viewBox="0 0 24 24"
-                                                            stroke-width="2" stroke="currentColor" fill="none"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M4 7l16 0" />
-                                                            <path d="M10 11l0 6" />
-                                                            <path d="M14 11l0 6" />
-                                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                                        </svg>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="9" class="text-center py-4">
-                                            <div class="empty">
-                                                <div class="empty-img">
-                                                    <img src="{{ asset('demo/empty.svg') }}" height="128"
-                                                        alt="">
-                                                </div>
-                                                <p class="empty-title">Tidak ada pengaturan biaya admin</p>
-                                                <p class="empty-subtitle text-muted">
-                                                    Belum ada pengaturan biaya admin yang dibuat.
-                                                </p>
-                                                <div class="empty-action">
-                                                    <a href="{{ route('admin.admin-fees.create') }}"
-                                                        class="btn btn-primary">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                            width="24" height="24" viewBox="0 0 24 24"
-                                                            stroke-width="2" stroke="currentColor" fill="none"
-                                                            stroke-linecap="round" stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <line x1="12" y1="5" x2="12"
-                                                                y2="19" />
-                                                            <line x1="5" y1="12" x2="19"
-                                                                y2="12" />
-                                                        </svg>
-                                                        Tambah Pengaturan
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+            x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="flex items-center gap-3 p-4 mb-4 text-green-800 bg-green-50 border border-green-200 rounded-lg">
+            <i class="fas fa-check-circle text-green-500"></i>
+            <div class="flex-1 text-sm font-medium">{{ session('success') }}</div>
+            <button @click="show = false" class="text-green-500 hover:text-green-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    @endif
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nilai</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Efektif Dari</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Efektif Sampai</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat Oleh</th>
+                        <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($settings as $setting)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-5 py-3">
+                                <div class="text-sm font-medium text-gray-900">{{ $setting->name }}</div>
+                                <div class="text-xs text-gray-500">{{ $setting->description }}</div>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">{{ $setting->category }}</span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $setting->type === 'fixed' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800' }}">
+                                    {{ $setting->type === 'fixed' ? 'Tetap' : 'Persentase' }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-900">
+                                @if ($setting->type === 'fixed')
+                                    Rp {{ number_format($setting->value, 0, ',', '.') }}
+                                @else
+                                    {{ $setting->value }}%
+                                @endif
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $setting->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    {{ $setting->is_active ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {{ $setting->effective_from ? $setting->effective_from->format('d/m/Y H:i') : '-' }}
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {{ $setting->effective_until ? $setting->effective_until->format('d/m/Y H:i') : '-' }}
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">
+                                {{ $setting->createdBy->name ?? '-' }}
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('admin.admin-fees.show', $setting) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Lihat">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </a>
+                                    <a href="{{ route('admin.admin-fees.edit', $setting) }}" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg" title="Edit">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </a>
+                                    <form action="{{ route('admin.admin-fees.toggle', $setting) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="p-2 {{ $setting->is_active ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg" title="{{ $setting->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                            <i class="fas fa-eye-{{ $setting->is_active ? 'slash' : '' }} text-sm"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="px-5 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fas fa-coins text-gray-400 text-xl"></i>
+                                    </div>
+                                    <p class="text-sm font-medium text-gray-900 mb-1">Tidak ada pengaturan biaya admin</p>
+                                    <p class="text-xs text-gray-500 mb-3">Belum ada pengaturan biaya admin yang dibuat.</p>
+                                    <a href="{{ route('admin.admin-fees.create') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                                        <i class="fas fa-plus mr-1"></i>Tambah Pengaturan
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection

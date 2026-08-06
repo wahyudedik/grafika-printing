@@ -2,304 +2,224 @@
 
 @section('title', 'Dashboard')
 @section('content')
-    <!-- Statistics Cards -->
-    <div class="row row-deck row-cards mb-4">
-        <!-- Total Users -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Total Users</div>
-                    </div>
-                    <div class="d-flex align-items-baseline">
-                        <div class="h1 mb-0 me-2">{{ $stats['total_users'] }}</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="status-dot status-dot-animated bg-green d-block"></span>
-                        </div>
-                        <div class="col">
-                            <a href="{{ route('admin.users.index') }}" class="text-decoration-none">Manage Users</a>
-                        </div>
-                    </div>
-                </div>
+    {{-- Statistics Cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {{-- Total Users --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <p class="text-sm text-gray-500 mb-1">Total Users</p>
+            <div class="flex items-end justify-between">
+                <span class="text-3xl font-bold text-gray-900">{{ $stats['total_users'] }}</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-100">
+                <a href="{{ route('admin.users.index') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Manage Users
+                </a>
             </div>
         </div>
 
-        <!-- Total Vendors -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Total Vendors</div>
-                    </div>
-                    <div class="d-flex align-items-baseline">
-                        <div class="h1 mb-0 me-2">{{ $stats['total_vendors'] }}</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="status-dot status-dot-animated bg-blue d-block"></span>
-                        </div>
-                        <div class="col">
-                            <a href="{{ route('admin.vendors.index') }}" class="text-decoration-none">Manage Vendors</a>
-                        </div>
-                    </div>
-                </div>
+        {{-- Total Vendors --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <p class="text-sm text-gray-500 mb-1">Total Vendors</p>
+            <div class="flex items-end justify-between">
+                <span class="text-3xl font-bold text-gray-900">{{ $stats['total_vendors'] }}</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-100">
+                <a href="{{ route('admin.vendors.index') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                    Manage Vendors
+                </a>
             </div>
         </div>
 
-        <!-- Total Auctions -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Total Auctions</div>
-                    </div>
-                    <div class="d-flex align-items-baseline">
-                        <div class="h1 mb-0 me-2">{{ $stats['total_auctions'] }}</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="status-dot status-dot-animated bg-yellow d-block"></span>
-                        </div>
-                        <div class="col">
-                            <a href="{{ route('admin.auctions.index') }}" class="text-decoration-none">Manage Auctions</a>
-                        </div>
-                    </div>
-                </div>
+        {{-- Total Auctions --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <p class="text-sm text-gray-500 mb-1">Total Auctions</p>
+            <div class="flex items-end justify-between">
+                <span class="text-3xl font-bold text-gray-900">{{ $stats['total_auctions'] }}</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-100">
+                <a href="{{ route('admin.auctions.index') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    Manage Auctions
+                </a>
             </div>
         </div>
 
-        <!-- Total Revenue -->
-        <div class="col-sm-6 col-lg-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="subheader">Total Revenue</div>
-                    </div>
-                    <div class="d-flex align-items-baseline">
-                        <div class="h1 mb-0 me-2">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <span class="status-dot status-dot-animated bg-green d-block"></span>
-                        </div>
-                        <div class="col">
-                            <a href="{{ route('admin.analytics.vendor-revenue') }}" class="text-decoration-none">View
-                                Revenue</a>
-                        </div>
-                    </div>
-                </div>
+        {{-- Total Revenue --}}
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <p class="text-sm text-gray-500 mb-1">Total Revenue</p>
+            <div class="flex items-end justify-between">
+                <span class="text-2xl font-bold text-gray-900">Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}</span>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-100">
+                <a href="{{ route('admin.analytics.vendor-revenue') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    View Revenue
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Payment Issues Alert -->
+    {{-- Payment Issues Alert --}}
     @if ($stats['payment_issues'] > 0 || $stats['expired_payments'] > 0)
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="alert alert-warning" role="alert">
-                    <h4 class="alert-heading">⚠️ Payment Issues Detected!</h4>
-                    <p>There are payment issues that need attention:</p>
-                    <ul class="mb-0">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-amber-800">⚠️ Payment Issues Detected!</h3>
+                    <p class="text-sm text-amber-700 mt-1">There are payment issues that need attention:</p>
+                    <ul class="mt-2 space-y-1 text-sm text-amber-700">
                         @if ($stats['payment_issues'] > 0)
-                            <li><strong>{{ $stats['payment_issues'] }}</strong> auctions stuck in waiting payment for more
-                                than 24 hours</li>
+                            <li class="flex items-center gap-2">
+                                <i class="fas fa-clock text-xs"></i>
+                                <strong>{{ $stats['payment_issues'] }}</strong> auctions stuck in waiting payment for more than 24 hours
+                            </li>
                         @endif
                         @if ($stats['expired_payments'] > 0)
-                            <li><strong>{{ $stats['expired_payments'] }}</strong> expired payment links</li>
+                            <li class="flex items-center gap-2">
+                                <i class="fas fa-times-circle text-xs"></i>
+                                <strong>{{ $stats['expired_payments'] }}</strong> expired payment links
+                            </li>
                         @endif
                     </ul>
-                    <hr>
-                    <a href="{{ route('admin.payments.index') }}" class="btn btn-warning">Manage Payment
-                        Issues</a>
+                    <div class="mt-3">
+                        <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors">
+                            <i class="fas fa-cog text-xs"></i> Manage Payment Issues
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     @endif
 
-    <!-- Charts Row -->
-    <div class="row mb-4">
-        <!-- Revenue Chart -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Monthly Revenue Trend</h3>
-                </div>
-                <div class="card-body">
-                    <div id="revenueChart" style="height: 300px;"></div>
-                </div>
+    {{-- Charts Row --}}
+    <div class="grid lg:grid-cols-3 gap-6 mb-6">
+        {{-- Revenue Chart --}}
+        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900">Monthly Revenue Trend</h3>
+            </div>
+            <div class="p-4">
+                <div id="revenueChart" style="height: 300px;"></div>
             </div>
         </div>
 
-        <!-- Auction Status Distribution -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Auction Status Distribution</h3>
-                </div>
-                <div class="card-body">
-                    <div id="auctionStatusChart" style="height: 300px;"></div>
-                </div>
+        {{-- Auction Status Distribution --}}
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900">Auction Status Distribution</h3>
+            </div>
+            <div class="p-4">
+                <div id="auctionStatusChart" style="height: 300px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Payment Issues and Recent Activities -->
-    <div class="row mb-4">
-        <!-- Payment Issues -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Payment Issues</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-warning text-white avatar">
-                                                <i class="fas fa-clock"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium">
-                                                Stuck Payments
-                                            </div>
-                                            <div class="text-muted">
-                                                {{ $stats['payment_issues'] }} auctions
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+    {{-- Payment Issues and Recent Activities --}}
+    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+        {{-- Payment Issues --}}
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900">Payment Issues</h3>
+            </div>
+            <div class="p-4 space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-clock text-amber-600"></i>
                         </div>
-                        <div class="col-6">
-                            <div class="card card-sm">
-                                <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-danger text-white avatar">
-                                                <i class="fas fa-exclamation-triangle"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium">
-                                                Expired Payments
-                                            </div>
-                                            <div class="text-muted">
-                                                {{ $stats['expired_payments'] }} links
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Stuck Payments</p>
+                            <p class="text-xs text-gray-500">{{ $stats['payment_issues'] }} auctions</p>
                         </div>
                     </div>
-                    <div class="mt-3">
-                        <a href="{{ route('admin.payments.index') }}" class="btn btn-primary">Manage All
-                            Issues</a>
+                    <div class="flex items-center gap-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                        <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Expired Payments</p>
+                            <p class="text-xs text-gray-500">{{ $stats['expired_payments'] }} links</p>
+                        </div>
                     </div>
                 </div>
+                <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-cog text-xs"></i> Manage All Issues
+                </a>
             </div>
         </div>
 
-        <!-- Recent Activities -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Recent Activities</h3>
-                </div>
-                <div class="card-body">
-                    <div class="timeline">
-                        @foreach ($recentActivities as $activity)
-                            <div class="timeline-item">
-                                <div class="timeline-item-marker">
-                                    <div class="timeline-item-marker-text">
-                                        {{ $activity['time']->format('H:i') }}
-                                    </div>
-                                    <div
-                                        class="timeline-item-marker-indicator bg-{{ $activity['type'] === 'auction_created' ? 'blue' : ($activity['type'] === 'payment_created' ? 'green' : 'orange') }}">
-                                    </div>
-                                </div>
-                                <div class="timeline-item-content">
-                                    <div class="timeline-item-heading">
-                                        {{ $activity['message'] }}
-                                    </div>
-                                    <div class="text-muted">
-                                        by {{ $activity['user'] }} • {{ $activity['time']->diffForHumans() }}
-                                    </div>
+        {{-- Recent Activities --}}
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-4 py-3 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900">Recent Activities</h3>
+            </div>
+            <div class="p-4">
+                <div class="space-y-4">
+                    @foreach ($recentActivities as $activity)
+                        <div class="flex gap-3">
+                            <div class="flex flex-col items-center">
+                                <div class="text-xs font-medium text-gray-500 whitespace-nowrap">{{ $activity['time']->format('H:i') }}</div>
+                                <div class="w-3 h-3 rounded-full mt-1 flex-shrink-0
+                                    {{ $activity['type'] === 'auction_created' ? 'bg-blue-500' : ($activity['type'] === 'payment_created' ? 'bg-green-500' : 'bg-amber-500') }}">
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                            <div class="flex-1 pb-4 border-b border-gray-100 last:border-0">
+                                <p class="text-sm font-medium text-gray-900">{{ $activity['message'] }}</p>
+                                <p class="text-xs text-gray-500 mt-0.5">by {{ $activity['user'] }} • {{ $activity['time']->diffForHumans() }}</p>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Vendor Performance -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Top Performing Vendors</h3>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-vcenter">
-                            <thead>
-                                <tr>
-                                    <th>Vendor</th>
-                                    <th>Total Earnings</th>
-                                    <th>Current Balance</th>
-                                    <th>Success Rate</th>
-                                    <th>Total Bids</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($vendorPerformance as $vendor)
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar avatar-sm me-2">
-                                                    {{ substr($vendor['name'], 0, 1) }}
-                                                </div>
-                                                <div>
-                                                    <div class="font-weight-medium">{{ $vendor['name'] }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Rp {{ number_format($vendor['total_earnings'], 0, ',', '.') }}</td>
-                                        <td>Rp {{ number_format($vendor['current_balance'], 0, ',', '.') }}</td>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ $vendor['success_rate'] >= 50 ? 'success' : ($vendor['success_rate'] >= 25 ? 'warning' : 'danger') }}">
-                                                {{ $vendor['success_rate'] }}%
-                                            </span>
-                                        </td>
-                                        <td>{{ $vendor['total_bids'] }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    {{-- Vendor Performance --}}
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-900">Top Performing Vendors</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Vendor</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Total Earnings</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Current Balance</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Success Rate</th>
+                        <th class="text-left px-4 py-3 font-medium text-gray-600">Total Bids</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @foreach ($vendorPerformance as $vendor)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                                        {{ substr($vendor['name'], 0, 1) }}
+                                    </div>
+                                    <span class="font-medium text-gray-900">{{ $vendor['name'] }}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-gray-700">Rp {{ number_format($vendor['total_earnings'], 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-gray-700">Rp {{ number_format($vendor['current_balance'], 0, ',', '.') }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {{ $vendor['success_rate'] >= 50 ? 'bg-green-100 text-green-800' : ($vendor['success_rate'] >= 25 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800') }}">
+                                    {{ $vendor['success_rate'] }}%
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-700">{{ $vendor['total_bids'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
-    </div>
-
 @endsection
 
 @push('scripts')

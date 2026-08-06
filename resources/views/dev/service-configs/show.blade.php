@@ -3,300 +3,224 @@
 @section('title', $serviceInfo['name'] . ' - Service Configuration')
 
 @section('content')
-<div class="page-header d-print-none mb-4">
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="d-flex align-items-center mb-1">
-                <a href="{{ route('admin.service-configs.index') }}" class="btn btn-icon btn-ghost-secondary me-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M15 6l-6 6l6 6"/>
-                    </svg>
-                </a>
-                <h2 class="page-title">{{ $serviceInfo['name'] }} Configuration</h2>
-            </div>
-            <div class="page-pretitle">{{ $serviceInfo['description'] }}</div>
-        </div>
-        <div class="col-auto ms-auto">
-            <div class="btn-list">
-                <button class="btn btn-outline-success test-connection-btn" data-service="{{ $service }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M5 12l5 5l10 -10"/>
-                    </svg>
-                    Test Connection
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible" role="alert">
-        <div class="d-flex">
+<div x-data="serviceConfigShow()" class="space-y-6">
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.service-configs.index') }}" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <i class="fas fa-arrow-left"></i>
+            </a>
             <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M5 12l5 5l10 -10"/>
-                </svg>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $serviceInfo['name'] }} Configuration</h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ $serviceInfo['description'] }}</p>
             </div>
-            <div>{{ session('success') }}</div>
         </div>
-        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        <button @click="testConnection()" :disabled="testing" class="inline-flex items-center gap-2 px-4 py-2 border border-emerald-300 dark:border-emerald-600 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors text-sm font-medium disabled:opacity-50">
+            <i x-show="!testing" class="fas fa-plug"></i>
+            <svg x-show="testing" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <span x-text="testing ? 'Testing...' : 'Test Connection'"></span>
+        </button>
     </div>
-@endif
 
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible" role="alert">
-        <div class="d-flex">
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 9v4"/>
-                    <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/>
-                    <path d="M12 16h.01"/>
-                </svg>
+    {{-- Flash Messages --}}
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0"><i class="fas fa-check text-emerald-600 dark:text-emerald-400"></i></div>
+                <div class="flex-1 text-sm text-emerald-800 dark:text-emerald-200">{{ session('success') }}</div>
+                <button @click="show = false" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800"><i class="fas fa-times"></i></button>
             </div>
-            <div>{{ session('error') }}</div>
         </div>
-        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-    </div>
-@endif
+    @endif
 
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M4 17l2 -4l2 4l-2 4z"/>
-                        <path d="M8 17l4 -8l4 8l-4 8z"/>
-                        <path d="M16 17l2 -4l2 4l-2 4z"/>
-                    </svg>
-                    Konfigurasi
-                </h3>
+    @if(session('error'))
+        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0"><i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i></div>
+                <div class="flex-1 text-sm text-red-800 dark:text-red-200">{{ session('error') }}</div>
+                <button @click="show = false" class="text-red-600 dark:text-red-400 hover:text-red-800"><i class="fas fa-times"></i></button>
             </div>
-            <div class="card-body">
-                @forelse($configs as $config)
-                    <form action="{{ route('admin.service-configs.update', $config) }}" method="POST" class="mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
-                        @csrf
-                        @method('PUT')
+        </div>
+    @endif
 
-                        <div class="row align-items-center mb-2">
-                            <div class="col">
-                                <label class="form-label fw-bold">
-                                    {{ $config->label }}
-                                    @if($config->is_encrypted)
-                                        <span class="badge bg-yellow-lt ms-1" style="font-size: 0.7em;">
-                                            🔒 Encrypted
-                                        </span>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Configuration Forms --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        <i class="fas fa-sliders-h text-primary-600 mr-2"></i>Konfigurasi
+                    </h2>
+                </div>
+                <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse($configs as $config)
+                        <div x-data="{ showPassword: false }" class="p-5">
+                            <form action="{{ route('admin.service-configs.update', $config) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                <div class="mb-3">
+                                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300">
+                                        {{ $config->label }}
+                                        @if($config->is_encrypted)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 ml-1">🔒 Encrypted</span>
+                                        @endif
+                                    </label>
+                                    @if($config->description)
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $config->description }}</p>
                                     @endif
-                                </label>
-                                @if($config->description)
-                                    <div class="form-hint">{{ $config->description }}</div>
-                                @endif
-                            </div>
-                        </div>
+                                </div>
 
-                        <div class="row g-2 align-items-end">
-                            <div class="col">
-                                <div class="input-group">
-                                    <input type="{{ $config->is_encrypted ? 'password' : 'text' }}"
-                                           name="value"
-                                           class="form-control font-monospace"
-                                           value="{{ $config->getDecryptedValue() }}"
-                                           placeholder="{{ $config->label }}">
-                                    <button type="button" class="btn btn-ghost-secondary toggle-password-btn" title="Toggle visibility">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-                                            <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
-                                        </svg>
+                                <div class="flex items-end gap-3">
+                                    <div class="flex-1 relative">
+                                        <input :type="showPassword ? 'text' : '{{ $config->is_encrypted ? 'password' : 'text' }}'"
+                                               name="value"
+                                               class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                               value="{{ $config->getDecryptedValue() }}"
+                                               placeholder="{{ $config->label }}">
+                                        @if($config->is_encrypted)
+                                            <button type="button" @click="showPassword = !showPassword" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-sm"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="is_active" value="1" {{ $config->is_active ? 'checked' : '' }} class="sr-only peer">
+                                            <div class="w-9 h-5 bg-gray-200 dark:bg-gray-600 peer-focus:ring-2 peer-focus:ring-primary-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600"></div>
+                                        </label>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Active</span>
+                                    </div>
+                                    <input type="hidden" name="label" value="{{ $config->label }}">
+                                    <input type="hidden" name="description" value="{{ $config->description }}">
+                                    <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium transition-colors">
+                                        <i class="fas fa-check text-xs"></i>
+                                        Simpan
                                     </button>
                                 </div>
-                            </div>
-                            <div class="col-auto">
-                                <div class="form-check form-switch">
-                                    <input type="checkbox" name="is_active" class="form-check-input" value="1" {{ $config->is_active ? 'checked' : '' }} id="active_{{ $config->id }}">
-                                    <label class="form-check-label" for="active_{{ $config->id }}">Active</label>
-                                </div>
-                            </div>
-                            <input type="hidden" name="label" value="{{ $config->label }}">
-                            <input type="hidden" name="description" value="{{ $config->description }}">
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-primary btn-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M5 12l5 5l10 -10"/>
-                                    </svg>
-                                    Simpan
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                @empty
-                    <div class="text-muted text-center py-4">
-                        Belum ada konfigurasi untuk {{ $serviceInfo['name'] }}.
-                        <br><br>
-                        <a href="{{ route('admin.service-configs.seed-defaults') }}" class="btn btn-primary" onclick="return confirm('Import config default dari .env?')">
-                            Import dari .env
-                        </a>
-                    </div>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-4">
-        {{-- Info Card --}}
-        <div class="card mb-3">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/>
-                        <path d="M12 16v.01"/>
-                        <path d="M12 13v-2"/>
-                    </svg>
-                    Informasi
-                </h3>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <div class="text-muted mb-1">Service</div>
-                    <div class="fw-bold">{{ $serviceInfo['name'] }}</div>
-                </div>
-                <div class="mb-3">
-                    <div class="text-muted mb-1">Total Config</div>
-                    <div class="fw-bold">{{ $configs->count() }}</div>
-                </div>
-                <div class="mb-3">
-                    <div class="text-muted mb-1">Active</div>
-                    <div class="fw-bold text-green">{{ $configs->where('is_active', true)->count() }}</div>
-                </div>
-                <div>
-                    <div class="text-muted mb-1">Inactive</div>
-                    <div class="fw-bold text-red">{{ $configs->where('is_active', false)->count() }}</div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Danger Zone --}}
-        <div class="card border-danger">
-            <div class="card-header bg-danger-lt">
-                <h3 class="card-title text-danger">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M12 9v4"/>
-                        <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/>
-                        <path d="M12 16h.01"/>
-                    </svg>
-                    Danger Zone
-                </h3>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-3">Nonaktifkan semua config untuk service ini atau hapus semua config.</p>
-                <div class="btn-list">
-                    @foreach($configs as $config)
-                        @if($config->is_active)
-                            <form action="{{ route('admin.service-configs.toggle', $config) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-warning btn-sm">
-                                    Nonaktifkan {{ $config->label }}
-                                </button>
                             </form>
-                        @endif
-                    @endforeach
+                        </div>
+                    @empty
+                        <div class="p-8 text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Belum ada konfigurasi untuk {{ $serviceInfo['name'] }}.</p>
+                            <a href="{{ route('admin.service-configs.seed-defaults') }}" onclick="return confirm('Import config default dari .env?')" class="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium transition-colors">
+                                <i class="fas fa-file-import"></i> Import dari .env
+                            </a>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        {{-- Sidebar --}}
+        <div class="space-y-6">
+            {{-- Info Card --}}
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+                        <i class="fas fa-info-circle text-sky-600 mr-2"></i>Informasi
+                    </h3>
+                </div>
+                <div class="p-5 space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Service</span>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $serviceInfo['name'] }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Total Config</span>
+                        <span class="text-sm font-bold text-gray-900 dark:text-white">{{ $configs->count() }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Active</span>
+                        <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">{{ $configs->where('is_active', true)->count() }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">Inactive</span>
+                        <span class="text-sm font-bold text-red-600 dark:text-red-400">{{ $configs->where('is_active', false)->count() }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Danger Zone --}}
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-red-200 dark:border-red-800 overflow-hidden">
+                <div class="px-5 py-4 border-b border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10">
+                    <h3 class="text-base font-semibold text-red-700 dark:text-red-300">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Danger Zone
+                    </h3>
+                </div>
+                <div class="p-5">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Nonaktifkan semua config untuk service ini.</p>
+                    <div class="space-y-2">
+                        @foreach($configs as $config)
+                            @if($config->is_active)
+                                <form action="{{ route('admin.service-configs.toggle', $config) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-3 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 text-xs font-medium transition-colors">
+                                        Nonaktifkan {{ $config->label }}
+                                    </button>
+                                </form>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Test Connection Result Modal (Alpine.js) --}}
+    <div x-show="showTestModal" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showTestModal = false"></div>
+            <div x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full">
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" :class="testSuccess ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'">
+                        <span class="text-3xl" x-text="testSuccess ? '✅' : '❌'"></span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1" :class="testSuccess ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'" x-text="testSuccess ? 'Berhasil!' : 'Gagal'"></h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400" x-text="testMessage"></p>
+                </div>
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl">
+                    <button @click="showTestModal = false" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium transition-colors">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-{{-- Test Connection Result Modal --}}
-<div class="modal modal-blur fade" id="testResultModal" tabindex="-1">
-    <div class="modal-dialog modal-sm modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-status" id="testResultStatus"></div>
-            <div class="modal-body text-center py-4">
-                <div id="testResultIcon" class="mb-2"></div>
-                <h3 id="testResultTitle" class="mb-1"></h3>
-                <p id="testResultMessage" class="text-muted"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn w-100" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @endsection
 
 @push('scripts')
 <script>
-// Toggle password visibility
-document.querySelectorAll('.toggle-password-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const input = this.closest('.input-group').querySelector('input');
-        if (input.type === 'password') {
-            input.type = 'text';
-            this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/><path d="M3 3l18 18"/></svg>';
-        } else {
-            input.type = 'password';
-            this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/></svg>';
-        }
-    });
-});
-
-// Test connection
-document.querySelectorAll('.test-connection-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const service = this.dataset.service;
-        const btn = this;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Testing...';
-
-        fetch('{{ route("admin.service-configs.test-connection") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ service_name: service })
-        })
-        .then(response => response.json())
-        .then(data => {
-            const modal = new bootstrap.Modal(document.getElementById('testResultModal'));
-            const status = document.getElementById('testResultStatus');
-            const icon = document.getElementById('testResultIcon');
-            const title = document.getElementById('testResultTitle');
-            const message = document.getElementById('testResultMessage');
-
-            if (data.success) {
-                status.className = 'modal-status bg-success';
-                icon.innerHTML = '<span style="font-size: 3em;">✅</span>';
-                title.textContent = 'Berhasil!';
-                title.className = 'mb-1 text-green';
-            } else {
-                status.className = 'modal-status bg-danger';
-                icon.innerHTML = '<span style="font-size: 3em;">❌</span>';
-                title.textContent = 'Gagal';
-                title.className = 'mb-1 text-red';
+function serviceConfigShow() {
+    return {
+        testing: false,
+        showTestModal: false,
+        testSuccess: false,
+        testMessage: '',
+        async testConnection() {
+            this.testing = true;
+            try {
+                const response = await fetch('{{ route("admin.service-configs.test-connection") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ service_name: '{{ $service }}' })
+                });
+                const data = await response.json();
+                this.testSuccess = data.success;
+                this.testMessage = data.message;
+                this.showTestModal = true;
+            } catch (error) {
+                this.testSuccess = false;
+                this.testMessage = 'Error: ' + error.message;
+                this.showTestModal = true;
+            } finally {
+                this.testing = false;
             }
-            message.textContent = data.message;
-
-            modal.show();
-        })
-        .catch(error => {
-            alert('Error: ' + error.message);
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10"/></svg> Test Connection';
-        });
-    });
-});
+        }
+    };
+}
 </script>
 @endpush

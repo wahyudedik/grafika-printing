@@ -1,99 +1,94 @@
 @extends('layouts.user')
 
-@section('title', 'Tracking Pesanan')
+@section('title', 'Order Tracking')
 
 @section('content')
-<div class="page-header d-print-none">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <h2 class="page-title">Tracking Pesanan</h2>
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Order Tracking</h1>
+            <p class="text-sm text-gray-500 mt-1">Pantau status pesanan dari lelang yang Anda menangkan</p>
         </div>
     </div>
-</div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Daftar Pesanan</h3>
-            </div>
-            <div class="card-body">
-                @if($orderTrackings->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
-                        <thead>
-                            <tr>
-                                <th>Kode Pesanan</th>
-                                <th>Lelang</th>
-                                <th>Vendor</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th class="w-1"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($orderTrackings as $tracking)
-                            <tr>
-                                <td>
-                                    <span class="font-weight-medium">{{ $tracking->order_code ?? $tracking->id }}</span>
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        @if($orderTrackings->count() > 0)
+            {{-- Table --}}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-100 bg-gray-50">
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Pesanan</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Resi</th>
+                            <th class="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                            <th class="text-right px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach($orderTrackings as $tracking)
+                            @php
+                                $statusConfig = [
+                                    'pending' => ['label' => 'Menunggu', 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'],
+                                    'confirmed' => ['label' => 'Dikonfirmasi', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
+                                    'processing' => ['label' => 'Diproses', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                                    'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
+                                    'delivered' => ['label' => 'Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                                    'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                                ];
+                                $status = $statusConfig[$tracking->status] ?? $statusConfig['pending'];
+                            @endphp
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-5 py-4">
+                                    <div class="font-medium text-gray-900">#{{ $tracking->order_code ?? $tracking->id }}</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">{{ $tracking->auction->title ?? '-' }}</div>
                                 </td>
-                                <td>
-                                    <a href="{{ route('user.auctions.show', $tracking->auction) }}">
-                                        {{ Str::limit($tracking->auction->title ?? '-', 30) }}
-                                    </a>
-                                </td>
-                                <td>
+                                <td class="px-5 py-4 text-sm text-gray-700">
                                     {{ $tracking->vendor->name ?? '-' }}
                                 </td>
-                                <td>
-                                    @if($tracking->status === 'pending')
-                                        <span class="badge bg-warning-lt">Menunggu</span>
-                                    @elseif($tracking->status === 'confirmed')
-                                        <span class="badge bg-info-lt">Dikonfirmasi</span>
-                                    @elseif($tracking->status === 'processing')
-                                        <span class="badge bg-blue-lt">Diproses</span>
-                                    @elseif($tracking->status === 'shipped')
-                                        <span class="badge bg-purple-lt">Dikirim</span>
-                                    @elseif($tracking->status === 'delivered')
-                                        <span class="badge bg-success-lt">Diterima</span>
-                                    @elseif($tracking->status === 'completed')
-                                        <span class="badge bg-success">Selesai</span>
-                                    @elseif($tracking->status === 'cancelled')
-                                        <span class="badge bg-danger-lt">Dibatalkan</span>
-                                    @else
-                                        <span class="badge bg-secondary-lt">{{ $tracking->status }}</span>
-                                    @endif
+                                <td class="px-5 py-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $status['bg'] }} {{ $status['text'] }}">
+                                        {{ $status['label'] }}
+                                    </span>
                                 </td>
-                                <td>
+                                <td class="px-5 py-4 text-sm text-gray-700">
+                                    {{ $tracking->tracking_number ?? '-' }}
+                                </td>
+                                <td class="px-5 py-4 text-sm text-gray-500">
                                     {{ $tracking->created_at->format('d M Y') }}
                                 </td>
-                                <td>
-                                    <a href="{{ route('user.orders.show', $tracking) }}" class="btn btn-sm btn-outline-primary">
-                                        Detail
+                                <td class="px-5 py-4 text-right">
+                                    <a href="{{ route('user.orders.show', $tracking) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                                        <i class="fas fa-eye mr-1"></i> Detail
                                     </a>
                                 </td>
                             </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $orderTrackings->links() }}
-                </div>
-                @else
-                <div class="empty">
-                    <p class="empty-title">Belum ada pesanan</p>
-                    <p class="empty-subtitle text-muted">Pesanan Anda akan muncul di sini setelah pembayaran lelang berhasil</p>
-                    <div class="empty-action">
-                        <a href="{{ route('user.auctions.index') }}" class="btn btn-primary">
-                            Lihat Lelang
-                        </a>
-                    </div>
-                </div>
-                @endif
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-        </div>
+
+            {{-- Pagination --}}
+            @if($orderTrackings->hasPages())
+                <div class="px-5 py-4 border-t border-gray-100">
+                    {{ $orderTrackings->links('user.components.pagination') }}
+                </div>
+            @endif
+        @else
+            {{-- Empty State --}}
+            <div class="px-6 py-16 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-shipping-fast text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">Belum ada order tracking</h3>
+                <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
+                    Order tracking akan muncul di sini setelah lelang Anda dimenangkan oleh vendor.
+                </p>
+                <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fas fa-gavel mr-2"></i> Lihat Lelang
+                </a>
+            </div>
+        @endif
     </div>
-</div>
 @endsection

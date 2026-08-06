@@ -38,6 +38,10 @@ class DatabaseSeeder extends Seeder
         $this->command->info('👤 Step 6: Creating lelang user profiles...');
         $this->call(LelangUserProfileSeeder::class);
 
+        // 7. POS Data (Products, Materials, Equipment, etc.)
+        $this->command->info('🏪 Step 7: Creating POS data (products, materials, equipment)...');
+        $this->call(PosSeeder::class);
+
         $this->command->newLine();
         $this->command->info('✅ All seeding completed successfully!');
         $this->command->newLine();
@@ -60,6 +64,8 @@ class DatabaseSeeder extends Seeder
         $this->command->info('║ 🏦 Wallet: Rp 1,250,000 balance + transactions          ║');
         $this->command->info('║ 🔗 Linktree: /l/grafika-printing (5 links, 4 socials)  ║');
         $this->command->info('║ 👤 Lelang Profiles: Active user profiles                ║');
+        $this->command->info('║ 🏪 POS: 6 categories, 10 products, 12 materials        ║');
+        $this->command->info('║    6 equipment, 8 customers, 6 wholesale prices         ║');
         $this->command->info('╠══════════════════════════════════════════════════════════╣');
         $this->command->info('║ 🚀 Ready for testing!                                   ║');
         $this->command->info('╚══════════════════════════════════════════════════════════╝');

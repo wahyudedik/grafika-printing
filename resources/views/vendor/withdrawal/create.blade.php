@@ -3,152 +3,116 @@
 @section('title', 'Ajukan Penarikan Dana')
 
 @section('content')
-<div class="page-header d-print-none">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <div class="page-pretitle">Vendor Panel</div>
-            <h2 class="page-title">Ajukan Penarikan Dana</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.withdrawal.index') }}" class="btn btn-outline-primary">
-                Kembali
-            </a>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
+        <h2 class="text-2xl font-bold text-gray-900">Ajukan Penarikan Dana</h2>
     </div>
+    <a href="{{ route('vendor.withdrawal.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Kembali</a>
 </div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Form Penarikan</h3>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('vendor.withdrawal.store') }}" method="POST" id="withdrawalForm">
-                            @csrf
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- Form Card --}}
+            <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Form Penarikan</h3>
+                </div>
+                <div class="p-5">
+                    <form action="{{ route('vendor.withdrawal.store') }}" method="POST" id="withdrawalForm">
+                        @csrf
 
-                            <div class="mb-3">
-                                <label class="form-label">Jumlah Penarikan (Rp)</label>
-                                <input type="number" class="form-control @error('amount') is-invalid @enderror"
-                                       name="amount" id="amount"
-                                       value="{{ old('amount') }}"
-                                       min="{{ $minWithdrawal }}"
-                                       max="{{ $wallet->available_balance ?? 0 }}"
-                                       required>
-                                @error('amount')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <div class="form-hint">Minimum: Rp {{ number_format($minWithdrawal, 0, ',', '.') }}</div>
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Penarikan (Rp)</label>
+                            <input type="number" class="w-full rounded-lg border {{ $errors->has('amount') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" name="amount" id="amount" value="{{ old('amount') }}" min="{{ $minWithdrawal }}" max="{{ $wallet->available_balance ?? 0 }}" required>
+                            @error('amount')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                            <p class="text-xs text-gray-500 mt-1">Minimum: Rp {{ number_format($minWithdrawal, 0, ',', '.') }}</p>
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Metode Penarikan</label>
-                                <select class="form-select @error('method') is-invalid @enderror" name="method" id="method" required>
-                                    <option value="">Pilih Metode</option>
-                                    <option value="bank_transfer" {{ old('method') === 'bank_transfer' ? 'selected' : '' }}>Transfer Bank</option>
-                                    <option value="e_wallet" {{ old('method') === 'e_wallet' ? 'selected' : '' }}>E-Wallet</option>
-                                    <option value="cash" {{ old('method') === 'cash' ? 'selected' : '' }}>Tunai</option>
-                                </select>
-                                @error('method')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Metode Penarikan</label>
+                            <select class="w-full rounded-lg border {{ $errors->has('method') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" name="method" id="method" required>
+                                <option value="">Pilih Metode</option>
+                                <option value="bank_transfer" {{ old('method') === 'bank_transfer' ? 'selected' : '' }}>Transfer Bank</option>
+                                <option value="e_wallet" {{ old('method') === 'e_wallet' ? 'selected' : '' }}>E-Wallet</option>
+                                <option value="cash" {{ old('method') === 'cash' ? 'selected' : '' }}>Tunai</option>
+                            </select>
+                            @error('method')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
 
-                            <div class="mb-3" id="bankNameGroup">
-                                <label class="form-label">Nama Bank</label>
-                                <input type="text" class="form-control @error('bank_name') is-invalid @enderror"
-                                       name="bank_name" value="{{ old('bank_name') }}" placeholder="Contoh: BCA, Mandiri, BRI">
-                                @error('bank_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="mb-4" id="bankNameGroup">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
+                            <input type="text" class="w-full rounded-lg border {{ $errors->has('bank_name') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" name="bank_name" value="{{ old('bank_name') }}" placeholder="Contoh: BCA, Mandiri, BRI">
+                            @error('bank_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nomor Rekening / Akun</label>
-                                <input type="text" class="form-control @error('account_number') is-invalid @enderror"
-                                       name="account_number" value="{{ old('account_number') }}" required>
-                                @error('account_number')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Rekening / Akun</label>
+                            <input type="text" class="w-full rounded-lg border {{ $errors->has('account_number') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" name="account_number" value="{{ old('account_number') }}" required>
+                            @error('account_number')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Nama Pemilik Rekening</label>
-                                <input type="text" class="form-control @error('account_name') is-invalid @enderror"
-                                       name="account_name" value="{{ old('account_name') }}" required>
-                                @error('account_name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pemilik Rekening</label>
+                            <input type="text" class="w-full rounded-lg border {{ $errors->has('account_name') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" name="account_name" value="{{ old('account_name') }}" required>
+                            @error('account_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Catatan (Opsional)</label>
-                                <textarea class="form-control @error('notes') is-invalid @enderror"
-                                          name="notes" rows="3" placeholder="Tambahkan catatan jika diperlukan">{{ old('notes') }}</textarea>
-                                @error('notes')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Catatan (Opsional)</label>
+                            <textarea class="w-full rounded-lg border {{ $errors->has('notes') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" name="notes" rows="3" placeholder="Tambahkan catatan jika diperlukan">{{ old('notes') }}</textarea>
+                            @error('notes')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
 
-                            <div class="mb-3">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span>Jumlah Penarikan</span>
-                                            <span id="displayAmount">Rp 0</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span>Biaya Admin</span>
-                                            <span id="displayFee">Rp 0</span>
-                                        </div>
-                                        <hr>
-                                        <div class="d-flex justify-content-between fw-bold">
-                                            <span>Yang Diterima</span>
-                                            <span id="displayNet" class="text-success">Rp 0</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        {{-- Fee Summary --}}
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                            <div class="flex justify-between mb-2 text-sm">
+                                <span class="text-gray-600">Jumlah Penarikan</span>
+                                <span id="displayAmount">Rp 0</span>
                             </div>
+                            <div class="flex justify-between mb-2 text-sm">
+                                <span class="text-gray-600">Biaya Admin</span>
+                                <span id="displayFee">Rp 0</span>
+                            </div>
+                            <hr class="my-2 border-gray-200">
+                            <div class="flex justify-between font-bold">
+                                <span>Yang Diterima</span>
+                                <span id="displayNet" class="text-green-600">Rp 0</span>
+                            </div>
+                        </div>
 
-                            <div class="d-flex justify-content-end">
-                                <a href="{{ route('vendor.withdrawal.index') }}" class="btn btn-outline-secondary me-2">
-                                    Batal
-                                </a>
-                                <button type="submit" class="btn btn-primary">
-                                    Ajukan Penarikan
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="flex justify-end gap-3">
+                            <a href="{{ route('vendor.withdrawal.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</a>
+                            <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Ajukan Penarikan</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Informasi Saldo</h3>
+            {{-- Info Sidebar --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Informasi Saldo</h3>
+                </div>
+                <div class="p-5">
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-500">Saldo Tersedia</div>
+                        <div class="text-xl font-bold text-green-600">Rp {{ number_format($wallet->available_balance ?? 0, 0, ',', '.') }}</div>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <div class="text-muted small">Saldo Tersedia</div>
-                            <div class="h4 mb-0 text-success">Rp {{ number_format($wallet->available_balance ?? 0, 0, ',', '.') }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="text-muted small">Total Pendapatan</div>
-                            <div class="h5 mb-0">Rp {{ number_format($wallet->total_earned ?? 0, 0, ',', '.') }}</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="text-muted small">Total Ditarik</div>
-                            <div class="h5 mb-0">Rp {{ number_format($wallet->total_withdrawn ?? 0, 0, ',', '.') }}</div>
-                        </div>
-                        <hr>
-                        <div class="text-muted small">
-                            <p class="mb-1">• Penarikan akan diproses dalam 1-3 hari kerja</p>
-                            <p class="mb-1">• Minimum penarikan: Rp {{ number_format($minWithdrawal, 0, ',', '.') }}</p>
-                            <p class="mb-0">• Biaya admin akan dipotong dari jumlah penarikan</p>
-                        </div>
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-500">Total Pendapatan</div>
+                        <div class="text-lg font-semibold">Rp {{ number_format($wallet->total_earned ?? 0, 0, ',', '.') }}</div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-500">Total Ditarik</div>
+                        <div class="text-lg font-semibold">Rp {{ number_format($wallet->total_withdrawn ?? 0, 0, ',', '.') }}</div>
+                    </div>
+                    <hr class="my-4 border-gray-200">
+                    <div class="text-sm text-gray-500 space-y-1">
+                        <p>• Penarikan akan diproses dalam 1-3 hari kerja</p>
+                        <p>• Minimum penarikan: Rp {{ number_format($minWithdrawal, 0, ',', '.') }}</p>
+                        <p>• Biaya admin akan dipotong dari jumlah penarikan</p>
                     </div>
                 </div>
             </div>
@@ -191,26 +155,17 @@
                         displayNet.textContent = formatCurrency(data.net_amount);
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                .catch(error => console.error('Error:', error));
             }
         }
 
-        // Show/hide bank name field based on method
         methodSelect.addEventListener('change', function() {
-            if (this.value === 'bank_transfer') {
-                bankNameGroup.style.display = 'block';
-            } else {
-                bankNameGroup.style.display = 'none';
-            }
+            bankNameGroup.style.display = this.value === 'bank_transfer' ? 'block' : 'none';
             calculateFee();
         });
 
-        // Calculate fee on amount change
         amountInput.addEventListener('input', calculateFee);
 
-        // Initial state
         if (methodSelect.value !== 'bank_transfer') {
             bankNameGroup.style.display = 'none';
         }

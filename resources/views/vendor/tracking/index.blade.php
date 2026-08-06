@@ -3,391 +3,263 @@
 @section('title', 'Kelola Tracking Pesanan')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Kelola Tracking Pesanan</h3>
-                    <div class="card-subtitle">Update status pesanan dari lelang</div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" x-data="trackingManager()">
+    <div class="bg-white rounded-xl border border-gray-200">
+        <div class="px-5 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Kelola Tracking Pesanan</h3>
+            <p class="text-sm text-gray-500 mt-1">Update status pesanan dari lelang</p>
+        </div>
+        <div class="p-5">
+            @if (session('success'))
+                <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-green-800"><i class="fas fa-check-circle"></i><span>{{ session('success') }}</span></div>
+                    <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+            @endif
 
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Kode Transaksi</th>
-                                    <th>Lelang</th>
-                                    <th>Pelanggan</th>
-                                    <th>Status</th>
-                                    <th>Total</th>
-                                    <th>Ongkir</th>
-                                    <th>No. Resi</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($auctions as $auction)
-                                    <tr>
-                                        <td>{{ $auction->transaksi->kode ?? $auction->kode }}</td>
-                                        <td>
-                                            <div>
-                                                <strong>{{ $auction->title }}</strong><br>
-                                                <small class="text-muted">Kode: {{ $auction->kode }}</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <strong>{{ $auction->user->name }}</strong><br>
-                                                <small class="text-muted">{{ $auction->user->email }}</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ getStatusColor($auction->transaksi->tracking_status ?? 'menunggu') }}">
-                                                {{ ucfirst($auction->transaksi->tracking_status ?? 'menunggu') }}
-                                            </span>
-                                        </td>
-                                        <td>Rp {{ number_format($auction->winning_bid) }}</td>
-                                        <td>
-                                            @if ($auction->shippingInvoice)
-                                                Rp {{ number_format($auction->shippingInvoice->shipping_cost) }}
-                                                @if ($auction->shippingInvoice->payment_status === 'pending')
-                                                    <span class="badge bg-warning ms-1">Belum Bayar</span>
-                                                @elseif($auction->shippingInvoice->payment_status === 'paid')
-                                                    <span class="badge bg-success ms-1">Lunas</span>
-                                                @endif
-                                            @else
-                                                <button class="btn btn-sm btn-outline-primary"
-                                                    onclick="createShippingInvoice({{ $auction->id }})">
-                                                    Buat Invoice
-                                                </button>
-                                            @endif
-                                        </td>
-                                        <td>{{ $auction->shippingInvoice->waybill_number ?? '-' }}</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                @if ($auction->shippingInvoice)
-                                                    <button class="btn btn-sm btn-primary"
-                                                        onclick="updateShippingStatus({{ $auction->id }})">
-                                                        Update Status
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info"
-                                                        onclick="trackShipment({{ $auction->id }})">
-                                                        Track
-                                                    </button>
-                                                @else
-                                                    <button class="btn btn-sm btn-success"
-                                                        onclick="createShippingInvoice({{ $auction->id }})">
-                                                        Setup Shipping
-                                                    </button>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="8" class="text-center py-4">
-                                            <div class="empty">
-                                                <div class="empty-icon">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="64"
-                                                        height="64" viewBox="0 0 24 24" stroke-width="1"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                                        <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                                        <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                                                    </svg>
-                                                </div>
-                                                <p class="empty-title">Belum ada pesanan dari lelang</p>
-                                                <p class="empty-subtitle text-muted">
-                                                    Pesanan akan muncul di sini setelah ada lelang yang dimenangkan.
-                                                </p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Kode Transaksi</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Lelang</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Pelanggan</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Total</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Ongkir</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">No. Resi</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($auctions as $auction)
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4">{{ $auction->transaksi->kode ?? $auction->kode }}</td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium">{{ $auction->title }}</div>
+                                    <div class="text-xs text-gray-500">Kode: {{ $auction->kode }}</div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium">{{ $auction->user->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $auction->user->email }}</div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    @php
+                                        $trackingStatus = $auction->transaksi->tracking_status ?? 'menunggu';
+                                        $statusColors = [
+                                            'menunggu' => 'bg-gray-100 text-gray-800',
+                                            'diproses' => 'bg-blue-100 text-blue-800',
+                                            'dicetak' => 'bg-amber-100 text-amber-800',
+                                            'dikirim' => 'bg-primary-100 text-primary-800',
+                                            'selesai' => 'bg-green-100 text-green-800',
+                                        ];
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$trackingStatus] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ ucfirst($trackingStatus) }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 font-medium">Rp {{ number_format($auction->winning_bid) }}</td>
+                                <td class="py-3 px-4">
+                                    @if ($auction->shippingInvoice)
+                                        Rp {{ number_format($auction->shippingInvoice->shipping_cost) }}
+                                        @if ($auction->shippingInvoice->payment_status === 'pending')
+                                            <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Belum Bayar</span>
+                                        @elseif($auction->shippingInvoice->payment_status === 'paid')
+                                            <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Lunas</span>
+                                        @endif
+                                    @else
+                                        <button @click="openCreateInvoice({{ $auction->id }})" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Buat Invoice</button>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4">{{ $auction->shippingInvoice->waybill_number ?? '-' }}</td>
+                                <td class="py-3 px-4">
+                                    <div class="flex gap-1">
+                                        @if ($auction->shippingInvoice)
+                                            <button @click="openUpdateStatus({{ $auction->id }})" class="px-2 py-1 bg-primary-600 text-white rounded text-xs font-medium hover:bg-primary-700 transition-colors">Update</button>
+                                            <a href="/dashboard/tracking/{{ $auction->id }}/track" target="_blank" class="px-2 py-1 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors">Track</a>
+                                        @else
+                                            <button @click="openCreateInvoice({{ $auction->id }})" class="px-2 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors">Setup Shipping</button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-12">
+                                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <p class="text-lg font-medium text-gray-900">Belum ada pesanan dari lelang</p>
+                                    <p class="text-sm text-gray-500 mt-1">Pesanan akan muncul di sini setelah ada lelang yang dimenangkan.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Create Shipping Invoice Modal -->
-    <div class="modal fade" id="createShippingInvoiceModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Buat Shipping Invoice</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    {{-- Create Shipping Invoice Modal --}}
+    <div x-show="showCreateModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" x-cloak @keydown.escape.window="showCreateModal = false">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showCreateModal = false"></div>
+            <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full p-6" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Buat Shipping Invoice</h3>
+                    <button @click="showCreateModal = false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
                 </div>
-                <form id="createShippingInvoiceForm" method="POST">
+                <form id="createShippingInvoiceForm" method="POST" @submit.prevent="submitCreateInvoice()">
                     @csrf
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Kurir</label>
-                                    <select name="courier" class="form-control" required>
-                                        <option value="">Pilih Kurir</option>
-                                        <option value="jne">JNE</option>
-                                        <option value="tiki">TIKI</option>
-                                        <option value="pos">POS Indonesia</option>
-                                        <option value="jnt">J&T Express</option>
-                                        <option value="sicepat">SiCepat</option>
-                                        <option value="ninja">Ninja Xpress</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Layanan</label>
-                                    <select name="service" class="form-control" required>
-                                        <option value="">Pilih Layanan</option>
-                                        <option value="reg">Regular</option>
-                                        <option value="eco">Economy</option>
-                                        <option value="ons">Overnight</option>
-                                    </select>
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kurir</label>
+                            <select name="courier" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                <option value="">Pilih Kurir</option>
+                                <option value="jne">JNE</option>
+                                <option value="tiki">TIKI</option>
+                                <option value="pos">POS Indonesia</option>
+                                <option value="jnt">J&T Express</option>
+                                <option value="sicepat">SiCepat</option>
+                                <option value="ninja">Ninja Xpress</option>
+                            </select>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Berat (gram)</label>
-                                    <input type="number" name="weight" class="form-control" min="1" required
-                                        placeholder="1000">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Kota Asal</label>
-                                    <input type="text" name="origin_city" class="form-control" required
-                                        placeholder="Jakarta">
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Layanan</label>
+                            <select name="service" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                <option value="">Pilih Layanan</option>
+                                <option value="reg">Regular</option>
+                                <option value="eco">Economy</option>
+                                <option value="ons">Overnight</option>
+                            </select>
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Kota Tujuan</label>
-                                    <input type="text" name="destination_city" class="form-control" required
-                                        placeholder="Bandung">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Alamat Asal</label>
-                                    <textarea name="origin_address" class="form-control" rows="2" required placeholder="Alamat vendor"></textarea>
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Berat (gram)</label>
+                            <input type="number" name="weight" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" min="1" required placeholder="1000">
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Alamat Tujuan</label>
-                            <textarea name="destination_address" class="form-control" rows="3" required
-                                placeholder="Alamat pengiriman user"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kota Asal</label>
+                            <input type="text" name="origin_city" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required placeholder="Jakarta">
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Catatan</label>
-                            <textarea name="notes" class="form-control" rows="2" placeholder="Catatan pengiriman (opsional)"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kota Tujuan</label>
+                            <input type="text" name="destination_city" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required placeholder="Bandung">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Asal</label>
+                            <textarea name="origin_address" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="2" required placeholder="Alamat vendor"></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Buat Invoice</button>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Tujuan</label>
+                        <textarea name="destination_address" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="3" required placeholder="Alamat pengiriman user"></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                        <textarea name="notes" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="2" placeholder="Catatan pengiriman (opsional)"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-6">
+                        <button type="button" @click="showCreateModal = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm" :disabled="creatingInvoice">{{ creatingInvoice ? 'Membuat...' : 'Buat Invoice' }}</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Update Shipping Status Modal -->
-    <div class="modal fade" id="updateShippingStatusModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Update Status Pengiriman</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    {{-- Update Shipping Status Modal --}}
+    <div x-show="showUpdateModal" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" x-cloak @keydown.escape.window="showUpdateModal = false">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="showUpdateModal = false"></div>
+            <div class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Update Status Pengiriman</h3>
+                    <button @click="showUpdateModal = false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
                 </div>
-                <form id="updateShippingStatusForm" method="POST">
+                <form id="updateShippingStatusForm" method="POST" @submit.prevent="submitUpdateStatus()">
                     @csrf
                     @method('PUT')
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Status Pengiriman</label>
-                                    <select name="shipping_status" class="form-control" required>
-                                        <option value="pending">Pending</option>
-                                        <option value="processing">Processing</option>
-                                        <option value="shipped">Shipped</option>
-                                        <option value="delivered">Delivered</option>
-                                        <option value="failed">Failed</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">No. Resi</label>
-                                    <input type="text" name="waybill_number" class="form-control"
-                                        placeholder="Masukkan nomor resi">
-                                </div>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status Pengiriman</label>
+                            <select name="shipping_status" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" required>
+                                <option value="pending">Pending</option>
+                                <option value="processing">Processing</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="failed">Failed</option>
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Catatan</label>
-                            <textarea name="notes" class="form-control" rows="3" placeholder="Catatan status pengiriman"></textarea>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">No. Resi</label>
+                            <input type="text" name="waybill_number" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Masukkan nomor resi">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
+                        <textarea name="notes" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="3" placeholder="Catatan status pengiriman"></textarea>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-6">
+                        <button type="button" @click="showUpdateModal = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm" :disabled="updatingStatus">{{ updatingStatus ? 'Menyimpan...' : 'Update Status' }}</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        function createShippingInvoice(auctionId) {
-            const modal = new bootstrap.Modal(document.getElementById('createShippingInvoiceModal'));
-            const form = document.getElementById('createShippingInvoiceForm');
+<script>
+function trackingManager() {
+    return {
+        showCreateModal: false,
+        showUpdateModal: false,
+        creatingInvoice: false,
+        updatingStatus: false,
+        currentAuctionId: null,
 
-            // Set form action
-            form.action = `/dashboard/tracking/${auctionId}/shipping-invoice`;
+        openCreateInvoice(auctionId) {
+            this.currentAuctionId = auctionId;
+            this.showCreateModal = true;
+        },
 
-            modal.show();
-        }
+        openUpdateStatus(auctionId) {
+            this.currentAuctionId = auctionId;
+            this.showUpdateModal = true;
+        },
 
-        function updateShippingStatus(auctionId) {
-            const modal = new bootstrap.Modal(document.getElementById('updateShippingStatusModal'));
-            const form = document.getElementById('updateShippingStatusForm');
-
-            // Set form action
-            form.action = `/dashboard/tracking/${auctionId}/shipping-status`;
-
-            modal.show();
-        }
-
-        function trackShipment(auctionId) {
-            // Redirect to tracking page or open tracking modal
-            window.open(`/dashboard/tracking/${auctionId}/track`, '_blank');
-        }
-
-        // Handle form submissions with AJAX
-        document.addEventListener('DOMContentLoaded', function() {
-            // Create Shipping Invoice Form
-            const createForm = document.getElementById('createShippingInvoiceForm');
-            if (createForm) {
-                createForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    const formData = new FormData(this);
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Membuat Invoice...';
-
-                    fetch(this.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Shipping invoice berhasil dibuat!');
-                                location.reload();
-                            } else {
-                                alert('Error: ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Terjadi kesalahan saat membuat invoice');
-                        })
-                        .finally(() => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
-                        });
+        async submitCreateInvoice() {
+            this.creatingInvoice = true;
+            try {
+                const form = document.getElementById('createShippingInvoiceForm');
+                const formData = new FormData(form);
+                const response = await fetch(`/dashboard/tracking/${this.currentAuctionId}/shipping-invoice`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
                 });
-            }
+                const data = await response.json();
+                if (data.success) { alert('Shipping invoice berhasil dibuat!'); location.reload(); }
+                else { alert('Error: ' + data.message); }
+            } catch (e) { alert('Terjadi kesalahan saat membuat invoice'); }
+            finally { this.creatingInvoice = false; }
+        },
 
-            // Update Shipping Status Form
-            const updateForm = document.getElementById('updateShippingStatusForm');
-            if (updateForm) {
-                updateForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    const formData = new FormData(this);
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Memperbarui Status...';
-
-                    fetch(this.action, {
-                            method: 'PUT',
-                            body: formData,
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content')
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Status pengiriman berhasil diperbarui!');
-                                location.reload();
-                            } else {
-                                alert('Error: ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Terjadi kesalahan saat memperbarui status');
-                        })
-                        .finally(() => {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = originalText;
-                        });
+        async submitUpdateStatus() {
+            this.updatingStatus = true;
+            try {
+                const form = document.getElementById('updateShippingStatusForm');
+                const formData = new FormData(form);
+                const response = await fetch(`/dashboard/tracking/${this.currentAuctionId}/shipping-status`, {
+                    method: 'PUT',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') }
                 });
-            }
-        });
-    </script>
-@endsection
-
-@php
-    function getStatusColor($status)
-    {
-        switch ($status) {
-            case 'menunggu':
-                return 'secondary';
-            case 'diproses':
-                return 'info';
-            case 'dicetak':
-                return 'warning';
-            case 'dikirim':
-                return 'primary';
-            case 'selesai':
-                return 'success';
-            default:
-                return 'secondary';
+                const data = await response.json();
+                if (data.success) { alert('Status pengiriman berhasil diperbarui!'); location.reload(); }
+                else { alert('Error: ' + data.message); }
+            } catch (e) { alert('Terjadi kesalahan saat memperbarui status'); }
+            finally { this.updatingStatus = false; }
         }
     }
-@endphp
+}
+</script>
+@endsection

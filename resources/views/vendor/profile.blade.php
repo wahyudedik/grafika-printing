@@ -3,164 +3,148 @@
 @section('title', 'Profile Vendor - ' . $vendor->name)
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="d-flex align-items-center">
-                        @if ($vendor->logo)
-                            <img src="{{ asset('storage/' . $vendor->logo) }}" alt="{{ $vendor->name }}"
-                                class="rounded-circle me-3" width="60" height="60">
-                        @else
-                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                style="width: 60px; height: 60px;">
-                                <span class="text-white fw-bold fs-4">{{ substr($vendor->name, 0, 1) }}</span>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {{-- Profile Header --}}
+        <div class="px-6 py-5 border-b border-gray-200">
+            <div class="flex items-center gap-4">
+                @if ($vendor->logo)
+                    <img src="{{ asset('storage/' . $vendor->logo) }}" alt="{{ $vendor->name }}" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center border-2 border-primary-200">
+                        <span class="text-primary-700 font-bold text-xl">{{ substr($vendor->name, 0, 1) }}</span>
+                    </div>
+                @endif
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900">{{ $vendor->name }}</h2>
+                    <p class="text-sm text-gray-500">{{ $vendor->email }} • {{ $vendor->phone }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {{-- Vendor Info --}}
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Vendor</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <span class="text-sm font-semibold text-gray-700">Alamat:</span>
+                            <p class="text-sm text-gray-600 mt-1">{{ $vendor->address }}</p>
+                        </div>
+                        @if ($vendor->website)
+                            <div>
+                                <span class="text-sm font-semibold text-gray-700">Website:</span>
+                                <p class="mt-1">
+                                    <a href="{{ $vendor->website }}" target="_blank" class="text-primary-600 hover:text-primary-700 text-sm flex items-center gap-1">
+                                        {{ $vendor->website }} <i class="fas fa-external-link-alt text-xs"></i>
+                                    </a>
+                                </p>
                             </div>
                         @endif
                         <div>
-                            <h3 class="mb-1">{{ $vendor->name }}</h3>
-                            <p class="text-muted mb-0">{{ $vendor->email }} • {{ $vendor->phone }}</p>
+                            <span class="text-sm font-semibold text-gray-700">Status:</span>
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $vendor->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                {{ $vendor->is_active ? 'Aktif' : 'Tidak Aktif' }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-sm font-semibold text-gray-700">Bergabung:</span>
+                            <p class="text-sm text-gray-600 mt-1">{{ $vendor->created_at->format('d M Y') }}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-semibold text-gray-700">Total Proyek:</span>
+                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                {{ $vendor->completedAuctions()->count() }} selesai
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <!-- Vendor Info -->
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Informasi Vendor</h3>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <strong>Alamat:</strong><br>
-                                        {{ $vendor->address }}
-                                    </div>
-                                    @if ($vendor->website)
-                                        <div class="mb-3">
-                                            <strong>Website:</strong><br>
-                                            <a href="{{ $vendor->website }}" target="_blank" class="text-decoration-none">
-                                                {{ $vendor->website }}
-                                                <i class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i>
-                                            </a>
-                                        </div>
+
+                {{-- Rating Summary --}}
+                <div class="lg:col-span-2 bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Rating & Testimoni</h3>
+
+                    {{-- Rating Overview --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-amber-500">{{ number_format($averageRating, 1) }}</div>
+                            <div class="text-sm text-gray-500 mt-1">Rating Rata-rata</div>
+                            <div class="mt-2 flex justify-center gap-0.5">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if ($i <= floor($averageRating))
+                                        <i class="fas fa-star text-amber-400 text-sm"></i>
+                                    @elseif($i - 0.5 <= $averageRating)
+                                        <i class="fas fa-star-half-alt text-amber-400 text-sm"></i>
+                                    @else
+                                        <i class="far fa-star text-amber-400 text-sm"></i>
                                     @endif
-                                    <div class="mb-3">
-                                        <strong>Status:</strong>
-                                        <span class="badge {{ $vendor->is_active ? 'bg-success' : 'bg-danger' }}">
-                                            {{ $vendor->is_active ? 'Aktif' : 'Tidak Aktif' }}
-                                        </span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <strong>Bergabung:</strong><br>
-                                        {{ $vendor->created_at->format('d M Y') }}
-                                    </div>
-                                    <div class="mb-3">
-                                        <strong>Total Proyek:</strong><br>
-                                        <span class="badge bg-primary">{{ $vendor->completedAuctions()->count() }}
-                                            selesai</span>
-                                    </div>
-                                </div>
+                                @endfor
                             </div>
                         </div>
-
-                        <!-- Rating Summary -->
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Rating & Testimoni</h3>
-                                </div>
-                                <div class="card-body">
-                                    <!-- Rating Overview -->
-                                    <div class="row mb-4">
-                                        <div class="col-md-4 text-center">
-                                            <div class="display-4 fw-bold text-warning">
-                                                {{ number_format($averageRating, 1) }}</div>
-                                            <div class="text-muted">Rating Rata-rata</div>
-                                            <div class="mt-2">
-                                                @for ($i = 1; $i <= 5; $i++)
-                                                    @if ($i <= floor($averageRating))
-                                                        <i class="fas fa-star text-warning"></i>
-                                                    @elseif($i - 0.5 <= $averageRating)
-                                                        <i class="fas fa-star-half-alt text-warning"></i>
-                                                    @else
-                                                        <i class="far fa-star text-warning"></i>
-                                                    @endif
-                                                @endfor
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center">
-                                            <div class="display-4 fw-bold text-primary">{{ $ratingCount }}</div>
-                                            <div class="text-muted">Total Rating</div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="text-center">
-                                                <div class="fw-bold">Distribusi Rating</div>
-                                                @foreach ($ratingDistribution as $dist)
-                                                    <div class="d-flex align-items-center mb-1">
-                                                        <span class="me-2">{{ $dist->rating }} ⭐</span>
-                                                        <div class="progress flex-grow-1" style="height: 8px;">
-                                                            <div class="progress-bar bg-warning"
-                                                                style="width: {{ $ratingCount > 0 ? ($dist->count / $ratingCount) * 100 : 0 }}%">
-                                                            </div>
-                                                        </div>
-                                                        <span class="ms-2 small">{{ $dist->count }}</span>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-primary-600">{{ $ratingCount }}</div>
+                            <div class="text-sm text-gray-500 mt-1">Total Rating</div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-semibold text-gray-700 text-center mb-2">Distribusi Rating</div>
+                            @foreach ($ratingDistribution as $dist)
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-xs text-gray-600 w-12">{{ $dist->rating }} ⭐</span>
+                                    <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                        <div class="bg-amber-400 h-2 rounded-full" style="width: {{ $ratingCount > 0 ? ($dist->count / $ratingCount) * 100 : 0 }}%"></div>
                                     </div>
-
-                                    <!-- Recent Ratings -->
-                                    <h6 class="mb-3">Testimoni Terbaru</h6>
-                                    @if ($vendor->verifiedRatings->count() > 0)
-                                        @foreach ($vendor->verifiedRatings->take(5) as $rating)
-                                            <div class="border rounded p-3 mb-3">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <div>
-                                                        <strong>{{ $rating->user->name }}</strong>
-                                                        <div class="text-muted small">
-                                                            {{ $rating->created_at->format('d M Y') }}</div>
-                                                    </div>
-                                                    <div>
-                                                        @for ($i = 1; $i <= 5; $i++)
-                                                            @if ($i <= $rating->rating)
-                                                                <i class="fas fa-star text-warning"></i>
-                                                            @else
-                                                                <i class="far fa-star text-warning"></i>
-                                                            @endif
-                                                        @endfor
-                                                    </div>
-                                                </div>
-                                                @if ($rating->comment)
-                                                    <p class="mb-0">{{ $rating->comment }}</p>
-                                                @endif
-                                                @if ($rating->rating_details)
-                                                    <div class="mt-2">
-                                                        @foreach ($rating->rating_details as $key => $value)
-                                                            @if ($value)
-                                                                <span class="badge bg-light text-dark me-1">
-                                                                    {{ ucfirst($key) }}: {{ $value }}/5
-                                                                </span>
-                                                            @endif
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    @else
-                                        <div class="text-center text-muted py-4">
-                                            <i class="fas fa-star fa-3x mb-3"></i>
-                                            <p>Belum ada testimoni untuk vendor ini</p>
-                                        </div>
-                                    @endif
+                                    <span class="text-xs text-gray-500 w-6 text-right">{{ $dist->count }}</span>
                                 </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
+
+                    {{-- Recent Ratings --}}
+                    <h4 class="font-semibold text-gray-900 mb-3">Testimoni Terbaru</h4>
+                    @if ($vendor->verifiedRatings->count() > 0)
+                        @foreach ($vendor->verifiedRatings->take(5) as $rating)
+                            <div class="bg-white rounded-lg border border-gray-200 p-4 mb-3">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div>
+                                        <strong class="text-gray-900">{{ $rating->user->name }}</strong>
+                                        <div class="text-xs text-gray-500">{{ $rating->created_at->format('d M Y') }}</div>
+                                    </div>
+                                    <div class="flex gap-0.5">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= $rating->rating)
+                                                <i class="fas fa-star text-amber-400 text-sm"></i>
+                                            @else
+                                                <i class="far fa-star text-amber-400 text-sm"></i>
+                                            @endif
+                                        @endfor
+                                    </div>
+                                </div>
+                                @if ($rating->comment)
+                                    <p class="text-sm text-gray-600 mb-0">{{ $rating->comment }}</p>
+                                @endif
+                                @if ($rating->rating_details)
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach ($rating->rating_details as $key => $value)
+                                            @if ($value)
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                    {{ ucfirst($key) }}: {{ $value }}/5
+                                                </span>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-8">
+                            <i class="fas fa-star text-gray-300 text-4xl mb-3"></i>
+                            <p class="text-gray-500">Belum ada testimoni untuk vendor ini</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-    </div>
+</div>
 @endsection

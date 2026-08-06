@@ -1,119 +1,75 @@
-<a href="?theme=light" class="nav-link px-0 hide-theme-light" title="Enable light mode" data-bs-toggle="tooltip"
-    data-bs-placement="bottom">
-    <!-- Download SVG icon from http://tabler.io/icons/icon/sun -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-        <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-        <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
-    </svg>
-</a>
-<div class="nav-item dropdown d-none d-md-flex me-3">
-    <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
-        <!-- Download SVG icon from http://tabler.io/icons/icon/bell -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-            <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
-            <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
-        </svg>
-        <span class="badge bg-red"></span>
-    </a>
-    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Last updates</h3>
-            </div>
-            <div class="list-group list-group-flush list-group-hoverable">
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span>
-                        </div>
-                        <div class="col text-truncate">
-                            <a href="#" class="text-body d-block">Example 1</a>
-                            <div class="d-block text-secondary text-truncate mt-n1">
-                                Change deprecated html tags to text decoration classes (#29604)
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#" class="list-group-item-actions">
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/star -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="icon text-muted icon-2">
-                                    <path
-                                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                </svg>
-                            </a>
-                        </div>
+<div class="relative" x-data="{ showNotifications: false }" @click.away="showNotifications = false">
+    <button @click="showNotifications = !showNotifications" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors" aria-label="Show notifications">
+        <i class="fas fa-bell text-lg"></i>
+        <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+    </button>
+
+    <div x-show="showNotifications" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+        class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+
+        <div class="px-4 py-3 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-900">Last updates</h3>
+        </div>
+
+        <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+            <div class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start gap-3">
+                    <span class="mt-1 w-2 h-2 bg-red-500 rounded-full flex-shrink-0 animate-pulse"></span>
+                    <div class="flex-1 min-w-0">
+                        <a href="#" class="text-sm font-medium text-gray-900 hover:text-primary-600 block truncate">Example 1</a>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">Change deprecated html tags to text decoration classes (#29604)</p>
                     </div>
-                </div>
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="status-dot d-block"></span></div>
-                        <div class="col text-truncate">
-                            <a href="#" class="text-body d-block">Example 2</a>
-                            <div class="d-block text-secondary text-truncate mt-n1">
-                                justify-content:between ⇒ justify-content:space-between (#29734)
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#" class="list-group-item-actions show">
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/star -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="icon text-yellow icon-2">
-                                    <path
-                                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="status-dot d-block"></span></div>
-                        <div class="col text-truncate">
-                            <a href="#" class="text-body d-block">Example 3</a>
-                            <div class="d-block text-secondary text-truncate mt-n1">
-                                Update change-version.js (#29736)
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#" class="list-group-item-actions">
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/star -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="icon text-muted icon-2">
-                                    <path
-                                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="list-group-item">
-                    <div class="row align-items-center">
-                        <div class="col-auto"><span class="status-dot status-dot-animated bg-green d-block"></span>
-                        </div>
-                        <div class="col text-truncate">
-                            <a href="#" class="text-body d-block">Example 4</a>
-                            <div class="d-block text-secondary text-truncate mt-n1">
-                                Regenerate package-lock.json (#29730)
-                            </div>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#" class="list-group-item-actions">
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/star -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="icon text-muted icon-2">
-                                    <path
-                                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
+                    <button class="p-1 text-gray-400 hover:text-yellow-500 rounded transition-colors flex-shrink-0" title="Star">
+                        <i class="fas fa-star text-sm"></i>
+                    </button>
                 </div>
             </div>
+
+            <div class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start gap-3">
+                    <span class="mt-1 w-2 h-2 bg-gray-400 rounded-full flex-shrink-0"></span>
+                    <div class="flex-1 min-w-0">
+                        <a href="#" class="text-sm font-medium text-gray-900 hover:text-primary-600 block truncate">Example 2</a>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">justify-content:between ⇒ justify-content:space-between (#29734)</p>
+                    </div>
+                    <button class="p-1 text-yellow-500 hover:text-yellow-600 rounded transition-colors flex-shrink-0" title="Starred">
+                        <i class="fas fa-star text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start gap-3">
+                    <span class="mt-1 w-2 h-2 bg-gray-400 rounded-full flex-shrink-0"></span>
+                    <div class="flex-1 min-w-0">
+                        <a href="#" class="text-sm font-medium text-gray-900 hover:text-primary-600 block truncate">Example 3</a>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">Update change-version.js (#29736)</p>
+                    </div>
+                    <button class="p-1 text-gray-400 hover:text-yellow-500 rounded transition-colors flex-shrink-0" title="Star">
+                        <i class="fas fa-star text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start gap-3">
+                    <span class="mt-1 w-2 h-2 bg-green-500 rounded-full flex-shrink-0 animate-pulse"></span>
+                    <div class="flex-1 min-w-0">
+                        <a href="#" class="text-sm font-medium text-gray-900 hover:text-primary-600 block truncate">Example 4</a>
+                        <p class="text-xs text-gray-500 mt-0.5 truncate">Regenerate package-lock.json (#29730)</p>
+                    </div>
+                    <button class="p-1 text-gray-400 hover:text-yellow-500 rounded transition-colors flex-shrink-0" title="Star">
+                        <i class="fas fa-star text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-4 py-2 border-t border-gray-100 bg-gray-50">
+            <a href="#" class="text-xs font-medium text-primary-600 hover:text-primary-800">View all notifications</a>
         </div>
     </div>
 </div>

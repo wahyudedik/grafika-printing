@@ -3,99 +3,79 @@
 @section('title', 'Riwayat Penarikan Wallet')
 
 @section('content')
-<div class="page-header d-print-none">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <div class="page-pretitle">Vendor Panel</div>
-            <h2 class="page-title">Riwayat Penarikan Wallet</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="btn btn-primary">
-                Tarik Dana
-            </a>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
+        <h2 class="text-2xl font-bold text-gray-900">Riwayat Penarikan Wallet</h2>
     </div>
+    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Tarik Dana</a>
 </div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Semua Penarikan</h3>
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Semua Penarikan</h3>
             </div>
-            <div class="card-body">
+            <div class="p-5">
                 @if($withdrawals->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr>
-                                <th>Kode</th>
-                                <th>Jumlah</th>
-                                <th>Metode</th>
-                                <th>Status</th>
-                                <th>Tanggal</th>
-                                <th class="w-1"></th>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Kode</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Jumlah</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Metode</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Tanggal</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600"></th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($withdrawals as $withdrawal)
-                            <tr>
-                                <td>
-                                    <span class="font-weight-medium">{{ $withdrawal->withdrawal_code }}</span>
-                                </td>
-                                <td>
-                                    <span class="fw-bold">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</span>
-                                </td>
-                                <td>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 font-medium">{{ $withdrawal->withdrawal_code }}</td>
+                                <td class="py-3 px-4 font-bold">Rp {{ number_format($withdrawal->amount, 0, ',', '.') }}</td>
+                                <td class="py-3 px-4">
                                     @if($withdrawal->method === 'bank_transfer')
-                                        <span class="badge bg-blue-lt">Transfer Bank</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Transfer Bank</span>
                                     @elseif($withdrawal->method === 'e_wallet')
-                                        <span class="badge bg-purple-lt">E-Wallet</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">E-Wallet</span>
                                     @else
-                                        <span class="badge bg-green-lt">Tunai</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Tunai</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="py-3 px-4">
                                     @if($withdrawal->status === 'pending')
-                                        <span class="badge bg-warning-lt">Menunggu</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">Menunggu</span>
                                     @elseif($withdrawal->status === 'approved')
-                                        <span class="badge bg-success-lt">Disetujui</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disetujui</span>
                                     @elseif($withdrawal->status === 'processing')
-                                        <span class="badge bg-info-lt">Diproses</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Diproses</span>
                                     @elseif($withdrawal->status === 'completed')
-                                        <span class="badge bg-success">Selesai</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500 text-white">Selesai</span>
                                     @elseif($withdrawal->status === 'rejected')
-                                        <span class="badge bg-danger-lt">Ditolak</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Ditolak</span>
                                     @elseif($withdrawal->status === 'cancelled')
-                                        <span class="badge bg-secondary-lt">Dibatalkan</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Dibatalkan</span>
                                     @endif
                                 </td>
-                                <td>
-                                    {{ $withdrawal->created_at->format('d M Y H:i') }}
-                                </td>
-                                <td>
-                                    <a href="{{ route('vendor.wallet.show-withdrawal', $withdrawal) }}" class="btn btn-sm btn-outline-primary">
-                                        Detail
-                                    </a>
+                                <td class="py-3 px-4 text-gray-500">{{ $withdrawal->created_at->format('d M Y H:i') }}</td>
+                                <td class="py-3 px-4">
+                                    <a href="{{ route('vendor.wallet.show-withdrawal', $withdrawal) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Detail</a>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $withdrawals->links() }}
-                </div>
+                <div class="mt-4 flex justify-center">{{ $withdrawals->links() }}</div>
                 @else
-                <div class="empty">
-                    <p class="empty-title">Belum ada penarikan</p>
-                    <p class="empty-subtitle text-muted">Ajukan penarikan dana pertama Anda</p>
-                    <div class="empty-action">
-                        <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="btn btn-primary">
-                            Tarik Dana
-                        </a>
-                    </div>
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                    <p class="text-lg font-medium text-gray-900">Belum ada penarikan</p>
+                    <p class="text-sm text-gray-500 mt-1">Ajukan penarikan dana pertama Anda</p>
+                    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Tarik Dana</a>
                 </div>
                 @endif
             </div>

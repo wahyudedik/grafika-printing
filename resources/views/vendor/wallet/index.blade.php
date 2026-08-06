@@ -3,213 +3,150 @@
 @section('title', 'Wallet Dashboard')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h3 mb-1">Wallet Dashboard</h2>
-                    <p class="text-muted">Kelola saldo dan penarikan dana Anda</p>
-                </div>
-                <div>
-                    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="btn btn-primary">
-                        <i class="fas fa-money-bill-wave me-1"></i>
-                        Tarik Dana
-                    </a>
-                </div>
-            </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900">Wallet Dashboard</h2>
+        <p class="text-sm text-gray-500">Kelola saldo dan penarikan dana Anda</p>
+    </div>
+    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
+        <i class="fas fa-money-bill-wave"></i>
+        Tarik Dana
+    </a>
+</div>
 
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+@if (session('success'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-2 text-green-800">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+        <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+    </div>
+@endif
 
-            @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-            @endif
+@if (session('error'))
+    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
+        <div class="flex items-center gap-2 text-red-800">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+        <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
+    </div>
+@endif
 
-            <!-- Wallet Overview -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Saldo Tersedia</div>
-                            </div>
-                            <div class="h1 mb-3">Rp {{ number_format($stats['available_balance']) }}</div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-success" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Total Pendapatan</div>
-                            </div>
-                            <div class="h1 mb-3">Rp {{ number_format($stats['total_earned']) }}</div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-primary" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Total Ditarik</div>
-                            </div>
-                            <div class="h1 mb-3">Rp {{ number_format($stats['total_withdrawn']) }}</div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-info" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="subheader">Pending Penarikan</div>
-                            </div>
-                            <div class="h1 mb-3">Rp {{ number_format($stats['pending_withdrawals']) }}</div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-warning" style="width: 100%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <!-- Recent Transactions -->
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Transaksi Terbaru</h3>
-                            <div class="card-actions">
-                                <a href="{{ route('vendor.wallet.transactions') }}" class="btn btn-outline-primary btn-sm">
-                                    Lihat Semua
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            @if ($transactions->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Tanggal</th>
-                                                <th>Jenis</th>
-                                                <th>Kategori</th>
-                                                <th>Jumlah</th>
-                                                <th>Saldo</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($transactions as $transaction)
-                                                <tr>
-                                                    <td>{{ $transaction->created_at->format('d M Y H:i') }}</td>
-                                                    <td>
-                                                        <span
-                                                            class="badge bg-{{ $transaction->type === 'credit' ? 'success' : 'danger' }}">
-                                                            {{ $transaction->type === 'credit' ? 'Masuk' : 'Keluar' }}
-                                                        </span>
-                                                    </td>
-                                                    <td>{{ $transaction->category_label }}</td>
-                                                    <td
-                                                        class="fw-bold {{ $transaction->type === 'credit' ? 'text-success' : 'text-danger' }}">
-                                                        {{ $transaction->formatted_amount }}
-                                                    </td>
-                                                    <td>Rp {{ number_format($transaction->balance_after) }}</td>
-                                                    <td>
-                                                        <span class="badge bg-{{ $transaction->status_color }}">
-                                                            {{ $transaction->status_label }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="empty">
-                                    <div class="empty-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="64" height="64"
-                                            viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                            <path
-                                                d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                                            <path d="M9 12l2 2l4 -4" />
-                                        </svg>
-                                    </div>
-                                    <p class="empty-title">Belum ada transaksi</p>
-                                    <p class="empty-subtitle text-muted">
-                                        Transaksi akan muncul di sini setelah ada pembayaran dari lelang.
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pending Withdrawals -->
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Penarikan Pending</h3>
-                            <div class="card-actions">
-                                <a href="{{ route('vendor.wallet.withdrawals') }}" class="btn btn-outline-primary btn-sm">
-                                    Lihat Semua
-                                </a>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            @if ($pendingWithdrawals->count() > 0)
-                                @foreach ($pendingWithdrawals as $withdrawal)
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="flex-fill">
-                                            <div class="fw-bold">Rp {{ number_format($withdrawal->amount) }}</div>
-                                            <div class="text-muted small">{{ $withdrawal->created_at->format('d M Y') }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <span class="badge bg-{{ $withdrawal->status_color }}">
-                                                {{ $withdrawal->status_label }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="empty">
-                                    <div class="empty-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="32" height="32"
-                                            viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                            <path
-                                                d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                                            <path d="M9 12l2 2l4 -4" />
-                                        </svg>
-                                    </div>
-                                    <p class="empty-title">Tidak ada penarikan pending</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
+{{-- Wallet Overview --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500 mb-2">Saldo Tersedia</div>
+        <div class="text-2xl font-bold mb-3">Rp {{ number_format($stats['available_balance']) }}</div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
         </div>
     </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500 mb-2">Total Pendapatan</div>
+        <div class="text-2xl font-bold mb-3">Rp {{ number_format($stats['total_earned']) }}</div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-primary-500 h-2 rounded-full" style="width: 100%"></div>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500 mb-2">Total Ditarik</div>
+        <div class="text-2xl font-bold mb-3">Rp {{ number_format($stats['total_withdrawn']) }}</div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 p-5">
+        <div class="text-sm text-gray-500 mb-2">Pending Penarikan</div>
+        <div class="text-2xl font-bold mb-3">Rp {{ number_format($stats['pending_withdrawals']) }}</div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="bg-amber-500 h-2 rounded-full" style="width: 100%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Recent Transactions --}}
+    <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200">
+        <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Transaksi Terbaru</h3>
+            <a href="{{ route('vendor.wallet.transactions') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700">Lihat Semua →</a>
+        </div>
+        <div class="p-5">
+            @if ($transactions->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Tanggal</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Jenis</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Kategori</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Jumlah</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Saldo</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($transactions as $transaction)
+                                <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                    <td class="py-3 px-4 text-gray-500">{{ $transaction->created_at->format('d M Y H:i') }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $transaction->type === 'credit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ $transaction->type === 'credit' ? 'Masuk' : 'Keluar' }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4">{{ $transaction->category_label }}</td>
+                                    <td class="py-3 px-4 font-bold {{ $transaction->type === 'credit' ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $transaction->formatted_amount }}
+                                    </td>
+                                    <td class="py-3 px-4 text-gray-500">Rp {{ number_format($transaction->balance_after) }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $transaction->status_color }}-100 text-{{ $transaction->status_color }}-800">
+                                            {{ $transaction->status_label }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    <p class="text-lg font-medium text-gray-900">Belum ada transaksi</p>
+                    <p class="text-sm text-gray-500 mt-1">Transaksi akan muncul di sini setelah ada pembayaran dari lelang.</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Pending Withdrawals --}}
+    <div class="bg-white rounded-xl border border-gray-200">
+        <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Penarikan Pending</h3>
+            <a href="{{ route('vendor.wallet.withdrawals') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700">Lihat Semua →</a>
+        </div>
+        <div class="p-5">
+            @if ($pendingWithdrawals->count() > 0)
+                @foreach ($pendingWithdrawals as $withdrawal)
+                    <div class="flex items-center justify-between py-3 {{ !$loop->last ? 'border-b border-gray-100' : '' }}">
+                        <div>
+                            <div class="font-bold">Rp {{ number_format($withdrawal->amount) }}</div>
+                            <div class="text-xs text-gray-500">{{ $withdrawal->created_at->format('d M Y') }}</div>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $withdrawal->status_color }}-100 text-{{ $withdrawal->status_color }}-800">
+                            {{ $withdrawal->status_label }}
+                        </span>
+                    </div>
+                @endforeach
+            @else
+                <div class="text-center py-8">
+                    <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    <p class="text-sm font-medium text-gray-900">Tidak ada penarikan pending</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
 @endsection

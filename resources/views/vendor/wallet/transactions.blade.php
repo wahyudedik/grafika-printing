@@ -3,121 +3,79 @@
 @section('title', 'Riwayat Transaksi Wallet')
 
 @section('content')
-<div class="page-header d-print-none">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <div class="page-pretitle">Vendor Panel</div>
-            <h2 class="page-title">Riwayat Transaksi Wallet</h2>
-        </div>
-        <div class="col-auto ms-auto">
-            <a href="{{ route('vendor.wallet.index') }}" class="btn btn-outline-primary">
-                Kembali
-            </a>
-        </div>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
+        <h2 class="text-2xl font-bold text-gray-900">Riwayat Transaksi Wallet</h2>
     </div>
+    <a href="{{ route('vendor.wallet.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Kembali</a>
 </div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <!-- Wallet Summary -->
-        <div class="row row-deck row-cards mb-3">
-            <div class="col-sm-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Saldo Tersedia</div>
-                                <div class="h3 mb-0 mt-1 text-success">Rp {{ number_format($wallet->available_balance ?? 0, 0, ',', '.') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {{-- Wallet Summary --}}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="text-sm text-gray-500">Saldo Tersedia</div>
+                <div class="text-xl font-bold text-green-600 mt-1">Rp {{ number_format($wallet->available_balance ?? 0, 0, ',', '.') }}</div>
             </div>
-            <div class="col-sm-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Total Pendapatan</div>
-                                <div class="h3 mb-0 mt-1">Rp {{ number_format($wallet->total_earned ?? 0, 0, ',', '.') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="text-sm text-gray-500">Total Pendapatan</div>
+                <div class="text-xl font-bold mt-1">Rp {{ number_format($wallet->total_earned ?? 0, 0, ',', '.') }}</div>
             </div>
-            <div class="col-sm-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="text-muted small">Total Ditarik</div>
-                                <div class="h3 mb-0 mt-1">Rp {{ number_format($wallet->total_withdrawn ?? 0, 0, ',', '.') }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="bg-white rounded-xl border border-gray-200 p-5">
+                <div class="text-sm text-gray-500">Total Ditarik</div>
+                <div class="text-xl font-bold mt-1">Rp {{ number_format($wallet->total_withdrawn ?? 0, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        <!-- Transactions Table -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Semua Transaksi</h3>
+        {{-- Transactions Table --}}
+        <div class="bg-white rounded-xl border border-gray-200">
+            <div class="px-5 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Semua Transaksi</h3>
             </div>
-            <div class="card-body">
+            <div class="p-5">
                 @if($transactions->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-vcenter card-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
                         <thead>
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Jenis</th>
-                                <th>Kategori</th>
-                                <th>Deskripsi</th>
-                                <th>Jumlah</th>
-                                <th>Saldo</th>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Tanggal</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Jenis</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Kategori</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Deskripsi</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Jumlah</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">Saldo</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($transactions as $transaction)
-                            <tr>
-                                <td>
-                                    {{ $transaction->created_at->format('d M Y H:i') }}
-                                </td>
-                                <td>
+                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                <td class="py-3 px-4 text-gray-500">{{ $transaction->created_at->format('d M Y H:i') }}</td>
+                                <td class="py-3 px-4">
                                     @if($transaction->type === 'credit')
-                                        <span class="badge bg-success-lt">Masuk</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Masuk</span>
                                     @else
-                                        <span class="badge bg-danger-lt">Keluar</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Keluar</span>
                                     @endif
                                 </td>
-                                <td>
-                                    {{ $transaction->category_label ?? $transaction->category }}
+                                <td class="py-3 px-4">{{ $transaction->category_label ?? $transaction->category }}</td>
+                                <td class="py-3 px-4 text-gray-500">{{ $transaction->description ?? '-' }}</td>
+                                <td class="py-3 px-4 font-bold {{ $transaction->type === 'credit' ? 'text-green-600' : 'text-red-600' }}">
+                                    {{ $transaction->type === 'credit' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
                                 </td>
-                                <td>
-                                    {{ $transaction->description ?? '-' }}
-                                </td>
-                                <td>
-                                    <span class="fw-bold {{ $transaction->type === 'credit' ? 'text-success' : 'text-danger' }}">
-                                        {{ $transaction->type === 'credit' ? '+' : '-' }} Rp {{ number_format($transaction->amount, 0, ',', '.') }}
-                                    </span>
-                                </td>
-                                <td>
-                                    Rp {{ number_format($transaction->balance_after ?? 0, 0, ',', '.') }}
-                                </td>
+                                <td class="py-3 px-4 text-gray-500">Rp {{ number_format($transaction->balance_after ?? 0, 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $transactions->links() }}
-                </div>
+                <div class="mt-4 flex justify-center">{{ $transactions->links() }}</div>
                 @else
-                <div class="empty">
-                    <p class="empty-title">Belum ada transaksi</p>
-                    <p class="empty-subtitle text-muted">Transaksi akan muncul di sini setelah ada aktivitas wallet</p>
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <p class="text-lg font-medium text-gray-900">Belum ada transaksi</p>
+                    <p class="text-sm text-gray-500 mt-1">Transaksi akan muncul di sini setelah ada aktivitas wallet</p>
                 </div>
                 @endif
             </div>

@@ -3,170 +3,115 @@
 @section('title', 'Detail Pengaturan Biaya Admin')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">{{ $adminFee->name }}</h3>
-                    <div class="card-actions">
-                        <a href="{{ route('admin.admin-fees.edit', $adminFee) }}" class="btn btn-warning">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                            </svg>
-                            Edit
-                        </a>
-                        <a href="{{ route('admin.admin-fees.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M18 6l-12 12" />
-                                <path d="M6 6l12 12" />
-                            </svg>
-                            Kembali
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nama Pengaturan</label>
-                                <p class="form-control-plaintext">{{ $adminFee->name }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Kategori</label>
-                                <p class="form-control-plaintext">
-                                    <span class="badge bg-blue-lt">{{ $adminFee->category }}</span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h1 class="text-2xl font-bold text-gray-900">{{ $adminFee->name }}</h1>
+        <div class="flex gap-2">
+            <a href="{{ route('admin.admin-fees.edit', $adminFee) }}" class="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600">
+                <i class="fas fa-edit mr-1"></i>Edit
+            </a>
+            <a href="{{ route('admin.admin-fees.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <i class="fas fa-times mr-1"></i>Kembali
+            </a>
+        </div>
+    </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Deskripsi</label>
-                        <p class="form-control-plaintext">{{ $adminFee->description ?: '-' }}</p>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Tipe Biaya</label>
-                                <p class="form-control-plaintext">
-                                    <span class="badge bg-{{ $adminFee->type === 'fixed' ? 'green' : 'orange' }}-lt">
-                                        {{ $adminFee->type === 'fixed' ? 'Tetap' : 'Persentase' }}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nilai</label>
-                                <p class="form-control-plaintext">
-                                    @if ($adminFee->type === 'fixed')
-                                        Rp {{ number_format($adminFee->value, 0, ',', '.') }}
-                                    @else
-                                        {{ $adminFee->value }}%
-                                    @endif
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Status</label>
-                                <p class="form-control-plaintext">
-                                    <span class="badge bg-{{ $adminFee->is_active ? 'green' : 'red' }}-lt">
-                                        {{ $adminFee->is_active ? 'Aktif' : 'Nonaktif' }}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Jumlah Minimum</label>
-                                <p class="form-control-plaintext">
-                                    Rp {{ number_format($adminFee->minimum_amount, 0, ',', '.') }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Jumlah Maksimum</label>
-                                <p class="form-control-plaintext">
-                                    {{ $adminFee->maximum_amount ? 'Rp ' . number_format($adminFee->maximum_amount, 0, ',', '.') : 'Tidak terbatas' }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Efektif Dari</label>
-                                <p class="form-control-plaintext">
-                                    {{ $adminFee->effective_from ? $adminFee->effective_from->format('d/m/Y H:i') : 'Sekarang' }}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Efektif Sampai</label>
-                                <p class="form-control-plaintext">
-                                    {{ $adminFee->effective_until ? $adminFee->effective_until->format('d/m/Y H:i') : 'Tidak ada batas waktu' }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Dibuat Oleh</label>
-                                <p class="form-control-plaintext">{{ $adminFee->createdBy->name ?? '-' }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Diperbarui Oleh</label>
-                                <p class="form-control-plaintext">{{ $adminFee->updatedBy->name ?? '-' }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Dibuat Pada</label>
-                                <p class="form-control-plaintext">{{ $adminFee->created_at->format('d/m/Y H:i') }}</p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Diperbarui Pada</label>
-                                <p class="form-control-plaintext">{{ $adminFee->updated_at->format('d/m/Y H:i') }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    @if ($adminFee->conditions)
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Kondisi Tambahan</label>
-                            <div class="form-control-plaintext">
-                                <pre class="bg-light p-3 rounded">{{ json_encode($adminFee->conditions, JSON_PRETTY_PRINT) }}</pre>
-                            </div>
-                        </div>
-                    @endif
-                </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Nama Pengaturan</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->name }}</p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Kategori</label>
+                <p><span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">{{ $adminFee->category }}</span></p>
             </div>
         </div>
+
+        <div class="mt-6">
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Deskripsi</label>
+            <p class="text-sm text-gray-900">{{ $adminFee->description ?: '-' }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Tipe Biaya</label>
+                <p>
+                    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $adminFee->type === 'fixed' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800' }}">
+                        {{ $adminFee->type === 'fixed' ? 'Tetap' : 'Persentase' }}
+                    </span>
+                </p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Nilai</label>
+                <p class="text-sm text-gray-900">
+                    @if ($adminFee->type === 'fixed')
+                        Rp {{ number_format($adminFee->value, 0, ',', '.') }}
+                    @else
+                        {{ $adminFee->value }}%
+                    @endif
+                </p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Status</label>
+                <p>
+                    <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $adminFee->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                        {{ $adminFee->is_active ? 'Aktif' : 'Nonaktif' }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Jumlah Minimum</label>
+                <p class="text-sm text-gray-900">Rp {{ number_format($adminFee->minimum_amount, 0, ',', '.') }}</p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Jumlah Maksimum</label>
+                <p class="text-sm text-gray-900">
+                    {{ $adminFee->maximum_amount ? 'Rp ' . number_format($adminFee->maximum_amount, 0, ',', '.') : 'Tidak terbatas' }}
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Efektif Dari</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->effective_from ? $adminFee->effective_from->format('d/m/Y H:i') : 'Sekarang' }}</p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Efektif Sampai</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->effective_until ? $adminFee->effective_until->format('d/m/Y H:i') : 'Tidak ada batas waktu' }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Dibuat Oleh</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->createdBy->name ?? '-' }}</p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Diperbarui Oleh</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->updatedBy->name ?? '-' }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Dibuat Pada</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->created_at->format('d/m/Y H:i') }}</p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Diperbarui Pada</label>
+                <p class="text-sm text-gray-900">{{ $adminFee->updated_at->format('d/m/Y H:i') }}</p>
+            </div>
+        </div>
+
+        @if ($adminFee->conditions)
+            <div class="mt-6">
+                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Kondisi Tambahan</label>
+                <pre class="bg-gray-50 p-4 rounded-lg text-xs text-gray-700 overflow-x-auto">{{ json_encode($adminFee->conditions, JSON_PRETTY_PRINT) }}</pre>
+            </div>
+        @endif
     </div>
 @endsection

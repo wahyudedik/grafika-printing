@@ -2,113 +2,76 @@
 
 @section('title', 'Users Management')
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex flex-column flex-md-row gap-3">
-                <div>
-                    {{-- <h3 class="card-title">Pengguna List</h3> --}}
+    <div class="bg-white rounded-xl shadow-sm">
+        {{-- Header with search --}}
+        <div class="px-6 py-4 border-b border-gray-200">
+            <form action="{{ route('vendor.users.index') }}" method="GET" class="flex gap-3">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        class="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none"
+                        placeholder="Search pengguna...">
                 </div>
-                <div class="d-flex gap-2 flex-grow-1">
-                    <form action="{{ route('vendor.users.index') }}" method="GET" class="flex-grow-1">
-                        <div class="input-icon">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <circle cx="10" cy="10" r="7" />
-                                    <line x1="21" y1="21" x2="15" y2="15" />
-                                </svg>
-                            </span>
-                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                                placeholder="Search pengguna...">
-                        </div>
-                    </form>
-                    {{-- <a href="{{ route('vendor.users.create') }}" class="btn btn-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Add User
-                    </a> --}}
-                </div>
-            </div>
+            </form>
         </div>
-        <div class="table-responsive">
-            <table class="table card-table table-vcenter text-nowrap">
-                <thead>
+
+        {{-- Table --}}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Usertype</th>
-                        <th>Created At</th>
-                        <th class="w-1">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usertype</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach ($users as $user)
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse ($users as $user)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500">{{ $user->email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-primary-100 text-primary-700">
+                                    {{ $user->usertype }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $user->created_at->format('d M Y') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <a href="{{ route('vendor.users.show', $user->id) }}"
+                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg inline-flex items-center" title="View">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
                         <tr>
-                            <td class="font-medium">{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td><span class="badge bg-primary-lt">{{ $user->usertype }}</span></td>
-                            <td>{{ $user->created_at->format('d M Y') }}</td>
-                            <td>
-                                <div class="btn-list flex-nowrap">
-                                    <a href="{{ route('vendor.users.show', $user->id) }}"
-                                        class="btn btn-icon btn-ghost-info" data-bs-toggle="tooltip" title="View">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                                            <path
-                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                        </svg>
-                                    </a>
-                                    {{-- <a href="{{ route('vendor.users.edit', $user->id) }}" class="btn btn-icon btn-ghost-warning"
-                                        data-bs-toggle="tooltip" title="Edit">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit"
-                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                            stroke="currentColor" fill="none">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                            <path
-                                                d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                        </svg>
-                                    </a>
-                                    <form action="{{ route('vendor.users.destroy', $user->id) }}" method="POST" class="inline"
-                                        id="delete-form-{{ $user->id }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button" class="btn btn-icon btn-ghost-danger"
-                                            data-bs-toggle="tooltip" title="Delete"
-                                            onclick="confirmDelete('delete-form-{{ $user->id }}')">
-                                            <!-- Delete icon SVG -->
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                fill="none">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M4 7l16 0" />
-                                                <path d="M10 11l0 6" />
-                                                <path d="M14 11l0 6" />
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                                            </svg>
-                                        </button>
-                                    </form> --}}
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="flex flex-col items-center">
+                                    <i class="fa-solid fa-users text-gray-300 text-4xl mb-3"></i>
+                                    <p class="text-sm text-gray-500">Tidak ada pengguna ditemukan.</p>
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @endforelse
                 </tbody>
             </table>
         </div>
-        <div class="card-footer d-flex align-items-center">
-            {{ $users->links('dev.components.pagination') }}
-        </div>
+
+        {{-- Pagination --}}
+        @if ($users->hasPages())
+            <div class="px-6 py-4 border-t border-gray-200">
+                {{ $users->links('dev.components.pagination') }}
+            </div>
+        @endif
     </div>
 @endsection

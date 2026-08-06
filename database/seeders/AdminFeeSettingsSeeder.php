@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\AdminFeeSetting;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class AdminFeeSettingsSeeder extends Seeder
 {
@@ -82,7 +82,7 @@ class AdminFeeSettingsSeeder extends Seeder
         ];
 
         foreach ($settings as $setting) {
-            DB::table('admin_fee_settings')->updateOrCreate(
+            AdminFeeSetting::updateOrCreate(
                 ['name' => $setting['name']],
                 $setting
             );

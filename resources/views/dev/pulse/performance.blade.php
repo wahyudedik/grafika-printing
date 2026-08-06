@@ -3,203 +3,142 @@
 @section('title', 'Performance Metrics')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
-                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 13a3 3 0 1 0 0 -6a3 3 0 0 0 0 6z" />
-                            <path d="M12 1v6" />
-                            <path d="M12 17v6" />
-                        </svg>
-                        Performance Metrics
-                    </h3>
-                    <div class="card-actions">
-                        <a href="{{ route('admin.analytics.pulse') }}" class="btn btn-primary btn-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                            </svg>
-                            Back to Dashboard
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Performance Overview -->
-                    <div class="row mb-4">
-                        <div class="col-md-3 mb-3">
-                            <div class="card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <div class="h2 mb-0">
-                                        < 100ms</div>
-                                            <div class="text-white-50">Average Response Time</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-primary text-white">
-                                    <div class="card-body text-center">
-                                        <div class="h2 mb-0">99.9%</div>
-                                        <div class="text-white-50">Uptime</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-warning text-white">
-                                    <div class="card-body text-center">
-                                        <div class="h2 mb-0">45%</div>
-                                        <div class="text-white-50">CPU Usage</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card bg-info text-white">
-                                    <div class="card-body text-center">
-                                        <div class="h2 mb-0">1.2GB</div>
-                                        <div class="text-white-50">Memory Usage</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+<div class="space-y-6">
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Performance Metrics</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitoring performa server dan aplikasi</p>
+        </div>
+        <a href="{{ route('admin.analytics.pulse') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+        </a>
+    </div>
 
-                        <!-- Response Time Chart -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Response Time Trend</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="alert alert-info">
-                                            <h4 class="alert-title">Performance Monitoring</h4>
-                                            <div class="text-muted">
-                                                Grafik ini menunjukkan tren waktu respons aplikasi dalam 24 jam terakhir.
-                                            </div>
-                                        </div>
+    {{-- Performance Overview Cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {{-- Response Time --}}
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-5 text-white text-center">
+            <p class="text-3xl font-bold">< 100ms</p>
+            <p class="text-sm font-medium text-white/80 mt-1">Average Response Time</p>
+        </div>
 
-                                        <!-- Placeholder untuk chart -->
-                                        <div class="chart-container"
-                                            style="height: 300px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                            <div class="text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-muted"
-                                                    width="48" height="48" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M3 3v18h18" />
-                                                    <path d="M18.5 15.5l-3 -3l-2 2l-3 -3l-3 3" />
-                                                </svg>
-                                                <div class="text-muted mt-2">Chart akan ditampilkan di sini</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        {{-- Uptime --}}
+        <div class="bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl p-5 text-white text-center">
+            <p class="text-3xl font-bold">99.9%</p>
+            <p class="text-sm font-medium text-white/80 mt-1">Uptime</p>
+        </div>
 
-                        <!-- Database Performance -->
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Database Performance</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <td><strong>Query Count:</strong></td>
-                                                <td>{{ \DB::getQueryLog() ? count(\DB::getQueryLog()) : 'N/A' }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Slow Queries:</strong></td>
-                                                <td><span class="badge bg-success">0</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Connection Pool:</strong></td>
-                                                <td><span class="badge bg-primary">Active</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Cache Hit Rate:</strong></td>
-                                                <td>95%</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Application Performance</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <td><strong>Route Cache:</strong></td>
-                                                <td><span class="badge bg-success">Enabled</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>View Cache:</strong></td>
-                                                <td><span class="badge bg-success">Enabled</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Config Cache:</strong></td>
-                                                <td><span class="badge bg-success">Enabled</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>OPcache:</strong></td>
-                                                <td><span class="badge bg-success">Enabled</span></td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        {{-- CPU Usage --}}
+        <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-5 text-white text-center">
+            <p class="text-3xl font-bold">45%</p>
+            <p class="text-sm font-medium text-white/80 mt-1">CPU Usage</p>
+        </div>
 
-                        <!-- Performance Recommendations -->
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h4 class="card-title">Performance Recommendations</h4>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="alert alert-success">
-                                                    <h5 class="alert-title">✅ Good Performance</h5>
-                                                    <ul class="mb-0">
-                                                        <li>Response time under 100ms</li>
-                                                        <li>Memory usage within limits</li>
-                                                        <li>Database queries optimized</li>
-                                                        <li>Cache systems active</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="alert alert-warning">
-                                                    <h5 class="alert-title">⚠️ Optimization Tips</h5>
-                                                    <ul class="mb-0">
-                                                        <li>Consider enabling Redis for sessions</li>
-                                                        <li>Implement database indexing</li>
-                                                        <li>Use CDN for static assets</li>
-                                                        <li>Monitor memory usage trends</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        {{-- Memory Usage --}}
+        <div class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-xl p-5 text-white text-center">
+            <p class="text-3xl font-bold">1.2GB</p>
+            <p class="text-sm font-medium text-white/80 mt-1">Memory Usage</p>
+        </div>
+    </div>
+
+    {{-- Response Time Chart --}}
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Response Time Trend</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Grafik ini menunjukkan tren waktu respons aplikasi dalam 24 jam terakhir.</p>
+        </div>
+        <div class="p-6">
+            <div class="h-72 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl flex items-center justify-center">
+                <div class="text-center">
+                    <i class="fas fa-chart-line text-4xl text-gray-400 dark:text-gray-500"></i>
+                    <p class="text-gray-500 dark:text-gray-400 mt-3 text-sm">Chart akan ditampilkan di sini</p>
                 </div>
             </div>
         </div>
-    @endsection
+    </div>
+
+    {{-- Database & Application Performance --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {{-- Database Performance --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Database Performance</h3>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">Query Count</span>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ \DB::getQueryLog() ? count(\DB::getQueryLog()) : 'N/A' }}</span>
+                </div>
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">Slow Queries</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">0</span>
+                </div>
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">Connection Pool</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400">Active</span>
+                </div>
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">Cache Hit Rate</span>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">95%</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Application Performance --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Application Performance</h3>
+            </div>
+            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">Route Cache</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Enabled</span>
+                </div>
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">View Cache</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Enabled</span>
+                </div>
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">Config Cache</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Enabled</span>
+                </div>
+                <div class="px-6 py-3 flex items-center justify-between">
+                    <span class="text-sm text-gray-900 dark:text-white">OPcache</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Enabled</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Performance Recommendations --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {{-- Good Performance --}}
+        <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5">
+            <h3 class="text-lg font-semibold text-emerald-800 dark:text-emerald-300 mb-3">
+                <i class="fas fa-check-circle mr-2"></i>Good Performance
+            </h3>
+            <ul class="space-y-2 text-sm text-emerald-700 dark:text-emerald-400">
+                <li class="flex items-center gap-2"><i class="fas fa-check text-xs"></i>Response time under 100ms</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-xs"></i>Memory usage within limits</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-xs"></i>Database queries optimized</li>
+                <li class="flex items-center gap-2"><i class="fas fa-check text-xs"></i>Cache systems active</li>
+            </ul>
+        </div>
+
+        {{-- Optimization Tips --}}
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-5">
+            <h3 class="text-lg font-semibold text-amber-800 dark:text-amber-300 mb-3">
+                <i class="fas fa-lightbulb mr-2"></i>Optimization Tips
+            </h3>
+            <ul class="space-y-2 text-sm text-amber-700 dark:text-amber-400">
+                <li class="flex items-center gap-2"><i class="fas fa-arrow-right text-xs"></i>Consider enabling Redis for sessions</li>
+                <li class="flex items-center gap-2"><i class="fas fa-arrow-right text-xs"></i>Implement database indexing</li>
+                <li class="flex items-center gap-2"><i class="fas fa-arrow-right text-xs"></i>Use CDN for static assets</li>
+                <li class="flex items-center gap-2"><i class="fas fa-arrow-right text-xs"></i>Monitor memory usage trends</li>
+            </ul>
+        </div>
+    </div>
+</div>
+@endsection

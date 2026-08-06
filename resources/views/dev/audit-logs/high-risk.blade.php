@@ -2,175 +2,185 @@
 
 @section('title', 'High Risk Audit Logs')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-2" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 9v2m0 4v.01" />
-                                <path
-                                    d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.84 2.75" />
-                            </svg>
-                            High Risk Transactions
-                        </h3>
-                        <div class="card-actions d-flex align-items-center">
-                            <span class="badge bg-danger me-2">{{ $logs->count() ?? 0 }} transaksi berisiko tinggi</span>
-                            <a href="{{ route('admin.audit-logs.index') }}" class="btn btn-outline-secondary btn-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M9 6l6 6l-6 6" />
-                                </svg>
-                                Kembali ke Audit Logs
+    <div class="space-y-6">
+        {{-- Header --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>High Risk Transactions
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Transaksi dengan risiko tinggi yang perlu dipantau</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                    {{ $logs->count() ?? 0 }} transaksi berisiko tinggi
+                </span>
+                <a href="{{ route('admin.audit-logs.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Kembali</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Content --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            @if($logs->isEmpty())
+                <div class="p-12 text-center">
+                    <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check-circle text-emerald-500 text-2xl"></i>
+                    </div>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white">Tidak ada transaksi berisiko tinggi</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Semua transaksi dalam kondisi aman.</p>
+                </div>
+            @else
+                {{-- Desktop Table --}}
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750">
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Entity</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Risk</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse($logs as $log)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-750">
+                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $log->id }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                                                <span class="text-sm font-medium text-red-700 dark:text-red-300">{{ substr($log->user->name ?? 'A', 0, 1) }}</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $log->user->name ?? 'N/A' }}</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $log->user->email ?? 'N/A' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $log->action_type == 'approve' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                                               ($log->action_type == 'reject' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300') }}">
+                                            {{ ucfirst($log->action_type) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300">{{ ucfirst($log->entity_type) }}</span>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">ID: {{ $log->entity_id }}</div>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm font-medium text-red-600 dark:text-red-400">
+                                        @if($log->amount)
+                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $log->risk_level == 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                               ($log->risk_level == 'high' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
+                                               ($log->risk_level == 'medium' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300')) }}">
+                                            {{ ucfirst($log->risk_level) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $log->status == 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                                               ($log->status == 'failed' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300') }}">
+                                            {{ ucfirst($log->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ $log->created_at->format('d M Y') }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $log->created_at->format('H:i:s') }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <a href="{{ route('admin.audit-logs.show', $log->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-medium transition-colors">
+                                            <i class="fas fa-eye"></i>
+                                            Detail
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="px-4 py-12 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+                                                <i class="fas fa-shield-alt text-gray-400 text-lg"></i>
+                                            </div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">Tidak ada data</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Belum ada transaksi berisiko tinggi.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Mobile Cards --}}
+                <div class="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse($logs as $log)
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-sm font-medium text-red-700 dark:text-red-300">{{ substr($log->user->name ?? 'A', 0, 1) }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $log->user->name ?? 'N/A' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $log->user->email ?? 'N/A' }}</div>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {{ $log->risk_level == 'critical' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800' }}">
+                                    {{ ucfirst($log->risk_level) }}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <span class="text-gray-500">Entity:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ ucfirst($log->entity_type) }} #{{ $log->entity_id }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Amount:</span>
+                                    <span class="ml-1 text-red-600 dark:text-red-400 font-medium">{{ $log->amount ? 'Rp ' . number_format($log->amount, 0, ',', '.') : '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Action:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ ucfirst($log->action_type) }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ $log->created_at->format('d M Y H:i') }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ route('admin.audit-logs.show', $log->id) }}" class="block w-full text-center px-3 py-1.5 border border-red-300 text-red-700 rounded-lg text-xs font-medium">
+                                <i class="fas fa-eye mr-1"></i> Detail
                             </a>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        @if ($logs->isEmpty())
-                            <div class="empty">
-                                <div class="empty-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 6l6 6l-6 6" />
-                                    </svg>
-                                </div>
-                                <p class="empty-title">Tidak ada transaksi berisiko tinggi</p>
-                                <p class="empty-subtitle text-muted">Semua transaksi dalam kondisi aman.</p>
-                            </div>
-                        @else
-                            <!-- Responsive table -->
-                            <div class="table-responsive">
-                                <table class="table table-vcenter card-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>User</th>
-                                            <th>Action</th>
-                                            <th>Entity</th>
-                                            <th>Amount</th>
-                                            <th>Risk</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($logs as $log)
-                                            <tr>
-                                                <td>{{ $log->id }}</td>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar avatar-sm me-2">
-                                                            <span
-                                                                class="avatar-initial rounded-circle bg-danger text-white">
-                                                                {{ substr($log->user->name ?? 'A', 0, 1) }}
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            <div class="font-weight-medium">
-                                                                {{ $log->user->name ?? 'N/A' }}
-                                                            </div>
-                                                            <div class="text-muted">
-                                                                {{ $log->user->email ?? 'N/A' }}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-{{ $log->action_type == 'approve' ? 'success' : ($log->action_type == 'reject' ? 'danger' : 'primary') }}">
-                                                        {{ ucfirst($log->action_type) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-info">
-                                                        {{ ucfirst($log->entity_type) }}
-                                                    </span>
-                                                    <div class="text-muted">ID: {{ $log->entity_id }}</div>
-                                                </td>
-                                                <td>
-                                                    @if ($log->amount)
-                                                        <span class="font-weight-medium text-danger">
-                                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
-                                                        </span>
-                                                    @else
-                                                        <span class="text-muted">-</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-{{ $log->risk_level == 'critical' ? 'danger' : ($log->risk_level == 'high' ? 'warning' : ($log->risk_level == 'medium' ? 'info' : 'success')) }}">
-                                                        {{ ucfirst($log->risk_level) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'failed' ? 'danger' : 'warning') }}">
-                                                        {{ ucfirst($log->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div>{{ $log->created_at->format('d M Y') }}</div>
-                                                    <div class="text-muted">{{ $log->created_at->format('H:i:s') }}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('admin.audit-logs.show', $log->id) }}"
-                                                        class="btn btn-sm btn-outline-danger">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                            height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                            stroke="currentColor" fill="none" stroke-linecap="round"
-                                                            stroke-linejoin="round">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M10 12a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
-                                                            <path
-                                                                d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
-                                                        </svg>
-                                                        Detail
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="9" class="text-center py-4">
-                                                    <div class="empty">
-                                                        <div class="empty-icon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                                width="24" height="24" viewBox="0 0 24 24"
-                                                                stroke-width="2" stroke="currentColor" fill="none"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M9 6l6 6l-6 6" />
-                                                            </svg>
-                                                        </div>
-                                                        <p class="empty-title">Tidak ada data</p>
-                                                        <p class="empty-subtitle text-muted">Belum ada transaksi
-                                                            berisiko tinggi.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            @if (method_exists($logs, 'links'))
-                                <div class="d-flex justify-content-center">
-                                    {{ $logs->links() }}
-                                </div>
-                            @endif
-                        @endif
-                    </div>
+                    @empty
+                        <div class="p-8 text-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Tidak ada data</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Belum ada transaksi berisiko tinggi.</p>
+                        </div>
+                    @endforelse
                 </div>
-            </div>
+
+                {{-- Pagination --}}
+                @if(method_exists($logs, 'links'))
+                    <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                        {{ $logs->links() }}
+                    </div>
+                @endif
+            @endif
         </div>
     </div>
 @endsection

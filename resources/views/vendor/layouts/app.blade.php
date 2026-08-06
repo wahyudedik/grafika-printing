@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
@@ -7,268 +7,161 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Grafika Printing - Vendor Panel')</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
-    <link rel="stylesheet" href="{{ asset('css/dashboard-improvements.css') }}">
-    <style>
-        /* Responsive navbar improvements */
-        @media (max-width: 768px) {
-            .navbar-nav {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .navbar-nav .nav-item {
-                width: 100%;
-                margin-bottom: 0.25rem;
-            }
-
-            .navbar-nav .nav-link {
-                padding: 0.75rem 1rem;
-                text-align: left;
-                border-radius: 0.375rem;
-            }
-
-            .navbar-nav .nav-link:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-            }
-
-            .navbar-nav .dropdown-menu {
-                position: static !important;
-                transform: none !important;
-                box-shadow: none;
-                border: none;
-                background-color: rgba(0, 0, 0, 0.02);
-                margin-left: 1rem;
-            }
-
-            /* Mobile card/table improvements */
-            .page-body .container-xl {
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-            }
-
-            .card {
-                margin-bottom: 1rem;
-            }
-
-            .table-responsive {
-                font-size: 0.875rem;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            h2 {
-                font-size: 1.25rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .nav-link-title {
-                font-size: 0.875rem;
-            }
-
-            .navbar-brand {
-                font-size: 1.1rem;
-            }
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
 
-<body>
-    <header class="navbar navbar-expand-md navbar-light d-print-none">
-        <div class="container-xl">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <a href="{{ route('vendor.dashboard') }}" class="d-flex align-items-center text-decoration-none">
-                    <img src="{{ asset('favicon.png') }}" alt="Grafika Printing" height="32" width="32" style="border-radius: 6px; margin-right: 8px;">
-                    Vendor Panel
+<body class="min-h-screen bg-gray-50 font-sans antialiased">
+
+    {{-- Top Navbar --}}
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm" x-data="{ userDropdown: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                {{-- Brand --}}
+                <a href="{{ route('vendor.dashboard') }}" class="flex items-center gap-3 text-gray-900 hover:text-primary-600 transition-colors">
+                    <img src="{{ asset('favicon.png') }}" alt="Grafika Printing" class="h-8 w-8 rounded-lg">
+                    <span class="font-bold text-lg hidden sm:inline">Vendor Panel</span>
                 </a>
-            </h1>
-            <div class="navbar-nav flex-row order-md-last">
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                        aria-label="Open user menu">
-                        <span class="avatar avatar-sm">{{ substr(auth()->user()->name, 0, 2) }}</span>
-                        <div class="d-none d-xl-block ps-2">
-                            <div>{{ auth()->user()->name }}</div>
-                            <div class="mt-1 small text-muted">Vendor</div>
+
+                {{-- User Dropdown --}}
+                <div class="relative" @click.away="userDropdown = false">
+                    <button @click="userDropdown = !userDropdown" class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-semibold">
+                            {{ substr(auth()->user()->name, 0, 2) }}
                         </div>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        <a class="dropdown-item" href="{{ route('vendor.dashboard') }}">Dashboard</a>
-                        <div class="dropdown-divider"></div>
+                        <div class="hidden lg:block text-left">
+                            <div class="text-sm font-medium text-gray-700">{{ auth()->user()->name }}</div>
+                            <div class="text-xs text-gray-500">Vendor</div>
+                        </div>
+                        <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': userDropdown }" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    {{-- Dropdown Menu --}}
+                    <div x-show="userDropdown" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+                        <div class="px-4 py-2 border-b border-gray-100">
+                            <div class="text-sm font-semibold text-gray-900">{{ auth()->user()->name }}</div>
+                            <div class="text-xs text-gray-500">{{ auth()->user()->email }}</div>
+                        </div>
+                        <a href="{{ route('vendor.dashboard') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                            <svg class="inline-block w-4 h-4 mr-2 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+                            Dashboard
+                        </a>
+                        <div class="border-t border-gray-100 my-1"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="dropdown-item">Logout</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                <svg class="inline-block w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/></svg>
+                                Logout
+                            </button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </header>
-    <div class="navbar-expand-md">
-        <div class="collapse navbar-collapse" id="navbar-menu">
-            <div class="navbar navbar-light">
-                <div class="container-xl">
-                    <ul class="navbar-nav flex-wrap">
-                        <li class="nav-item {{ request()->routeIs('vendor.dashboard') ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ route('vendor.dashboard') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                        <line x1="16" y1="2" x2="16" y2="6" />
-                                        <line x1="8" y1="2" x2="8" y2="6" />
-                                        <line x1="3" y1="10" x2="21" y2="10" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('vendor.pos.*') ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ route('vendor.pos.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 5v14" />
-                                        <path d="M5 12h14" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">POS</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('vendor.products.*') ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ route('vendor.products.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M12 3l8 4.5v9l-8 4.5l-8 -4.5v-9l8 -4.5" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">Produk</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('vendor.wallet.*') ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ route('vendor.wallet.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M17 9v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v6a2 2 0 0 0 2 2h3" />
-                                        <path d="M9 12h6" />
-                                        <path d="M13 15v6" />
-                                        <path d="M19 15v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-6" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">Wallet</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('vendor.linktree.*') ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ route('vendor.linktree.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M9 12l2 2l4 -4" />
-                                        <path d="M12 3a12 12 0 0 0 -3 18" />
-                                        <path d="M15 3a12 12 0 0 1 3 18" />
-                                        <path d="M12 3a12 12 0 0 0 0 18" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">Linktree</span>
-                            </a>
-                        </li>
-                        <li class="nav-item {{ request()->routeIs('vendor.audit-logs.*') ? 'active' : '' }}">
-                            <a class="nav-link" href="{{ route('vendor.audit-logs.index') }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-title">Audit Log</span>
-                            </a>
-                        </li>
-                    </ul>
+
+    {{-- Navigation Bar --}}
+    <nav class="bg-white border-b border-gray-200" x-data="{ navOpen: true }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="overflow-x-auto scrollbar-hide">
+                <div class="flex items-center gap-1 py-2 min-w-max">
+                    {{-- Dashboard --}}
+                    <a href="{{ route('vendor.dashboard') }}"
+                       class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors
+                              {{ request()->routeIs('vendor.dashboard') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+                        <span>Dashboard</span>
+                    </a>
+
+                    {{-- POS --}}
+                    <a href="{{ route('vendor.pos.index') }}"
+                       class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors
+                              {{ request()->routeIs('vendor.pos.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z"/></svg>
+                        <span>POS</span>
+                    </a>
+
+                    {{-- Produk --}}
+                    <a href="{{ route('vendor.products.index') }}"
+                       class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors
+                              {{ request()->routeIs('vendor.products.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L3 7v11h14V7l-7-5zM6 14v-3h2v3H6zm3 0v-5h2v5H9zm3 0v-2h2v2h-2z"/></svg>
+                        <span>Produk</span>
+                    </a>
+
+                    {{-- Wallet --}}
+                    <a href="{{ route('vendor.wallet.index') }}"
+                       class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors
+                              {{ request()->routeIs('vendor.wallet.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 4H2v5a2 2 0 002 2h12a2 2 0 002-2V8zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
+                        <span>Wallet</span>
+                    </a>
+
+                    {{-- Linktree --}}
+                    <a href="{{ route('vendor.linktree.index') }}"
+                       class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors
+                              {{ request()->routeIs('vendor.linktree.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 00-5.656 0l-3-3a2 2 0 112.828-2.828l3 3a2 2 0 010 2.828 1 1 0 101.414 1.414z" clip-rule="evenodd" transform="rotate(180 10 10)"/></svg>
+                        <span>Linktree</span>
+                    </a>
+
+                    {{-- Audit Log --}}
+                    <a href="{{ route('vendor.audit-logs.index') }}"
+                       class="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors
+                              {{ request()->routeIs('vendor.audit-logs.*') ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+                        <span>Audit Log</span>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <main class="page-main">
-        <div class="page-body">
-            <div class="container-xl">
-                @yield('content')
-            </div>
+    {{-- Main Content --}}
+    <main class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            @yield('content')
         </div>
     </main>
 
-    <footer class="footer footer-transparent d-print-none">
-        <div class="container-xl">
-            <div class="row text-center align-items-center flex-row">
-                <div class="col-lg-auto ms-lg-auto">
-                    <ul class="list-inline list-inline-dots mb-0">
-                        <li class="list-inline-item">
-                            &copy; {{ date('Y') }} Grafika Printing. All rights reserved.
-                        </li>
-                    </ul>
-                </div>
-            </div>
+    {{-- Footer --}}
+    <footer class="border-t border-gray-200 bg-white mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+            <p class="text-sm text-gray-500">&copy; {{ date('Y') }} Grafika Printing. Hak cipta dilindungi.</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/js/tabler.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    {{-- Session Flash Messages via SweetAlert2 --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // CSRF token setup for AJAX
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            // Show success alert
             @if(session('success'))
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
-                    text: '{{ session('success') }}',
+                    text: '{{ session("success") }}',
                     timer: 3000,
                     showConfirmButton: false
                 });
             @endif
 
-            // Show error alert
             @if(session('error'))
                 Swal.fire({
                     icon: 'error',
                     title: 'Gagal!',
-                    text: '{{ session('error') }}',
+                    text: '{{ session("error") }}',
                     timer: 3000,
                     showConfirmButton: false
                 });
             @endif
 
-            // Show warning alert
             @if(session('warning'))
                 Swal.fire({
                     icon: 'warning',
                     title: 'Perhatian!',
-                    text: '{{ session('warning') }}',
+                    text: '{{ session("warning") }}',
                     timer: 3000,
                     showConfirmButton: false
                 });

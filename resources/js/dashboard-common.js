@@ -43,9 +43,9 @@ document.addEventListener('DOMContentLoaded', function () {
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     isValid = false;
-                    field.classList.add('is-invalid');
+                    field.classList.add('border-red-500');
                 } else {
-                    field.classList.remove('is-invalid');
+                    field.classList.remove('border-red-500');
                 }
             });
 
@@ -60,9 +60,4 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Common tooltip initialization
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
 });

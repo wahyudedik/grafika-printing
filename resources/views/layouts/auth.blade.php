@@ -2,726 +2,127 @@
 <html lang="id">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle ?? 'Auth' }} - {{ config('app.name', 'Grafika Printing') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler-flags.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler-payments.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/core@1.0.0/dist/css/tabler-vendors.min.css" rel="stylesheet">
-    <link href="https://unpkg.com/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: #f8f9fa;
-        }
-
-        /* ===== Split Layout ===== */
-        .auth-split {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Left Panel - Branding */
-        .auth-brand {
-            flex: 0 0 55%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-brand::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
-            animation: pulse-glow 8s ease-in-out infinite;
-        }
-
-        .auth-brand::after {
-            content: '';
-            position: absolute;
-            bottom: -30%;
-            left: -30%;
-            width: 80%;
-            height: 80%;
-            background: radial-gradient(circle, rgba(118, 75, 162, 0.12) 0%, transparent 70%);
-            animation: pulse-glow 10s ease-in-out infinite reverse;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        .brand-content {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            max-width: 480px;
-        }
-
-        .brand-logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 2rem;
-        }
-
-        .brand-logo-icon {
-            width: 56px;
-            height: 56px;
-            background: #fff;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .brand-logo-icon::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 4px;
-            right: 4px;
-            height: 4px;
-            background: linear-gradient(to right, #00d4ff, #e040fb, #ffeb3b, #212121);
-            border-radius: 0 0 8px 8px;
-        }
-
-        .brand-logo-icon svg {
-            width: 32px;
-            height: 32px;
-            color: #1a1a2e;
-        }
-
-        .brand-name {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -0.02em;
-        }
-
-        .brand-tagline {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1.125rem;
-            line-height: 1.7;
-            margin-bottom: 2.5rem;
-            font-weight: 300;
-        }
-
-        .brand-features {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            text-align: left;
-        }
-
-        .brand-feature {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .brand-feature:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(4px);
-        }
-
-        .brand-feature-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .brand-feature-icon.blue { background: rgba(102, 126, 234, 0.2); color: #667eea; }
-        .brand-feature-icon.purple { background: rgba(118, 75, 162, 0.2); color: #764ba2; }
-        .brand-feature-icon.cyan { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
-        .brand-feature-icon.green { background: rgba(40, 167, 69, 0.2); color: #28a745; }
-
-        .brand-feature-icon svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .brand-feature-text h4 {
-            margin: 0;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .brand-feature-text p {
-            margin: 0;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* CMYK decorative dots */
-        .brand-dots {
-            position: absolute;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            z-index: 2;
-        }
-
-        .brand-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            opacity: 0.4;
-        }
-
-        .brand-dot:nth-child(1) { background: #00d4ff; }
-        .brand-dot:nth-child(2) { background: #e040fb; }
-        .brand-dot:nth-child(3) { background: #ffeb3b; }
-        .brand-dot:nth-child(4) { background: #fff; }
-
-        /* Right Panel - Form */
-        .auth-form-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 3rem;
-            background: #fff;
-            position: relative;
-        }
-
-        .auth-form-wrapper {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .auth-form-header {
-            margin-bottom: 2rem;
-        }
-
-        .auth-form-header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin: 0 0 0.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        .auth-form-header p {
-            color: #6c757d;
-            font-size: 0.95rem;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        /* Form Styles */
-        .auth-form .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .auth-form .form-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #343a40;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .auth-form .input-wrapper {
-            position: relative;
-        }
-
-        .auth-form .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #adb5bd;
-            pointer-events: none;
-            transition: color 0.2s ease;
-        }
-
-        .auth-form .input-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .auth-form .form-control {
-            width: 100%;
-            padding: 12px 14px 12px 44px;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            color: #343a40;
-            background: #fff;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-
-        .auth-form .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-        }
-
-        .auth-form .form-control:focus + .input-icon,
-        .auth-form .form-control:focus ~ .input-icon {
-            color: #667eea;
-        }
-
-        .auth-form .form-control::placeholder {
-            color: #ced4da;
-        }
-
-        .auth-form .form-control.no-icon {
-            padding-left: 14px;
-        }
-
-        /* Password toggle */
-        .password-toggle {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #adb5bd;
-            cursor: pointer;
-            padding: 4px;
-            transition: color 0.2s ease;
-        }
-
-        .password-toggle:hover {
-            color: #667eea;
-        }
-
-        .password-toggle svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* Checkbox */
-        .auth-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 1.25rem;
-        }
-
-        .auth-checkbox input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #dee2e6;
-            border-radius: 5px;
-            cursor: pointer;
-            accent-color: #667eea;
-        }
-
-        .auth-checkbox label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin: 0;
-            cursor: pointer;
-        }
-
-        .auth-checkbox a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .auth-checkbox a:hover {
-            text-decoration: underline;
-        }
-
-        /* Buttons */
-        .btn-auth {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 12px 24px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            text-decoration: none;
-        }
-
-        .btn-auth svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .btn-auth-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.35);
-        }
-
-        .btn-auth-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
-            color: #fff;
-        }
-
-        .btn-auth-primary:active {
-            transform: translateY(0);
-        }
-
-        .btn-auth-outline {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #e9ecef;
-        }
-
-        .btn-auth-outline:hover {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
-            color: #667eea;
-        }
-
-        /* Form footer links */
-        .auth-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        .auth-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 1.5rem 0;
-            color: #adb5bd;
-            font-size: 0.8rem;
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: #e9ecef;
-        }
-
-        /* Back to home */
-        .auth-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: #6c757d;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-top: 2rem;
-            transition: color 0.2s ease;
-        }
-
-        .auth-back:hover {
-            color: #667eea;
-        }
-
-        .auth-back svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        /* Alert */
-        .auth-alert {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            margin-bottom: 1.25rem;
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-
-        .auth-alert svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
-        .auth-alert-success {
-            background: rgba(40, 167, 69, 0.08);
-            border: 1px solid rgba(40, 167, 69, 0.2);
-            color: #155724;
-        }
-
-        .auth-alert-error {
-            background: rgba(220, 53, 69, 0.08);
-            border: 1px solid rgba(220, 53, 69, 0.2);
-            color: #721c24;
-        }
-
-        .auth-alert-warning {
-            background: rgba(255, 193, 7, 0.1);
-            border: 1px solid rgba(255, 193, 7, 0.3);
-            color: #856404;
-        }
-
-        /* Password strength */
-        .password-strength {
-            margin-top: 8px;
-        }
-
-        .strength-bar {
-            height: 4px;
-            border-radius: 2px;
-            background: #e9ecef;
-            overflow: hidden;
-            margin-top: 6px;
-        }
-
-        .strength-fill {
-            height: 100%;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .strength-weak { background: #dc3545; width: 25%; }
-        .strength-fair { background: #ffc107; width: 50%; }
-        .strength-good { background: #17a2b8; width: 75%; }
-        .strength-strong { background: #28a745; width: 100%; }
-
-        .strength-text {
-            font-size: 0.75rem;
-            color: #6c757d;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .auth-brand {
-                flex: 0 0 45%;
-                padding: 2rem;
-            }
-
-            .brand-tagline {
-                font-size: 1rem;
-            }
-
-            .brand-features {
-                gap: 0.75rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .auth-split {
-                flex-direction: column;
-            }
-
-            .auth-brand {
-                flex: 0 0 auto;
-                padding: 2rem 1.5rem;
-                min-height: auto;
-            }
-
-            .brand-tagline {
-                display: none;
-            }
-
-            .brand-features {
-                display: none;
-            }
-
-            .auth-form-panel {
-                padding: 2rem 1.5rem;
-            }
-
-            .auth-form-wrapper {
-                max-width: 100%;
-            }
-        }
-
-        /* Verification icon */
-        .auth-icon-circle {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
-        }
-
-        .auth-icon-circle svg {
-            width: 32px;
-            height: 32px;
-            color: #fff;
-        }
-
-        /* Button group */
-        .btn-group-vertical {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .btn-group-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-group-row .btn-auth {
-            flex: 1;
-        }
-    </style>
     @yield('styles')
 </head>
 
-<body>
-    <div class="auth-split">
+<body class="min-h-screen font-sans antialiased">
+
+    <div class="flex min-h-screen">
+
+        {{-- ======================== --}}
         {{-- Left Panel: Branding --}}
-        <div class="auth-brand">
-            <div class="brand-content">
-                <div class="brand-logo">
-                    <div class="brand-logo-icon">
-                        <img src="{{ asset('logo.png') }}" alt="Grafika Printing" width="40" height="40" style="border-radius: 10px;">
+        {{-- ======================== --}}
+        <div class="hidden lg:flex flex-1 auth-brand-gradient relative overflow-hidden items-center justify-center p-12">
+            {{-- Background glow effects --}}
+            <div class="absolute -top-1/2 -right-1/2 w-full h-full bg-[radial-gradient(circle,rgba(102,126,234,0.15)_0%,transparent_70%)]" style="animation: pulse-glow 8s ease-in-out infinite;"></div>
+            <div class="absolute -bottom-1/3 -left-1/3 w-4/5 h-4/5 bg-[radial-gradient(circle,rgba(118,75,162,0.12)_0%,transparent_70%)]" style="animation: pulse-glow 10s ease-in-out infinite reverse;"></div>
+
+            {{-- Content --}}
+            <div class="relative z-10 text-center max-w-md">
+                {{-- Logo --}}
+                <div class="inline-flex items-center gap-3 mb-8">
+                    <div class="relative">
+                        <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-black/30">
+                            <img src="{{ asset('logo.png') }}" alt="Grafika Printing" width="40" height="40" class="rounded-lg">
+                        </div>
+                        <div class="absolute -bottom-1 left-1 right-1 h-1 rounded-b-lg" style="background: linear-gradient(to right, #00d4ff, #e040fb, #ffeb3b, #212121);"></div>
                     </div>
-                    <span class="brand-name">GRAFIKA PRINTING</span>
+                    <span class="text-xl font-extrabold text-white tracking-tight">GRAFIKA PRINTING</span>
                 </div>
 
-                <p class="brand-tagline">
+                {{-- Tagline --}}
+                <p class="text-white/70 text-lg leading-relaxed mb-8 font-light">
                     Platform percetakan digital terlengkap di Indonesia.
                     Solusi cetak online untuk bisnis Anda.
                 </p>
 
-                <div class="brand-features">
-                    <div class="brand-feature">
-                        <div class="brand-feature-icon blue">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 3l8 4.5v9l-8 4.5l-8 -4.5v-9l8 -4.5" />
-                                <path d="M12 12l8 -4.5" />
-                                <path d="M12 12v9" />
-                                <path d="M12 12l-8 -4.5" />
-                            </svg>
+                {{-- Feature Cards --}}
+                <div class="flex flex-col gap-3 text-left">
+                    {{-- Multi-Tenant POS --}}
+                    <div class="flex items-center gap-3.5 p-3.5 bg-white/5 border border-white/8 rounded-xl transition-all hover:bg-white/10 hover:translate-x-1">
+                        <div class="w-10 h-10 rounded-lg bg-[rgba(102,126,234,0.2)] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-[#667eea]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 4H2v5a2 2 0 002 2h12a2 2 0 002-2V8zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1z"/></svg>
                         </div>
-                        <div class="brand-feature-text">
-                            <h4>Multi-Tenant POS</h4>
-                            <p>Sistem point of sale untuk vendor percetakan</p>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white m-0">Multi-Tenant POS</h4>
+                            <p class="text-xs text-white/50 m-0">Sistem point of sale untuk vendor percetakan</p>
                         </div>
                     </div>
 
-                    <div class="brand-feature">
-                        <div class="brand-feature-icon purple">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 3l8 4.5v9l-8 4.5l-8 -4.5v-9l8 -4.5" />
-                                <path d="M9 12l2 2l4 -4" />
-                            </svg>
+                    {{-- Lelang & Tender --}}
+                    <div class="flex items-center gap-3.5 p-3.5 bg-white/5 border border-white/8 rounded-xl transition-all hover:bg-white/10 hover:translate-x-1">
+                        <div class="w-10 h-10 rounded-lg bg-[rgba(118,75,162,0.2)] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-[#764ba2]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                         </div>
-                        <div class="brand-feature-text">
-                            <h4>Lelang & Tender</h4>
-                            <p>Sistem lelang proyek percetakan</p>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white m-0">Lelang & Tender</h4>
+                            <p class="text-xs text-white/50 m-0">Sistem lelang proyek percetakan</p>
                         </div>
                     </div>
 
-                    <div class="brand-feature">
-                        <div class="brand-feature-icon cyan">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 12l2 2l4 -4" />
-                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                            </svg>
+                    {{-- Pembayaran Aman --}}
+                    <div class="flex items-center gap-3.5 p-3.5 bg-white/5 border border-white/8 rounded-xl transition-all hover:bg-white/10 hover:translate-x-1">
+                        <div class="w-10 h-10 rounded-lg bg-[rgba(0,212,255,0.2)] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-[#00d4ff]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
                         </div>
-                        <div class="brand-feature-text">
-                            <h4>Pembayaran Aman</h4>
-                            <p>Escrow payment via Xendit</p>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white m-0">Pembayaran Aman</h4>
+                            <p class="text-xs text-white/50 m-0">Escrow payment via Xendit</p>
                         </div>
                     </div>
 
-                    <div class="brand-feature">
-                        <div class="brand-feature-icon green">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                                stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 15l6 -6" />
-                                <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 -7.072a5 5 0 0 1 7.071 7.072a5 5 0 0 1 -10.142 0a5 5 0 0 1 -1.414 -2.828" />
-                                <path d="M10.363 3.593l-2.37 .958a5 5 0 0 0 -1.427 1.427l-.958 2.37" />
-                            </svg>
+                    {{-- Linktree Vendor --}}
+                    <div class="flex items-center gap-3.5 p-3.5 bg-white/5 border border-white/8 rounded-xl transition-all hover:bg-white/10 hover:translate-x-1">
+                        <div class="w-10 h-10 rounded-lg bg-[rgba(40,167,69,0.2)] flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-[#28a745]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 00-5.656 0l-3-3a2 2 0 112.828-2.828l3 3a2 2 0 010 2.828 1 1 0 101.414 1.414z" clip-rule="evenodd" transform="rotate(180 10 10)"/></svg>
                         </div>
-                        <div class="brand-feature-text">
-                            <h4>Linktree Vendor</h4>
-                            <p>Halaman linktree kustom untuk vendor</p>
+                        <div>
+                            <h4 class="text-sm font-semibold text-white m-0">Linktree Vendor</h4>
+                            <p class="text-xs text-white/50 m-0">Halaman linktree kustom untuk vendor</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="brand-dots">
-                <div class="brand-dot"></div>
-                <div class="brand-dot"></div>
-                <div class="brand-dot"></div>
-                <div class="brand-dot"></div>
+            {{-- CMYK decorative dots --}}
+            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                <div class="w-2 h-2 rounded-full bg-[#00d4ff] opacity-40"></div>
+                <div class="w-2 h-2 rounded-full bg-[#e040fb] opacity-40"></div>
+                <div class="w-2 h-2 rounded-full bg-[#ffeb3b] opacity-40"></div>
+                <div class="w-2 h-2 rounded-full bg-white opacity-40"></div>
             </div>
         </div>
 
+        {{-- ======================== --}}
         {{-- Right Panel: Form --}}
-        <div class="auth-form-panel">
-            <div class="auth-form-wrapper">
+        {{-- ======================== --}}
+        <div class="flex-1 flex flex-col justify-center items-center p-8 lg:p-12 bg-white">
+            <div class="w-full max-w-md">
+
+                {{-- Mobile Logo (visible on small screens) --}}
+                <div class="lg:hidden text-center mb-8">
+                    <a href="{{ route('welcome') }}" class="inline-flex items-center gap-3">
+                        <img src="{{ asset('favicon.png') }}" alt="Grafika Printing" class="h-10 w-10 rounded-lg">
+                        <span class="text-xl font-bold text-gray-900">Grafika Printing</span>
+                    </a>
+                </div>
+
+                {{-- Form Content --}}
                 @yield('content')
 
-                <div class="text-center">
-                    <a href="{{ route('welcome') }}" class="auth-back">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="2"
-                            stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M5 12l14 0" />
-                            <path d="M5 12l6 6" />
-                            <path d="M5 12l6 -6" />
+                {{-- Back to Home --}}
+                <div class="text-center mt-8">
+                    <a href="{{ route('welcome') }}" class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-600 font-medium transition-colors">
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
                         </svg>
                         Kembali ke beranda
                     </a>
@@ -730,7 +131,6 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/@tabler/core@1.0.0/dist/js/tabler.min.js"></script>
     @yield('scripts')
 </body>
 

@@ -4,6 +4,59 @@
 
 Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang dibangun dengan **Laravel 13** (di-upgrade dari Laravel 11 pada Agustus 2026). Platform ini mengelola seluruh siklus bisnis percetakan dari katalog produk, pemesanan, produksi, pembayaran, hingga pengiriman.
 
+### Catatan Update (Agustus 2026)
+- ✅ **Migrasi UI/UX selesai**: Full migrasi ke **Tailwind CSS** (sebelumnya Bootstrap Tabler)
+- ✅ Semua ~150+ views sudah dikonversi ke Tailwind CSS
+- ✅ **Alpine.js** untuk interaktivitas client-side (menggantikan Bootstrap JS)
+- ✅ 13 UI components (`components/ui/`) dengan Tailwind + Alpine.js
+- ✅ Vite production build berhasil (CSS 95 kB gzip 15 kB, JS 155 kB gzip 49 kB)
+- ✅ **Error pages** (403, 404, 500): Self-contained CSS (tanpa CDN)
+- ✅ **x-cloak** menggantikan `style="display: none"` di 20+ files Alpine.js
+- ✅ **Auth inline styles** dipindahkan ke `app.css`
+- ✅ **Welcome page**: ~1000 baris inline CSS dipindahkan ke `resources/css/welcome.css` (external)
+- ✅ **Empty state component** (`x-ui.empty-state`) reusable baru
+
+---
+
+## Frontend Tech Stack
+
+| Teknologi | Versi | Fungsi |
+|-----------|-------|--------|
+| **Tailwind CSS** | 3.1.0+ | Seluruh styling (utility-first CSS) |
+| **Alpine.js** | 3.4.2 | Client-side interactivity (replacing Bootstrap JS) |
+| **FontAwesome** | 6.4.0 | Icon library |
+| **Vite** | 6.0.11 | Build assets & dev server |
+| **SweetAlert2** | 11.17.2 | Dialog & notifikasi (via npm) |
+| **ApexCharts** | - | Grafik dashboard |
+| **Chart.js** | - | Grafik tambahan |
+
+### UI Components (`resources/views/components/ui/`)
+Projek menggunakan **13 UI components** reusable yang dibangun dengan **Tailwind CSS + Alpine.js**:
+
+| Component | Fungsi |
+|-----------|--------|
+| `x-ui.alert` | Alert/notifikasi |
+| `x-ui.badge` | Badge/label status |
+| `x-ui.button` | Tombol dengan variasi |
+| `x-ui.card` | Card container |
+| `x-ui.confirmation-dialog` | Dialog konfirmasi (Alpine.js) |
+| `x-ui.dropdown` | Dropdown menu (Alpine.js) |
+| `x-ui.empty-state` | Empty state (icon + title + description + action) |
+| `x-ui.form-group` | Form group wrapper |
+| `x-ui.input` | Form input dengan label & error |
+| `x-ui.modal` | Modal dialog (Alpine.js) |
+| `x-ui.pagination` | Navigasi halaman |
+| `x-ui.stat-card` | Statistik card |
+| `x-ui.table` | Data table |
+| `x-ui.toast` | Toast notifikasi (Alpine.js) |
+
+### Tailwind CSS Configuration
+- **Config:** [`tailwind.config.js`](tailwind.config.js)
+- **Custom primary colors** (blue palette)
+- **Custom font:** Inter, Figtree
+- **Custom screens:** xs (475px)
+- **Plugins:** `@tailwindcss/forms`
+
 ---
 
 ## Gap Analysis: Fitur Existing vs Brief Client
@@ -280,10 +333,10 @@ sequenceDiagram
 
 ### 5. 🆕 Linktree Module
 
-> **Status:** ✅ Sudah ada (backend + views)
+> **Status:** ✅ Sudah ada (backend + views) — Tailwind CSS + Alpine.js
 > **Fitur:** CRUD links, halaman publik, custom URL, profil, template builder
 > **Controller:** [`LinktreeController`](app/Http/Controllers/vendor/LinktreeController.php) + [`LinktreePublicController`](app/Http/Controllers/LinktreePublicController.php)
-> **Model:** [`Linktree`](app/Models/Vendor/Linktree.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php)
+> **Model:** [`Linktree`](app/Models/Vendor/LinktreeLink.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php)
 
 #### 5.1 CRUD Links
 - **Route:** `/vendor/linktree/links` (resource CRUD)

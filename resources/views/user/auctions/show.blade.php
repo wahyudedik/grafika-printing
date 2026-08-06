@@ -2,340 +2,296 @@
 
 @section('title', 'Detail Lelang')
 
+@section('breadcrumbs')
+    <x-breadcrumbs :items="[
+        ['label' => 'Dasbor', 'url' => route('user.dashboard')],
+        ['label' => 'Lelang', 'url' => route('user.auctions.index')],
+        ['label' => Str::limit($auction->title, 40)],
+    ]" />
+@endsection
+
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h3 mb-1">{{ $auction->title }}</h2>
-                    <p class="text-muted">Oleh {{ $auction->user->name }} • {{ $auction->created_at->diffForHumans() }}</p>
-                </div>
-                <div class="d-flex gap-2">
-                    @if ($auction->user_id === auth()->id())
-                        @if ($auction->status === 'paid' || $auction->status === 'completed')
-                            <button class="btn btn-outline-secondary" disabled
-                                title="Lelang sudah dibayar, tidak dapat diedit">
-                                <i class="fas fa-lock me-2"></i>Edit (Dikunci)
-                            </button>
-                        @else
-                            <a href="{{ route('user.auctions.edit', $auction) }}" class="btn btn-outline-primary">
-                                <i class="fas fa-edit me-2"></i>Edit
-                            </a>
-                        @endif
-
-                        @if ($auction->status === 'paid' && !$auction->hasDeliveryConfirmation())
-                            <a href="{{ route('user.delivery-confirmation.create', $auction) }}" class="btn btn-success">
-                                <i class="fas fa-check-circle me-2"></i>Konfirmasi Barang
-                            </a>
-                        @elseif ($auction->hasDeliveryConfirmation())
-                            @php $confirmation = $auction->deliveryConfirmation; @endphp
-                            <span class="badge bg-{{ $confirmation->status_color }}">
-                                {{ $confirmation->status_label }}
-                            </span>
-                        @endif
-                    @endif
-                    <a href="{{ route('user.auctions.index') }}" class="btn btn-secondary">
-                        Kembali
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ $auction->title }}</h1>
+            <p class="text-sm text-gray-500 mt-1">Oleh {{ $auction->user->name }} &bull; {{ $auction->created_at->diffForHumans() }}</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+            @if ($auction->user_id === auth()->id())
+                @if ($auction->status === 'paid' || $auction->status === 'completed')
+                    <span class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed" title="Lelang sudah dibayar, tidak dapat diedit">
+                        <i class="fas fa-lock mr-2"></i> Edit (Dikunci)
+                    </span>
+                @else
+                    <a href="{{ route('user.auctions.edit', $auction) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-edit mr-2"></i> Edit
                     </a>
-                </div>
+                @endif
+
+                @if ($auction->status === 'paid' && !$auction->hasDeliveryConfirmation())
+                    <a href="{{ route('user.delivery-confirmation.create', $auction) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                        <i class="fas fa-check-circle mr-2"></i> Konfirmasi Barang
+                    </a>
+                @elseif ($auction->hasDeliveryConfirmation())
+                    @php $confirmation = $auction->deliveryConfirmation; @endphp
+                    @php
+                        $confColors = [
+                            'pending' => 'bg-yellow-100 text-yellow-700',
+                            'delivered' => 'bg-green-100 text-green-700',
+                            'disputed' => 'bg-red-100 text-red-700',
+                            'resolved' => 'bg-blue-100 text-blue-700',
+                        ];
+                    @endphp
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $confColors[$confirmation->status] ?? 'bg-gray-100 text-gray-700' }}">
+                        {{ $confirmation->status_label }}
+                    </span>
+                @endif
+            @endif
+            <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                Kembali
+            </a>
+        </div>
+    </div>
+
+    {{-- Flash Messages --}}
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2"><i class="fas fa-check-circle text-green-600"></i><span class="text-sm text-green-800">{{ session('success') }}</span></div>
+            <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+        </div>
+    @endif
+    @if (session('error'))
+        <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2"><i class="fas fa-exclamation-circle text-red-600"></i><span class="text-sm text-red-800">{{ session('error') }}</span></div>
+            <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
+        </div>
+    @endif
+
+    {{-- Status Indicator --}}
+    <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-info-circle text-blue-600"></i>
+            <div class="text-sm">
+                <span class="font-medium text-blue-900">Status Lelang:</span>
+                @php
+                    $statusBadge = match($auction->status) {
+                        'active' => 'bg-yellow-100 text-yellow-700',
+                        'waiting_payment' => 'bg-yellow-100 text-yellow-700',
+                        'paid' => 'bg-green-100 text-green-700',
+                        'completed' => 'bg-green-100 text-green-700',
+                        default => 'bg-gray-100 text-gray-700',
+                    };
+                    $statusLabel = match($auction->status) {
+                        'active' => 'Aktif',
+                        'waiting_payment' => 'Menunggu Pembayaran',
+                        'paid' => 'Sudah Dibayar',
+                        'completed' => 'Selesai',
+                        default => ucfirst($auction->status),
+                    };
+                @endphp
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $statusBadge }}">{{ $statusLabel }}</span>
+                @if ($auction->status === 'paid' || $auction->status === 'completed')
+                    <span class="text-gray-500 ml-2"><i class="fas fa-lock mr-1"></i>Lelang sudah dibayar, tidak dapat diedit</span>
+                @endif
             </div>
+        </div>
+    </div>
 
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {{-- Main Content --}}
+        <div class="lg:col-span-2 space-y-6">
+            {{-- Detail Permintaan --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-100">
+                    <h2 class="font-semibold text-gray-900">Detail Permintaan</h2>
                 </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
-            @endif
-
-            <!-- Status Indicator -->
-            <div class="alert alert-info">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-info-circle me-2"></i>
+                <div class="px-6 py-5 space-y-4">
                     <div>
-                        <strong>Status Lelang:</strong>
-                        @if ($auction->status === 'active')
-                            <span class="badge bg-warning">Aktif</span>
-                        @elseif ($auction->status === 'waiting_payment')
-                            <span class="badge bg-warning">Menunggu Pembayaran</span>
-                        @elseif ($auction->status === 'paid')
-                            <span class="badge bg-success">Sudah Dibayar</span>
-                        @elseif ($auction->status === 'completed')
-                            <span class="badge bg-success">Selesai</span>
-                        @else
-                            <span class="badge bg-secondary">{{ ucfirst($auction->status) }}</span>
-                        @endif
-
-                        @if ($auction->status === 'paid' || $auction->status === 'completed')
-                            <span class="ms-2 text-muted">
-                                <i class="fas fa-lock me-1"></i>Lelang sudah dibayar, tidak dapat diedit
-                            </span>
-                        @endif
+                        <h4 class="text-sm font-semibold text-gray-900 mb-1">Deskripsi</h4>
+                        <p class="text-sm text-gray-700">{{ $auction->description }}</p>
                     </div>
+                    @if ($auction->specifications)
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-900 mb-1">Spesifikasi Teknis</h4>
+                            <p class="text-sm text-gray-700">{{ $auction->specifications }}</p>
+                        </div>
+                    @endif
+                    @if ($auction->file_path)
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-900 mb-1">File Desain/Referensi</h4>
+                            <a href="{{ asset('storage/auction_files/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                                <i class="fas fa-download mr-1"></i> Download File
+                            </a>
+                        </div>
+                    @endif
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">Detail Permintaan</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <h6>Deskripsi</h6>
-                                <p>{{ $auction->description }}</p>
-                            </div>
-
-                            @if ($auction->specifications)
-                                <div class="mb-3">
-                                    <h6>Spesifikasi Teknis</h6>
-                                    <p>{{ $auction->specifications }}</p>
-                                </div>
-                            @endif
-
-                            @if ($auction->file_path)
-                                <div class="mb-3">
-                                    <h6>File Desain/Referensi</h6>
-                                    <a href="{{ asset('storage/auction_files/' . $auction->file_path) }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                            <path
-                                                d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                            <path d="M9 9l1 1l3 -3" />
-                                        </svg>
-                                        Download File
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
+            {{-- Penawaran Vendor --}}
+            @if ($auction->user_id === auth()->id() && $auction->status === 'active' && $auction->bids->count() > 0)
+                <div class="bg-white rounded-xl border border-gray-200" x-data="{ selectedBid: null }">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h2 class="font-semibold text-gray-900">Penawaran dari Vendor</h2>
                     </div>
-
-                    @if ($auction->user_id === auth()->id() && $auction->status === 'active' && $auction->bids->count() > 0)
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h4 class="card-title">Penawaran dari Vendor</h4>
-                            </div>
-                            <div class="card-body">
-                                <form method="POST" action="{{ route('user.auctions.close', $auction) }}" data-loading>
-                                    @csrf
-                                    <div class="row">
-                                        @foreach ($auction->bids->where('status', 'pending') as $bid)
-                                            <div class="col-md-6 mb-3">
-                                                <div class="card border {{ $loop->first ? 'border-primary' : '' }}">
-                                                    <div class="card-body">
-                                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                                            <div>
-                                                                <h6 class="card-title mb-0">
-                                                                    <a href="{{ route('vendor.profile', $bid->vendor->id) }}"
-                                                                        class="text-decoration-none text-primary fw-bold"
-                                                                        target="_blank">
-                                                                        {{ $bid->vendor->name }}
-                                                                        <i class="fas fa-external-link-alt ms-1"
-                                                                            style="font-size: 0.8em;"></i>
-                                                                    </a>
-                                                                </h6>
-                                                                <p class="text-muted small mb-1">{{ $bid->vendor->email }}
-                                                                </p>
-                                                                @if ($bid->vendor->average_rating > 0)
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="me-2">
-                                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                                @if ($i <= floor($bid->vendor->average_rating))
-                                                                                    <i class="fas fa-star text-warning"
-                                                                                        style="font-size: 0.8em;"></i>
-                                                                                @elseif($i - 0.5 <= $bid->vendor->average_rating)
-                                                                                    <i class="fas fa-star-half-alt text-warning"
-                                                                                        style="font-size: 0.8em;"></i>
-                                                                                @else
-                                                                                    <i class="far fa-star text-warning"
-                                                                                        style="font-size: 0.8em;"></i>
-                                                                                @endif
-                                                                            @endfor
-                                                                        </div>
-                                                                        <span class="text-muted small">
-                                                                            {{ number_format($bid->vendor->average_rating, 1) }}
-                                                                            ({{ $bid->vendor->rating_count }} rating)
-                                                                        </span>
-                                                                    </div>
-                                                                @else
-                                                                    <span class="text-muted small">Belum ada rating</span>
-                                                                @endif
-                                                            </div>
-                                                            <span class="badge bg-green-lt">Rp
-                                                                {{ number_format($bid->bid_amount) }}</span>
-                                                        </div>
-                                                        @if ($bid->message)
-                                                            <p class="small mb-2 mt-2">{{ $bid->message }}</p>
-                                                        @endif
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="radio"
-                                                                name="winner_bid_id" id="bid_{{ $bid->id }}"
-                                                                value="{{ $bid->id }}">
-                                                            <label class="form-check-label" for="bid_{{ $bid->id }}">
-                                                                Pilih sebagai pemenang
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                    <div class="px-6 py-5">
+                        <form method="POST" action="{{ route('user.auctions.close', $auction) }}">
+                            @csrf
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                @foreach ($auction->bids->where('status', 'pending') as $bid)
+                                    <div class="border rounded-lg p-4 cursor-pointer transition-all hover:shadow-sm"
+                                        :class="selectedBid == {{ $bid->id }} ? 'border-primary-500 bg-primary-50 ring-2 ring-primary-200' : 'border-gray-200'"
+                                        @click="selectedBid = {{ $bid->id }}">
+                                        <div class="flex items-start justify-between mb-2">
+                                            <div>
+                                                <a href="{{ route('vendor.profile', $bid->vendor->id) }}" target="_blank" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
+                                                    {{ $bid->vendor->name }} <i class="fas fa-external-link-alt text-[10px] ml-0.5"></i>
+                                                </a>
+                                                <p class="text-xs text-gray-500">{{ $bid->vendor->email }}</p>
                                             </div>
-                                        @endforeach
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Rp {{ number_format($bid->bid_amount) }}</span>
+                                        </div>
+                                        @if ($bid->vendor->average_rating > 0)
+                                            <div class="flex items-center gap-1 mb-2">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    @if ($i <= floor($bid->vendor->average_rating))
+                                                        <i class="fas fa-star text-yellow-400 text-[11px]"></i>
+                                                    @elseif($i - 0.5 <= $bid->vendor->average_rating)
+                                                        <i class="fas fa-star-half-alt text-yellow-400 text-[11px]"></i>
+                                                    @else
+                                                        <i class="far fa-star text-yellow-300 text-[11px]"></i>
+                                                    @endif
+                                                @endfor
+                                                <span class="text-[11px] text-gray-500 ml-1">{{ number_format($bid->vendor->average_rating, 1) }} ({{ $bid->vendor->rating_count }})</span>
+                                            </div>
+                                        @else
+                                            <p class="text-[11px] text-gray-400 mb-2">Belum ada rating</p>
+                                        @endif
+                                        @if ($bid->message)
+                                            <p class="text-xs text-gray-600 mb-2">{{ $bid->message }}</p>
+                                        @endif
+                                        <label class="flex items-center gap-2 text-xs text-gray-700">
+                                            <input type="radio" name="winner_bid_id" value="{{ $bid->id }}" class="text-primary-600 focus:ring-primary-500" :checked="selectedBid == {{ $bid->id }}">
+                                            Pilih sebagai pemenang
+                                        </label>
                                     </div>
-
-                                    @if ($auction->bids->where('status', 'pending')->count() > 0)
-                                        <div class="d-flex justify-content-end mt-3">
-                                            <button type="submit" class="btn btn-success">
-                                                Tutup Lelang & Pilih Pemenang
-                                            </button>
-                                        </div>
-                                    @endif
-
-                                    @if ($auction->status === 'waiting_payment')
-                                        <div class="d-flex justify-content-end mt-3">
-                                            <form action="{{ route('user.auctions.payment', $auction) }}" method="POST"
-                                                class="d-inline">
-                                                @csrf
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="fas fa-credit-card me-2"></i>
-                                                    Bayar Sekarang
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @endif
-
-                                </form>
+                                @endforeach
                             </div>
-                        </div>
-                    @endif
 
-                    @if ($auction->status === 'closed' && $auction->winnerVendor)
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <h4 class="card-title">Pemenang Lelang</h4>
-                            </div>
-                            <div class="card-body">
-                                <div class="alert alert-success">
-                                    <h6 class="alert-heading">Lelang telah ditutup!</h6>
-                                    <p class="mb-0">
-                                        <strong>Pemenang:</strong> {{ $auction->winnerVendor->name }}<br>
-                                        <strong>Harga Menang:</strong> Rp {{ number_format($auction->winning_bid) }}
-                                    </p>
+                            @if ($auction->bids->where('status', 'pending')->count() > 0)
+                                <div class="flex justify-end">
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                                        <i class="fas fa-trophy mr-2"></i> Tutup Lelang & Pilih Pemenang
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
-                    @endif
+                            @endif
+                        </form>
+                    </div>
                 </div>
+            @endif
 
-                <div class="col-md-4">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h4 class="card-title">Informasi Lelang</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">Kategori:</span>
-                                        <span class="fw-bold">{{ $auction->category }}</span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">Jumlah:</span>
-                                        <span class="fw-bold">{{ number_format($auction->quantity) }} pcs</span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">Budget:</span>
-                                        <span class="fw-bold">Rp {{ number_format($auction->budget) }}</span>
-                                    </div>
-                                </div>
-                                @if ($auction->fees_calculated && $auction->admin_fee_amount > 0)
-                                    <div class="col-12">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Biaya Admin:</span>
-                                            <span class="fw-bold text-warning">+ Rp
-                                                {{ number_format($auction->admin_fee_amount) }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex justify-content-between">
-                                            <span class="text-muted">Biaya Payment Gateway:</span>
-                                            <span class="fw-bold text-warning">+ Rp
-                                                {{ number_format($auction->payment_gateway_fee) }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="d-flex justify-content-between border-top pt-2">
-                                            <span class="text-muted fw-bold">Total Pembayaran:</span>
-                                            <span class="fw-bold text-primary">Rp
-                                                {{ number_format($auction->total_amount_with_fees) }}</span>
-                                        </div>
-                                    </div>
-                                @endif
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">Deadline:</span>
-                                        <span class="fw-bold">{{ $auction->deadline->format('d M Y') }}</span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">Status:</span>
-                                        <span
-                                            class="badge bg-{{ $auction->status === 'active'
-                                                ? 'green'
-                                                : ($auction->status === 'waiting_payment'
-                                                    ? 'yellow'
-                                                    : ($auction->status === 'paid'
-                                                        ? 'blue'
-                                                        : ($auction->status === 'closed'
-                                                            ? 'blue'
-                                                            : 'red'))) }}-lt">
-                                            @if ($auction->status === 'waiting_payment')
-                                                Menunggu Pembayaran
-                                            @elseif($auction->status === 'paid')
-                                                Terbayar
-                                            @else
-                                                {{ ucfirst($auction->status) }}
-                                            @endif
-                                        </span>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">Penawaran:</span>
-                                        <span class="fw-bold">{{ $auction->getBidCount() }} vendor</span>
-                                    </div>
-                                </div>
-                            </div>
+            {{-- Payment Button --}}
+            @if ($auction->status === 'waiting_payment')
+                <div class="bg-white rounded-xl border border-gray-200 px-6 py-5">
+                    <form action="{{ route('user.auctions.payment', $auction) }}" method="POST" class="flex justify-end">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                            <i class="fas fa-credit-card mr-2"></i> Bayar Sekarang
+                        </button>
+                    </form>
+                </div>
+            @endif
+
+            {{-- Pemenang --}}
+            @if ($auction->status === 'closed' && $auction->winnerVendor)
+                <div class="bg-white rounded-xl border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-100">
+                        <h2 class="font-semibold text-gray-900">Pemenang Lelang</h2>
+                    </div>
+                    <div class="px-6 py-5">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <h4 class="text-sm font-semibold text-green-800 mb-2">🏆 Lelang telah ditutup!</h4>
+                            <p class="text-sm text-green-700"><strong>Pemenang:</strong> {{ $auction->winnerVendor->name }}</p>
+                            <p class="text-sm text-green-700"><strong>Harga Menang:</strong> Rp {{ number_format($auction->winning_bid) }}</p>
                         </div>
                     </div>
+                </div>
+            @endif
+        </div>
 
-                    @if ($auction->isActive())
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h6>Waktu Tersisa</h6>
-                                <div class="h4 text-primary">
-                                    {{ $auction->deadline->diffInDays(now()) }} hari
-                                </div>
-                                <small class="text-muted">
-                                    Berakhir pada {{ $auction->deadline->format('d M Y H:i') }}
-                                </small>
-                            </div>
+        {{-- Sidebar --}}
+        <div class="space-y-6">
+            {{-- Informasi Lelang --}}
+            <div class="bg-white rounded-xl border border-gray-200">
+                <div class="px-5 py-4 border-b border-gray-100">
+                    <h3 class="font-semibold text-gray-900">Informasi Lelang</h3>
+                </div>
+                <div class="px-5 py-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Kategori</span>
+                            <span class="font-medium text-gray-900">{{ $auction->category }}</span>
                         </div>
-                    @endif
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Jumlah</span>
+                            <span class="font-medium text-gray-900">{{ number_format($auction->quantity) }} pcs</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Budget</span>
+                            <span class="font-medium text-gray-900">Rp {{ number_format($auction->budget) }}</span>
+                        </div>
+                        @if ($auction->fees_calculated && $auction->admin_fee_amount > 0)
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500">Biaya Admin</span>
+                                <span class="font-medium text-yellow-600">+ Rp {{ number_format($auction->admin_fee_amount) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500">Payment Gateway</span>
+                                <span class="font-medium text-yellow-600">+ Rp {{ number_format($auction->payment_gateway_fee) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm pt-2 border-t border-gray-100">
+                                <span class="font-semibold text-gray-900">Total Pembayaran</span>
+                                <span class="font-bold text-primary-600">Rp {{ number_format($auction->total_amount_with_fees) }}</span>
+                            </div>
+                        @endif
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Deadline</span>
+                            <span class="font-medium text-gray-900">{{ $auction->deadline->format('d M Y') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Status</span>
+                            @php
+                                $sBadge = match($auction->status) {
+                                    'active' => 'bg-green-100 text-green-700',
+                                    'waiting_payment' => 'bg-yellow-100 text-yellow-700',
+                                    'paid' => 'bg-blue-100 text-blue-700',
+                                    'closed' => 'bg-blue-100 text-blue-700',
+                                    default => 'bg-red-100 text-red-700',
+                                };
+                                $sLabel = match($auction->status) {
+                                    'waiting_payment' => 'Menunggu Pembayaran',
+                                    'paid' => 'Terbayar',
+                                    default => ucfirst($auction->status),
+                                };
+                            @endphp
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $sBadge }}">{{ $sLabel }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">Penawaran</span>
+                            <span class="font-medium text-gray-900">{{ $auction->getBidCount() }} vendor</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {{-- Waktu Tersisa --}}
+            @if ($auction->isActive())
+                <div class="bg-white rounded-xl border border-gray-200 px-5 py-4 text-center">
+                    <h4 class="text-sm font-medium text-gray-500 mb-1">Waktu Tersisa</h4>
+                    <p class="text-3xl font-bold text-primary-600">{{ $auction->deadline->diffInDays(now()) }} hari</p>
+                    <p class="text-xs text-gray-400 mt-1">Berakhir pada {{ $auction->deadline->format('d M Y H:i') }}</p>
+                </div>
+            @endif
         </div>
     </div>
 @endsection

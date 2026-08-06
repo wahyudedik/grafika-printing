@@ -3,229 +3,131 @@
 @section('title', 'Tambah Pengaturan Biaya Admin')
 
 @section('content')
-    <div class="page-header d-print-none">
-        <div class="container-xl">
-            <div class="row g-2 align-items-center">
-                <div class="col">
-                    <div class="page-pretitle">
-                        Pengaturan
-                    </div>
-                    <h2 class="page-title">
-                        Tambah Pengaturan Biaya Admin
-                    </h2>
-                </div>
-                <div class="col-auto ms-auto d-print-none">
-                    <div class="btn-list">
-                        <a href="{{ route('admin.admin-fees.index') }}" class="btn btn-outline-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M9 6l6 6l-6 6" />
-                            </svg>
-                            Kembali
-                        </a>
-                    </div>
-                </div>
-            </div>
+    {{-- Page Header --}}
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <p class="text-sm font-medium text-gray-500">Pengaturan</p>
+            <h1 class="text-2xl font-bold text-gray-900">Tambah Pengaturan Biaya Admin</h1>
         </div>
+        <a href="{{ route('admin.admin-fees.index') }}"
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <i class="fa-solid fa-arrow-left"></i> Kembali
+        </a>
     </div>
 
-    <div class="page-body">
-        <div class="container-xl">
-            <div class="row row-deck row-cards">
-                <div class="col-12">
-                    <form action="{{ route('admin.admin-fees.store') }}" method="POST" class="card">
-                        @csrf
-                        <div class="card-header">
-                            <h3 class="card-title">Form Pengaturan Biaya Admin</h3>
+    {{-- Form --}}
+    <form action="{{ route('admin.admin-fees.store') }}" method="POST">
+        @csrf
+        <div class="bg-white rounded-xl shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Form Pengaturan Biaya Admin</h3>
+            </div>
+            <div class="px-6 py-6 space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {{-- Nama --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pengaturan <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Contoh: Biaya Admin 10%"
+                            class="block w-full rounded-lg border {{ $errors->has('name') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Kategori --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kategori <span class="text-red-500">*</span></label>
+                        <select name="category"
+                            class="block w-full rounded-lg border {{ $errors->has('category') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                            <option value="">Pilih Kategori</option>
+                            <option value="auction" {{ old('category') == 'auction' ? 'selected' : '' }}>Lelang</option>
+                            <option value="payment" {{ old('category') == 'payment' ? 'selected' : '' }}>Pembayaran</option>
+                            <option value="transaction" {{ old('category') == 'transaction' ? 'selected' : '' }}>Transaksi</option>
+                        </select>
+                        @error('category') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                {{-- Deskripsi --}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                    <textarea name="description" rows="3" placeholder="Deskripsi pengaturan biaya admin"
+                        class="block w-full rounded-lg border {{ $errors->has('description') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">{{ old('description') }}</textarea>
+                    @error('description') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {{-- Tipe Biaya --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Biaya <span class="text-red-500">*</span></label>
+                        <select name="type" id="type"
+                            class="block w-full rounded-lg border {{ $errors->has('type') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                            <option value="">Pilih Tipe</option>
+                            <option value="fixed" {{ old('type') == 'fixed' ? 'selected' : '' }}>Biaya Tetap (Rupiah)</option>
+                            <option value="percentage" {{ old('type') == 'percentage' ? 'selected' : '' }}>Biaya Persentase (%)</option>
+                        </select>
+                        @error('type') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Nilai Biaya --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nilai Biaya <span class="text-red-500">*</span></label>
+                        <div class="flex">
+                            <input type="number" name="value" value="{{ old('value') }}" step="0.01" min="0" placeholder="Masukkan nilai biaya"
+                                class="block w-full rounded-l-lg border {{ $errors->has('value') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                            <span id="value-unit" class="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 text-sm text-gray-500">Rp</span>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label required">Nama Pengaturan</label>
-                                        <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                            name="name" value="{{ old('name') }}"
-                                            placeholder="Contoh: Biaya Admin 10%">
-                                        @error('name')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label required">Kategori</label>
-                                        <select class="form-select @error('category') is-invalid @enderror" name="category">
-                                            <option value="">Pilih Kategori</option>
-                                            <option value="auction" {{ old('category') == 'auction' ? 'selected' : '' }}>
-                                                Lelang</option>
-                                            <option value="payment" {{ old('category') == 'payment' ? 'selected' : '' }}>
-                                                Pembayaran</option>
-                                            <option value="transaction"
-                                                {{ old('category') == 'transaction' ? 'selected' : '' }}>Transaksi</option>
-                                        </select>
-                                        @error('category')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                        @error('value') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Deskripsi</label>
-                                <textarea class="form-control @error('description') is-invalid @enderror" name="description" rows="3"
-                                    placeholder="Deskripsi pengaturan biaya admin">{{ old('description') }}</textarea>
-                                @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {{-- Minimum --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Minimum</label>
+                        <input type="number" name="minimum_amount" value="{{ old('minimum_amount', 0) }}" step="0.01" min="0" placeholder="Jumlah minimum"
+                            class="block w-full rounded-lg border {{ $errors->has('minimum_amount') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('minimum_amount') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label required">Tipe Biaya</label>
-                                        <select class="form-select @error('type') is-invalid @enderror" name="type"
-                                            id="type">
-                                            <option value="">Pilih Tipe</option>
-                                            <option value="fixed" {{ old('type') == 'fixed' ? 'selected' : '' }}>Biaya
-                                                Tetap (Rupiah)</option>
-                                            <option value="percentage" {{ old('type') == 'percentage' ? 'selected' : '' }}>
-                                                Biaya Persentase (%)</option>
-                                        </select>
-                                        @error('type')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label required">Nilai Biaya</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control @error('value') is-invalid @enderror"
-                                                name="value" value="{{ old('value') }}" step="0.01" min="0"
-                                                placeholder="Masukkan nilai biaya">
-                                            <span class="input-group-text" id="value-unit">Rp</span>
-                                        </div>
-                                        @error('value')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                    {{-- Maksimum --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Maksimum</label>
+                        <input type="number" name="maximum_amount" value="{{ old('maximum_amount') }}" step="0.01" min="0" placeholder="Jumlah maksimum"
+                            class="block w-full rounded-lg border {{ $errors->has('maximum_amount') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('maximum_amount') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Jumlah Minimum</label>
-                                        <input type="number"
-                                            class="form-control @error('minimum_amount') is-invalid @enderror"
-                                            name="minimum_amount" value="{{ old('minimum_amount', 0) }}" step="0.01"
-                                            min="0" placeholder="Jumlah minimum untuk menerapkan biaya">
-                                        @error('minimum_amount')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Jumlah Maksimum</label>
-                                        <input type="number"
-                                            class="form-control @error('maximum_amount') is-invalid @enderror"
-                                            name="maximum_amount" value="{{ old('maximum_amount') }}" step="0.01"
-                                            min="0" placeholder="Jumlah maksimum untuk menerapkan biaya">
-                                        @error('maximum_amount')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {{-- Effective From --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku Dari</label>
+                        <input type="date" name="effective_from" value="{{ old('effective_from') }}"
+                            class="block w-full rounded-lg border {{ $errors->has('effective_from') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('effective_from') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Berlaku Dari</label>
-                                        <input type="date"
-                                            class="form-control @error('effective_from') is-invalid @enderror"
-                                            name="effective_from" value="{{ old('effective_from') }}">
-                                        @error('effective_from')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Berlaku Sampai</label>
-                                        <input type="date"
-                                            class="form-control @error('effective_until') is-invalid @enderror"
-                                            name="effective_until" value="{{ old('effective_until') }}">
-                                        @error('effective_until')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
+                    {{-- Effective Until --}}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Berlaku Sampai</label>
+                        <input type="date" name="effective_until" value="{{ old('effective_until') }}"
+                            class="block w-full rounded-lg border {{ $errors->has('effective_until') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
+                        @error('effective_until') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                </div>
 
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_active" value="1"
-                                        {{ old('is_active', true) ? 'checked' : '' }} id="is_active">
-                                    <label class="form-check-label" for="is_active">
-                                        Aktifkan pengaturan ini
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <div class="row align-items-center">
-                                <div class="col">
-                                    <a href="{{ route('admin.admin-fees.index') }}" class="btn btn-outline-secondary">
-                                        Batal
-                                    </a>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                            height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path d="M5 12l5 5l10 -10" />
-                                        </svg>
-                                        Simpan Pengaturan
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                {{-- Aktif --}}
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }} id="is_active" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                    <label for="is_active" class="text-sm text-gray-700">Aktifkan pengaturan ini</label>
                 </div>
             </div>
+
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <a href="{{ route('admin.admin-fees.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Batal</a>
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                    <i class="fa-solid fa-check"></i> Simpan Pengaturan
+                </button>
+            </div>
         </div>
-    </div>
+    </form>
 @endsection
-
-@push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const typeSelect = document.getElementById('type');
-            const valueUnit = document.getElementById('value-unit');
-            const valueInput = document.querySelector('input[name="value"]');
-
-            typeSelect.addEventListener('change', function() {
-                if (this.value === 'percentage') {
-                    valueUnit.textContent = '%';
-                    valueInput.placeholder = 'Masukkan persentase (contoh: 10)';
-                    valueInput.max = '100';
-                } else if (this.value === 'fixed') {
-                    valueUnit.textContent = 'Rp';
-                    valueInput.placeholder = 'Masukkan jumlah dalam Rupiah';
-                    valueInput.removeAttribute('max');
-                }
-            });
-
-            // Trigger change event on page load if type is already selected
-            if (typeSelect.value) {
-                typeSelect.dispatchEvent(new Event('change'));
-            }
-        });
-    </script>
-@endpush

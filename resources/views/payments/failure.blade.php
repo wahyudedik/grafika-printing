@@ -70,7 +70,7 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="{{ route('payments.confirmation', $auction) }}"
+                <a href="{{ route('user.payments.confirmation', $auction) }}"
                     class="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
                     Coba Bayar Lagi
                 </a>

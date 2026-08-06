@@ -2,125 +2,114 @@
 
 @section('title', 'Detail Produk')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Detail Produk</h3>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-6">
+            <div>
+                <div class="bg-white rounded-xl shadow-sm">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Detail Produk</h3>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
+                    <div class="px-6 py-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
                                 <!-- Product gallery -->
-                                <div class="mb-4">
-                                    @if (!empty($produk->gambar))
-                                        <div id="carousel-produk" class="carousel slide" data-bs-ride="false">
-                                            <div class="carousel-inner">
-                                                @foreach ($produk->gambar as $index => $image)
-                                                    <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
-                                                        <img src="{{ asset($image) }}" class="d-block w-100 rounded"
-                                                            alt="{{ $produk->nama_produk }}"
-                                                            style="max-height: 350px; object-fit: cover;">
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                            @if (count($produk->gambar) > 1)
-                                                <button class="carousel-control-prev" type="button"
-                                                    data-bs-target="#carousel-produk" data-bs-slide="prev">
-                                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                    <span class="visually-hidden">Previous</span>
-                                                </button>
-                                                <button class="carousel-control-next" type="button"
-                                                    data-bs-target="#carousel-produk" data-bs-slide="next">
-                                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                    <span class="visually-hidden">Next</span>
-                                                </button>
-                                            @endif
+                                @if (!empty($produk->gambar))
+                                    <div x-data="productGallery({{ count($produk->gambar) }})">
+                                        <div class="relative rounded-lg overflow-hidden bg-gray-100">
+                                            @foreach ($produk->gambar as $index => $image)
+                                                <img src="{{ asset($image) }}" alt="{{ $produk->nama_produk }}"
+                                                    class="w-full rounded-lg {{ $index === 0 ? '' : 'hidden' }}"
+                                                    :class="{ 'hidden': currentSlide !== {{ $index }} }"
+                                                    style="max-height: 350px; object-fit: cover;">
+                                            @endforeach
                                         </div>
-                                    @else
-                                        <div class="empty">
-                                            <div class="empty-img">
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                    class="icon icon-tabler icon-tabler-photo" width="128" height="128"
-                                                    viewBox="0 0 24 24" stroke-width="1" stroke="currentColor"
-                                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                    <path d="M15 8h.01"></path>
-                                                    <path
-                                                        d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z">
-                                                    </path>
-                                                    <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path>
-                                                    <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"></path>
-                                                </svg>
+                                        @if (count($produk->gambar) > 1)
+                                            <div class="flex items-center justify-between mt-3">
+                                                <button @click="prev()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                                                    <i class="fas fa-chevron-left"></i>
+                                                </button>
+                                                <div class="flex gap-2">
+                                                    @foreach ($produk->gambar as $index => $image)
+                                                        <button @click="currentSlide = {{ $index }}"
+                                                            class="w-2 h-2 rounded-full transition-colors"
+                                                            :class="currentSlide === {{ $index }} ? 'bg-primary' : 'bg-gray-300'">
+                                                        </button>
+                                                    @endforeach
+                                                </div>
+                                                <button @click="next()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                                                    <i class="fas fa-chevron-right"></i>
+                                                </button>
                                             </div>
-                                            <p class="empty-title">Tidak ada gambar produk</p>
-                                        </div>
-                                    @endif
-                                </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <div class="flex flex-col items-center justify-center py-12 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-image text-6xl text-gray-300 mb-4"></i>
+                                        <p class="text-sm text-gray-500">Tidak ada gambar produk</p>
+                                    </div>
+                                @endif
                             </div>
 
-                            <div class="col-md-6">
+                            <div>
                                 <div class="mb-3">
-                                    <h2>{{ $produk->nama_produk }}</h2>
-                                    <span class="badge bg-primary text-white">{{ $produk->kategori->nama_kategori }}</span>
+                                    <h2 class="text-xl font-bold text-gray-900">{{ $produk->nama_produk }}</h2>
+                                    <span class="inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary">{{ $produk->kategori->nama_kategori }}</span>
                                 </div>
 
                                 <div class="mb-3">
-                                    <h4>Deskripsi</h4>
-                                    <p>{{ $produk->deskripsi ?? 'Tidak ada deskripsi' }}</p>
+                                    <h4 class="text-sm font-semibold text-gray-900">Deskripsi</h4>
+                                    <p class="text-sm text-gray-600">{{ $produk->deskripsi ?? 'Tidak ada deskripsi' }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Specifications Section -->
-                        <div class="mt-4">
-                            <h4 class="mb-3">Spesifikasi Produk</h4>
+                        <div class="mt-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-3">Spesifikasi Produk</h4>
                             @if ($produk->spesifikasiProduk->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter card-table">
-                                        <thead>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
                                             <tr>
-                                                <th>Nama Spesifikasi</th>
-                                                <th>Tipe Input</th>
-                                                <th>Wajib Diisi</th>
-                                                <th>Pilihan</th>
-                                                <th>Bahan Digunakan</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Spesifikasi</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe Input</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wajib Diisi</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pilihan</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bahan Digunakan</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody class="bg-white divide-y divide-gray-200">
                                             @foreach ($produk->spesifikasiProduk as $spec)
                                                 <tr>
-                                                    <td>{{ $spec->spesifikasi->nama_spesifikasi }}</td>
-                                                    <td>{{ ucfirst($spec->spesifikasi->tipe_input) }}</td>
-                                                    <td>
+                                                    <td class="px-6 py-4 text-sm text-gray-900">{{ $spec->spesifikasi->nama_spesifikasi }}</td>
+                                                    <td class="px-6 py-4 text-sm text-gray-500">{{ ucfirst($spec->spesifikasi->tipe_input) }}</td>
+                                                    <td class="px-6 py-4">
                                                         @if ($spec->wajib_diisi)
-                                                            <span class="badge bg-success text-white">Ya</span>
+                                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Ya</span>
                                                         @else
-                                                            <span class="badge bg-secondary text-white">Tidak</span>
+                                                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">Tidak</span>
                                                         @endif
                                                     </td>
-                                                    <td>
+                                                    <td class="px-6 py-4 text-sm text-gray-500">
                                                         @if (!empty($spec->pilihan))
-                                                            <ul class="list-unstyled mb-0">
+                                                            <ul class="list-disc list-inside">
                                                                 @foreach ($spec->pilihan as $pilihan)
                                                                     <li>{{ $pilihan }}</li>
                                                                 @endforeach
                                                             </ul>
                                                         @else
-                                                            <span class="text-muted">-</span>
+                                                            <span class="text-gray-400">-</span>
                                                         @endif
                                                     </td>
-                                                    <td>
+                                                    <td class="px-6 py-4 text-sm text-gray-500">
                                                         @if ($spec->bahanSpesifikasiProduk->count() > 0)
-                                                            <ul class="list-unstyled mb-0">
+                                                            <ul class="list-disc list-inside">
                                                                 @foreach ($spec->bahanSpesifikasiProduk as $bahan)
-                                                                    <li>{{ $bahan->nama_bahan }} ({{ $bahan->satuan }})
-                                                                    </li>
+                                                                    <li>{{ $bahan->nama_bahan }} ({{ $bahan->satuan }})</li>
                                                                 @endforeach
                                                             </ul>
                                                         @else
-                                                            <span class="text-muted">-</span>
+                                                            <span class="text-gray-400">-</span>
                                                         @endif
                                                     </td>
                                                 </tr>
@@ -129,65 +118,52 @@
                                     </table>
                                 </div>
                             @else
-                                <div class="alert alert-info">
-                                    Produk ini belum memiliki spesifikasi.
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <p class="text-sm text-blue-700">Produk ini belum memiliki spesifikasi.</p>
                                 </div>
                             @endif
                         </div>
 
                         <!-- Production Estimates Section -->
-                        <div class="mt-4">
-                            <h4 class="mb-3">Estimasi Produksi</h4>
+                        <div class="mt-6">
+                            <h4 class="text-sm font-semibold text-gray-900 mb-3">Estimasi Produksi</h4>
                             @if ($produk->estimasiProduk->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-vcenter card-table">
-                                        <thead>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
                                             <tr>
-                                                <th>Alat</th>
-                                                <th>Waktu Persiapan</th>
-                                                <th>Waktu Produksi per Unit</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alat</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu Persiapan</th>
+                                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu Produksi per Unit</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody class="bg-white divide-y divide-gray-200">
                                             @foreach ($produk->estimasiProduk as $estimasi)
                                                 <tr>
-                                                    <td>{{ $estimasi->alat->nama_alat }}</td>
-                                                    <td>{{ $estimasi->waktu_persiapan }} menit</td>
-                                                    <td>{{ $estimasi->waktu_produksi_per_unit }} menit</td>
+                                                    <td class="px-6 py-4 text-sm text-gray-900">{{ $estimasi->alat->nama_alat }}</td>
+                                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $estimasi->waktu_persiapan }} menit</td>
+                                                    <td class="px-6 py-4 text-sm text-gray-500">{{ $estimasi->waktu_produksi_per_unit }} menit</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
                                     </table>
                                 </div>
                             @else
-                                <div class="alert alert-info">
-                                    Produk ini belum memiliki estimasi produksi.
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <p class="text-sm text-blue-700">Produk ini belum memiliki estimasi produksi.</p>
                                 </div>
                             @endif
                         </div>
                     </div>
-                    <div class="card-footer text-end">
-                        <a href="{{ route('vendor.products.edit', $produk->id) }}" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24"
-                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
-                                <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
-                                <path d="M16 5l3 3"></path>
-                            </svg>
+                    <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                        <a href="{{ route('vendor.products.edit', $produk->id) }}"
+                            class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                            <i class="fas fa-edit"></i>
                             Edit
                         </a>
-
-                        <a href="{{ route('vendor.products.index') }}" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M5 12l14 0"></path>
-                                <path d="M5 12l6 6"></path>
-                                <path d="M5 12l6 -6"></path>
-                            </svg>
+                        <a href="{{ route('vendor.products.index') }}"
+                            class="inline-flex items-center gap-2 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors">
+                            <i class="fas fa-arrow-left"></i>
                             Kembali
                         </a>
                     </div>
@@ -195,4 +171,21 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            function productGallery(totalSlides) {
+                return {
+                    currentSlide: 0,
+                    total: totalSlides,
+                    next() {
+                        this.currentSlide = (this.currentSlide + 1) % this.total;
+                    },
+                    prev() {
+                        this.currentSlide = (this.currentSlide - 1 + this.total) % this.total;
+                    }
+                }
+            }
+        </script>
+    @endpush
 @endsection

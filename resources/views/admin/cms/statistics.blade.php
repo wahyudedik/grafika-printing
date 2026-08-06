@@ -3,169 +3,110 @@
 @section('title', 'CMS Statistics')
 
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-chart-bar me-2"></i>CMS Statistics
-                        </h3>
-                        <div class="card-actions">
-                            <a href="{{ route('admin.cms.index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-1"></i>Back to CMS
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        @php
-                            $stats = \App\Models\CmsSetting::getStatistics();
-                        @endphp
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <i class="fas fa-chart-bar text-gray-400"></i>CMS Statistics
+        </h1>
+        <a href="{{ route('admin.cms.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <i class="fas fa-arrow-left mr-1"></i>Back to CMS
+        </a>
+    </div>
 
-                        <!-- Overview Cards -->
-                        <div class="row mb-4">
-                            <div class="col-md-3">
-                                <div class="card bg-primary text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-cogs fa-2x"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h4 class="mb-0">{{ $stats['total'] }}</h4>
-                                                <p class="mb-0">Total Settings</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-success text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-check-circle fa-2x"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h4 class="mb-0">{{ $stats['active'] }}</h4>
-                                                <p class="mb-0">Active Settings</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-warning text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-pause-circle fa-2x"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h4 class="mb-0">{{ $stats['inactive'] }}</h4>
-                                                <p class="mb-0">Inactive Settings</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card bg-info text-white">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <i class="fas fa-layer-group fa-2x"></i>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h4 class="mb-0">{{ count($stats['by_category']) }}</h4>
-                                                <p class="mb-0">Categories</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+    @php
+        $stats = \App\Models\CmsSetting::getStatistics();
+    @endphp
 
-                        <div class="row">
-                            <!-- Settings by Category -->
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Settings by Category</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="categoryChart" width="400" height="200"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Settings by Type -->
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Settings by Type</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="typeChart" width="400" height="200"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Category Details -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="card-title">Category Breakdown</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Category</th>
-                                                        <th>Count</th>
-                                                        <th>Percentage</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach ($stats['by_category'] as $category => $count)
-                                                        <tr>
-                                                            <td>
-                                                                <span
-                                                                    class="badge bg-primary">{{ ucfirst($category) }}</span>
-                                                            </td>
-                                                            <td>{{ $count }}</td>
-                                                            <td>
-                                                                <div class="progress" style="height: 20px;">
-                                                                    <div class="progress-bar" role="progressbar"
-                                                                        style="width: {{ ($count / $stats['total']) * 100 }}%"
-                                                                        aria-valuenow="{{ ($count / $stats['total']) * 100 }}"
-                                                                        aria-valuemin="0" aria-valuemax="100">
-                                                                        {{ number_format(($count / $stats['total']) * 100, 1) }}%
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <a href="{{ route('admin.cms.show', $category) }}"
-                                                                    class="btn btn-sm btn-outline-primary">
-                                                                    <i class="fas fa-edit"></i> Manage
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-5 text-white">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-cogs text-3xl opacity-80"></i>
+                <div>
+                    <h4 class="text-2xl font-bold">{{ $stats['total'] }}</h4>
+                    <p class="text-blue-100 text-sm">Total Settings</p>
                 </div>
             </div>
+        </div>
+        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-5 text-white">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-check-circle text-3xl opacity-80"></i>
+                <div>
+                    <h4 class="text-2xl font-bold">{{ $stats['active'] }}</h4>
+                    <p class="text-green-100 text-sm">Active Settings</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-5 text-white">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-pause-circle text-3xl opacity-80"></i>
+                <div>
+                    <h4 class="text-2xl font-bold">{{ $stats['inactive'] }}</h4>
+                    <p class="text-yellow-100 text-sm">Inactive Settings</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl p-5 text-white">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-layer-group text-3xl opacity-80"></i>
+                <div>
+                    <h4 class="text-2xl font-bold">{{ count($stats['by_category']) }}</h4>
+                    <p class="text-cyan-100 text-sm">Categories</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h5 class="text-sm font-semibold text-gray-900 mb-4">Settings by Category</h5>
+            <canvas id="categoryChart" width="400" height="200"></canvas>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h5 class="text-sm font-semibold text-gray-900 mb-4">Settings by Type</h5>
+            <canvas id="typeChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h5 class="text-sm font-semibold text-gray-900">Category Breakdown</h5>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                        <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach ($stats['by_category'] as $category => $count)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">{{ ucfirst($category) }}</span>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-900">{{ $count }}</td>
+                            <td class="px-5 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-1 w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-primary-500 h-2 rounded-full" style="width: {{ ($count / $stats['total']) * 100 }}%"></div>
+                                    </div>
+                                    <span class="text-xs text-gray-500 whitespace-nowrap">{{ number_format(($count / $stats['total']) * 100, 1) }}%</span>
+                                </div>
+                            </td>
+                            <td class="px-5 py-3 whitespace-nowrap">
+                                <a href="{{ route('admin.cms.show', $category) }}" class="text-xs font-medium text-primary-600 hover:text-primary-800">
+                                    <i class="fas fa-edit mr-1"></i>Manage
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection

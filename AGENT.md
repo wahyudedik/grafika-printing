@@ -181,52 +181,43 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 
 ---
 
-## Fitur yang BELUM ADA (Perlu Dibuat)
+## Fitur Status
 
-### Xendit Payment Gateway - Verifikasi & Enhancement
+### ✅ Sudah Selesai
 
-> Client minta **Xendit sebagai payment gateway FULL** untuk lelang dan linktree. `XenditService` sudah ada.
+#### Xendit Payment Gateway
+- [`XenditService`](app/Services/XenditService.php) sudah fully integrated
+- Support: QRIS, VA, E-Wallet, Convenience Store
+- Webhook handling sudah robust
 
-- Verifikasi [`XenditService`](app/Services/XenditService.php) support QRIS
-- Pastikan flow pembayaran lelang via Xendit optimal
-- Integrasikan Xendit untuk QRIS payment di Linktree
-- Pastikan webhook handling robust untuk semua metode pembayaran
-
-### Linktree Module
-
-> Fitur baru: vendor bisa punya halaman linktree dengan custom URL dan template.
-
-- Buat models: `Linktree`, `LinktreeLink`, `LinktreeSocial`, `LinktreePayment`
-- Buat controllers: `LinktreeController`, `LinktreePublicController`, `TemplateController`
-- Buat views di `resources/views/vendor/linktree/` dan `resources/views/linktree/public/`
+#### Linktree Module
+- Models: [`Linktree`](app/Models/Vendor/Linktree.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php), [`LinktreeProduct`](app/Models/Vendor/LinktreeProduct.php)
+- Controllers: [`LinktreeController`](app/Http/Controllers/vendor/LinktreeController.php), [`LinktreePublicController`](app/Http/Controllers/LinktreePublicController.php)
+- Views: `resources/views/vendor/linktree/`, `resources/views/linktree/public/`
 - Routes: `/vendor/linktree/*` (vendor), `/l/{customUrl}` (public)
 
-### Template Builder
-
-> Bagian dari Linktree: vendor bisa kustomisasi tampilan halaman linktree.
-
-- Pilihan template (minimal, colorful, dark, professional)
-- Color picker untuk tema
-- Banner & avatar upload
-- Button style configuration
+#### Template Builder
+- Pilihan template: minimal, colorful, dark, professional, gradient, nature, neon, elegant
+- Color picker, banner & avatar upload, button style configuration
 - Live preview
 
-### User Lelang Management
+#### Deployment Scripts
+- [`deploy.sh`](deploy.sh) (first-time deployment)
+- [`update.sh`](update.sh) (update deployment)
+- Berdasarkan panduan di [`VPS_DEPLOYMENT_GUIDE.md`](VPS_DEPLOYMENT_GUIDE.md)
 
-> Client ingin role "User Lelang" yang bisa dikelola admin.
+### ⚠️ Perlu Enhancement
 
+#### User Lelang Management
+- Client ingin role "User Lelang" yang bisa dikelola admin
 - Tambah field `is_lelang_user` ke `users` table
 - Buat `UserLelangController` untuk admin
 - Dashboard khusus user lelang
 - Routes: `/admin/user-lelang/*`
 
-### Deployment Scripts
-
-> Client minta `deploy.sh` dan `update.sh` untuk VPS deployment.
-
-- Buat `deploy.sh` (first-time deployment)
-- Buat `update.sh` (update deployment)
-- Berdasarkan panduan di [`VPS_DEPLOYMENT_GUIDE.md`](VPS_DEPLOYMENT_GUIDE.md)
+#### COD Ongkos Kirim
+- Flow COD belum lengkap
+- Perlu pisahkan rincian: harga barang + ongkir COD
 
 ---
 
@@ -333,12 +324,43 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 - Guest: [`resources/views/layouts/guest.blade.php`](resources/views/layouts/guest.blade.php)
 - Linktree public: `resources/views/linktree/public/show.blade.php` (belum ada)
 
-### 7. Frontend
-- **Tabler Core** digunakan untuk dashboard admin
-- **Tailwind CSS** untuk styling umum
-- **Alpine.js** untuk interaktivitas client-side
+### 7. Frontend — Tailwind CSS
+- **Tailwind CSS** digunakan untuk seluruh styling (migrasi dari Bootstrap Tabler — Agustus 2026)
+- **Alpine.js** untuk interaktivitas client-side (menggantikan Bootstrap JS)
+- **FontAwesome** untuk ikon
 - **Vite** untuk build assets (`npm run dev` atau `npm run build`)
+- **SweetAlert2** via npm (bukan CDN)
+- **ApexCharts / Chart.js** untuk grafik
 - Linktree public page: gunakan Tailwind CSS standalone (tanpa vendor layout)
+
+### 7.1 Tailwind CSS Guidelines
+- Gunakan **utility classes** Tailwind, hindari custom CSS kecuali sangat perlu
+- Config: [`tailwind.config.js`](tailwind.config.js) — custom primary colors, Inter font, `@tailwindcss/forms` plugin
+- **UI Components** (`resources/views/components/ui/`): gunakan `<x-ui.button>`, `<x-ui.card>`, `<x-ui.modal>`, `<x-ui.empty-state>`, `<x-ui.badge>`, `<x-ui.dropdown>`, dll
+- **x-cloak**: Selalu gunakan `x-cloak` pada Alpine.js elements (bukan `style="display: none"`)
+- **Alpine.js** untuk interaktivitas: `x-data`, `x-on:click`, `x-show`, `x-transition`, `x-model`
+- **Responsive**: gunakan `sm:`, `md:`, `lg:`, `xl:` prefixes
+- **Dark mode**: belum diaktifkan (opsional untuk enhancement mendatang)
+- **Contoh pattern modal:**
+  ```html
+  <div x-data="{ open: false }">
+      <button @click="open = true" class="btn-primary">Buka</button>
+      <div x-show="open" x-transition class="modal-backdrop">
+          <div class="modal-content" @click.outside="open = false">
+              ...
+          </div>
+      </div>
+  </div>
+  ```
+- **Contoh pattern dropdown:**
+  ```html
+  <div x-data="{ open: false }" class="relative">
+      <button @click="open = !open">Menu</button>
+      <div x-show="open" @click.outside="open = false" x-transition class="dropdown-menu">
+          ...
+      </div>
+  </div>
+  ```
 
 ### 8. Testing
 - Test files di `tests/Feature/`
@@ -356,7 +378,9 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 | Tenant Base | `app/Models/Vendor/TenantModel.php` |
 | Tenant Manager | `app/Services/TenantManager.php` |
 | Middleware | `app/Http/Middleware/SetTenantContext.php` |
-| Bootstrap | `bootstrap/app.php` |
+| Tailwind Config | `tailwind.config.js` |
+| UI Components | `resources/views/components/ui/` |
+| Laravel Bootstrap | `bootstrap/app.php` |
 | Env | `.env` (jangan commit!) |
 
 ---
@@ -456,7 +480,24 @@ Route::resource('resources', NamaModelController::class);
 ### 4. Views
 - Buat di `resources/views/vendor/nama-model/`
 - Extend layout vendor
-- Gunakan Tailwind CSS + Alpine.js
+- Gunakan **Tailwind CSS** utility classes (bukan Bootstrap classes)
+- Gunakan **Alpine.js** untuk interaktivitas (bukan Bootstrap JS)
+- Gunakan UI components: `<x-ui.button>`, `<x-ui.card>`, `<x-ui.modal>`, `<x-ui.input>`, `<x-ui.alert>`, dll
+- **Contoh view baru:**
+  ```blade
+  @extends('layouts.vendor')
+  @section('content')
+  <div class="space-y-6">
+      <h1 class="text-2xl font-bold text-gray-900">Judul Halaman</h1>
+      <x-ui.card>
+          <div class="p-6">
+              <x-ui.input label="Nama" name="nama" />
+              <x-ui.button type="submit">Simpan</x-ui.button>
+          </div>
+      </x-ui.card>
+  </div>
+  @endsection
+  ```
 
 ### 5. Service (jika ada business logic kompleks)
 ```bash

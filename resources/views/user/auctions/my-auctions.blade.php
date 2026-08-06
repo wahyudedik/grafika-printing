@@ -3,180 +3,134 @@
 @section('title', 'Lelang Saya')
 
 @section('content')
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="h3 mb-1">Lelang Saya</h2>
-                    <p class="text-muted">Kelola permintaan cetak yang telah Anda buat</p>
-                </div>
-                <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                        stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M12 5l0 14" />
-                        <path d="M5 12l14 0" />
-                    </svg>
-                    Buat Permintaan Baru
-                </a>
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Lelang Saya</h1>
+            <p class="text-sm text-gray-500 mt-1">Kelola permintaan cetak yang telah Anda buat</p>
+        </div>
+        <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+            <i class="fas fa-plus mr-2"></i> Buat Permintaan Baru
+        </a>
+    </div>
+
+    @if (session('success'))
+        <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-check-circle text-green-600"></i>
+                <span class="text-sm text-green-800">{{ session('success') }}</span>
             </div>
+            <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+        </div>
+    @endif
 
-            @if (session('success'))
-                <div class="alert alert-success">
-                    {{ session('success') }}
-                </div>
-            @endif
+    @if ($auctions->count() > 0)
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ($auctions as $auction)
+                @php
+                    $statusConfig = [
+                        'pending' => ['label' => 'Menunggu Verifikasi', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700', 'dot' => 'bg-yellow-500'],
+                        'approved' => ['label' => 'Disetujui', 'bg' => 'bg-green-100', 'text' => 'text-green-700', 'dot' => 'bg-green-500'],
+                        'rejected' => ['label' => 'Ditolak', 'bg' => 'bg-red-100', 'text' => 'text-red-700', 'dot' => 'bg-red-500'],
+                        'active' => ['label' => 'Berlangsung', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700', 'dot' => 'bg-blue-500'],
+                        'bidding' => ['label' => 'Berlangsung', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700', 'dot' => 'bg-blue-500'],
+                        'closed' => ['label' => 'Selesai', 'bg' => 'bg-gray-100', 'text' => 'text-gray-700', 'dot' => 'bg-gray-500'],
+                        'won' => ['label' => 'Dimenangkan', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700', 'dot' => 'bg-purple-500'],
+                        'paid' => ['label' => 'Dibayar', 'bg' => 'bg-green-100', 'text' => 'text-green-700', 'dot' => 'bg-green-500'],
+                        'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700', 'dot' => 'bg-green-500'],
+                    ];
+                    $sc = $statusConfig[$auction->status] ?? ['label' => ucfirst($auction->status), 'bg' => 'bg-gray-100', 'text' => 'text-gray-700', 'dot' => 'bg-gray-500'];
+                @endphp
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+                    <div class="px-5 py-4 border-b border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary-100 text-primary-700">
+                                {{ $auction->category }}
+                            </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $sc['bg'] }} {{ $sc['text'] }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $sc['dot'] }} mr-1.5"></span>
+                                {{ $sc['label'] }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="px-5 py-4 flex-1 flex flex-col">
+                        <h3 class="font-semibold text-gray-900 mb-1">{{ $auction->title }}</h3>
+                        <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ Str::limit($auction->description, 100) }}</p>
 
-            @if ($auctions->count() > 0)
-                <div class="row g-4">
-                    @foreach ($auctions as $auction)
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <span class="badge bg-blue-lt">{{ $auction->category }}</span>
-                                        <span
-                                            class="badge bg-{{ $auction->status === 'active' ? 'green' : ($auction->status === 'closed' ? 'blue' : ($auction->status === 'pending' ? 'yellow' : ($auction->status === 'rejected' ? 'red' : 'gray'))) }}-lt">
-                                            {{ $auction->status === 'pending' ? 'Menunggu Verifikasi' : ucfirst($auction->status) }}
-                                        </span>
-                                    </div>
-
-                                    <h5 class="card-title mb-2">{{ $auction->title }}</h5>
-                                    <p class="card-text text-muted small mb-3">{{ Str::limit($auction->description, 100) }}
-                                    </p>
-
-                                    <div class="row g-2 mb-3">
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm text-muted me-1"
-                                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M7 7h10v10l-4 -4l-6 6" />
-                                                </svg>
-                                                <small class="text-muted">{{ number_format($auction->quantity) }}
-                                                    pcs</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="d-flex align-items-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm text-muted me-1"
-                                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                    stroke="currentColor" fill="none" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path
-                                                        d="M12 2l3.09 6.26l6.91 1.01l-5 4.87l1.18 6.88l-6.18 -3.25l-6.18 3.25l1.18 -6.88l-5 -4.87l6.91 -1.01z" />
-                                                </svg>
-                                                <small class="text-muted">Rp {{ number_format($auction->budget) }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm text-muted me-1"
-                                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path
-                                                    d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-                                                <path d="M16 3l0 4" />
-                                                <path d="M8 3l0 4" />
-                                                <path d="M4 11l16 0" />
-                                            </svg>
-                                            <small class="text-muted">{{ $auction->deadline->format('d M Y') }}</small>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm text-muted me-1"
-                                                width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                stroke="currentColor" fill="none" stroke-linecap="round"
-                                                stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                                                <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                                <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                                            </svg>
-                                            <small class="text-muted">{{ $auction->getBidCount() }} penawaran</small>
-                                        </div>
-                                    </div>
-
-                                    @if ($auction->status === 'pending')
-                                        <div class="alert alert-warning small mb-3">
-                                            <strong>⏳ Menunggu Verifikasi</strong><br>
-                                            Lelang Anda sedang dalam proses verifikasi oleh admin. Anda akan mendapat
-                                            notifikasi setelah lelang disetujui atau ditolak.
-                                        </div>
-                                    @elseif ($auction->status === 'rejected')
-                                        <div class="alert alert-danger small mb-3">
-                                            <strong>❌ Lelang Ditolak</strong><br>
-                                            @if ($auction->rejection_reason)
-                                                <strong>Alasan:</strong> {{ $auction->rejection_reason }}
-                                            @endif
-                                        </div>
-                                    @elseif ($auction->status === 'closed' && $auction->winnerVendor)
-                                        <div class="alert alert-success small mb-3">
-                                            <strong>Pemenang:</strong> {{ $auction->winnerVendor->name }}<br>
-                                            <strong>Harga:</strong> Rp {{ number_format($auction->winning_bid) }}
-                                        </div>
-                                    @endif
-
-                                    <div class="d-flex gap-2">
-                                        <a href="{{ route('user.auctions.show', $auction) }}"
-                                            class="btn btn-primary btn-sm flex-fill">
-                                            Lihat Detail
-                                        </a>
-                                        @if ($auction->status === 'active')
-                                            <a href="{{ route('user.auctions.edit', $auction) }}"
-                                                class="btn btn-outline-secondary btn-sm">
-                                                Edit
-                                            </a>
-                                        @endif
-                                    </div>
-                                </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+                                <i class="fas fa-box text-gray-400 text-xs"></i>
+                                {{ number_format($auction->quantity) }} pcs
+                            </div>
+                            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+                                <i class="fas fa-tag text-gray-400 text-xs"></i>
+                                Rp {{ number_format($auction->budget) }}
+                            </div>
+                            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+                                <i class="fas fa-calendar text-gray-400 text-xs"></i>
+                                {{ $auction->deadline->format('d M Y') }}
+                            </div>
+                            <div class="flex items-center gap-1.5 text-sm text-gray-600">
+                                <i class="fas fa-gavel text-gray-400 text-xs"></i>
+                                {{ $auction->getBidCount() }} penawaran
                             </div>
                         </div>
-                    @endforeach
-                </div>
 
-                <div class="d-flex justify-content-center mt-4">
-                    {{ $auctions->links() }}
-                </div>
-            @else
-                <div class="empty">
-                    <div class="empty-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="128" height="128"
-                            viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
-                            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                            <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
-                        </svg>
+                        {{-- Status Alerts --}}
+                        @if ($auction->status === 'pending')
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mb-4">
+                                <p class="text-xs font-medium text-yellow-800">⏳ Menunggu Verifikasi</p>
+                                <p class="text-xs text-yellow-700 mt-0.5">Lelang sedang dalam proses verifikasi oleh admin.</p>
+                            </div>
+                        @elseif ($auction->status === 'rejected')
+                            <div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-4">
+                                <p class="text-xs font-medium text-red-800">❌ Lelang Ditolak</p>
+                                @if ($auction->rejection_reason)
+                                    <p class="text-xs text-red-700 mt-0.5">Alasan: {{ $auction->rejection_reason }}</p>
+                                @endif
+                            </div>
+                        @elseif ($auction->status === 'closed' && $auction->winnerVendor)
+                            <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-4">
+                                <p class="text-xs font-medium text-green-800">🏆 Pemenang: {{ $auction->winnerVendor->name }}</p>
+                                <p class="text-xs text-green-700 mt-0.5">Harga: Rp {{ number_format($auction->winning_bid) }}</p>
+                            </div>
+                        @endif
+
+                        {{-- Actions --}}
+                        <div class="flex items-center gap-2 mt-auto pt-2">
+                            <a href="{{ route('user.auctions.show', $auction) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                                <i class="fas fa-eye mr-1"></i> Lihat Detail
+                            </a>
+                            @if(in_array($auction->status, ['pending', 'approved', 'active', 'bidding']))
+                                <a href="{{ route('user.auctions.edit', $auction) }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            @endif
+                        </div>
                     </div>
-                    <p class="empty-title">Belum ada lelang</p>
-                    <p class="empty-subtitle text-muted">
-                        Anda belum membuat permintaan cetak. Buat permintaan pertama Anda sekarang!
-                    </p>
-                    <div class="empty-action">
-                        <a href="{{ route('user.auctions.create') }}" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 5l0 14" />
-                                <path d="M5 12l14 0" />
-                            </svg>
-                            Buat Permintaan Pertama
-                        </a>
-                    </div>
                 </div>
-            @endif
+            @endforeach
         </div>
-    </div>
+
+        {{-- Pagination --}}
+        @if($auctions->hasPages())
+            <div class="mt-6">
+                {{ $auctions->links('user.components.pagination') }}
+            </div>
+        @endif
+    @else
+        {{-- Empty State --}}
+        <div class="bg-white rounded-xl border border-gray-200 px-6 py-16 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-gavel text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-1">Belum ada lelang</h3>
+            <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
+                Anda belum membuat permintaan cetak. Buat permintaan pertama Anda sekarang!
+            </p>
+            <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i> Buat Permintaan Pertama
+            </a>
+        </div>
+    @endif
 @endsection

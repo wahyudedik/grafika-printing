@@ -1,129 +1,94 @@
 @extends('layouts.vendor')
 
-@section('title', 'Transaction Details')
+@section('title', 'Detail Transaksi')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Transaction Details</h3>
-                        <div class="card-actions">
-                            <a href="{{ route('vendor.audit-logs.index') }}" class="btn btn-outline-secondary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M9 6l6 6l-6 6" />
-                                </svg>
-                                Back to List
-                            </a>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="bg-white rounded-xl border border-gray-200">
+        <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Detail Transaksi</h3>
+            <a href="{{ route('vendor.audit-logs.index') }}" class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6l6 6-6 6"/></svg>
+                Kembali ke Daftar
+            </a>
+        </div>
+        <div class="p-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {{-- Transaction Information --}}
+                <div>
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">Informasi Transaksi</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Transaction ID:</span>
+                            <span class="text-sm font-medium">{{ $log->id }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Action:</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $log->action_type == 'approve' ? 'bg-green-100 text-green-800' : ($log->action_type == 'reject' ? 'bg-red-100 text-red-800' : 'bg-primary-100 text-primary-800') }}">{{ ucfirst($log->action_type) }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Entity Type:</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{{ ucfirst($log->entity_type) }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Entity ID:</span>
+                            <span class="text-sm font-medium">{{ $log->entity_id }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Amount:</span>
+                            <span class="text-sm font-medium">@if($log->amount) Rp {{ number_format($log->amount, 0, ',', '.') }} @else <span class="text-gray-400">-</span> @endif</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Status:</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $log->status == 'completed' ? 'bg-green-100 text-green-800' : ($log->status == 'failed' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800') }}">{{ ucfirst($log->status) }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Reference:</span>
+                            <span class="text-sm font-medium">{{ $log->transaction_reference ?? 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100">
+                            <span class="text-sm text-gray-500">Date:</span>
+                            <span class="text-sm font-medium">{{ $log->created_at->format('d M Y H:i:s') }}</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-sm text-gray-500">Notes:</span>
+                            <span class="text-sm font-medium">{{ $log->notes ?? 'N/A' }}</span>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h4>Transaction Information</h4>
-                                <table class="table table-sm">
-                                    <tr>
-                                        <td><strong>Transaction ID:</strong></td>
-                                        <td>{{ $log->id }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Action:</strong></td>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ $log->action_type == 'approve' ? 'success' : ($log->action_type == 'reject' ? 'danger' : 'primary') }}">
-                                                {{ ucfirst($log->action_type) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Entity Type:</strong></td>
-                                        <td>
-                                            <span class="badge bg-info">{{ ucfirst($log->entity_type) }}</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Entity ID:</strong></td>
-                                        <td>{{ $log->entity_id }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Amount:</strong></td>
-                                        <td>
-                                            @if ($log->amount)
-                                                <span class="font-weight-medium">Rp
-                                                    {{ number_format($log->amount, 0, ',', '.') }}</span>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Status:</strong></td>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'failed' ? 'danger' : 'warning') }}">
-                                                {{ ucfirst($log->status) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Transaction Reference:</strong></td>
-                                        <td>{{ $log->transaction_reference ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Date:</strong></td>
-                                        <td>{{ $log->created_at->format('d M Y H:i:s') }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Notes:</strong></td>
-                                        <td>{{ $log->notes ?? 'N/A' }}</td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <h4>Transaction Details</h4>
+                </div>
 
-                                @if ($log->old_data || $log->new_data)
-                                    <div class="mb-3">
-                                        <h5>Data Changes</h5>
+                {{-- Transaction Details --}}
+                <div>
+                    <h4 class="text-base font-semibold text-gray-900 mb-4">Detail Transaksi</h4>
 
-                                        @if ($log->old_data)
-                                            <div class="mb-3">
-                                                <h6 class="text-danger">Previous Data</h6>
-                                                <div class="card">
-                                                    <div class="card-body">
-                                                        <pre class="mb-0"><code>{{ json_encode($log->masked_old_data, JSON_PRETTY_PRINT) }}</code></pre>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
-
-                                        @if ($log->new_data)
-                                            <div class="mb-3">
-                                                <h6 class="text-success">Current Data</h6>
-                                                <div class="card">
-                                                    <div class="card-body">
-                                                        <pre class="mb-0"><code>{{ json_encode($log->masked_new_data, JSON_PRETTY_PRINT) }}</code></pre>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endif
+                    @if ($log->old_data || $log->new_data)
+                        <div class="space-y-4 mb-6">
+                            @if ($log->old_data)
+                                <div>
+                                    <h5 class="text-sm font-semibold text-red-600 mb-2">Data Sebelumnya</h5>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <pre class="text-xs whitespace-pre-wrap mb-0">{{ json_encode($log->masked_old_data, JSON_PRETTY_PRINT) }}</pre>
                                     </div>
-                                @endif
-
-                                <div class="alert alert-info">
-                                    <h4 class="alert-title">Security Notice</h4>
-                                    <p class="mb-0">Sensitive information such as account numbers and bank details are
-                                        masked for security purposes. Only authorized personnel can view the complete data.
-                                    </p>
                                 </div>
-                            </div>
+                            @endif
+
+                            @if ($log->new_data)
+                                <div>
+                                    <h5 class="text-sm font-semibold text-green-600 mb-2">Data Saat Ini</h5>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <pre class="text-xs whitespace-pre-wrap mb-0">{{ json_encode($log->masked_new_data, JSON_PRETTY_PRINT) }}</pre>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
+                    @endif
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="text-sm font-semibold text-blue-900 mb-1">🔒 Security Notice</h4>
+                        <p class="text-sm text-blue-800 mb-0">Informasi sensitif seperti nomor rekening dan detail bank telah di-mask untuk keamanan. Hanya personel yang berwenang yang dapat melihat data lengkap.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection

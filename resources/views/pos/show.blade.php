@@ -3,79 +3,34 @@
 @section('title', 'Invoice ' . $transaksi->kode)
 
 @section('content')
-    <div class="container-xl">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between">
-                        <h3 class="card-title">Invoice #{{ $transaksi->kode }}</h3>
-                        <div>
-                            <a href="{{ route('vendor.pos.invoice.print', $transaksi->id) }}" class="btn btn-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download me-2"
-                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                                    <path d="M7 11l5 5l5 -5"></path>
-                                    <path d="M12 4l0 12"></path>
-                                </svg>Download PDF
+    <div x-data="invoicePreview()" class="px-4 py-4">
+        <div class="flex justify-center">
+            <div class="w-full max-w-3xl">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Invoice #{{ $transaksi->kode }}</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('vendor.pos.invoice.print', $transaksi->id) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                                <i class="fas fa-download"></i>Download PDF
                             </a>
-                            <a href="#" id="print-invoice" class="btn btn-outline-secondary ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer me-2"
-                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path
-                                        d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2">
-                                    </path>
-                                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
-                                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z">
-                                    </path>
-                                </svg>Print
+                            <button @click="printInvoice()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-print"></i>Print
+                            </button>
+                            <button @click="openPreview()" class="inline-flex items-center gap-2 px-4 py-2 border border-blue-300 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors">
+                                <i class="fas fa-eye"></i>Preview
+                            </button>
+                            <a href="{{ route('vendor.pos.thermal-print', $transaksi->id) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 border border-amber-300 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-50 transition-colors">
+                                <i class="fas fa-print"></i>Cetak Thermal
                             </a>
-                            <a href="#" id="print-preview" class="btn btn-outline-info ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye me-2"
-                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                                    <path
-                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6">
-                                    </path>
-                                </svg>Preview
+                            <a href="{{ route('vendor.pos.thermal-print-js', $transaksi->id) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 border border-green-300 text-green-700 rounded-lg text-sm font-medium hover:bg-green-50 transition-colors">
+                                <i class="fas fa-print"></i>Thermal (WebUSB)
                             </a>
-                            <a href="{{ route('vendor.pos.thermal-print', $transaksi->id) }}" target="_blank" class="btn btn-outline-warning ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer me-2"
-                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
-                                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
-                                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
-                                </svg>Cetak Thermal
-                            </a>
-                            <a href="{{ route('vendor.pos.thermal-print-js', $transaksi->id) }}" target="_blank" class="btn btn-outline-success ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-printer me-2"
-                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
-                                    <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
-                                    <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
-                                </svg>Thermal (WebUSB)
-                            </a>
-                            <a href="{{ route('vendor.pos.printer.settings') }}" class="btn btn-outline-secondary ms-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings me-2"
-                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
-                                    <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
-                                </svg>Printer Settings
+                            <a href="{{ route('vendor.pos.printer.settings') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                <i class="fas fa-cog"></i>Printer Settings
                             </a>
                         </div>
                     </div>
-                    <div class="card-body">
+                    <div class="p-6">
                         <!-- Invoice yang akan diprint -->
                         <div id="invoice-container" class="invoice-print-container mx-auto">
                             <!-- Konten invoice tetap sama seperti sebelumnya -->
@@ -95,7 +50,7 @@
                                             ? asset('vendors_logo/' . $transaksi->vendor->logo)
                                             : asset('images/logo.png');
                                 @endphp
-                                <div class="d-flex align-items-center justify-content-center">
+                                <div class="flex items-center justify-center">
                                     <div class="text-center">
                                         <img src="{{ $logoPath }}" alt="Logo"
                                             style="height: 50px; margin-bottom: 10px;">
@@ -107,13 +62,13 @@
                             </div>
 
                             <!-- Sisa konten invoice tetap sama -->
-                            <div class="info d-flex mb-5">
-                                <div class="col-6">
+                            <div class="info flex mb-5">
+                                <div class="w-1/2">
                                     <p>No: {{ $transaksi->kode }}</p>
                                     <p>Cust: {{ $transaksi->pelanggan->nama }}</p>
                                     <p>Bayar: {{ ucfirst($transaksi->metode_pembayaran ?? 'Transfer') }}</p>
                                 </div>
-                                <div class="col-6">
+                                <div class="w-1/2">
                                     <p>Tanggal: {{ $transaksi->tanggal_dibuat->format('d/m/Y') }}</p>
                                     <p>Status: {{ ucfirst($transaksi->status ?? 'Processing') }}</p>
                                 </div>
@@ -251,21 +206,22 @@
         </div>
     </div>
 
-    <!-- Modal untuk preview struk -->
-    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="previewModalLabel">Preview Struk POS</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body d-flex justify-content-center">
-                    <div id="preview-container" class="pos-receipt-preview"></div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" id="print-from-preview">Print</button>
-                </div>
+    <!-- Modal Preview Struk (Alpine.js) -->
+    <div x-show="showPreview" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak @keydown.escape.window="closePreview()">
+        <div class="fixed inset-0 bg-black/50" @click="closePreview()"></div>
+        <div x-show="showPreview" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="relative bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <h5 class="text-lg font-semibold text-gray-900">Preview Struk POS</h5>
+                <button @click="closePreview()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 flex justify-center overflow-y-auto" style="max-height: 60vh;">
+                <div id="preview-container" class="pos-receipt-preview"></div>
+            </div>
+            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <button @click="closePreview()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Tutup</button>
+                <button @click="closePreview(); setTimeout(() => printInvoice(), 300)" class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors">Print</button>
             </div>
         </div>
     </div>
@@ -384,8 +340,8 @@
             .footer-menu,
             .btn,
             .card-header,
-            .modal,
-            .modal-backdrop {
+            [x-show],
+            .fixed {
                 display: none !important;
             }
 
@@ -429,69 +385,38 @@
     </style>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fungsi untuk menampilkan preview dalam modal
-            document.getElementById('print-preview').addEventListener('click', function(e) {
-                e.preventDefault();
+        function invoicePreview() {
+            return {
+                showPreview: false,
 
-                // Salin konten invoice ke dalam modal preview
-                const invoiceContent = document.getElementById('invoice-container').cloneNode(true);
-                const previewContainer = document.getElementById('preview-container');
+                openPreview() {
+                    // Salin konten invoice ke dalam modal preview
+                    const invoiceContent = document.getElementById('invoice-container').cloneNode(true);
+                    const previewContainer = document.getElementById('preview-container');
+                    previewContainer.innerHTML = '';
+                    previewContainer.appendChild(invoiceContent);
+                    this.showPreview = true;
+                },
 
-                // Kosongkan container preview dan tambahkan konten baru
-                previewContainer.innerHTML = '';
-                previewContainer.appendChild(invoiceContent);
+                closePreview() {
+                    this.showPreview = false;
+                },
 
-                // Tampilkan modal
-                const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-                previewModal.show();
-            });
+                printInvoice() {
+                    const style = document.createElement('style');
+                    style.id = 'print-style';
+                    style.innerHTML = `@page { size: 80mm auto; margin: 0; }`;
+                    document.head.appendChild(style);
 
-            // Fungsi untuk mencetak dari tombol print biasa
-            document.getElementById('print-invoice').addEventListener('click', function(e) {
-                e.preventDefault();
-                printReceipt();
-            });
-
-            // Fungsi untuk mencetak dari modal preview
-            document.getElementById('print-from-preview').addEventListener('click', function(e) {
-                e.preventDefault();
-
-                // Sembunyikan modal sebelum mencetak
-                const previewModal = bootstrap.Modal.getInstance(document.getElementById('previewModal'));
-                previewModal.hide();
-
-                // Tunggu modal hilang sebelum mencetak
-                setTimeout(function() {
-                    printReceipt();
-                }, 500);
-            });
-
-            // Fungsi utama untuk mencetak
-            function printReceipt() {
-                // Atur pengaturan printer sebelum mencetak
-                const style = document.createElement('style');
-                style.id = 'print-style';
-                style.innerHTML = `
-                    @page {
-                        size: 80mm auto; /* Lebar 80mm (8cm) dan tinggi otomatis */
-                        margin: 0;
-                    }
-                `;
-                document.head.appendChild(style);
-
-                // Tunggu sebentar agar style diterapkan
-                setTimeout(function() {
-                    window.print();
-                    // Hapus style setelah mencetak
-                    setTimeout(function() {
-                        const printStyle = document.getElementById('print-style');
-                        if (printStyle) {
-                            document.head.removeChild(printStyle);
-                        }
-                    }, 1000);
-                }, 100);
+                    setTimeout(() => {
+                        window.print();
+                        setTimeout(() => {
+                            const printStyle = document.getElementById('print-style');
+                            if (printStyle) document.head.removeChild(printStyle);
+                        }, 1000);
+                    }, 100);
+                }
             }
-        });
+        }
     </script>
 @endsection

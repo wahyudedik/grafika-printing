@@ -2,349 +2,283 @@
 
 @section('title', 'Financial Audit Logs')
 @section('content')
-    <div class="container-xl">
-        <div class="row row-cards">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline me-2" width="24" height="24"
-                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path
-                                    d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
-                                <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
-                                <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
-                            </svg>
-                            Financial Audit Logs
-                        </h3>
-                        <div class="card-actions d-flex align-items-center">
-                            <a href="{{ route('admin.audit-logs.export', request()->query()) }}"
-                                class="btn btn-primary btn-sm me-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                                    <path
-                                        d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
-                                    <path d="M9 9l1 1l3 -3" />
-                                </svg>
-                                Export CSV
-                            </a>
-                            <a href="{{ route('admin.audit-logs.index') }}" class="btn btn-outline-secondary btn-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M9 6l6 6l-6 6" />
-                                </svg>
-                                Kembali
-                            </a>
-                        </div>
+    <div class="space-y-6">
+        {{-- Header --}}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    <i class="fas fa-wallet text-primary-600 mr-2"></i>Financial Audit Logs
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitor transaksi keuangan vendor</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.audit-logs.export', request()->query()) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                    <i class="fas fa-download"></i>
+                    <span>Export CSV</span>
+                </a>
+                <a href="{{ route('admin.audit-logs.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Kembali</span>
+                </a>
+            </div>
+        </div>
+
+        {{-- Summary Stats --}}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                        <i class="fas fa-file-alt text-primary-600 dark:text-primary-400"></i>
                     </div>
-                    <div class="card-body">
-                        <!-- Summary Stats -->
-                        <div class="row mb-4">
-                            <div class="col-md-4">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-primary text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path
-                                                            d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                                        <path
-                                                            d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Total Transaksi</div>
-                                                <div class="text-muted">{{ number_format($logs->total()) }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-success text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M9 12l2 2l4 -4" />
-                                                        <path
-                                                            d="M21 12c-1 0 -3 -1 -3 -3s2 -3 3 -3s3 1 3 3s-2 3 -3 3" />
-                                                        <path d="M3 12c1 0 3 -1 3 -3s-2 -3 -3 -3s-3 1 -3 3s2 3 3 3" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Completed</div>
-                                                <div class="text-muted">
-                                                    {{ number_format($logs->where('status', 'completed')->count()) }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-sm">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <span class="bg-warning text-white avatar">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
-                                                        height="24" viewBox="0 0 24 24" stroke-width="2"
-                                                        stroke="currentColor" fill="none" stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 9v2m0 4v.01" />
-                                                        <path
-                                                            d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.84 2.75" />
-                                                    </svg>
-                                                </span>
-                                            </div>
-                                            <div class="col">
-                                                <div class="font-weight-medium">Failed</div>
-                                                <div class="text-muted">
-                                                    {{ number_format($logs->where('status', 'failed')->count()) }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Filters -->
-                        <form method="GET" class="mb-4">
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Action Type</label>
-                                    <select name="action_type" class="form-select">
-                                        <option value="">Semua Aksi</option>
-                                        <option value="withdraw"
-                                            {{ request('action_type') == 'withdraw' ? 'selected' : '' }}>Withdraw
-                                        </option>
-                                        <option value="payment"
-                                            {{ request('action_type') == 'payment' ? 'selected' : '' }}>Payment
-                                        </option>
-                                        <option value="refund"
-                                            {{ request('action_type') == 'refund' ? 'selected' : '' }}>Refund
-                                        </option>
-                                        <option value="transfer"
-                                            {{ request('action_type') == 'transfer' ? 'selected' : '' }}>Transfer
-                                        </option>
-                                        <option value="fee"
-                                            {{ request('action_type') == 'fee' ? 'selected' : '' }}>Fee
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Entity Type</label>
-                                    <select name="entity_type" class="form-select">
-                                        <option value="">Semua Entity</option>
-                                        <option value="withdrawal"
-                                            {{ request('entity_type') == 'withdrawal' ? 'selected' : '' }}>Withdrawal
-                                        </option>
-                                        <option value="wallet"
-                                            {{ request('entity_type') == 'wallet' ? 'selected' : '' }}>Wallet
-                                        </option>
-                                        <option value="payment"
-                                            {{ request('entity_type') == 'payment' ? 'selected' : '' }}>Payment
-                                        </option>
-                                        <option value="auction"
-                                            {{ request('entity_type') == 'auction' ? 'selected' : '' }}>Auction
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Status</label>
-                                    <select name="status" class="form-select">
-                                        <option value="">Semua Status</option>
-                                        <option value="completed"
-                                            {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
-                                        </option>
-                                        <option value="failed"
-                                            {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
-                                        <option value="pending"
-                                            {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Date From</label>
-                                    <input type="date" name="date_from" class="form-control"
-                                        value="{{ request('date_from') }}">
-                                </div>
-                            </div>
-                            <div class="row g-3 mt-2">
-                                <div class="col-md-6">
-                                    <label class="form-label">Search</label>
-                                    <input type="text" name="search" class="form-control"
-                                        placeholder="Search by reference, notes, user..."
-                                        value="{{ request('search') }}">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Date To</label>
-                                    <input type="date" name="date_to" class="form-control"
-                                        value="{{ request('date_to') }}">
-                                </div>
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-primary me-2">Filter</button>
-                                    <a href="{{ route('admin.audit-logs.financial') }}"
-                                        class="btn btn-outline-secondary">Clear</a>
-                                </div>
-                            </div>
-                        </form>
-
-                        <!-- Financial Audit Logs Table -->
-                        @if ($logs->isEmpty())
-                            <div class="empty">
-                                <div class="empty-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <path
-                                            d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" />
-                                        <path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" />
-                                        <path d="M8 11v-4a4 4 0 1 1 8 0v4" />
-                                    </svg>
-                                </div>
-                                <p class="empty-title">Tidak ada data financial</p>
-                                <p class="empty-subtitle text-muted">Belum ada transaksi financial yang tercatat.</p>
-                            </div>
-                        @else
-                            <div class="table-responsive">
-                                <table class="table table-vcenter card-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>User</th>
-                                            <th>Action</th>
-                                            <th>Entity</th>
-                                            <th>Amount</th>
-                                            <th>Risk</th>
-                                            <th>Status</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($logs as $log)
-                                            <tr>
-                                                <td>{{ $log->id }}</td>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar avatar-sm me-2">
-                                                            <span
-                                                                class="avatar-initial rounded-circle bg-primary text-white">
-                                                                {{ substr($log->user->name ?? 'A', 0, 1) }}
-                                                            </span>
-                                                        </div>
-                                                        <div>
-                                                            <div class="font-weight-medium">
-                                                                {{ $log->user->name ?? 'N/A' }}
-                                                            </div>
-                                                            <div class="text-muted">
-                                                                {{ $log->user->email ?? 'N/A' }}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-{{ $log->action_type == 'approve' ? 'success' : ($log->action_type == 'reject' ? 'danger' : ($log->action_type == 'withdraw' ? 'warning' : 'primary')) }}">
-                                                        {{ ucfirst($log->action_type) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-info">
-                                                        {{ ucfirst($log->entity_type) }}
-                                                    </span>
-                                                    <div class="text-muted">ID: {{ $log->entity_id }}</div>
-                                                </td>
-                                                <td>
-                                                    @if ($log->amount)
-                                                        <span class="font-weight-medium">
-                                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
-                                                        </span>
-                                                    @else
-                                                        <span class="text-muted">-</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-{{ $log->risk_level == 'critical' ? 'danger' : ($log->risk_level == 'high' ? 'warning' : ($log->risk_level == 'medium' ? 'info' : 'success')) }}">
-                                                        {{ ucfirst($log->risk_level ?? 'low') }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-{{ $log->status == 'completed' ? 'success' : ($log->status == 'failed' ? 'danger' : 'warning') }}">
-                                                        {{ ucfirst($log->status) }}
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div>{{ $log->created_at->format('d M Y') }}</div>
-                                                    <div class="text-muted">{{ $log->created_at->format('H:i:s') }}
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <a href="{{ route('admin.audit-logs.show', $log->id) }}"
-                                                        class="btn btn-sm btn-outline-primary">
-                                                        View Details
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="9" class="text-center py-4">
-                                                    <div class="empty">
-                                                        <div class="empty-icon">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon"
-                                                                width="24" height="24" viewBox="0 0 24 24"
-                                                                stroke-width="2" stroke="currentColor" fill="none"
-                                                                stroke-linecap="round" stroke-linejoin="round">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path
-                                                                    d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                                                                <path
-                                                                    d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                                                            </svg>
-                                                        </div>
-                                                        <p class="empty-title">No financial logs found</p>
-                                                        <p class="empty-subtitle text-muted">Try adjusting your
-                                                            filters or search criteria.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination -->
-                            <div class="d-flex justify-content-center">
-                                {{ $logs->links() }}
-                            </div>
-                        @endif
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Total Transaksi</div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($logs->total()) }}</div>
                     </div>
                 </div>
             </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                        <i class="fas fa-check-circle text-emerald-600 dark:text-emerald-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Completed</div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($logs->where('status', 'completed')->count()) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-amber-600 dark:text-amber-400"></i>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Failed</div>
+                        <div class="text-lg font-bold text-gray-900 dark:text-white">{{ number_format($logs->where('status', 'failed')->count()) }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Filters --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <form method="GET" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Action Type</label>
+                        <select name="action_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Semua Aksi</option>
+                            <option value="withdraw" {{ request('action_type') == 'withdraw' ? 'selected' : '' }}>Withdraw</option>
+                            <option value="payment" {{ request('action_type') == 'payment' ? 'selected' : '' }}>Payment</option>
+                            <option value="refund" {{ request('action_type') == 'refund' ? 'selected' : '' }}>Refund</option>
+                            <option value="transfer" {{ request('action_type') == 'transfer' ? 'selected' : '' }}>Transfer</option>
+                            <option value="fee" {{ request('action_type') == 'fee' ? 'selected' : '' }}>Fee</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Entity Type</label>
+                        <select name="entity_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Semua Entity</option>
+                            <option value="withdrawal" {{ request('entity_type') == 'withdrawal' ? 'selected' : '' }}>Withdrawal</option>
+                            <option value="wallet" {{ request('entity_type') == 'wallet' ? 'selected' : '' }}>Wallet</option>
+                            <option value="payment" {{ request('entity_type') == 'payment' ? 'selected' : '' }}>Payment</option>
+                            <option value="auction" {{ request('entity_type') == 'auction' ? 'selected' : '' }}>Auction</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                        <select name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                            <option value="">Semua Status</option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date From</label>
+                        <input type="date" name="date_from" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_from') }}">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="lg:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                        <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Search by reference, notes, user..." value="{{ request('search') }}">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date To</label>
+                        <input type="date" name="date_to" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_to') }}">
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                            Filter
+                        </button>
+                        <a href="{{ route('admin.audit-logs.financial') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                            Clear
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {{-- Financial Audit Logs Table --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+            @if($logs->isEmpty())
+                <div class="p-12 text-center">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-wallet text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-lg font-medium text-gray-900 dark:text-white">Tidak ada data financial</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Belum ada transaksi financial yang tercatat.</p>
+                </div>
+            @else
+                {{-- Desktop Table --}}
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-750">
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Action</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Entity</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Risk</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            @forelse($logs as $log)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-750">
+                                    <td class="px-4 py-3 text-sm text-gray-900 dark:text-white">{{ $log->id }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                                                <span class="text-sm font-medium text-primary-700 dark:text-primary-300">{{ substr($log->user->name ?? 'A', 0, 1) }}</span>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $log->user->name ?? 'N/A' }}</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">{{ $log->user->email ?? 'N/A' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $log->action_type == 'approve' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                                               ($log->action_type == 'reject' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                               ($log->action_type == 'withdraw' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-primary-100 text-primary-800 dark:bg-primary-900/30 dark:text-primary-300')) }}">
+                                            {{ ucfirst($log->action_type) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300">{{ ucfirst($log->entity_type) }}</span>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">ID: {{ $log->entity_id }}</div>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">
+                                        @if($log->amount)
+                                            Rp {{ number_format($log->amount, 0, ',', '.') }}
+                                        @else
+                                            <span class="text-gray-400">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $log->risk_level == 'critical' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                               ($log->risk_level == 'high' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' :
+                                               ($log->risk_level == 'medium' ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300')) }}">
+                                            {{ ucfirst($log->risk_level ?? 'low') }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {{ $log->status == 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                                               ($log->status == 'failed' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300') }}">
+                                            {{ ucfirst($log->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="text-sm text-gray-900 dark:text-white">{{ $log->created_at->format('d M Y') }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $log->created_at->format('H:i:s') }}</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <a href="{{ route('admin.audit-logs.show', $log->id) }}" class="inline-flex items-center px-3 py-1.5 border border-primary-300 dark:border-primary-600 text-primary-700 dark:text-primary-300 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 text-xs font-medium transition-colors">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="px-4 py-12 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mb-3">
+                                                <i class="fas fa-wallet text-gray-400 text-lg"></i>
+                                            </div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">No financial logs found</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Try adjusting your filters or search criteria.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Mobile Cards --}}
+                <div class="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+                    @forelse($logs as $log)
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                                        <span class="text-sm font-medium text-primary-700 dark:text-primary-300">{{ substr($log->user->name ?? 'A', 0, 1) }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $log->user->name ?? 'N/A' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $log->user->email ?? 'N/A' }}</div>
+                                    </div>
+                                </div>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {{ $log->action_type == 'approve' ? 'bg-emerald-100 text-emerald-800' :
+                                       ($log->action_type == 'reject' ? 'bg-red-100 text-red-800' :
+                                       ($log->action_type == 'withdraw' ? 'bg-amber-100 text-amber-800' : 'bg-primary-100 text-primary-800')) }}">
+                                    {{ ucfirst($log->action_type) }}
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <span class="text-gray-500">Entity:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ ucfirst($log->entity_type) }} #{{ $log->entity_id }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Amount:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white font-medium">{{ $log->amount ? 'Rp ' . number_format($log->amount, 0, ',', '.') : '-' }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Risk:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ ucfirst($log->risk_level ?? 'low') }}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Date:</span>
+                                    <span class="ml-1 text-gray-900 dark:text-white">{{ $log->created_at->format('d M Y H:i') }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ route('admin.audit-logs.show', $log->id) }}" class="block w-full text-center px-3 py-1.5 border border-primary-300 text-primary-700 rounded-lg text-xs font-medium">
+                                View Details
+                            </a>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">No financial logs found</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Try adjusting your filters or search criteria.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                {{-- Pagination --}}
+                <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                    {{ $logs->links() }}
+                </div>
+            @endif
         </div>
     </div>
 @endsection
