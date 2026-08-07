@@ -289,6 +289,67 @@ class UserDashboardController extends Controller
     }
 
     /**
+     * Dedicated lelang user dashboard.
+     * Shows profile status, auction stats, recent activity, and quick actions.
+     */
+    public function lelangDashboard()
+    {
+        try {
+            $user = Auth::user();
+
+            // Get or check lelang profile
+            $profile = \App\Models\LelangUserProfile::where('user_id', $user->id)->first();
+
+            // Auction statistics
+            $auctionsQuery = \App\Models\Auction::where('user_id', $user->id);
+            $myAuctionsCount = $auctionsQuery->count();
+            $activeAuctionsCount = (clone $auctionsQuery)->where('status', 'active')->count();
+            $completedAuctionsCount = (clone $auctionsQuery)->where('status', 'completed')->count();
+            $pendingAuctionsCount = (clone $auctionsQuery)->where('status', 'pending')->count();
+            $totalAuctionsValue = (clone $auctionsQuery)->where('status', 'completed')->sum('budget') ?? 0;
+
+            // Recent auctions with bids
+            $recentAuctions = \App\Models\Auction::where('user_id', $user->id)
+                ->with('bids.vendor')
+                ->latest()
+                ->limit(5)
+                ->get();
+
+            // Order tracking
+            $ordersCount = \App\Models\OrderTracking::where('user_id', $user->id)->count();
+            $pendingOrdersCount = \App\Models\OrderTracking::where('user_id', $user->id)
+                ->whereNotIn('status', ['completed', 'cancelled'])->count();
+
+            // Total spending
+            $totalSpent = \App\Models\XenditPayment::where('user_id', $user->id)
+                ->where('status', 'paid')
+                ->sum('amount') ?? 0;
+
+            // Win rate
+            $totalBidsOnMyAuctions = \App\Models\AuctionBid::whereHas('auction', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->count();
+
+            return view('user.lelang-dashboard', compact(
+                'profile',
+                'myAuctionsCount',
+                'activeAuctionsCount',
+                'completedAuctionsCount',
+                'pendingAuctionsCount',
+                'totalAuctionsValue',
+                'recentAuctions',
+                'ordersCount',
+                'pendingOrdersCount',
+                'totalSpent',
+                'totalBidsOnMyAuctions'
+            ));
+        } catch (\Exception $e) {
+            Log::error('Error loading lelang dashboard', ['error' => $e->getMessage()]);
+            return redirect()->route('user.dashboard')->with('error', 'Gagal memuat dashboard lelang.');
+        }
+    }
+
+    /**
      * Get comprehensive statistics for dev dashboard
      */
     private function getDevStatistics()

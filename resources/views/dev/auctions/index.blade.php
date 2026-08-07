@@ -108,9 +108,9 @@
                             <i class="fas fa-eye text-xs"></i> Detail
                         </x.ui.button>
                         @if($auction->status == 'pending')
-                            <form action="{{ route('admin.auctions.approve', $auction) }}" method="POST" class="flex-1" x-data>
+                            <form id="approve-auction-index-{{ $auction->id }}" action="{{ route('admin.auctions.approve', $auction) }}" method="POST" class="flex-1" x-data @submit.prevent="confirmFormSubmit('approve-auction-index-{{ $auction->id }}', { title: 'Setujui Lelang?', text: 'Setujui lelang ini?', confirmText: 'Ya, Setujui' })">
                                 @csrf
-                                <x.ui.button type="submit" variant="outline-success" size="xs" class="w-full" @click="return confirm('Setujui lelang ini?')">
+                                <x.ui.button type="submit" variant="outline-success" size="xs" class="w-full">
                                     <i class="fas fa-check text-xs"></i> Setujui
                                 </x.ui.button>
                             </form>

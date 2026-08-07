@@ -194,26 +194,34 @@
         });
 
         function resetSettings() {
-            if (confirm('Are you sure you want to reset all CMS settings to default? This action cannot be undone.')) {
-                fetch('{{ route('admin.cms.reset') }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while resetting settings');
-                });
+            confirmAction({
+                title: 'Reset CMS Settings?',
+                text: 'Are you sure you want to reset all CMS settings to default? This action cannot be undone.',
+                icon: 'warning',
+                confirmColor: '#d33',
+                confirmText: 'Ya, Reset',
+                onConfirm: () => {
+                    fetch('{{ route('admin.cms.reset') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            safeSwalFire({ icon: 'error', title: 'Error', text: data.message });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        safeSwalFire({ icon: 'error', title: 'Terjadi kesalahan saat mereset settings' });
+                    });
+                }
+            });
             }
         }
 

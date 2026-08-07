@@ -4,6 +4,8 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <x-ui.breadcrumb :items="[['label' => 'Profile Vendor']]" />
+
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         {{-- Profile Header --}}
         <div class="px-6 py-5 border-b border-gray-200">

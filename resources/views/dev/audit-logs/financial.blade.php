@@ -121,13 +121,7 @@
         {{-- Financial Audit Logs Table --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             @if($logs->isEmpty())
-                <div class="p-12 text-center">
-                    <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-wallet text-gray-400 text-2xl"></i>
-                    </div>
-                    <p class="text-lg font-medium text-gray-900 dark:text-white">Tidak ada data financial</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Belum ada transaksi financial yang tercatat.</p>
-                </div>
+                <x-ui.empty-state icon="fas fa-wallet" title="Tidak ada data financial" description="Belum ada transaksi financial yang tercatat." />
             @else
                 {{-- Desktop Table --}}
                 <div class="hidden md:block overflow-x-auto">

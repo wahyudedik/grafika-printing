@@ -3,6 +3,8 @@
 @section('title', 'Riwayat Transaksi Wallet')
 
 @section('content')
+<x-ui.breadcrumb :items="[['label' => 'Wallet Dashboard', 'url' => route('vendor.wallet.index')], ['label' => 'Riwayat Transaksi']]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
         <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>

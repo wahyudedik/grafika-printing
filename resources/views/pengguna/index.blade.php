@@ -5,16 +5,21 @@
     <div class="bg-white rounded-xl shadow-sm">
         {{-- Header with search --}}
         <div class="px-6 py-4 border-b border-gray-200">
-            <form action="{{ route('vendor.users.index') }}" method="GET" class="flex gap-3">
-                <div class="relative flex-1">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                        <i class="fa-solid fa-search"></i>
-                    </span>
-                    <input type="text" name="search" value="{{ request('search') }}"
-                        class="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none"
-                        placeholder="Search pengguna...">
-                </div>
-            </form>
+            <div class="flex items-center justify-between gap-4">
+                <form action="{{ route('vendor.users.index') }}" method="GET" class="flex-1 flex gap-3">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-search"></i>
+                        </span>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            class="block w-full rounded-lg border border-gray-300 pl-10 pr-3 py-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:outline-none"
+                            placeholder="Search pengguna...">
+                    </div>
+                </form>
+                <x.ui.button href="{{ route('vendor.users.create') }}" variant="primary" size="sm">
+                    <i class="fas fa-plus mr-1"></i> Tambah Pengguna
+                </x.ui.button>
+            </div>
         </div>
 
         {{-- Table --}}
@@ -47,10 +52,23 @@
                                 {{ $user->created_at->format('d M Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right">
-                                <a href="{{ route('vendor.users.show', $user->id) }}"
-                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg inline-flex items-center" title="View">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ route('vendor.users.show', $user->id) }}"
+                                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg inline-flex items-center" title="Lihat">
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </a>
+                                    <a href="{{ route('vendor.users.edit', $user->id) }}"
+                                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg inline-flex items-center" title="Edit">
+                                        <i class="fa-solid fa-pen text-sm"></i>
+                                    </a>
+                                    <form id="delete-user-{{ $user->id }}" action="{{ route('vendor.users.destroy', $user->id) }}" method="POST" class="inline">
+                                        @csrf @method('DELETE')
+                                    </form>
+                                    <button type="button" onclick="confirmFormSubmit('delete-user-{{ $user->id }}', { title: 'Hapus Pengguna?', text: 'Pengguna ini akan dilepas dari vendor.', confirmText: 'Ya, Hapus', confirmColor: '#d33' })"
+                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg inline-flex items-center" title="Hapus">
+                                        <i class="fa-solid fa-trash text-sm"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @empty

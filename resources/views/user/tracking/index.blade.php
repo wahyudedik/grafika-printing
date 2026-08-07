@@ -68,7 +68,12 @@
                             @if ($auction->transaksi->ongkir > 0)
                             <div>
                                 <p class="text-xs text-gray-500 mb-0.5">Ongkir</p>
-                                <p class="text-sm font-medium text-gray-900">Rp {{ number_format($auction->transaksi->ongkir) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-sm font-medium text-gray-900">Rp {{ number_format($auction->transaksi->ongkir) }}</p>
+                                    @if ($auction->transaksi->is_cod)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">COD</span>
+                                    @endif
+                                </div>
                             </div>
                             @endif
                             @if ($auction->transaksi->no_resi)

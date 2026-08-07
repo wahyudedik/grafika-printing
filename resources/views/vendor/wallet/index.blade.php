@@ -3,6 +3,8 @@
 @section('title', 'Wallet Dashboard')
 
 @section('content')
+<x-ui.breadcrumb :items="[['label' => 'Wallet Dashboard']]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
         <h2 class="text-2xl font-bold text-gray-900">Wallet Dashboard</h2>

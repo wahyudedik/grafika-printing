@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\LelangUserProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         $query = User::query();
 
-        if ($request->has('search')) {
+        if ($request->has('search') && $request->search !== '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -24,10 +25,38 @@ class UserController extends Controller
             });
         }
 
-        $perPage = $request->get('perPage', 5);
-        $users = $query->paginate($perPage);
+        // Filter by usertype
+        if ($request->has('usertype') && $request->usertype !== '') {
+            $query->where('usertype', $request->usertype);
+        }
 
-        return view('dev.users.index', compact('users'));
+        // Filter by lelang profile status
+        if ($request->has('lelang') && $request->lelang !== '') {
+            $lelangUserIds = LelangUserProfile::pluck('user_id')->toArray();
+            if ($request->lelang === 'with_profile') {
+                $query->whereIn('id', $lelangUserIds);
+            } elseif ($request->lelang === 'without_profile') {
+                $query->whereNotIn('id', $lelangUserIds);
+            } elseif ($request->lelang === 'verified') {
+                $verifiedUserIds = LelangUserProfile::where('is_verified', true)->pluck('user_id')->toArray();
+                $query->whereIn('id', $verifiedUserIds);
+            } elseif ($request->lelang === 'suspended') {
+                $suspendedUserIds = LelangUserProfile::where('status', 'suspended')->pluck('user_id')->toArray();
+                $query->whereIn('id', $suspendedUserIds);
+            }
+        }
+
+        $perPage = $request->get('perPage', 15);
+        $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        // Count stats for lelang filter
+        $lelangStats = [
+            'total_profiles' => LelangUserProfile::count(),
+            'verified' => LelangUserProfile::where('is_verified', true)->count(),
+            'suspended' => LelangUserProfile::where('status', 'suspended')->count(),
+        ];
+
+        return view('dev.users.index', compact('users', 'lelangStats'));
     }
 
     /**

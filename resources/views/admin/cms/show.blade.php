@@ -207,21 +207,28 @@
 
         // Delete setting
         function deleteSetting(id) {
-            if (confirm('Are you sure you want to delete this setting?')) {
-                fetch('{{ route('admin.cms.destroy', '__ID__') }}'.replace('__ID__', id), {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        }
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            location.reload();
-                        } else {
-                            alert('Error deleting setting');
-                        }
-                    });
-            }
+            confirmAction({
+                title: 'Hapus Pengaturan?',
+                text: 'Are you sure you want to delete this setting?',
+                icon: 'warning',
+                confirmColor: '#d33',
+                confirmText: 'Ya, Hapus',
+                onConfirm: () => {
+                    fetch('{{ route('admin.cms.destroy', '__ID__') }}'.replace('__ID__', id), {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                location.reload();
+                            } else {
+                                safeSwalFire({ icon: 'error', title: 'Gagal menghapus pengaturan' });
+                            }
+                        });
+                }
+            });
         }
 
         // Upload image

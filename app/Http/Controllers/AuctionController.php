@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Auction;
 use App\Models\AuctionBid;
+use App\Models\LelangUserProfile;
 use App\Services\AuctionToPosService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -92,6 +93,9 @@ class AuctionController extends Controller
         }
 
         Auction::create($data);
+
+        // Auto-create LelangUserProfile if user doesn't have one yet
+        LelangUserProfile::getOrCreate(Auth::id());
 
         return redirect()->route('user.auctions.index')
             ->with('success', 'Permintaan cetak berhasil dibuat! Lelang Anda sedang menunggu verifikasi admin.');

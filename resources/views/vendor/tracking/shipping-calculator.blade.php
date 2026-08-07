@@ -2,6 +2,8 @@
 
 @section('content')
 <div x-data="shippingCalc()" x-init="init()">
+    <x-ui.breadcrumb :items="[['label' => 'Kalkulator Ongkir']]" />
+
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>

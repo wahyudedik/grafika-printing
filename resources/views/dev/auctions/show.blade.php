@@ -17,9 +17,9 @@
                 <i class="fas fa-edit"></i> Edit Lelang
             </x.ui.button>
             @if($auction->status === 'pending')
-                <form action="{{ route('admin.auctions.approve', $auction) }}" method="POST" class="inline" x-data>
+                <form id="approve-auction-show-{{ $auction->id }}" action="{{ route('admin.auctions.approve', $auction) }}" method="POST" class="inline" x-data @submit.prevent="confirmFormSubmit('approve-auction-show-{{ $auction->id }}', { title: 'Setujui Lelang?', text: 'Setujui lelang ini?', confirmText: 'Ya, Setujui' })">
                     @csrf
-                    <x.ui.button type="submit" variant="success" size="sm" @click="return confirm('Setujui lelang ini?')">
+                    <x.ui.button type="submit" variant="success" size="sm">
                         <i class="fas fa-check"></i> Setujui Lelang
                     </x.ui.button>
                 </form>
@@ -52,9 +52,9 @@
                 </div>
             @endif
             @if($auction->status === 'active')
-                <form action="{{ route('admin.auctions.close', $auction) }}" method="POST" class="inline" x-data>
+                <form id="close-auction-show-{{ $auction->id }}" action="{{ route('admin.auctions.close', $auction) }}" method="POST" class="inline" x-data @submit.prevent="confirmFormSubmit('close-auction-show-{{ $auction->id }}', { title: 'Tutup Lelang?', text: 'Tutup lelang ini?', confirmText: 'Ya, Tutup', confirmColor: '#f59e0b' })">
                     @csrf
-                    <x.ui.button type="submit" variant="warning" size="sm" @click="return confirm('Tutup lelang ini?')">
+                    <x.ui.button type="submit" variant="warning" size="sm">
                         <i class="fas fa-times-circle"></i> Tutup Lelang
                     </x.ui.button>
                 </form>

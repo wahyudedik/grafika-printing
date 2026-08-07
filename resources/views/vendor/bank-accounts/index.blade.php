@@ -4,12 +4,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    {{-- Breadcrumb --}}
-    <nav class="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <a href="{{ route('vendor.dashboard') }}" class="hover:text-primary-600">Dashboard</a>
-        <span>/</span>
-        <span class="text-gray-900 font-medium">Kelola Rekening Bank</span>
-    </nav>
+    <x-ui.breadcrumb :items="[['label' => 'Kelola Rekening Bank']]" />
 
     <div class="bg-white rounded-xl border border-gray-200">
         <div class="px-5 py-4 border-b border-gray-200">

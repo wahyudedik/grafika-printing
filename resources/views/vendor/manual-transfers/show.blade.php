@@ -3,6 +3,8 @@
 @section('title', 'Detail Order ' . $order->order_number)
 
 @section('content')
+<x-ui.breadcrumb :items="[['label' => 'Manual Transfer Orders', 'url' => route('vendor.manual-transfers.index')], ['label' => 'Detail Order']]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
         <x.ui.button href="{{ route('vendor.manual-transfers.index') }}" variant="outline" size="icon-sm">

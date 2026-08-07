@@ -106,8 +106,8 @@
 
                         @if ($bid->auction->isActive() && $bid->status === 'pending')
                             <div class="mt-2">
-                                <form action="{{ route('vendor.auctions.destroy-bid', $bid) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus penawaran ini?')">
+                                <form id="destroy-bid-{{ $bid->id }}" action="{{ route('vendor.auctions.destroy-bid', $bid) }}" method="POST"
+                                    x-data @submit.prevent="confirmFormSubmit('destroy-bid-{{ $bid->id }}', { title: 'Hapus Penawaran?', text: 'Apakah Anda yakin ingin menghapus penawaran ini?', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

@@ -3,6 +3,8 @@
 @section('title', 'Riwayat Penarikan')
 
 @section('content')
+<x-ui.breadcrumb :items="[['label' => 'Penarikan Dana', 'url' => route('vendor.withdrawal.index')], ['label' => 'Riwayat']]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
         <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>

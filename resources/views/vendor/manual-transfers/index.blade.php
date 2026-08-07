@@ -3,6 +3,8 @@
 @section('title', 'Manual Transfer Orders')
 
 @section('content')
+<x-ui.breadcrumb :items="[['label' => 'Manual Transfer Orders']]" />
+
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div>
         <h2 class="text-2xl font-bold text-gray-900">Manual Transfer Orders</h2>

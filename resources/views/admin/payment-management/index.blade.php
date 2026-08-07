@@ -107,9 +107,9 @@
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-200" id="expired-payments-body">
                     @foreach ($expiredPayments as $payment)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50" data-payment-id="{{ $payment->id }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="text-sm text-gray-900">#{{ $payment->id }}</span>
                         </td>
@@ -197,45 +197,86 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Payment status updated successfully');
+                        safeSwalFire({ icon: 'success', title: 'Status berhasil diperbarui', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
                         location.reload();
                     } else {
-                        alert('Error: ' + data.message);
+                        safeSwalFire({ icon: 'error', title: 'Gagal', text: data.message });
                     }
                 })
                 .catch(error => {
-                    alert('Error checking payment status: ' + error.message);
+                    safeSwalFire({ icon: 'error', title: 'Gagal cek status', text: error.message });
                 });
         }
 
         function createNewPaymentLink(auctionId) {
-            if (confirm('Are you sure you want to create a new payment link for this auction?')) {
-                fetch(`/admin/payments/create-link/${auctionId}`, {
+            confirmAction({
+                title: 'Buat Payment Link Baru?',
+                text: 'Are you sure you want to create a new payment link for this auction?',
+                icon: 'question',
+                confirmText: 'Ya, Buat Link',
+                onConfirm: () => {
+                    showLoading('Membuat payment link...');
+                    fetch(`/admin/payments/create-link/${auctionId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                safeSwalFire({ icon: 'success', title: 'Payment link berhasil dibuat', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                                location.reload();
+                            } else {
+                                safeSwalFire({ icon: 'error', title: 'Gagal', text: data.message });
+                            }
+                        })
+                        .catch(error => {
+                            safeSwalFire({ icon: 'error', title: 'Gagal membuat payment link', text: error.message });
+                        });
+                }
+            });
+        }
+
+        function bulkCheckStatus() {
+            const rows = document.querySelectorAll('#expired-payments-body tr[data-payment-id]');
+            const paymentIds = Array.from(rows).map(row => parseInt(row.dataset.paymentId));
+
+            if (paymentIds.length === 0) {
+                safeSwalFire({ icon: 'info', title: 'Tidak ada payment untuk dicek', text: 'Tidak ada expired payment yang perlu dicek statusnya.' });
+                return;
+            }
+
+            confirmAction({
+                title: 'Bulk Check Status?',
+                text: `Ini akan mengecek status ${paymentIds.length} pembayaran yang expired. Lanjutkan?`,
+                icon: 'info',
+                confirmText: 'Ya, Cek Sekarang',
+                onConfirm: () => {
+                    showLoading('Mengecek status pembayaran...');
+                    fetch('{{ route('admin.payments.bulk-check') }}', {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({ payment_ids: paymentIds })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('New payment link created successfully');
+                            safeSwalFire({ icon: 'success', title: data.message });
                             location.reload();
                         } else {
-                            alert('Error: ' + data.message);
+                            safeSwalFire({ icon: 'error', title: 'Gagal', text: data.message });
                         }
                     })
                     .catch(error => {
-                        alert('Error creating payment link: ' + error.message);
+                        safeSwalFire({ icon: 'error', title: 'Gagal bulk check', text: error.message });
                     });
-            }
-        }
-
-        function bulkCheckStatus() {
-            if (confirm('This will check the status of all pending payments. Continue?')) {
-                alert('Bulk check functionality will be implemented');
-            }
+                }
+            });
         }
     </script>
 @endpush

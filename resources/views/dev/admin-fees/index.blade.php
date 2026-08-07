@@ -101,8 +101,8 @@
                                             <i class="fas fa-eye-{{ $setting->is_active ? 'slash' : '' }} text-sm"></i>
                                         </x.ui.button>
                                     </form>
-                                    <form action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
+                                    <form id="destroy-adminfee-{{ $setting->id }}" action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline"
+                                        x-data @submit.prevent="confirmFormSubmit('destroy-adminfee-{{ $setting->id }}', { title: 'Hapus Pengaturan?', text: 'Apakah Anda yakin ingin menghapus pengaturan ini?', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                                         @csrf
                                         @method('DELETE')
                                         <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus">

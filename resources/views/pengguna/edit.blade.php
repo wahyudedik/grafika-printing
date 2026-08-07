@@ -3,7 +3,7 @@
 @section('title', 'Edit User')
 @section('content')
     <div class="max-w-2xl mx-auto">
-        <form action="{{ route('users.update', $user->id) }}" method="POST"
+        <form action="{{ route('vendor.users.update', $user->id) }}" method="POST"
             onsubmit="showLoading('Updating user...')" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -54,18 +54,12 @@
                         @enderror
                     </div>
 
-                    {{-- Usertype --}}
+                    {{-- User Type (readonly) --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Usertype <span class="text-red-500">*</span></label>
-                        <select name="usertype"
-                            class="block w-full rounded-lg border {{ $errors->has('usertype') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
-                            <option value="">Select usertype</option>
-                            <option value="dev" {{ old('usertype', $user->usertype) == 'dev' ? 'selected' : '' }}>Dev</option>
-                            <option value="vendor" {{ old('usertype', $user->usertype) == 'vendor' ? 'selected' : '' }}>Vendor</option>
-                        </select>
-                        @error('usertype')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block text-sm font-medium text-gray-700 mb-1">User Type</label>
+                        <input type="text" value="{{ ucfirst($user->usertype) }}" readonly
+                            class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 cursor-not-allowed">
+                        <p class="mt-1 text-xs text-gray-400">Tipe pengguna tidak dapat diubah</p>
                     </div>
                 </div>
 

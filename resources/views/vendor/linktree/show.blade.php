@@ -2,6 +2,8 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <x-ui.breadcrumb :items="[['label' => 'Linktree Management', 'url' => route('vendor.linktree.index')], ['label' => $linktree->title]]" />
+
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -147,10 +149,13 @@
                     </h2>
                 </div>
                 @if($linktree->links->isEmpty())
-                <div class="p-12 text-center text-gray-500">
-                    <i class="fas fa-link text-4xl text-gray-300 mb-3"></i>
-                    <p class="text-sm">Belum ada link. <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="text-primary-600 hover:underline">Tambahkan link sekarang.</a></p>
-                </div>
+                <x-ui.empty-state icon="fas fa-link" title="Belum ada link" description="Tambahkan link pertama untuk linktree ini.">
+                    <x-slot:actions>
+                        <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" variant="outline" size="sm">
+                            <i class="fas fa-plus mr-1"></i> Tambah Link
+                        </x.ui.button>
+                    </x-slot:actions>
+                </x-ui.empty-state>
                 @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
@@ -206,10 +211,13 @@
                     </h2>
                 </div>
                 @if($linktree->socials->isEmpty())
-                <div class="p-12 text-center text-gray-500">
-                    <i class="fas fa-share-alt text-4xl text-gray-300 mb-3"></i>
-                    <p class="text-sm">Belum ada social media. <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="text-primary-600 hover:underline">Tambahkan sekarang.</a></p>
-                </div>
+                <x-ui.empty-state icon="fas fa-share-alt" title="Belum ada social media" description="Tambahkan akun media sosial untuk linktree ini.">
+                    <x-slot:actions>
+                        <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" variant="outline" size="sm">
+                            <i class="fas fa-plus mr-1"></i> Tambah Social
+                        </x.ui.button>
+                    </x-slot:actions>
+                </x-ui.empty-state>
                 @else
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">

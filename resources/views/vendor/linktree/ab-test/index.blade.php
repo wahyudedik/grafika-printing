@@ -2,6 +2,8 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <x-ui.breadcrumb :items="[['label' => 'Linktree Management', 'url' => route('vendor.linktree.index')], ['label' => $linktree->title, 'url' => route('vendor.linktree.show', $linktree)], ['label' => 'A/B Testing']]" />
+
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -9,10 +11,6 @@
                 <i class="fas fa-vial text-purple-500"></i>
                 A/B Testing
             </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                <a href="{{ route('vendor.linktree.show', $linktree) }}" class="text-primary-600 hover:underline">{{ $linktree->title }}</a>
-                <span class="mx-1">/</span> A/B Testing
-            </p>
         </div>
         <div class="flex items-center gap-2">
             <x.ui.button href="{{ route('vendor.linktree.show', $linktree) }}" variant="outline" size="sm">
@@ -38,16 +36,14 @@
     </div>
 
     @if($abTests->isEmpty())
-    {{-- Empty State --}}
-    <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
-        <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
-            <i class="fas fa-vial text-2xl text-purple-500"></i>
-        </div>
-        <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada A/B Test</h3>
-        <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">Buat A/B test pertama untuk membandingkan performa dua template berbeda.</p>
-        <x.ui.button href="{{ route('vendor.linktree.ab-test.create', $linktree) }}">
-            <i class="fas fa-plus mr-1"></i> Buat A/B Test Baru
-        </x.ui.button>
+    <div class="bg-white rounded-xl border border-gray-200">
+        <x-ui.empty-state icon="fas fa-vial" title="Belum Ada A/B Test" description="Buat A/B test pertama untuk membandingkan performa dua template berbeda.">
+            <x-slot:actions>
+                <x.ui.button href="{{ route('vendor.linktree.ab-test.create', $linktree) }}">
+                    <i class="fas fa-plus mr-1"></i> Buat A/B Test Baru
+                </x.ui.button>
+            </x-slot:actions>
+        </x-ui.empty-state>
     </div>
     @else
     {{-- A/B Tests Grid --}}

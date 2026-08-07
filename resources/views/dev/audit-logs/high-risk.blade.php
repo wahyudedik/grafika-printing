@@ -25,13 +25,7 @@
         {{-- Content --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
             @if($logs->isEmpty())
-                <div class="p-12 text-center">
-                    <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-check-circle text-emerald-500 text-2xl"></i>
-                    </div>
-                    <p class="text-lg font-medium text-gray-900 dark:text-white">Tidak ada transaksi berisiko tinggi</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Semua transaksi dalam kondisi aman.</p>
-                </div>
+                <x-ui.empty-state icon="fas fa-check-circle" title="Tidak ada transaksi berisiko tinggi" description="Semua transaksi dalam kondisi aman." />
             @else
                 {{-- Desktop Table --}}
                 <div class="hidden md:block overflow-x-auto">

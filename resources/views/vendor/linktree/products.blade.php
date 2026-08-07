@@ -4,6 +4,8 @@
 
 @section('content')
 <div x-data="productsManager()" class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <x-ui.breadcrumb :items="[['label' => 'Linktree Management', 'url' => route('vendor.linktree.index')], ['label' => $linktree->title, 'url' => route('vendor.linktree.show', $linktree)], ['label' => 'Katalog Produk']]" />
+
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>

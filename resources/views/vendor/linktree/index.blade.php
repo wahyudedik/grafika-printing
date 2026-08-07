@@ -3,6 +3,8 @@
 @section('title', 'Linktree Management')
 
 @section('content')
+<x-ui.breadcrumb :items="[['label' => 'Linktree Management']]" />
+
 <div class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -18,16 +20,14 @@
     </div>
 
     @if($linktrees->isEmpty())
-        {{-- Empty State --}}
-        <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                <i class="fas fa-link text-2xl text-gray-400"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada Linktree</h3>
-            <p class="text-gray-500 mb-6">Buat linktree pertama Anda untuk berbagi tautan penting toko Anda.</p>
-            <x.ui.button href="{{ route('vendor.linktree.create') }}">
-                <i class="fas fa-plus mr-2"></i>Buat Linktree Sekarang
-            </x.ui.button>
+        <div class="bg-white rounded-xl border border-gray-200">
+            <x-ui.empty-state icon="fas fa-link" title="Belum Ada Linktree" description="Buat linktree pertama Anda untuk berbagi tautan penting toko Anda.">
+                <x-slot:actions>
+                    <x.ui.button href="{{ route('vendor.linktree.create') }}">
+                        <i class="fas fa-plus mr-2"></i>Buat Linktree Sekarang
+                    </x.ui.button>
+                </x-slot:actions>
+            </x-ui.empty-state>
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

@@ -4,14 +4,7 @@
 
 @section('content')
 <div x-data="createLinktree()" class="py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    {{-- Breadcrumb --}}
-    <nav class="mb-4">
-        <ol class="flex items-center space-x-2 text-sm text-gray-500">
-            <li><a href="{{ route('vendor.linktree.index') }}" class="hover:text-primary-600">Linktree</a></li>
-            <li><span class="mx-1">/</span></li>
-            <li class="text-gray-900 font-medium">Buat Baru</li>
-        </ol>
-    </nav>
+    <x-ui.breadcrumb :items="[['label' => 'Linktree Management', 'url' => route('vendor.linktree.index')], ['label' => 'Buat Baru']]" />
 
     {{-- Page Header --}}
     <div class="mb-6">

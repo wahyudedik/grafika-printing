@@ -193,17 +193,17 @@
                         <i class="fas fa-eye"></i> Lihat Detail
                     </x.ui.button>
                     @if($auction->status === 'active')
-                        <form action="{{ route('admin.auctions.close', $auction) }}" method="POST" x-data>
+                        <form id="close-auction-edit-{{ $auction->id }}" action="{{ route('admin.auctions.close', $auction) }}" method="POST" x-data @submit.prevent="confirmFormSubmit('close-auction-edit-{{ $auction->id }}', { title: 'Tutup Lelang?', text: 'Tutup lelang ini?', confirmText: 'Ya, Tutup', confirmColor: '#f59e0b' })">
                             @csrf
-                            <x.ui.button type="submit" variant="warning" size="sm" class="w-full" @click="return confirm('Tutup lelang ini?')">
+                            <x.ui.button type="submit" variant="warning" size="sm" class="w-full">
                                 <i class="fas fa-times-circle"></i> Tutup Lelang
                             </x.ui.button>
                         </form>
                     @endif
-                    <form action="{{ route('admin.auctions.destroy', $auction) }}" method="POST" x-data>
+                    <form id="destroy-auction-edit-{{ $auction->id }}" action="{{ route('admin.auctions.destroy', $auction) }}" method="POST" x-data @submit.prevent="confirmFormSubmit('destroy-auction-edit-{{ $auction->id }}', { title: 'Hapus Lelang?', text: 'Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                         @csrf
                         @method('DELETE')
-                        <x.ui.button type="submit" variant="danger" size="sm" class="w-full" @click="return confirm('Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!')">
+                        <x.ui.button type="submit" variant="danger" size="sm" class="w-full">
                             <i class="fas fa-trash"></i> Hapus Lelang
                         </x.ui.button>
                     </form>

@@ -3,6 +3,8 @@
 @section('title', 'Detail Transaksi')
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <x-ui.breadcrumb :items="[['label' => 'Riwayat Transaksi', 'url' => route('vendor.audit-logs.index')], ['label' => 'Detail']]" />
+
     <div class="bg-white rounded-xl border border-gray-200">
         <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Detail Transaksi</h3>

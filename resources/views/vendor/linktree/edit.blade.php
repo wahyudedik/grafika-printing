@@ -2,6 +2,8 @@
 
 @section('content')
 <div x-data="linktreeEditor()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <x-ui.breadcrumb :items="[['label' => 'Linktree Management', 'url' => route('vendor.linktree.index')], ['label' => 'Edit: ' . $linktree->title]]" />
+
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -143,10 +145,7 @@
                 </div>
                 <div class="divide-y divide-gray-100">
                     @if($linktree->links->isEmpty())
-                    <div class="p-8 text-center text-gray-500">
-                        <i class="fas fa-link text-3xl text-gray-300 mb-3"></i>
-                        <p class="text-sm">Belum ada link. Klik "Tambah Link" untuk menambahkan.</p>
-                    </div>
+                    <x-ui.empty-state icon="fas fa-link" title="Belum ada link" description="Klik "Tambah Link" untuk menambahkan link pertama." size="sm" />
                     @else
                     <div id="links-list">
                         @foreach($linktree->links as $link)
@@ -194,10 +193,7 @@
                 </div>
                 <div class="divide-y divide-gray-100">
                     @if($linktree->socials->isEmpty())
-                    <div class="p-8 text-center text-gray-500">
-                        <i class="fas fa-share-alt text-3xl text-gray-300 mb-3"></i>
-                        <p class="text-sm">Belum ada social media.</p>
-                    </div>
+                    <x-ui.empty-state icon="fas fa-share-alt" title="Belum ada social media" description="Tambahkan akun media sosial dari halaman edit." size="sm" />
                     @else
                     @foreach($linktree->socials as $social)
                     <div class="px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition">

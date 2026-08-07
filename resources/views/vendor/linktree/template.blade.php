@@ -2,16 +2,12 @@
 
 @section('content')
 <div x-data="templateBuilder()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <x-ui.breadcrumb :items="[['label' => 'Linktree Management', 'url' => route('vendor.linktree.index')], ['label' => $linktree->title, 'url' => route('vendor.linktree.show', $linktree)], ['label' => 'Template Builder']]" />
+
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Template Builder: {{ $linktree->title }}</h1>
-            <p class="text-sm text-gray-500 mt-1">
-                <a href="{{ route('vendor.linktree.index') }}" class="text-primary-600 hover:underline">Linktree</a>
-                <span class="mx-1">/</span>
-                <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="text-primary-600 hover:underline">Edit</a>
-                <span class="mx-1">/</span> Template
-            </p>
         </div>
         <div class="flex items-center gap-2">
             <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" variant="outline" size="sm">

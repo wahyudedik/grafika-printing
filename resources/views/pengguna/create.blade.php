@@ -53,18 +53,15 @@
                         @enderror
                     </div>
 
-                    {{-- Usertype --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Usertype <span class="text-red-500">*</span></label>
-                        <select name="usertype"
-                            class="block w-full rounded-lg border {{ $errors->has('usertype') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:border-primary-500 focus:ring-primary-500 focus:outline-none">
-                            <option value="">Select usertype</option>
-                            <option value="dev" {{ old('usertype') == 'dev' ? 'selected' : '' }}>Dev</option>
-                            <option value="vendor" {{ old('usertype') == 'vendor' ? 'selected' : '' }}>Vendor</option>
-                        </select>
-                        @error('usertype')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    {{-- Info --}}
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+                            <div>
+                                <p class="text-sm font-medium text-blue-800">Pengguna Vendor</p>
+                                <p class="text-xs text-blue-600 mt-1">Pengguna baru akan ditambahkan sebagai staf vendor dengan tipe "Vendor".</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -43,11 +43,22 @@
                 </div>
             </div>
 
-            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end">
-                <a href="{{ route('vendor.users.index') }}"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="fa-solid fa-arrow-left"></i> Back
-                </a>
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <x.ui.button href="{{ route('vendor.users.edit', $user->id) }}" variant="warning" size="sm">
+                        <i class="fas fa-pen mr-1"></i> Edit
+                    </x.ui.button>
+                    <form id="delete-user-show-{{ $user->id }}" action="{{ route('vendor.users.destroy', $user->id) }}" method="POST" class="inline">
+                        @csrf @method('DELETE')
+                    </form>
+                    <x.ui.button type="button" variant="danger" size="sm"
+                        onclick="confirmFormSubmit('delete-user-show-{{ $user->id }}', { title: 'Hapus Pengguna?', text: 'Pengguna ini akan dilepas dari vendor.', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
+                        <i class="fas fa-trash mr-1"></i> Hapus
+                    </x.ui.button>
+                </div>
+                <x.ui.button href="{{ route('vendor.users.index') }}" variant="outline" size="sm">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Kembali
+                </x.ui.button>
             </div>
         </div>
     </div>

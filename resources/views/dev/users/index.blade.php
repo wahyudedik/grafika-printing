@@ -8,19 +8,45 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h3 class="text-lg font-semibold text-gray-900">Users List</h3>
                 <div class="flex items-center gap-3">
-                    <form action="{{ route('admin.users.index') }}" method="GET" class="flex-1 sm:flex-none">
-                        <div class="relative">
-                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                   class="w-full sm:w-64 pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                                   placeholder="Search users...">
-                        </div>
-                    </form>
                     <x.ui.button type="button" variant="primary" href="{{ route('admin.users.create') }}">
                         <i class="fas fa-plus text-xs mr-1"></i> Add User
                     </x.ui.button>
                 </div>
             </div>
+            {{-- Filters --}}
+            <form action="{{ route('admin.users.index') }}" method="GET" class="mt-3">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               class="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                               placeholder="Search by name, email, or usertype...">
+                    </div>
+                    <select name="usertype" onchange="this.form.submit()"
+                            class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                        <option value="">All Types</option>
+                        <option value="user" {{ request('usertype') === 'user' ? 'selected' : '' }}>User</option>
+                        <option value="vendor" {{ request('usertype') === 'vendor' ? 'selected' : '' }}>Vendor</option>
+                        <option value="dev" {{ request('usertype') === 'dev' ? 'selected' : '' }}>Admin</option>
+                    </select>
+                    <select name="lelang" onchange="this.form.submit()"
+                            class="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                        <option value="">All Lelang Status</option>
+                        <option value="with_profile" {{ request('lelang') === 'with_profile' ? 'selected' : '' }}>With Profile ({{ $lelangStats['total_profiles'] ?? 0 }})</option>
+                        <option value="without_profile" {{ request('lelang') === 'without_profile' ? 'selected' : '' }}>Without Profile</option>
+                        <option value="verified" {{ request('lelang') === 'verified' ? 'selected' : '' }}>Verified ({{ $lelangStats['verified'] ?? 0 }})</option>
+                        <option value="suspended" {{ request('lelang') === 'suspended' ? 'selected' : '' }}>Suspended ({{ $lelangStats['suspended'] ?? 0 }})</option>
+                    </select>
+                    <button type="submit" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-filter text-xs mr-1"></i> Filter
+                    </button>
+                    @if(request()->has('search') || request()->has('usertype') || request()->has('lelang'))
+                        <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <i class="fas fa-times text-xs mr-1"></i> Clear
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
 
         {{-- Desktop Table --}}

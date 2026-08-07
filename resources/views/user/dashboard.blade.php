@@ -35,10 +35,16 @@
                 <h1 class="text-2xl sm:text-3xl font-bold">Selamat Datang, {{ auth()->user()->name }}! 👋</h1>
                 <p class="text-primary-100 mt-1">Kelola lelang, pesanan, dan aktivitas Anda di Grafika Printing.</p>
             </div>
-            <x-ui.button :href="route('user.auctions.create')" variant="outline" size="md" class="!bg-white !text-primary-700 !font-semibold !shadow-sm flex-shrink-0">
-                <i class="fas fa-plus text-sm"></i>
-                Buat Lelang Baru
-            </x-ui.button>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <x-ui.button :href="route('user.lelang-dashboard')" variant="outline" size="md" class="!bg-white/20 !text-white !border-white/30 !font-semibold !shadow-sm">
+                    <i class="fas fa-chart-line text-sm"></i>
+                    Dashboard Lelang
+                </x-ui.button>
+                <x-ui.button :href="route('user.auctions.create')" variant="outline" size="md" class="!bg-white !text-primary-700 !font-semibold !shadow-sm">
+                    <i class="fas fa-plus text-sm"></i>
+                    Buat Lelang
+                </x-ui.button>
+            </div>
         </div>
     </div>
 

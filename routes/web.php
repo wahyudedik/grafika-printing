@@ -468,6 +468,9 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->name('user.')->
     // Dashboard
     Route::get('/', [UserDashboardController::class, 'userDashboard'])->name('dashboard');
 
+    // Lelang Dashboard (dedicated for lelang users)
+    Route::get('/lelang-dashboard', [UserDashboardController::class, 'lelangDashboard'])->name('lelang-dashboard');
+
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

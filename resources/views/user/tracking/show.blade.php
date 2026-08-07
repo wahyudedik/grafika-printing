@@ -37,21 +37,38 @@
                         <p class="text-sm font-medium text-gray-900">{{ $auction->winnerVendor->name }}</p>
                         <p class="text-xs text-gray-500">{{ $auction->winnerVendor->email }}</p>
                     </div>
+                    @php
+                        $ongkir = (float) ($auction->transaksi->ongkir ?? 0);
+                        $subtotalBarang = (float) $auction->transaksi->total_harga - $ongkir;
+                    @endphp
                     <div>
-                        <p class="text-xs text-gray-500 mb-0.5">Total Harga</p>
-                        <p class="text-sm font-medium text-gray-900">Rp {{ number_format($auction->transaksi->total_harga) }}</p>
+                        <p class="text-xs text-gray-500 mb-0.5">Subtotal Barang</p>
+                        <p class="text-sm font-medium text-gray-900">Rp {{ number_format($subtotalBarang) }}</p>
                     </div>
-                    @if ($auction->transaksi->ongkir > 0)
+                    @if ($ongkir > 0)
                         <div>
-                            <p class="text-xs text-gray-500 mb-0.5">Ongkir</p>
+                            <p class="text-xs text-gray-500 mb-0.5">Ongkos Kirim</p>
                             <div class="flex items-center gap-2">
-                                <p class="text-sm font-medium text-gray-900">Rp {{ number_format($auction->transaksi->ongkir) }}</p>
+                                <p class="text-sm font-medium text-gray-900">Rp {{ number_format($ongkir) }}</p>
                                 @if ($auction->transaksi->is_cod)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">COD</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">COD - Bayar di Tempat</span>
                                 @endif
                             </div>
+                            @if ($auction->transaksi->kurir)
+                                <p class="text-xs text-gray-400 mt-0.5">Kurir: {{ $auction->transaksi->kurir }}</p>
+                            @endif
                         </div>
                     @endif
+                    <div class="pt-2 border-t border-gray-100">
+                        <p class="text-xs text-gray-500 mb-0.5">Total Pembayaran</p>
+                        <p class="text-sm font-bold text-gray-900">Rp {{ number_format($auction->transaksi->total_harga) }}</p>
+                        @if ($auction->transaksi->is_cod && $ongkir > 0)
+                            <p class="text-xs text-blue-600 mt-0.5">
+                                <i class="fas fa-info-circle"></i>
+                                Termasuk ongkir Rp {{ number_format($ongkir) }} yang dibayar di tempat
+                            </p>
+                        @endif
+                    </div>
                     @if ($auction->transaksi->no_resi)
                         <div>
                             <p class="text-xs text-gray-500 mb-0.5">No. Resi</p>
