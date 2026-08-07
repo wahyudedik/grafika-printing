@@ -231,7 +231,7 @@
                     <p class="text-gray-500 mb-6">Apakah Anda yakin ingin menghapus detail rekening ini?</p>
                     <div class="flex gap-3 justify-center">
                         <x.ui.button @click="showDeleteModal = false" variant="outline">Batal</x.ui.button>
-                        <form :action="`{{ route('vendor.bank-accounts.destroy', '') }}/${deleteType}`" method="POST" style="display: inline;">
+                        <form :action="'{{ route('vendor.bank-accounts.destroy', '__ID__') }}'.replace('__ID__', deleteType)" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
                             <x.ui.button type="submit" variant="danger">Hapus</x.ui.button>

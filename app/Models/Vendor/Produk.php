@@ -20,13 +20,23 @@ class Produk extends TenantModel
         'nama_produk',
         'deskripsi',
         'kategori_id',
+        'harga_jual',
     ];
 
     protected $casts = [
         'gambar' => 'array',
-        'harga_dasar' => 'decimal:2',
+        'harga_jual' => 'decimal:2',
     ];
-    
+
+    /**
+     * Get display price — uses harga_jual, falls back to harga_dasar if exists
+     */
+    public function getDisplayPriceAttribute(): ?string
+    {
+        $price = $this->harga_jual ?? $this->attributes['harga_dasar'] ?? null;
+        return $price ? number_format((float) $price, 0, ',', '.') : null;
+    }
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');

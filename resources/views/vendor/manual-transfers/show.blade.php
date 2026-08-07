@@ -123,7 +123,7 @@
             <div class="px-5 py-4 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">Aksi</h3></div>
             <div class="p-5 space-y-3">
                 @if($order->isPaid())
-                    <form action="{{ route('vendor.manual-transfers.confirm', $order) }}" method="POST" @submit="return confirm('Konfirmasi order ini sebagai selesai?')">
+                    <form id="confirm-order-{{ $order->id }}" action="{{ route('vendor.manual-transfers.confirm', $order) }}" method="POST" x-data @submit.prevent="confirmFormSubmit('confirm-order-{{ $order->id }}', { title: 'Konfirmasi Selesai?', text: 'Konfirmasi order ini sebagai selesai?', confirmText: 'Ya, Konfirmasi' })">
                         @csrf
                         <x.ui.button type="submit" variant="success" class="w-full">
                             <i class="fas fa-check mr-2"></i>Konfirmasi Selesai

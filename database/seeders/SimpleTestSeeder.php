@@ -27,7 +27,7 @@ class SimpleTestSeeder extends Seeder
             ['email' => 'dev@gmail.com'],
             [
                 'name' => 'Developer Admin',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('password'), 
                 'usertype' => 'dev',
                 'email_verified_at' => now(),
                 'uuid' => Str::uuid(),

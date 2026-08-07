@@ -96,17 +96,25 @@
                 </div>
             </div>
 
+            @php
+                $vendorCount = \App\Models\Vendor::count();
+                $completedAuctions = class_exists('App\Models\Auction') ? \App\Models\Auction::where('status', 'completed')->count() : 0;
+                $avgRating = \App\Models\VendorRating::where('is_verified', true)->avg('rating');
+                $vendorStats = \App\Models\CmsSetting::get('stats_vendor_count', $vendorCount > 0 ? $vendorCount . '+' : '0+');
+                $projectStats = \App\Models\CmsSetting::get('stats_project_count', $completedAuctions > 0 ? $completedAuctions . '+' : '0+');
+                $ratingStats = \App\Models\CmsSetting::get('stats_rating', $avgRating ? number_format($avgRating, 1) . '★' : '4.8★');
+            @endphp
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <span class="stat-number">100+</span>
+                    <span class="stat-number">{{ $vendorStats }}</span>
                     <span class="stat-label">Vendor Aktif</span>
                 </div>
                 <div class="hero-stat">
-                    <span class="stat-number">500+</span>
+                    <span class="stat-number">{{ $projectStats }}</span>
                     <span class="stat-label">Proyek Selesai</span>
                 </div>
                 <div class="hero-stat">
-                    <span class="stat-number">4.8★</span>
+                    <span class="stat-number">{{ $ratingStats }}</span>
                     <span class="stat-label">Rating Vendor</span>
                 </div>
             </div>

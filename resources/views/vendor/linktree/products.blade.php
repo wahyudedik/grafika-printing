@@ -22,20 +22,6 @@
         </div>
     </div>
 
-    {{-- Flash Messages --}}
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-3"><i class="fas fa-check-circle text-emerald-600"></i><span class="text-sm text-emerald-800">{{ session('success') }}</span></div>
-        <button @click="show = false" class="text-emerald-600 hover:text-emerald-800"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-    @if(session('error'))
-    <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-3"><i class="fas fa-exclamation-circle text-red-600"></i><span class="text-sm text-red-800">{{ session('error') }}</span></div>
-        <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {{-- Add Product Form --}}
         <div class="lg:col-span-1 space-y-5">
@@ -145,7 +131,7 @@
                                 <x.ui.button @click="openEditModal({{ $product->id }}, '{{ addslashes($product->custom_price) }}', '{{ addslashes($product->custom_description) }}')" variant="ghost" size="icon-sm" title="Edit">
                                     <i class="fas fa-edit text-blue-600"></i>
                                 </x.ui.button>
-                                <form action="{{ route('vendor.linktree.products.destroy', [$linktree, $product]) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus produk ini dari linktree?')">
+                                <form id="destroy-linktree-product-{{ $product->id }}" action="{{ route('vendor.linktree.products.destroy', [$linktree, $product]) }}" method="POST" class="inline" x-data @submit.prevent="confirmFormSubmit('destroy-linktree-product-{{ $product->id }}', { title: 'Hapus Produk?', text: 'Yakin ingin menghapus produk ini dari linktree?', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                                     @csrf @method('DELETE')
                                     <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus"><i class="fas fa-trash text-red-600"></i></x.ui.button>
                                 </form>

@@ -217,9 +217,9 @@
                     <i class="fas fa-eye mr-2"></i> Mulai Review
                 </x-ui.button>
             </form>
-            <form action="{{ route('admin.mediation.close', $mediationRequest) }}" method="POST">
+            <form id="close-mediation-form" action="{{ route('admin.mediation.close', $mediationRequest) }}" method="POST">
                 @csrf
-                <x-ui.button variant="outline-danger" type="submit" onclick="return confirm('Tutup mediasi ini?')">
+                <x-ui.button variant="outline-danger" type="submit" onclick="event.preventDefault(); confirmAction({ title: 'Tutup Mediasi', text: 'Tutup mediasi ini?', icon: 'warning', confirmText: 'Ya, Tutup', onConfirm: () => document.getElementById('close-mediation-form').submit() })">
                     <i class="fas fa-times mr-2"></i> Tutup
                 </x-ui.button>
             </form>
@@ -266,7 +266,7 @@
                     <textarea name="admin_notes" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" rows="2" placeholder="Catatan internal..."></textarea>
                 </div>
                 <div class="md:col-span-2">
-                    <x-ui.button type="submit" variant="success" onclick="return confirm('Selesaikan mediasi dengan keputusan ini?')">
+                    <x-ui.button type="submit" variant="success" onclick="event.preventDefault(); confirmAction({ title: 'Selesaikan Mediasi', text: 'Selesaikan mediasi dengan keputusan ini?', icon: 'question', confirmText: 'Ya, Selesaikan', onConfirm: () => this.closest('form').submit() })">
                         <i class="fas fa-check mr-2"></i> Selesaikan Mediasi
                     </x-ui.button>
                     <x-ui.button type="button" variant="outline-danger" class="ml-2" onclick="document.querySelector('[name=admin_decision]').value=''; this.closest('form').action='{{ route('admin.mediation.close', $mediationRequest) }}'; this.closest('form').submit();">

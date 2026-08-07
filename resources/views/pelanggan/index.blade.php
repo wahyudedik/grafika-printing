@@ -146,7 +146,7 @@
                             if (result.isConfirmed) {
                                 showLoading('Menghapus...');
                                 deleteForm.action =
-                                    `{{ route('vendor.customers.destroy', '') }}/${id}`;
+                                    '{{ route('vendor.customers.destroy', '__ID__') }}'.replace('__ID__', id);
                                 deleteForm.submit();
                             }
                         });

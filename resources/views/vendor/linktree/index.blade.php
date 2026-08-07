@@ -17,17 +17,6 @@
         </x.ui.button>
     </div>
 
-    {{-- Success Alert --}}
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-transition class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-check-circle text-emerald-600"></i>
-            <span class="text-sm text-emerald-800">{{ session('success') }}</span>
-        </div>
-        <button @click="show = false" class="text-emerald-600 hover:text-emerald-800"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-
     @if($linktrees->isEmpty())
         {{-- Empty State --}}
         <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">

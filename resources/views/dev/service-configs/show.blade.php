@@ -24,23 +24,11 @@
 
     {{-- Flash Messages --}}
     @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0"><i class="fas fa-check text-emerald-600 dark:text-emerald-400"></i></div>
-                <div class="flex-1 text-sm text-emerald-800 dark:text-emerald-200">{{ session('success') }}</div>
-                <button @click="show = false" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
+        <x-ui.alert type="success" :dismissible="true">{{ session('success') }}</x-ui.alert>
     @endif
 
     @if(session('error'))
-        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0"><i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i></div>
-                <div class="flex-1 text-sm text-red-800 dark:text-red-200">{{ session('error') }}</div>
-                <button @click="show = false" class="text-red-600 dark:text-red-400 hover:text-red-800"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
+        <x-ui.alert type="danger" :dismissible="true">{{ session('error') }}</x-ui.alert>
     @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -103,7 +91,7 @@
                     @empty
                         <div class="p-8 text-center">
                             <p class="text-sm text-gray-500 dark:text-gray-400">Belum ada konfigurasi untuk {{ $serviceInfo['name'] }}.</p>
-                            <x.ui.button href="{{ route('admin.service-configs.seed-defaults') }}" variant="primary" onclick="return confirm('Import config default dari .env?')">
+                            <x.ui.button href="{{ route('admin.service-configs.seed-defaults') }}" variant="primary" onclick="event.preventDefault(); confirmAction({ title: 'Import Config Default', text: 'Import config default dari .env?', icon: 'question', confirmText: 'Ya, Import', onConfirm: () => window.location.href = '{{ route('admin.service-configs.seed-defaults') }}' })">
                                 <i class="fas fa-file-import mr-1"></i> Import dari .env
                             </x.ui.button>
                         </div>

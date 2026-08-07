@@ -81,11 +81,7 @@
                         </table>
                     </div>
                 @else
-                    <div class="flex flex-col items-center justify-center py-8 text-center">
-                        <i class="fas fa-receipt text-3xl text-gray-300 dark:text-gray-600 mb-3"></i>
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Belum ada transaksi</h4>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Transaksi akan muncul setelah ada pembayaran dari lelang.</p>
-                    </div>
+                    <x-ui.empty-state icon="fas fa-receipt" title="Belum ada transaksi" description="Transaksi akan muncul setelah ada pembayaran dari lelang." size="sm" />
                 @endif
             </div>
         </div>
@@ -129,11 +125,7 @@
                         </table>
                     </div>
                 @else
-                    <div class="flex flex-col items-center justify-center py-8 text-center">
-                        <i class="fas fa-wallet text-3xl text-gray-300 dark:text-gray-600 mb-3"></i>
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Belum ada penarikan</h4>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Penarikan akan muncul setelah vendor melakukan withdraw.</p>
-                    </div>
+                    <x-ui.empty-state icon="fas fa-wallet" title="Belum ada penarikan" description="Penarikan akan muncul setelah vendor melakukan withdraw." size="sm" />
                 @endif
             </div>
         </div>
@@ -213,11 +205,7 @@
                     @endforeach
                 </div>
             @else
-                <div class="flex flex-col items-center justify-center py-8 text-center">
-                    <i class="fas fa-trophy text-3xl text-gray-300 dark:text-gray-600 mb-3"></i>
-                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Belum ada lelang yang dimenangkan</h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Lelang yang dimenangkan akan muncul di sini.</p>
-                </div>
+                <x-ui.empty-state icon="fas fa-trophy" title="Belum ada lelang yang dimenangkan" description="Lelang yang dimenangkan akan muncul di sini." size="sm" />
             @endif
         </div>
     </div>

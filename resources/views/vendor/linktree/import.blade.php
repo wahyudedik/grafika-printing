@@ -27,17 +27,6 @@
     </div>
 
     <div class="max-w-3xl mx-auto space-y-5">
-        {{-- Flash Messages --}}
-        @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-check-circle text-emerald-600"></i>
-                <span class="text-sm text-emerald-800">{{ session('success') }}</span>
-            </div>
-            <button @click="show = false" class="text-emerald-600 hover:text-emerald-800"><i class="fas fa-times"></i></button>
-        </div>
-        @endif
-
         @if($errors->any())
         <div x-data="{ show: true }" x-show="show" x-transition class="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -249,9 +238,15 @@ function importHandler() {
 document.getElementById('importForm').addEventListener('submit', function(e) {
     const mode = document.querySelector('input[name="import_mode"]:checked').value;
     if (mode === 'replace') {
-        if (!confirm('Semua link yang ada akan DIHAPUS dan diganti dengan data dari CSV. Lanjutkan?')) {
-            e.preventDefault();
-        }
+        e.preventDefault();
+        confirmAction({
+            title: 'Ganti Semua Link?',
+            text: 'Semua link yang ada akan DIHAPUS dan diganti dengan data dari CSV. Lanjutkan?',
+            icon: 'warning',
+            confirmColor: '#d33',
+            confirmText: 'Ya, Ganti',
+            onConfirm: () => document.getElementById('importForm').submit()
+        });
     }
 });
 </script>

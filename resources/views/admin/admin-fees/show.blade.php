@@ -140,18 +140,18 @@
             </div>
             <div class="px-6 py-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <form action="{{ route('admin.admin-fees.toggle', $adminFee) }}" method="POST">
+                    <form id="toggle-admin-fee-form" action="{{ route('admin.admin-fees.toggle', $adminFee) }}" method="POST">
                         @csrf @method('PATCH')
                         <x-ui.button type="submit" :variant="$adminFee->is_active ? 'danger' : 'success'" class="w-full"
-                            onclick="return confirm('{{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }} pengaturan ini?')">
+                            onclick="event.preventDefault(); confirmAction({ title: '{{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Pengaturan', text: '{{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }} pengaturan ini?', icon: 'warning', confirmText: 'Ya', onConfirm: () => document.getElementById('toggle-admin-fee-form').submit() })">
                             <i class="fa-solid fa-toggle-{{ $adminFee->is_active ? 'on' : 'off' }} mr-2"></i>
                             {{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                         </x-ui.button>
                     </form>
-                    <form action="{{ route('admin.admin-fees.destroy', $adminFee) }}" method="POST">
+                    <form id="delete-admin-fee-form" action="{{ route('admin.admin-fees.destroy', $adminFee) }}" method="POST">
                         @csrf @method('DELETE')
                         <x-ui.button type="submit" variant="danger" class="w-full"
-                            onclick="return confirm('Hapus pengaturan ini? Tindakan ini tidak dapat dibatalkan.')">
+                            onclick="event.preventDefault(); confirmDelete('delete-admin-fee-form')">
                             <i class="fa-solid fa-trash mr-2"></i> Hapus Pengaturan
                         </x-ui.button>
                     </form>

@@ -172,4 +172,34 @@ class AlatController extends Controller
             return redirect()->back()->with('toast_error', 'Error deleting alat: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Bulk update alat fields (status, tersedia)
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:alats,id',
+            'field' => 'required|in:status,tersedia',
+            'value' => 'required',
+        ]);
+
+        $field = $request->field;
+        $value = $request->value;
+
+        // Validate value based on field
+        if ($field === 'status') {
+            if (!in_array($value, ['aktif', 'maintenance', 'rusak'])) {
+                return redirect()->back()->with('toast_error', 'Status tidak valid.');
+            }
+        } elseif ($field === 'tersedia') {
+            $value = (bool) $value;
+        }
+
+        $updated = Alat::whereIn('id', $request->ids)->update([$field => $value]);
+
+        return redirect()->back()
+            ->with('toast_success', "Berhasil memperbarui {$updated} alat ({$field}).");
+    }
 }

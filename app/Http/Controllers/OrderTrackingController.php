@@ -82,7 +82,7 @@ class OrderTrackingController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|string',
+            'status' => 'required|string|in:payment_received,order_accepted,production_started,production_completed,quality_check,packaging,shipped,delivered,completed,mediation',
             'status_description' => 'nullable|string|max:500',
             'tracking_number' => 'nullable|string|max:100',
             'estimated_delivery' => 'nullable|date|after:now',

@@ -66,7 +66,7 @@ class AuctionBidController extends Controller
         }
 
         $request->validate([
-            'bid_amount' => 'required|numeric|min:0',
+            'bid_amount' => 'required|numeric|min:1',
             'message' => 'nullable|string|max:1000'
         ]);
 
@@ -182,7 +182,7 @@ class AuctionBidController extends Controller
         }
 
         $request->validate([
-            'bid_amount' => 'required|numeric|min:0',
+            'bid_amount' => 'required|numeric|min:1',
             'message' => 'nullable|string|max:1000'
         ]);
 

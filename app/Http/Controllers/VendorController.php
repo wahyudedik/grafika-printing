@@ -51,7 +51,7 @@ class VendorController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:vendors,email',
                 'phone' => 'required|string|max:255',
                 'address' => 'required|string|max:255',
                 'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -60,6 +60,7 @@ class VendorController extends Controller
                 'user_id' => 'required|exists:users,id',
             ]);
 
+            $logoName = null;
             if ($request->hasFile('logo')) {
                 $logo = $request->file('logo');
                 $logoName = time() . '.' . $logo->getClientOriginalExtension();
@@ -127,7 +128,7 @@ class VendorController extends Controller
             $vendor = Vendor::findOrFail($id);
             $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $vendor->id,
+                'email' => 'required|string|email|max:255|unique:vendors,email,' . $vendor->id,
                 'phone' => 'required|string|max:255',
                 'address' => 'required|string|max:255',
                 'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -136,6 +137,7 @@ class VendorController extends Controller
                 'user_id' => 'required|exists:users,id',
             ]);
 
+            $logoName = $vendor->logo;
             if ($request->hasFile('logo')) {
                 // Delete old logo if exists
                 if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {

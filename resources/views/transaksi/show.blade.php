@@ -267,7 +267,7 @@
                             }
                         });
                         const form = document.getElementById('delete-form');
-                        form.action = `{{ route('vendor.transactions.destroy', '') }}/${id}`;
+                        form.action = '{{ route("vendor.transactions.destroy", $transaksi->id) }}';
                         form.submit();
                     }
                 });

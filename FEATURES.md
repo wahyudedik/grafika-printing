@@ -26,6 +26,97 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 - ✅ **Copyright year diupdate**: Default footer dari 2025 ke 2026 di `welcome.blade.php`
 - ✅ **Error pages direview**: 403, 404, 500 sudah self-contained (inline CSS), tidak perlu diubah — best practice untuk error handling
 
+### Catatan Update (7 Agustus 2026) — Bug Fixes, Fitur Bulk Edit, UI/UX Cleanup
+- ✅ **Bug fix VendorController**: Fixed undefined `$logoName` di store() dan update(), fixed email validation dari `unique:users` ke `unique:vendors,email`
+- ✅ **Bug fix PaymentManagementController**: Hapus direct wallet increment yang kontradiksi escrow flow, gunakan `app()` helper
+- ✅ **Security fix config/services.php**: Hapus hardcoded ngrok fallback URLs, gunakan production URL
+- ✅ **Security fix XenditWebhookController**: Hapus logging sensitive headers (hanya log method, IP, content-type)
+- ✅ **Fitur harga_jual Produk**: Tambah kolom `harga_jual` ke model, controller, form create/edit, dan index table. SQL manual migration di `database/manual_migrations/`
+- ✅ **Fitur Bulk Edit Bahan**: `bulkUpdate()` controller + checkbox + bulk action bar di index (field: stok, HPP)
+- ✅ **Fitur Bulk Edit Alat**: `bulkUpdate()` controller + checkbox + bulk action bar di index (field: status, ketersediaan)
+- ✅ **Fitur Bulk Edit Produk**: `bulkUpdate()` controller + checkbox + bulk action bar di index (field: kategori, harga_jual)
+- ✅ **Hapus flash message manual**: 7 linktree views dibersihkan dari duplicate flash messages (products, edit, show, index, template, ab-test/*, import)
+- ✅ **Hardcoded URL fix**: Admin layout footer menggunakan `config('app.url')` alih-alih hardcoded URL
+- ✅ **Dynamic stats welcome page**: Stats hero section menggunakan CmsSetting + DB count (vendor, proyek, rating)
+- ✅ **HasVendorContext trait**: Trait baru di `app/Traits/HasVendorContext.php` untuk reduksi duplikasi vendor retrieval
+- ✅ **Bulk update routes**: 3 routes baru sebelum resource routes (`products/bulk-update`, `materials/bulk-update`, `tools/bulk-update`)
+
+### Catatan Update (7 Agustus 2026) — Bug Fixes Tambahan
+- ✅ **Bug fix auth login icon**: SVG icon di tombol "Masuk" terlalu besar — ditambahkan `.btn-auth svg { @apply w-5 h-5 flex-shrink-0; }` di `resources/css/app.css`
+- ✅ **Audit icon semua view**: Diperiksa 163 SVG instances di semua blade files — hanya `.btn-auth` yang bermasalah, lainnya sudah ada sizing inline
+- ✅ **Bug fix bahan_id nullable**: Kolom `bahan_id` di `transaksi_item_specifications` diubah dari NOT NULL ke NULLABLE — karena auction specs dan custom text specs tidak memiliki bahan
+- ✅ **SQL manual migration**: `database/manual_migrations/make_bahan_id_nullable.sql` — jalankan `ALTER TABLE transaksi_item_specifications MODIFY COLUMN bahan_id BIGINT UNSIGNED NULL;`
+- ✅ **Migration file diupdate**: `database/migrations/2025_03_13_115008_create_transaksis_table.php` line 45 — tambah `->nullable()` untuk future installations
+- ✅ **Bug fix Alpine.js sidebar**: `<template x-if>` kosong di `sidebar.blade.php` menyebabkan error `Cannot set properties of null` — diganti dengan `<p x-show>` + Blade `@if`
+- ✅ **Bug fix dashboard-charts.js 404**: Script di-load via `asset('js/dashboard-charts.js')` (404) — dipindahkan ke Vite import di `app.js`, hapus `<script src>` dari `dashboard.blade.php`
+
+### Catatan Update (7 Agustus 2026) — Bug Fix Swal Timing
+- ✅ **Bug fix Swal is not defined**: Error `Swal is not defined` saat page load — Vite load `app.js` sebagai `type="module"` (deferred), tapi inline `<script>` langsung dijalankan saat HTML parsing. `window.Swal` belum tersedia saat flash message scripts dijalankan
+- ✅ **SafeSwalFire wrapper**: Tambah `safeSwalFire()` function di `components/alert.blade.php` — queue calls dan proses setelah `window.Swal` tersedia (polling interval 50ms, timeout 10s)
+- ✅ **Flash messages di `components/alert.blade.php`**: Semua `Swal.fire()` calls untuk toast dan standard alerts diganti dengan `safeSwalFire()`
+- ✅ **Hapus duplicate flash messages**: `layouts/app.blade.php` dan `vendor/layouts/app.blade.php` memiliki duplicate inline `Swal.fire()` untuk flash messages — dihapus karena sudah dihandle oleh `<x-alert />` component
+- ✅ **Utility functions tetap `Swal.fire()`**: `showLoading()`, `confirmDelete()`, `confirmAction()` tetap pakai `Swal.fire()` langsung karena hanya dipicu oleh user interaction (Swal sudah available saat itu)
+
+### Catatan Update (7 Agustus 2026) — Bug Fix Route Parameter
+- ✅ **Bug fix transaksi show delete**: `route('vendor.transactions.destroy', '')` gagal karena parameter kosong — diubah ke `route('vendor.transactions.destroy', $transaksi->id)` di `resources/views/transaksi/show.blade.php:270`
+
+### Catatan Update (7 Agustus 2026) — Bug Fix Sidebar Collapse & Mobile Visibility
+- ✅ **Bug fix sidebar tidak bisa collapse**: Tombol collapse toggle di [`components/sidebar.blade.php:78`](resources/views/components/sidebar.blade.php:78) menggunakan `hidden lg:flex` — hanya terlihat di viewport ≥1024px
+- ✅ **Bug fix sidebar mobile tidak bisa hide**: Sidebar component menggunakan `$store.sidebar.mobileOpen` untuk kontrol visibility mobile, terhubung ke hamburger toggle di parent layout
+- ✅ **Sidebar auto-close**: Ditambahkan event listener `@close-mobile-sidebar.window` untuk menutup sidebar mobile dari komponen lain
+- ✅ **Sidebar close button (mobile)**: Tombol X di bawah sidebar (`lg:hidden`) untuk menutup sidebar di mobile
+- **Root cause**: Sidebar hanya menggunakan static `-translate-x-full` (hidden) dan `lg:translate-x-0` (visible on desktop). Tidak ada koneksi dengan state mobile toggle
+- **Solusi**: Menggunakan `Alpine.js $store` pattern — `$store.sidebar.mobileOpen` sebagai state global yang diakses oleh sidebar component, overlay, dan hamburger button
+- **Behavior yang benar**:
+  - Desktop (≥1024px): Sidebar selalu visible, collapse/expand mengubah width
+  - Mobile (<1024px): Sidebar hidden by default, muncul saat hamburger diklik, tertutup saat overlay diklik, tombol X diklik, atau navigasi
+- **Arsitektur CSS:**
+  - [`resources/css/app.css`](resources/css/app.css) — Custom CSS class `.sidebar-responsive` dengan `@media (max-width: 1023px)` — sidebar hanya di-hide di mobile, desktop SELALU visible
+  - [`components/sidebar.blade.php`](resources/views/components/sidebar.blade.php) — Gunakan class `sidebar-responsive` + `sidebar-is-open` (bukan Tailwind `-translate-x-full` yang conflict dengan `lg:translate-x-0`)
+  - `x-init` pada sidebar component inisialisasi `$store.sidebar` sebagai fallback jika parent layout belum inisialisasi
+  - Semua referensi `$store.sidebar` menggunakan optional chaining (`?.`) untuk mencegah error saat store belum ready
+- **File yang diupdate:**
+  - [`resources/css/app.css`](resources/css/app.css) — Custom `.sidebar-responsive` & `.sidebar-is-open` classes
+  - [`components/sidebar.blade.php`](resources/views/components/sidebar.blade.php) — dynamic width + custom mobile classes + optional chaining + mobile close button + collapse toggle (desktop only)
+  - [`layouts/vendor.blade.php`](resources/views/layouts/vendor.blade.php) — `$store.sidebar` init dengan `mobileOpen: false`, hamburger & overlay pakai `$store.sidebar.mobileOpen`
+  - [`layouts/user.blade.php`](resources/views/layouts/user.blade.php) — pattern sama seperti vendor
+  - [`dev/layouts/app.blade.php`](resources/views/dev/layouts/app.blade.php) — pattern sama seperti vendor
+
+### Catatan Update (7 Agustus 2026) — Bug Fix Route Parameter (Mass Fix)
+- ✅ **Bug fix UrlGenerationException mass fix**: 9 lokasi menggunakan `route('xxx.destroy', '')` yang akan error karena parameter kosong tidak memenuhi required parameter route
+- **Root cause**: Pattern `route('xxx.destroy', '') + '/${id}'` di inline `<script>` gagal karena `route()` dievaluasi server-side dengan parameter kosong
+- **Fix**: Gunakan placeholder `__ID__` → `route('xxx.destroy', '__ID__')` lalu `.replace('__ID__', id)` di JavaScript
+- **File yang di-fix:**
+  - `resources/views/pelanggan/index.blade.php:149` — `vendor.customers.destroy`
+  - `resources/views/produk/index.blade.php:286` — `vendor.products.destroy`
+  - `resources/views/kategori_produk/index.blade.php:166` — `vendor.categories.destroy`
+  - `resources/views/vendor/bank-accounts/index.blade.php:234` — `vendor.bank-accounts.destroy`
+  - `resources/views/pos/cart.blade.php:218` — `vendor.pos.removeItem`
+  - `resources/views/bahan/index.blade.php:257` — `vendor.materials.destroy`
+  - `resources/views/alat/index.blade.php:281` — `vendor.tools.destroy`
+  - `resources/views/admin/cms/show.blade.php:191,211` — `admin.cms.toggle` & `admin.cms.destroy`
+  - `resources/views/transaksi/show.blade.php:270` — `vendor.transactions.destroy` (fix sebelumnya)
+
+### Catatan Update (7 Agustus 2026) — Bug Fix Chart.js getContext Error
+- ✅ **Bug fix Chart.js `getContext` error**: Admin dashboard error `Uncaught TypeError: document.getElementById(...).getContext is not a function`
+- **Root cause**: Chart elements menggunakan `<div>` sebagai container, tetapi Chart.js membutuhkan `<canvas>` element untuk memanggil `getContext('2d')`
+- **Fix**: Ganti `<div id="revenueChart">` dan `<div id="auctionStatusChart">` menjadi `<canvas id="revenueChart">` dan `<canvas id="auctionStatusChart">`
+- **File yang di-fix:**
+- `resources/views/dev/dashboard.blade.php:106` — Revenue chart: `<div>` → `<canvas>`
+- `resources/views/dev/dashboard.blade.php:116` — Auction status chart: `<div>` → `<canvas>`
+
+### Catatan Update (7 Agustus 2026) — Comprehensive Audit II (Code Quality & Consistency)
+- ✅ **Konversi native `confirm()` ke SweetAlert2**: 11 dialog di 6 file view dikonversi ke `confirmDelete()` atau `confirmAction()` yang sudah tersedia secara global via `components/alert.blade.php`
+- ✅ **Auth views Tailwind migration**: 6 file auth views (login, register, reset-password, forgot-password, confirm-password, verify-email) dimigrasi dari legacy CSS classes ke Tailwind utility classes
+- ✅ **Extract auth.js**: Fungsi `togglePassword()` dan `initPasswordStrength()` diekstrak dari 3 auth views ke `resources/js/auth.js` — menghilangkan code duplication
+- ✅ **Konsistensi empty state**: 8 file view dikonversi dari inline HTML empty state ke `<x-ui.empty-state>` component
+- ✅ **Flash messages konsisten**: Manual flash message blocks di `service-configs/index` dan `service-configs/show` diganti dengan `<x-ui.alert>` component
+- ✅ **Hapus duplicate confirmDelete()**: `transaksi/index` dan `spesifikasi/index` — inline script `confirmDelete()` dihapus karena sudah global
+- ✅ **Gap Analysis dikoreksi**: Linktree Module dan Template Builder diupdate dari "❌ BELUM ADA" ke "✅ Sudah ada" — fitur sudah ada di kode
+- ✅ **Form validation fixes**: OrderTrackingController status `in:` constraint ditambahkan; AuctionBidController `min:0` → `min:1`
+- ✅ **Bug fix ShippingController column mismatch**: Kolom `status`, `resi`, `cost` dikoreksi ke `shipping_status`, `waybill_number`, `shipping_cost` (sesuai migration). Fix di controller + 2 view files (index, show)
+- ⏸️ **Dark Mode dievaluasi**: Keputusan TUNDA — darkMode config belum diaktifkan di `tailwind.config.js`, dark mode classes adalah dead code yang tidak merugikan
+
 ---
 
 ## Frontend Tech Stack
@@ -84,13 +175,13 @@ Projek menggunakan **13 UI components** reusable yang dibangun dengan **Tailwind
 | 6 | Tracking Pesanan + COD Ongkir | ⚠️ Partial | Order tracking ada, COD ada, tapi flow COD ongkir belum lengkap |
 | 7 | Wallet Vendor + Withdraw | ✅ Sudah ada | Wallet dan withdrawal system sudah berfungsi |
 | 8 | **Payment Gateway Xendit** | ✅ Sudah ada | `XenditService` sudah fully integrated. Perlu verifikasi cover QRIS, VA, E-Wallet untuk lelang & linktree |
-| 9 | **Linktree Module** | ❌ BELUM ADA | Fitur ini **sama sekali belum ada** di kode |
-| 10 | **Template Builder** | ❌ BELUM ADA | Bagian dari Linktree, belum ada |
+| 9 | **Linktree Module** | ✅ Sudah ada | CRUD links, public page, custom URL, social links, QRIS — sudah lengkap di `vendor/LinktreeController` |
+| 10 | **Template Builder** | ✅ Sudah ada | 4 template aktif (minimal, colorful, dark, professional) — sudah ada di `vendor/TemplateController` |
 | 11 | **deploy.sh / update.sh** | ✅ Sudah ada | `deploy.sh` dan `update.sh` sudah dibuat sesuai VPS_DEPLOYMENT_GUIDE.md |
 
 ### Kesimpulan Gap
 
-- **7 fitur SUDAH SELESAI:** Alur Lelang, Integrasi POS, Wallet+Withdraw, Payment Gateway Xendit, Deployment Scripts, Manual Transfer Payment, Linktree Product Catalog
+- **9 fitur SUDAH SELESAI:** Alur Lelang, Integrasi POS, Wallet+Withdraw, Payment Gateway Xendit, Deployment Scripts, Manual Transfer Payment, Linktree Product Catalog, **Linktree Module**, **Template Builder**
 - **3 fitur PARTIAL:** User Lelang role, Manajemen User Lelang, COD Ongkir
 - **0 fitur BELUM ADA:** Semua fitur utama sudah tersedia
 

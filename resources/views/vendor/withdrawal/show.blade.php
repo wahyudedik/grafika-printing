@@ -19,7 +19,7 @@
                 <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Detail Penarikan #{{ $withdrawal->withdrawal_code }}</h3>
                     @if($withdrawal->status === 'pending')
-                        <form action="{{ route('vendor.withdrawal.cancel', $withdrawal) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penarikan ini?')">
+                        <form id="cancel-withdrawal-{{ $withdrawal->id }}" action="{{ route('vendor.withdrawal.cancel', $withdrawal) }}" method="POST" class="inline" x-data @submit.prevent="confirmFormSubmit('cancel-withdrawal-{{ $withdrawal->id }}', { title: 'Batalkan Penarikan?', text: 'Apakah Anda yakin ingin membatalkan penarikan ini?', confirmText: 'Ya, Batalkan', confirmColor: '#d33' })">
                             @csrf
                             <x.ui.button type="submit" variant="danger" size="sm">Batalkan</x.ui.button>
                         </form>

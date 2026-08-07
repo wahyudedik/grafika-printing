@@ -2,7 +2,7 @@
 
 @section('title', 'Manajemen Produk')
 @section('content')
-    <div class="bg-white rounded-xl shadow-sm">
+    <div class="bg-white rounded-xl shadow-sm" x-data="bulkActions()">
         <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex flex-col md:flex-row gap-3 justify-between items-center">
                 <div>
@@ -49,12 +49,58 @@
             </div>
         </div>
 
+        {{-- Bulk Action Bar --}}
+        <div x-show="selectedIds.length > 0" x-transition
+            class="px-6 py-3 bg-primary/5 border-b border-primary/20 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <span class="text-sm font-medium text-primary">
+                <span x-text="selectedIds.length"></span> produk dipilih
+            </span>
+            <div class="flex items-center gap-2 flex-wrap">
+                <select x-model="bulkField"
+                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+                    <option value="">Pilih field...</option>
+                    <option value="kategori_id">Kategori</option>
+                    <option value="harga_jual">Harga Jual (Rp)</option>
+                </select>
+                <template x-if="bulkField === 'kategori_id'">
+                    <select x-model="bulkValue"
+                        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary">
+                        <option value="">Pilih kategori...</option>
+                        @foreach ($kategories as $kategori)
+                            <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
+                        @endforeach
+                    </select>
+                </template>
+                <template x-if="bulkField === 'harga_jual'">
+                    <input type="number" x-model="bulkValue" min="0" step="100"
+                        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary w-36"
+                        placeholder="Harga (Rp)">
+                </template>
+                <button @click="submitBulk()" :disabled="!bulkField || !bulkValue"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-save text-xs"></i>
+                    Terapkan
+                </button>
+                <button @click="clearSelection()"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fas fa-times text-xs"></i>
+                    Batal
+                </button>
+            </div>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-6 py-3 text-left">
+                            <input type="checkbox" @change="toggleAll($event)"
+                                :checked="selectedIds.length === items.length && items.length > 0"
+                                class="rounded border-gray-300 text-primary focus:ring-primary">
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spesifikasi</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estimasi Waktu</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -62,7 +108,13 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($produks as $produk)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50" :class="selectedIds.includes({{ $produk->id }}) ? 'bg-primary/5' : ''">
+                            <td class="px-6 py-4">
+                                <input type="checkbox" value="{{ $produk->id }}"
+                                    @change="toggleItem({{ $produk->id }})"
+                                    :checked="selectedIds.includes({{ $produk->id }})"
+                                    class="rounded border-gray-300 text-primary focus:ring-primary">
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     @if (!empty($produk->gambar) && isset($produk->gambar[0]))
@@ -79,6 +131,13 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $produk->kategori->nama_kategori ?? 'Tidak ada kategori' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                @if($produk->harga_jual)
+                                    Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}
+                                @else
+                                    <span class="text-gray-400">-</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $produk->spesifikasiProduk->count() }} spesifikasi</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if ($produk->estimasiProduk->count() > 0)
@@ -107,7 +166,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
+                            <td colspan="7" class="px-6 py-12 text-center">
                                 <div class="flex flex-col items-center">
                                     <i class="fas fa-box text-6xl text-gray-300 mb-4"></i>
                                     <p class="text-lg font-medium text-gray-900 mb-1">Tidak ada data produk</p>
@@ -135,8 +194,71 @@
         @method('DELETE')
     </form>
 
+    <!-- Hidden bulk form -->
+    <form id="bulk-form" action="{{ route('vendor.products.bulk-update') }}" method="POST" style="display: none;">
+        @csrf
+        <input type="hidden" name="field" :value="bulkField">
+        <input type="hidden" name="value" :value="bulkValue">
+    </form>
+
     @push('scripts')
         <script>
+            function bulkActions() {
+                return {
+                    selectedIds: [],
+                    bulkField: '',
+                    bulkValue: '',
+                    items: @json($produks->pluck('id')),
+                    toggleAll(event) {
+                        this.selectedIds = event.target.checked ? [...this.items] : [];
+                    },
+                    toggleItem(id) {
+                        if (this.selectedIds.includes(id)) {
+                            this.selectedIds = this.selectedIds.filter(i => i !== id);
+                        } else {
+                            this.selectedIds.push(id);
+                        }
+                    },
+                    clearSelection() {
+                        this.selectedIds = [];
+                        this.bulkField = '';
+                        this.bulkValue = '';
+                    },
+                    submitBulk() {
+                        if (!this.bulkField || !this.bulkValue || this.selectedIds.length === 0) return;
+                        Swal.fire({
+                            title: 'Ubah massal?',
+                            text: `Perbarui ${this.selectedIds.length} produk?`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, terapkan!',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                const form = document.getElementById('bulk-form');
+                                const fieldInput = form.querySelector('input[name="field"]');
+                                const valueInput = form.querySelector('input[name="value"]');
+                                // Remove old hidden inputs for ids
+                                form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+                                // Add new hidden inputs
+                                this.selectedIds.forEach(id => {
+                                    const input = document.createElement('input');
+                                    input.type = 'hidden';
+                                    input.name = 'ids[]';
+                                    input.value = id;
+                                    form.appendChild(input);
+                                });
+                                fieldInput.value = this.bulkField;
+                                valueInput.value = this.bulkValue;
+                                form.submit();
+                            }
+                        });
+                    }
+                };
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 const deleteForm = document.getElementById('delete-form');
                 const deleteButtons = document.querySelectorAll('.delete-btn');
@@ -161,7 +283,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             showLoading('Menghapus...');
-                            deleteForm.action = `{{ route('vendor.products.destroy', '') }}/${id}`;
+                            deleteForm.action = '{{ route('vendor.products.destroy', '__ID__') }}'.replace('__ID__', id);
                             deleteForm.submit();
                         }
                     });

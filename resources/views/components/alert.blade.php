@@ -11,7 +11,7 @@
 @if (session('toast_success') || session('toast_error') || session('toast_info') || session('toast_warning'))
     <script>
         @if (session('toast_success'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'success',
                 title: '{{ session('toast_success') }}',
                 toast: true,
@@ -27,7 +27,7 @@
         @endif
 
         @if (session('toast_error'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'error',
                 title: '{{ session('toast_error') }}',
                 toast: true,
@@ -43,7 +43,7 @@
         @endif
 
         @if (session('toast_info'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'info',
                 title: '{{ session('toast_info') }}',
                 toast: true,
@@ -59,7 +59,7 @@
         @endif
 
         @if (session('toast_warning'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'warning',
                 title: '{{ session('toast_warning') }}',
                 toast: true,
@@ -80,7 +80,7 @@
 @if (session('success') || session('error') || session('warning') || session('info'))
     <script>
         @if (session('success'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'success',
                 title: 'Berhasil!',
                 text: '{{ session('success') }}',
@@ -97,7 +97,7 @@
         @endif
 
         @if (session('error'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'error',
                 title: 'Gagal!',
                 text: '{{ session('error') }}',
@@ -114,7 +114,7 @@
         @endif
 
         @if (session('warning'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'warning',
                 title: 'Perhatian!',
                 text: '{{ session('warning') }}',
@@ -131,7 +131,7 @@
         @endif
 
         @if (session('info'))
-            Swal.fire({
+            safeSwalFire({
                 icon: 'info',
                 title: 'Info',
                 text: '{{ session('info') }}',
@@ -151,6 +151,52 @@
 
 {{-- Utility functions --}}
 <script>
+    /**
+     * Safe Swal.fire wrapper — handles timing issue with Vite module loading.
+     * Vite loads app.js as type="module" (deferred), but inline <script> blocks
+     * execute immediately during HTML parsing. This function queues calls and
+     * processes them once window.Swal is available.
+     */
+    (function() {
+        var _swalQueue = [];
+        var _swalReady = false;
+
+        function _processQueue() {
+            _swalReady = true;
+            while (_swalQueue.length > 0) {
+                var args = _swalQueue.shift();
+                Swal.fire(args.options);
+                if (typeof args.resolve === 'function') args.resolve;
+            }
+        }
+
+        // Check if Swal is already available
+        if (typeof Swal !== 'undefined') {
+            _processQueue();
+        } else {
+            // Poll for Swal availability (Vite module may load asynchronously)
+            var _checkInterval = setInterval(function() {
+                if (typeof Swal !== 'undefined') {
+                    clearInterval(_checkInterval);
+                    _processQueue();
+                }
+            }, 50);
+            // Stop polling after 10 seconds to prevent memory leak
+            setTimeout(function() { clearInterval(_checkInterval); }, 10000);
+        }
+
+        // Global safeSwalFire function
+        window.safeSwalFire = function(options) {
+            if (typeof Swal !== 'undefined') {
+                return Swal.fire(options);
+            }
+            // Queue the call for when Swal is available
+            return new Promise(function(resolve) {
+                _swalQueue.push({ options: options, resolve: resolve });
+            });
+        };
+    })();
+
     // Loading alert
     function showLoading(message = 'Memproses...') {
         Swal.fire({
@@ -197,6 +243,19 @@
             if (result.isConfirmed && typeof options.onConfirm === 'function') {
                 options.onConfirm();
             }
+        });
+    }
+
+    // Form submit confirmation
+    function confirmFormSubmit(formId, options = {}) {
+        confirmAction({
+            title: options.title || 'Konfirmasi',
+            text: options.text || 'Apakah Anda yakin?',
+            icon: options.icon || 'warning',
+            confirmColor: options.confirmColor || '#3085d6',
+            confirmText: options.confirmText || 'Ya',
+            cancelText: options.cancelText || 'Batal',
+            onConfirm: () => document.getElementById(formId).submit()
         });
     }
 

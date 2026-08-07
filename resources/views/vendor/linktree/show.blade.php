@@ -62,29 +62,6 @@
         </div>
     </div>
 
-    {{-- Flash Messages --}}
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000"
-         class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-check-circle text-green-500"></i>
-            <span class="text-green-800 text-sm">{{ session('success') }}</span>
-        </div>
-        <button @click="show = false" class="text-green-500 hover:text-green-700"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div x-data="{ show: true }" x-show="show" x-transition
-         class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-exclamation-circle text-red-500"></i>
-            <span class="text-red-800 text-sm">{{ session('error') }}</span>
-        </div>
-        <button @click="show = false" class="text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Main Content --}}
         <div class="lg:col-span-2 space-y-6">
@@ -393,8 +370,8 @@
                         <i class="fas fa-qrcode mr-1"></i> Generate QR Code
                     </x.ui.button>
                     @endif
-                    <form action="{{ route('vendor.linktree.destroy', $linktree) }}" method="POST"
-                          x-data @submit.prevent="if(confirm('Apakah Anda yakin ingin menghapus linktree ini? Semua link dan social media akan ikut terhapus.')) $el.submit()">
+                    <form id="destroy-linktree-{{ $linktree->id }}" action="{{ route('vendor.linktree.destroy', $linktree) }}" method="POST"
+                          x-data @submit.prevent="confirmFormSubmit('destroy-linktree-{{ $linktree->id }}', { title: 'Hapus Linktree?', text: 'Semua link dan social media akan ikut terhapus.', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                         @csrf
                         @method('DELETE')
                         <x.ui.button type="submit" variant="danger" class="w-full">

@@ -72,6 +72,7 @@ class ProdukController extends Controller
         $rules = [
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
+            'harga_jual' => 'nullable|numeric|min:0',
             'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'spesifikasi' => 'nullable|array',
             'spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
@@ -120,6 +121,7 @@ class ProdukController extends Controller
             'deskripsi' => $request->deskripsi,
             'kategori_id' => $kategori_id,
             'gambar' => $gambars,
+            'harga_jual' => $request->harga_jual ?: null,
         ]);
 
         // Handle specifications
@@ -200,6 +202,7 @@ class ProdukController extends Controller
         $rules = [
             'nama_produk' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
+            'harga_jual' => 'nullable|numeric|min:0',
             'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'spesifikasi' => 'nullable|array',
             'spesifikasi.*.id' => 'nullable|exists:spesifikasi_produks,id',
@@ -282,6 +285,7 @@ class ProdukController extends Controller
         $produk->nama_produk = $request->nama_produk;
         $produk->deskripsi = $request->deskripsi;
         $produk->kategori_id = $kategori_id;
+        $produk->harga_jual = $request->harga_jual ?: null;
         $produk->save();
 
         // Handle specifications
@@ -420,5 +424,37 @@ class ProdukController extends Controller
 
         return redirect()->route('vendor.products.index')
             ->with('toast_success', 'Produk berhasil dihapus!');
+    }
+
+    /**
+     * Bulk update selected products.
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:produks,id',
+            'field' => 'required|in:kategori_id,harga_jual',
+            'value' => 'required',
+        ]);
+
+        $field = $request->field;
+        $value = $request->value;
+
+        if ($field === 'kategori_id') {
+            if (!is_numeric($value) || $value < 1) {
+                return redirect()->back()->with('toast_error', 'Kategori tidak valid.');
+            }
+            $value = (int) $value;
+        } elseif ($field === 'harga_jual') {
+            if (!is_numeric($value) || $value < 0) {
+                return redirect()->back()->with('toast_error', 'Nilai harga harus angka positif.');
+            }
+            $value = (float) $value;
+        }
+
+        $updated = Produk::whereIn('id', $request->ids)->update([$field => $value]);
+
+        return redirect()->back()->with('toast_success', "Berhasil memperbarui {$updated} produk ({$field}).");
     }
 }

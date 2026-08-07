@@ -288,10 +288,13 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
     });
 
     // Product Management
+    Route::post('products/bulk-update', [ProdukController::class, 'bulkUpdate'])->name('products.bulk-update');
     Route::resource('products', ProdukController::class);
     Route::resource('categories', KategoriProdukController::class);
+    Route::post('materials/bulk-update', [BahanController::class, 'bulkUpdate'])->name('materials.bulk-update');
     Route::resource('materials', BahanController::class);
     Route::resource('specifications', SpesifikasiController::class);
+    Route::post('tools/bulk-update', [AlatController::class, 'bulkUpdate'])->name('tools.bulk-update');
     Route::resource('tools', AlatController::class);
 
     // Customer Management

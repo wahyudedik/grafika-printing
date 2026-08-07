@@ -103,7 +103,7 @@
                 <h3 class="text-sm font-semibold text-gray-900">Monthly Revenue Trend</h3>
             </div>
             <div class="p-4">
-                <div id="revenueChart" style="height: 300px;"></div>
+                <canvas id="revenueChart" style="height: 300px;"></canvas>
             </div>
         </div>
 
@@ -113,7 +113,7 @@
                 <h3 class="text-sm font-semibold text-gray-900">Auction Status Distribution</h3>
             </div>
             <div class="p-4">
-                <div id="auctionStatusChart" style="height: 300px;"></div>
+                <canvas id="auctionStatusChart" style="height: 300px;"></canvas>
             </div>
         </div>
     </div>

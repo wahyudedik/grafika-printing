@@ -330,9 +330,8 @@
 
 @push('scripts')
     <script>
-        // Pass data to external script
+        // Pass data to external script (dashboard-charts.js is now imported via Vite in app.js)
         window.popularProductsData = @json($popularProducts);
         window.revenueData = @json($revenueData);
     </script>
-    <script src="{{ asset('js/dashboard-charts.js') }}"></script>
 @endpush

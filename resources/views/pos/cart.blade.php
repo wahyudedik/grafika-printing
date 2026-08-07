@@ -215,7 +215,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading('Menghapus item...');
-                    window.location.href = `{{ route('vendor.pos.removeItem', '') }}/${index}`;
+                    window.location.href = '{{ route('vendor.pos.removeItem', '__ID__') }}'.replace('__ID__', index);
                 }
             });
         }

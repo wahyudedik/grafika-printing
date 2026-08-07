@@ -180,11 +180,7 @@
                 {{ $transactions->links() }}
             </div>
         @else
-            <div class="flex flex-col items-center justify-center py-16 text-center">
-                <i class="fas fa-receipt text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">No transactions found</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">No transactions match your current filters.</p>
-            </div>
+            <x-ui.empty-state icon="fas fa-receipt" title="No transactions found" description="No transactions match your current filters." size="lg" />
         @endif
     </div>
 </div>

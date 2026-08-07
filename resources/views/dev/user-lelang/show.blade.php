@@ -136,12 +136,12 @@
                         </x.ui.button>
 
                         @if(!$profile->is_verified)
-                            <form action="{{ route('admin.user-lelang.verify', $profile) }}" method="POST" class="inline">
-                                @csrf
-                                <x.ui.button type="submit" variant="success" size="sm" onclick="return confirm('Yakin ingin memverifikasi profil ini?')">
-                                    <i class="fas fa-check text-xs"></i> Verifikasi
-                                </x.ui.button>
-                            </form>
+                            <form id="verify-profile-form" action="{{ route('admin.user-lelang.verify', $profile) }}" method="POST" class="inline">
+                                    @csrf
+                                    <x.ui.button type="submit" variant="success" size="sm" onclick="event.preventDefault(); confirmAction({ title: 'Verifikasi Profil', text: 'Yakin ingin memverifikasi profil ini?', icon: 'warning', confirmText: 'Ya, Verifikasi', onConfirm: () => document.getElementById('verify-profile-form').submit() })">
+                                        <i class="fas fa-check text-xs"></i> Verifikasi
+                                    </x.ui.button>
+                                </form>
                         @endif
 
                         @if($profile->isActive())
@@ -149,18 +149,18 @@
                                 <i class="fas fa-ban text-xs"></i> Tangguhkan
                             </x.ui.button>
                         @elseif($profile->isSuspended())
-                            <form action="{{ route('admin.user-lelang.reactivate', $profile) }}" method="POST" class="inline">
+                            <form id="reactivate-profile-form" action="{{ route('admin.user-lelang.reactivate', $profile) }}" method="POST" class="inline">
                                 @csrf
-                                <x.ui.button type="submit" variant="success" size="sm" onclick="return confirm('Yakin ingin mengaktifkan kembali profil ini?')">
+                                <x.ui.button type="submit" variant="success" size="sm" onclick="event.preventDefault(); confirmAction({ title: 'Aktifkan Kembali', text: 'Yakin ingin mengaktifkan kembali profil ini?', icon: 'warning', confirmText: 'Ya, Aktifkan', onConfirm: () => document.getElementById('reactivate-profile-form').submit() })">
                                     <i class="fas fa-check-circle text-xs"></i> Aktifkan Kembali
                                 </x.ui.button>
                             </form>
                         @endif
 
-                        <form action="{{ route('admin.user-lelang.destroy', $profile) }}" method="POST" class="inline">
+                        <form id="delete-profile-form" action="{{ route('admin.user-lelang.destroy', $profile) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')
-                            <x.ui.button type="submit" variant="outline-danger" size="sm" onclick="return confirm('Yakin ingin menghapus profil ini? Tindakan ini tidak dapat dibatalkan.')">
+                            <x.ui.button type="submit" variant="outline-danger" size="sm" onclick="event.preventDefault(); confirmDelete('delete-profile-form')">
                                 <i class="fas fa-trash text-xs"></i> Hapus
                             </x.ui.button>
                         </form>
@@ -333,11 +333,7 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="flex flex-col items-center justify-center py-12 text-center">
-                        <i class="fas fa-gavel text-4xl text-gray-300 dark:text-gray-600 mb-3"></i>
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Belum ada lelang</h4>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">User ini belum membuat lelang apapun.</p>
-                    </div>
+                    <x-ui.empty-state icon="fas fa-gavel" title="Belum ada lelang" description="User ini belum membuat lelang apapun." />
                 @endif
             </div>
         </div>

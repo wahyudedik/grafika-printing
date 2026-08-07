@@ -54,8 +54,8 @@
             </form>
             @endif
             @if($abTest->status === 'completed' && $winner)
-            <form action="{{ route('vendor.linktree.ab-test.apply-winner', [$linktree, $abTest]) }}" method="POST" class="inline"
-                  x-data @submit.prevent="if(confirm('Terapkan template pemenang sebagai template utama?')) $el.submit()">
+            <form id="apply-winner-{{ $abTest->id }}" action="{{ route('vendor.linktree.ab-test.apply-winner', [$linktree, $abTest]) }}" method="POST" class="inline"
+                  x-data @submit.prevent="confirmFormSubmit('apply-winner-{{ $abTest->id }}', { title: 'Terapkan Pemenang?', text: 'Terapkan template pemenang sebagai template utama?', confirmText: 'Ya, Terapkan' })">
                 @csrf
                 <x.ui.button type="submit" variant="success">
                     <i class="fas fa-check mr-1"></i> Terapkan Pemenang
@@ -67,18 +67,6 @@
             </x.ui.button>
         </div>
     </div>
-
-    {{-- Flash Messages --}}
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000"
-         class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-check-circle text-green-500"></i>
-            <span class="text-green-800 text-sm">{{ session('success') }}</span>
-        </div>
-        <button @click="show = false" class="text-green-500 hover:text-green-700"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
 
     {{-- Status & Meta Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -258,8 +246,8 @@
                 <strong>{{ $winner === 'variant_a' ? $statsB['conversion_rate'] : $statsA['conversion_rate'] }}%</strong>
             </p>
             @if($abTest->winner)
-            <form action="{{ route('vendor.linktree.ab-test.apply-winner', [$linktree, $abTest]) }}" method="POST" class="inline"
-                  x-data @submit.prevent="if(confirm('Terapkan template pemenang?')) $el.submit()">
+            <form id="apply-winner-results-{{ $abTest->id }}" action="{{ route('vendor.linktree.ab-test.apply-winner', [$linktree, $abTest]) }}" method="POST" class="inline"
+                  x-data @submit.prevent="confirmFormSubmit('apply-winner-results-{{ $abTest->id }}', { title: 'Terapkan Template Pemenang?', text: 'Terapkan template pemenang?', confirmText: 'Ya, Terapkan' })">
                 @csrf
                 <x.ui.button type="submit" variant="success">
                     <i class="fas fa-check mr-1"></i> Terapkan Template {{ ucfirst($winner === 'variant_a' ? $abTest->variant_a : $abTest->variant_b) }}
@@ -324,8 +312,8 @@
 
             @if($abTest->status !== 'running' && $abTest->status !== 'completed')
             <hr class="my-4 border-gray-200">
-            <form action="{{ route('vendor.linktree.ab-test.destroy', [$linktree, $abTest]) }}" method="POST" class="inline"
-                  x-data @submit.prevent="if(confirm('Hapus A/B test ini? Data tidak bisa dikembalikan.')) $el.submit()">
+            <form id="destroy-abtest-{{ $abTest->id }}" action="{{ route('vendor.linktree.ab-test.destroy', [$linktree, $abTest]) }}" method="POST" class="inline"
+                  x-data @submit.prevent="confirmFormSubmit('destroy-abtest-{{ $abTest->id }}', { title: 'Hapus A/B Test?', text: 'Hapus A/B test ini? Data tidak bisa dikembalikan.', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                 @csrf
                 @method('DELETE')
                 <x.ui.button type="submit" variant="danger" size="sm">

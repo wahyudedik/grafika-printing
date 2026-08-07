@@ -221,14 +221,13 @@
                 </div>
             @endif
         @else
-            <div class="flex flex-col items-center justify-center py-16 text-center">
-                <i class="fas fa-users text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Belum ada User Lelang</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">Tambahkan user lelang baru untuk mulai mengelola peserta lelang.</p>
-                <x.ui.button type="button" variant="primary" href="{{ route('admin.user-lelang.create') }}">
-                    <i class="fas fa-plus text-xs mr-1"></i> Tambah User Lelang
-                </x.ui.button>
-            </div>
+            <x-ui.empty-state icon="fas fa-users" title="Belum ada User Lelang" description="Tambahkan user lelang baru untuk mulai mengelola peserta lelang." size="lg">
+                <x-slot name="actions">
+                    <x.ui.button type="button" variant="primary" href="{{ route('admin.user-lelang.create') }}">
+                        <i class="fas fa-plus text-xs mr-1"></i> Tambah User Lelang
+                    </x.ui.button>
+                </x-slot>
+            </x-ui.empty-state>
         @endif
     </div>
 </div>

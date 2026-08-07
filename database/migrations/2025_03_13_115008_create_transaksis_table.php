@@ -42,7 +42,7 @@ return new class extends Migration
             $table->foreignId('vendor_id')->constrained('vendors')->cascadeOnDelete();
             $table->foreignId('transaksi_item_id')->constrained('transaksi_items')->cascadeOnDelete();
             $table->foreignId('spesifikasi_produk_id')->constrained('spesifikasi_produks')->cascadeOnDelete();
-            $table->foreignId('bahan_id')->constrained('bahans')->cascadeOnDelete();
+            $table->foreignId('bahan_id')->nullable()->constrained('bahans')->cascadeOnDelete();
             $table->string('value');
             $table->string('input_type');
             $table->decimal('price', 10, 2);

@@ -224,4 +224,38 @@ class BahanController extends Controller
         $deleted_ids = explode(',', $request->deleted_wholesale_ids);
         WholesalePrice::whereIn('id', $deleted_ids)->delete();
     }
+
+    /**
+     * Bulk update bahan fields (stok, hpp)
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:bahans,id',
+            'field' => 'required|in:stok,hpp',
+            'value' => 'required',
+        ]);
+
+        $field = $request->field;
+        $value = $request->value;
+
+        // Validate value based on field
+        if ($field === 'stok') {
+            if (!is_numeric($value) || $value < 0) {
+                return redirect()->back()->with('toast_error', 'Nilai stok harus angka positif.');
+            }
+            $value = (int) $value;
+        } elseif ($field === 'hpp') {
+            if (!is_numeric($value) || $value < 0) {
+                return redirect()->back()->with('toast_error', 'Nilai HPP harus angka positif.');
+            }
+            $value = (float) $value;
+        }
+
+        $updated = Bahan::whereIn('id', $request->ids)->update([$field => $value]);
+
+        return redirect()->back()
+            ->with('toast_success', "Berhasil memperbarui {$updated} bahan ({$field}).");
+    }
 }

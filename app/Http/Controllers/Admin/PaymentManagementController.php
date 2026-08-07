@@ -125,12 +125,11 @@ class PaymentManagementController extends Controller
 
                 if ($winningBid) {
                     // Create transaction in vendor's POS system
-                    $auctionToPosService = new \App\Services\AuctionToPosService();
+                    $auctionToPosService = app(\App\Services\AuctionToPosService::class);
                     $transaction = $auctionToPosService->createTransactionFromAuction($auction, $winningBid);
 
-                    // Add funds to vendor wallet
-                    $wallet = \App\Models\VendorWallet::firstOrCreate(['vendor_id' => $winningBid->vendor_id]);
-                    $wallet->increment('balance', (float) $payment->amount);
+                    // NOTE: Wallet funds are managed via escrow system in XenditWebhookController
+                    // Do NOT directly increment wallet balance here — it violates the escrow flow
 
                     Log::info('Payment processed successfully', [
                         'payment_id' => $payment->id,

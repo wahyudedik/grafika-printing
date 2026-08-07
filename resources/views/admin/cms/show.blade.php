@@ -188,7 +188,7 @@
 
         // Toggle setting status
         function toggleSetting(id) {
-            fetch(`{{ route('admin.cms.toggle', '') }}/${id}`, {
+            fetch('{{ route('admin.cms.toggle', '__ID__') }}'.replace('__ID__', id), {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -208,7 +208,7 @@
         // Delete setting
         function deleteSetting(id) {
             if (confirm('Are you sure you want to delete this setting?')) {
-                fetch(`{{ route('admin.cms.destroy', '') }}/${id}`, {
+                fetch('{{ route('admin.cms.destroy', '__ID__') }}'.replace('__ID__', id), {
                         method: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')

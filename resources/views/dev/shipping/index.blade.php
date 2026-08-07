@@ -104,7 +104,8 @@
                     <select name="status" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         <option value="">All Status</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="in_transit" {{ request('status') == 'in_transit' ? 'selected' : '' }}>In Transit</option>
+                        <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Processing</option>
+                        <option value="shipped" {{ request('status') == 'shipped' ? 'selected' : '' }}>Shipped</option>
                         <option value="delivered" {{ request('status') == 'delivered' ? 'selected' : '' }}>Delivered</option>
                         <option value="failed" {{ request('status') == 'failed' ? 'selected' : '' }}>Failed</option>
                     </select>
@@ -181,27 +182,27 @@
                             <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->transaction->kode_transaksi ?? 'N/A' }}</code>
                         </td>
                         <td class="px-4 py-3">
-                            @if($shipping->resi)
-                                <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->resi }}</code>
+                            @if($shipping->waybill_number)
+                                <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->waybill_number }}</code>
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif
                         </td>
                         <td class="px-4 py-3">
-                            @if($shipping->status == 'delivered')
+                            @if($shipping->shipping_status == 'delivered')
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">Delivered</span>
-                            @elseif($shipping->status == 'failed')
+                            @elseif($shipping->shipping_status == 'failed')
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">Failed</span>
-                            @elseif($shipping->status == 'in_transit')
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">In Transit</span>
+                            @elseif($shipping->shipping_status == 'shipped')
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400">Shipped</span>
                             @else
                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">Pending</span>
                             @endif
                         </td>
                         <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $shipping->service ?? 'N/A' }}</td>
                         <td class="px-4 py-3">
-                            @if($shipping->cost)
-                                <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($shipping->cost, 0, ',', '.') }}</span>
+                            @if($shipping->shipping_cost)
+                                <span class="font-medium text-gray-900 dark:text-white">Rp {{ number_format($shipping->shipping_cost, 0, ',', '.') }}</span>
                             @else
                                 <span class="text-gray-400">-</span>
                             @endif
@@ -215,7 +216,7 @@
                                 <x.ui.button type="button" variant="outline-primary" size="xs" href="{{ route('admin.shipping.show', $shipping->id) }}">
                                     <i class="fas fa-eye mr-1"></i> View
                                 </x.ui.button>
-                                @if($shipping->resi)
+                                @if($shipping->waybill_number)
                                     <x.ui.button type="button" variant="outline-info" size="xs" @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))">
                                         <i class="fas fa-map-marker-alt mr-1"></i> Track
                                     </x.ui.button>
@@ -246,12 +247,12 @@
             <div class="flex items-start justify-between mb-3">
                 <div>
                     <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shipping->kode }}</code>
-                    @if($shipping->status == 'delivered')
+                    @if($shipping->shipping_status == 'delivered')
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 ml-2">Delivered</span>
-                    @elseif($shipping->status == 'failed')
+                    @elseif($shipping->shipping_status == 'failed')
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ml-2">Failed</span>
-                    @elseif($shipping->status == 'in_transit')
-                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 ml-2">In Transit</span>
+                    @elseif($shipping->shipping_status == 'shipped')
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 ml-2">Shipped</span>
                     @else
                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ml-2">Pending</span>
                     @endif
@@ -260,14 +261,14 @@
             </div>
             <div class="space-y-1 text-sm">
                 <p class="text-gray-900 dark:text-white font-medium">{{ $shipping->vendor->name ?? 'N/A' }}</p>
-                <p class="text-gray-500 dark:text-gray-400">Resi: <code class="text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ $shipping->resi ?? '-' }}</code></p>
-                <p class="text-gray-500 dark:text-gray-400">Cost: <span class="font-medium text-gray-900 dark:text-white">{{ $shipping->cost ? 'Rp ' . number_format($shipping->cost, 0, ',', '.') : '-' }}</span></p>
+                <p class="text-gray-500 dark:text-gray-400">Resi: <code class="text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">{{ $shipping->waybill_number ?? '-' }}</code></p>
+                <p class="text-gray-500 dark:text-gray-400">Cost: <span class="font-medium text-gray-900 dark:text-white">{{ $shipping->shipping_cost ? 'Rp ' . number_format($shipping->shipping_cost, 0, ',', '.') : '-' }}</span></p>
             </div>
             <div class="flex gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <x.ui.button type="button" variant="outline-primary" size="xs" class="flex-1" href="{{ route('admin.shipping.show', $shipping->id) }}">
                     <i class="fas fa-eye mr-1"></i> View
                 </x.ui.button>
-                @if($shipping->resi)
+                @if($shipping->waybill_number)
                     <x.ui.button type="button" variant="outline-info" size="xs" class="flex-1" @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))">
                         <i class="fas fa-map-marker-alt mr-1"></i> Track
                     </x.ui.button>

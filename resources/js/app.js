@@ -16,3 +16,9 @@ window.Swal = Swal;
 window.ApexCharts = ApexCharts;
 window.Chart = Chart;
 window.Sortable = Sortable;
+
+// Dashboard charts (conditionally renders only when chart elements exist)
+import './dashboard-charts';
+
+// Auth helpers (togglePassword, initPasswordStrength)
+import './auth';

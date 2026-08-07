@@ -27,29 +27,6 @@
         </div>
     </div>
 
-    {{-- Flash Messages --}}
-    @if(session('success'))
-    <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000"
-         class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-check-circle text-green-500"></i>
-            <span class="text-green-800 text-sm">{{ session('success') }}</span>
-        </div>
-        <button @click="show = false" class="text-green-500 hover:text-green-700"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div x-data="{ show: true }" x-show="show" x-transition
-         class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <i class="fas fa-exclamation-circle text-red-500"></i>
-            <span class="text-red-800 text-sm">{{ session('error') }}</span>
-        </div>
-        <button @click="show = false" class="text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button>
-    </div>
-    @endif
-
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Main Content --}}
         <div class="lg:col-span-2 space-y-6">
@@ -189,8 +166,8 @@
                                 <x.ui.button @click="editLink({{ $link->id }}, '{{ addslashes($link->title) }}', '{{ addslashes($link->url) }}', '{{ $link->type }}', {{ $link->is_active ? 'true' : 'false' }})" variant="ghost" size="icon-sm" title="Edit">
                                     <i class="fas fa-pen text-xs"></i>
                                 </x.ui.button>
-                                <form action="{{ route('vendor.linktree.links.destroy', [$linktree, $link]) }}" method="POST" class="inline"
-                                      x-data @submit.prevent="if(confirm('Hapus link ini?')) $el.submit()">
+                                <form id="destroy-link-{{ $link->id }}" action="{{ route('vendor.linktree.links.destroy', [$linktree, $link]) }}" method="POST" class="inline"
+                                      x-data @submit.prevent="confirmFormSubmit('destroy-link-{{ $link->id }}', { title: 'Hapus Link?', text: 'Hapus link ini?', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                                     @csrf
                                     @method('DELETE')
                                     <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus">
@@ -236,8 +213,8 @@
                             <x.ui.button @click="editSocial({{ $social->id }}, '{{ $social->platform }}', '{{ addslashes($social->url) }}', {{ $social->is_active ? 'true' : 'false' }})" variant="ghost" size="icon-sm" title="Edit">
                                 <i class="fas fa-pen text-xs"></i>
                             </x.ui.button>
-                            <form action="{{ route('vendor.linktree.socials.destroy', [$linktree, $social]) }}" method="POST" class="inline"
-                                  x-data @submit.prevent="if(confirm('Hapus social media ini?')) $el.submit()">
+                            <form id="destroy-social-{{ $social->id }}" action="{{ route('vendor.linktree.socials.destroy', [$linktree, $social]) }}" method="POST" class="inline"
+                                  x-data @submit.prevent="confirmFormSubmit('destroy-social-{{ $social->id }}', { title: 'Hapus Social Media?', text: 'Hapus social media ini?', confirmText: 'Ya, Hapus', confirmColor: '#d33' })">
                                 @csrf
                                 @method('DELETE')
                                 <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus">

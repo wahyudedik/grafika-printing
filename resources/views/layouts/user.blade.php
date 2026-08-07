@@ -12,11 +12,11 @@
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-900 antialiased"
-    x-data="{ sidebarOpen: false }"
-    x-init="$store.sidebar = { collapsed: localStorage.getItem('user-sidebar-collapsed') === 'true' }; $watch('$store.sidebar.collapsed', v => localStorage.setItem('user-sidebar-collapsed', v))">
+    x-data
+    x-init="$store.sidebar = { collapsed: localStorage.getItem('user-sidebar-collapsed') === 'true', mobileOpen: false }; $watch('$store.sidebar.collapsed', v => localStorage.setItem('user-sidebar-collapsed', v))">
 
     {{-- ========== SIDEBAR (MOBILE OVERLAY) ========== --}}
-    <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-gray-900/80 lg:hidden" x-cloak></div>
+    <div x-show="$store.sidebar.mobileOpen" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="$store.sidebar.mobileOpen = false" class="fixed inset-0 z-40 bg-gray-900/80 lg:hidden" x-cloak></div>
 
     {{-- ========== SIDEBAR NAVIGATION ========== --}}
     @php
@@ -49,7 +49,7 @@
     <div class="lg:pl-64 transition-all duration-300" :class="$store.sidebar.collapsed ? 'lg:pl-[72px]' : 'lg:pl-64'">
         <header class="sticky top-0 z-30 flex items-center h-16 px-4 bg-white border-b border-gray-200 sm:px-6 lg:px-8 print:hidden">
             {{-- Mobile hamburger --}}
-            <button @click="sidebarOpen = !sidebarOpen" class="p-2 -ml-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <button @click="$store.sidebar.mobileOpen = !$store.sidebar.mobileOpen" class="p-2 -ml-2 text-gray-500 rounded-lg lg:hidden hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
 

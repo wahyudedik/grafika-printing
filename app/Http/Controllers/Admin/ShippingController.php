@@ -18,9 +18,9 @@ class ShippingController extends Controller
     {
         $query = ShippingInvoice::with(['transaction', 'vendor']);
 
-        // Filter by status
+        // Filter by shipping_status
         if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+            $query->where('shipping_status', $request->status);
         }
 
         // Filter by vendor
@@ -42,7 +42,7 @@ class ShippingController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('kode', 'like', "%{$search}%")
-                    ->orWhere('resi', 'like', "%{$search}%")
+                        ->orWhere('waybill_number', 'like', "%{$search}%")
                     ->orWhereHas('transaction', function ($transactionQuery) use ($search) {
                         $transactionQuery->where('kode_transaksi', 'like', "%{$search}%");
                     })
@@ -57,10 +57,10 @@ class ShippingController extends Controller
         // Statistics
         $stats = [
             'total_shipments' => ShippingInvoice::count(),
-            'pending_shipments' => ShippingInvoice::where('status', 'pending')->count(),
-            'in_transit' => ShippingInvoice::where('status', 'in_transit')->count(),
-            'delivered' => ShippingInvoice::where('status', 'delivered')->count(),
-            'failed' => ShippingInvoice::where('status', 'failed')->count(),
+            'pending_shipments' => ShippingInvoice::where('shipping_status', 'pending')->count(),
+            'in_transit' => ShippingInvoice::where('shipping_status', 'shipped')->count(),
+            'delivered' => ShippingInvoice::where('shipping_status', 'delivered')->count(),
+            'failed' => ShippingInvoice::where('shipping_status', 'failed')->count(),
             'today_shipments' => ShippingInvoice::whereDate('created_at', today())->count()
         ];
 
@@ -94,7 +94,7 @@ class ShippingController extends Controller
             // Update status based on tracking result
             if ($trackingResult['success']) {
                 $shippingInvoice->update([
-                    'status' => $trackingResult['status'],
+                    'shipping_status' => $trackingResult['status'],
                     'tracking_data' => $trackingResult['data']
                 ]);
             }
@@ -117,14 +117,14 @@ class ShippingController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,in_transit,delivered,failed',
+            'status' => 'required|in:pending,processing,shipped,delivered,failed',
             'notes' => 'nullable|string|max:500'
         ]);
 
         $shippingInvoice = ShippingInvoice::findOrFail($id);
 
         $shippingInvoice->update([
-            'status' => $request->status,
+            'shipping_status' => $request->status,
             'notes' => $request->notes,
             'updated_at' => now()
         ]);
@@ -139,9 +139,9 @@ class ShippingController extends Controller
     {
         $query = ShippingInvoice::with(['transaction', 'vendor']);
 
-        // Filter by status
+        // Filter by shipping_status
         if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+            $query->where('shipping_status', $request->status);
         }
 
         // Filter by vendor
@@ -163,7 +163,7 @@ class ShippingController extends Controller
 
         // Apply same filters as index
         if ($request->has('status') && $request->status !== '') {
-            $query->where('status', $request->status);
+            $query->where('shipping_status', $request->status);
         }
 
         if ($request->has('vendor_id') && $request->vendor_id !== '') {
@@ -211,9 +211,9 @@ class ShippingController extends Controller
                     $invoice->vendor->name ?? 'N/A',
                     $invoice->transaction->kode_transaksi ?? 'N/A',
                     $invoice->resi ?? 'N/A',
-                    $invoice->status,
+                    $invoice->shipping_status,
                     $invoice->service,
-                    $invoice->cost,
+                    $invoice->shipping_cost,
                     $invoice->created_at->format('Y-m-d H:i:s'),
                     $invoice->updated_at->format('Y-m-d H:i:s')
                 ]);

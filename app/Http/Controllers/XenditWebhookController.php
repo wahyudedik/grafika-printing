@@ -28,9 +28,9 @@ class XenditWebhookController extends Controller
         try {
             // Log incoming webhook for debugging
             Log::info('Xendit webhook received', [
-                'headers' => $request->headers->all(),
-                'body' => $request->getContent(),
-                'ip' => $request->ip()
+                'method' => $request->method(),
+                'ip' => $request->ip(),
+                'content_type' => $request->header('Content-Type'),
             ]);
 
             // Verify webhook signature

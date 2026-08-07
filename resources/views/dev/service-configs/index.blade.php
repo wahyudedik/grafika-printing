@@ -11,11 +11,11 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pengaturan API Pihak Ketiga</p>
         </div>
         <div class="flex items-center gap-2">
-            <x.ui.button href="{{ route('admin.service-configs.seed-defaults') }}" variant="outline-primary" onclick="return confirm('Import config default dari .env? Config yang sudah ada tidak akan ditimpa.')">
+            <x.ui.button href="{{ route('admin.service-configs.seed-defaults') }}" variant="outline-primary" onclick="event.preventDefault(); confirmAction({ title: 'Import Config Default', text: 'Import config default dari .env? Config yang sudah ada tidak akan ditimpa.', icon: 'question', confirmText: 'Ya, Import', onConfirm: () => window.location.href = '{{ route('admin.service-configs.seed-defaults') }}' })">
                 <i class="fas fa-file-import mr-1"></i>
                 <span>Import dari .env</span>
             </x.ui.button>
-            <x.ui.button href="{{ route('admin.service-configs.clear-cache') }}" variant="outline-warning" onclick="return confirm('Bersihkan semua cache config?')">
+            <x.ui.button href="{{ route('admin.service-configs.clear-cache') }}" variant="outline-warning" onclick="event.preventDefault(); confirmAction({ title: 'Clear Cache', text: 'Bersihkan semua cache config?', icon: 'question', confirmText: 'Ya, Bersihkan', onConfirm: () => window.location.href = '{{ route('admin.service-configs.clear-cache') }}' })">
                 <i class="fas fa-broom mr-1"></i>
                 <span>Clear Cache</span>
             </x.ui.button>
@@ -24,45 +24,15 @@
 
     {{-- Flash Messages --}}
     @if(session('success'))
-        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-check text-emerald-600 dark:text-emerald-400"></i>
-                </div>
-                <div class="flex-1 text-sm text-emerald-800 dark:text-emerald-200">{{ session('success') }}</div>
-                <button @click="show = false" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
+        <x-ui.alert type="success" :dismissible="true">{{ session('success') }}</x-ui.alert>
     @endif
 
     @if(session('error'))
-        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400"></i>
-                </div>
-                <div class="flex-1 text-sm text-red-800 dark:text-red-200">{{ session('error') }}</div>
-                <button @click="show = false" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
+        <x-ui.alert type="danger" :dismissible="true">{{ session('error') }}</x-ui.alert>
     @endif
 
     @if(session('info'))
-        <div x-data="{ show: true }" x-show="show" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-xl p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-info-circle text-sky-600 dark:text-sky-400"></i>
-                </div>
-                <div class="flex-1 text-sm text-sky-800 dark:text-sky-200">{{ session('info') }}</div>
-                <button @click="show = false" class="text-sky-600 dark:text-sky-400 hover:text-sky-800 dark:hover:text-sky-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
+        <x-ui.alert type="info" :dismissible="true">{{ session('info') }}</x-ui.alert>
     @endif
 
     {{-- Statistics Cards --}}

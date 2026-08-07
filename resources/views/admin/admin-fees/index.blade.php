@@ -114,9 +114,9 @@
                                                     <i class="fa-solid fa-toggle-{{ $setting->is_active ? 'on' : 'off' }} text-sm text-{{ $setting->is_active ? 'red' : 'green' }}-600"></i>
                                                 </x-ui.button>
                                             </form>
-                                            <form action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline">
+                                            <form id="delete-admin-fee-{{ $setting->id }}-form" action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline">
                                                 @csrf @method('DELETE')
-                                                <x-ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus" onclick="return confirm('Hapus pengaturan ini?')">
+                                                <x-ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus" onclick="event.preventDefault(); confirmDelete('delete-admin-fee-{{ $setting->id }}-form')">
                                                     <i class="fa-solid fa-trash text-sm text-red-600"></i>
                                                 </x-ui.button>
                                             </form>

@@ -161,25 +161,5 @@
         @endif
     </div>
 
-    @push('scripts')
-        <script>
-            function confirmDelete(formId) {
-                Swal.fire({
-                    title: 'Anda yakin?',
-                    text: "Data yang dihapus tidak dapat dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        showLoading('Menghapus...');
-                        document.getElementById(formId).submit();
-                    }
-                });
-            }
-        </script>
-    @endpush
+    {{-- confirmDelete(formId) is now globally available via components/alert.blade.php --}}
 @endsection
