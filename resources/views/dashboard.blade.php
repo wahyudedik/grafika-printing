@@ -329,7 +329,6 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         // Pass data to external script
         window.popularProductsData = @json($popularProducts);

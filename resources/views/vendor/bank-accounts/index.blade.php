@@ -71,18 +71,18 @@
                             </div>
                         </div>
                         <div class="mt-4 flex gap-2">
-                            <a href="{{ route('vendor.bank-accounts.edit', 'primary') }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <button @click="deleteType = 'primary'; showDeleteModal = true" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
+                            <x.ui.button href="{{ route('vendor.bank-accounts.edit', 'primary') }}" variant="primary" size="sm">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </x.ui.button>
+                            <x.ui.button @click="deleteType = 'primary'; showDeleteModal = true" variant="danger" size="sm">
+                                <i class="fas fa-trash mr-1"></i> Hapus
+                            </x.ui.button>
                         </div>
                     @else
                         <p class="text-gray-500 mb-3">Belum ada rekening utama yang terdaftar.</p>
-                        <a href="{{ route('vendor.bank-accounts.create') }}?type=primary" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">
-                            <i class="fas fa-plus"></i> Tambah Rekening Utama
-                        </a>
+                        <x.ui.button href="{{ route('vendor.bank-accounts.create') }}?type=primary" variant="primary">
+                            <i class="fas fa-plus mr-2"></i> Tambah Rekening Utama
+                        </x.ui.button>
                     @endif
                 </div>
             </div>
@@ -120,18 +120,18 @@
                             </div>
                         </div>
                         <div class="mt-4 flex gap-2">
-                            <a href="{{ route('vendor.bank-accounts.edit', 'secondary') }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <button @click="deleteType = 'secondary'; showDeleteModal = true" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
+                            <x.ui.button href="{{ route('vendor.bank-accounts.edit', 'secondary') }}" variant="info" size="sm">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </x.ui.button>
+                            <x.ui.button @click="deleteType = 'secondary'; showDeleteModal = true" variant="danger" size="sm">
+                                <i class="fas fa-trash mr-1"></i> Hapus
+                            </x.ui.button>
                         </div>
                     @else
                         <p class="text-gray-500 mb-3">Belum ada rekening cadangan yang terdaftar.</p>
-                        <a href="{{ route('vendor.bank-accounts.create') }}?type=secondary" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
-                            <i class="fas fa-plus"></i> Tambah Rekening Cadangan
-                        </a>
+                        <x.ui.button href="{{ route('vendor.bank-accounts.create') }}?type=secondary" variant="info">
+                            <i class="fas fa-plus mr-2"></i> Tambah Rekening Cadangan
+                        </x.ui.button>
                     @endif
                 </div>
             </div>
@@ -168,18 +168,18 @@
                             </div>
                         </div>
                         <div class="mt-4 flex gap-2">
-                            <a href="{{ route('vendor.bank-accounts.edit', 'ewallet') }}" class="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <button @click="deleteType = 'ewallet'; showDeleteModal = true" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
+                            <x.ui.button href="{{ route('vendor.bank-accounts.edit', 'ewallet') }}" variant="warning" size="sm">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </x.ui.button>
+                            <x.ui.button @click="deleteType = 'ewallet'; showDeleteModal = true" variant="danger" size="sm">
+                                <i class="fas fa-trash mr-1"></i> Hapus
+                            </x.ui.button>
                         </div>
                     @else
                         <p class="text-gray-500 mb-3">Belum ada e-wallet yang terdaftar.</p>
-                        <a href="{{ route('vendor.bank-accounts.create') }}?type=ewallet" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium text-sm">
-                            <i class="fas fa-plus"></i> Tambah E-Wallet
-                        </a>
+                        <x.ui.button href="{{ route('vendor.bank-accounts.create') }}?type=ewallet" variant="warning">
+                            <i class="fas fa-plus mr-2"></i> Tambah E-Wallet
+                        </x.ui.button>
                     @endif
                 </div>
             </div>
@@ -230,11 +230,11 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Konfirmasi Hapus</h3>
                     <p class="text-gray-500 mb-6">Apakah Anda yakin ingin menghapus detail rekening ini?</p>
                     <div class="flex gap-3 justify-center">
-                        <button @click="showDeleteModal = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">Batal</button>
+                        <x.ui.button @click="showDeleteModal = false" variant="outline">Batal</x.ui.button>
                         <form :action="`{{ route('vendor.bank-accounts.destroy', '') }}/${deleteType}`" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">Hapus</button>
+                            <x.ui.button type="submit" variant="danger">Hapus</x.ui.button>
                         </form>
                     </div>
                 </div>

@@ -8,10 +8,9 @@
         <p class="text-xs font-medium text-primary-600 uppercase tracking-wider mb-1">Vendor Panel</p>
         <h1 class="text-2xl font-bold text-gray-900">Detail Penarikan Wallet</h1>
     </div>
-    <a href="{{ route('vendor.wallet.withdrawals') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    <x.ui.button href="{{ route('vendor.wallet.withdrawals') }}" variant="outline" icon="fa-arrow-left">
         Kembali
-    </a>
+    </x.ui.button>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -24,9 +23,9 @@
                 <form action="{{ route('vendor.wallet.cancel-withdrawal', $withdrawal) }}" method="POST" class="inline"
                       x-data x-submit="if(!confirm('Apakah Anda yakin ingin membatalkan penarikan ini?')) $event.preventDefault()">
                     @csrf
-                    <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                    <x.ui.button type="submit" variant="outline-danger" size="xs">
                         Batalkan
-                    </button>
+                    </x.ui.button>
                 </form>
                 @endif
             </div>

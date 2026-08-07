@@ -11,14 +11,14 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pengaturan API Pihak Ketiga</p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.service-configs.seed-defaults') }}" onclick="return confirm('Import config default dari .env? Config yang sudah ada tidak akan ditimpa.')" class="inline-flex items-center gap-2 px-4 py-2 border border-primary-300 dark:border-primary-600 text-primary-700 dark:text-primary-300 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-sm font-medium">
-                <i class="fas fa-file-import"></i>
+            <x.ui.button href="{{ route('admin.service-configs.seed-defaults') }}" variant="outline-primary" onclick="return confirm('Import config default dari .env? Config yang sudah ada tidak akan ditimpa.')">
+                <i class="fas fa-file-import mr-1"></i>
                 <span>Import dari .env</span>
-            </a>
-            <a href="{{ route('admin.service-configs.clear-cache') }}" onclick="return confirm('Bersihkan semua cache config?')" class="inline-flex items-center gap-2 px-4 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors text-sm font-medium">
-                <i class="fas fa-broom"></i>
+            </x.ui.button>
+            <x.ui.button href="{{ route('admin.service-configs.clear-cache') }}" variant="outline-warning" onclick="return confirm('Bersihkan semua cache config?')">
+                <i class="fas fa-broom mr-1"></i>
                 <span>Clear Cache</span>
-            </a>
+            </x.ui.button>
         </div>
     </div>
 
@@ -100,15 +100,15 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button @click="testConnection('{{ $serviceKey }}')" :disabled="testing === '{{ $serviceKey }}'" class="inline-flex items-center gap-1.5 px-3 py-1.5 border border-emerald-300 dark:border-emerald-600 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-xs font-medium transition-colors disabled:opacity-50">
-                            <i x-show="testing !== '{{ $serviceKey }}'" class="fas fa-plug"></i>
-                            <svg x-show="testing === '{{ $serviceKey }}'" class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <x.ui.button type="button" variant="outline-success" size="sm" @click="testConnection('{{ $serviceKey }}')" :disabled="testing === '{{ $serviceKey }}'">
+                            <i x-show="testing !== '{{ $serviceKey }}'" class="fas fa-plug mr-1"></i>
+                            <svg x-show="testing === '{{ $serviceKey }}'" class="animate-spin h-3 w-3 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             Test
-                        </button>
-                        <a href="{{ route('admin.service-configs.show', $serviceKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-xs font-medium transition-colors">
+                        </x.ui.button>
+                        <x.ui.button href="{{ route('admin.service-configs.show', $serviceKey) }}" variant="primary" size="sm">
                             Kelola
-                            <i class="fas fa-chevron-right text-[10px]"></i>
-                        </a>
+                            <i class="fas fa-chevron-right text-[10px] ml-1"></i>
+                        </x.ui.button>
                     </div>
                 </div>
                 <div class="p-5">
@@ -159,7 +159,7 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400" x-text="testMessage"></p>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl">
-                    <button @click="showTestModal = false" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium transition-colors">Tutup</button>
+                    <x.ui.button type="button" variant="outline" @click="showTestModal = false" class="w-full">Tutup</x.ui.button>
                 </div>
             </div>
         </div>

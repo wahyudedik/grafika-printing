@@ -11,10 +11,10 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $wallet->vendor->name ?? 'N/A' }}</p>
         </div>
         <div>
-            <a href="{{ route('admin.wallets.show', $wallet->id) }}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
-                <i class="fas fa-arrow-right text-xs"></i>
+            <x.ui.button href="{{ route('admin.wallets.show', $wallet->id) }}" variant="outline">
+                <i class="fas fa-arrow-right text-xs mr-1"></i>
                 Back to Wallet
-            </a>
+            </x.ui.button>
         </div>
     </div>
 
@@ -66,13 +66,13 @@
                     <input type="date" name="date_to" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-500 focus:ring-primary-500" value="{{ request('date_to') }}">
                 </div>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors">
-                        <i class="fas fa-filter text-xs"></i>
+                    <x.ui.button type="submit" variant="primary">
+                        <i class="fas fa-filter text-xs mr-1"></i>
                         Filter
-                    </button>
-                    <a href="{{ route('admin.wallets.transactions', $wallet->id) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors">
+                    </x.ui.button>
+                    <x.ui.button href="{{ route('admin.wallets.transactions', $wallet->id) }}" variant="secondary">
                         Reset
-                    </a>
+                    </x.ui.button>
                 </div>
             </div>
         </form>

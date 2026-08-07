@@ -7,9 +7,9 @@
         <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <i class="fas fa-chart-bar text-gray-400"></i>CMS Statistics
         </h1>
-        <a href="{{ route('admin.cms.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-            <i class="fas fa-arrow-left mr-1"></i>Back to CMS
-        </a>
+        <x-ui.button variant="outline" :href="route('admin.cms.index')">
+            <i class="fas fa-arrow-left mr-2"></i>Back to CMS
+        </x-ui.button>
     </div>
 
     @php
@@ -112,7 +112,6 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Category Chart
         const categoryCtx = document.getElementById('categoryChart').getContext('2d');

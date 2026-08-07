@@ -55,7 +55,7 @@
                                 <td class="py-3 px-4">{{ $tracking->tracking_number ?? '-' }}</td>
                                 <td class="py-3 px-4 text-gray-500">{{ $tracking->created_at->format('d M Y') }}</td>
                                 <td class="py-3 px-4">
-                                    <button @click="open = !open" class="px-3 py-1 bg-primary-600 text-white rounded-lg text-xs font-medium hover:bg-primary-700 transition-colors">Update</button>
+                                    <x.ui.button @click="open = !open" variant="primary" size="sm">Update</x.ui.button>
                                 </td>
                             </tr>
 
@@ -92,8 +92,8 @@
                                         </div>
                                         <div class="flex gap-2">
                                             <input type="text" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" name="notes" placeholder="Catatan tambahan" value="{{ $tracking->notes }}">
-                                            <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">Simpan</button>
-                                            <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Batal</button>
+                                            <x.ui.button type="submit" variant="primary" size="sm">Simpan</x.ui.button>
+                                            <x.ui.button @click="open = false" variant="outline" size="sm">Batal</x.ui.button>
                                         </div>
                                     </form>
                                 </td>

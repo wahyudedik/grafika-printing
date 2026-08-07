@@ -86,9 +86,9 @@
                         @endif
                     </ul>
                     <div class="mt-3">
-                        <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-lg hover:bg-amber-700 transition-colors">
-                            <i class="fas fa-cog text-xs"></i> Manage Payment Issues
-                        </a>
+                        <x.ui.button type="button" variant="warning" href="{{ route('admin.payments.index') }}">
+                            <i class="fas fa-cog mr-1"></i> Manage Payment Issues
+                        </x.ui.button>
                     </div>
                 </div>
             </div>
@@ -146,9 +146,9 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
-                    <i class="fas fa-cog text-xs"></i> Manage All Issues
-                </a>
+                <x.ui.button type="button" variant="primary" href="{{ route('admin.payments.index') }}">
+                    <i class="fas fa-cog mr-1"></i> Manage All Issues
+                </x.ui.button>
             </div>
         </div>
 
@@ -223,7 +223,6 @@
 @endsection
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Revenue Chart

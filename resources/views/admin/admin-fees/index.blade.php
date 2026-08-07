@@ -9,10 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Pengaturan</p>
             <h1 class="text-2xl font-bold text-gray-900">Biaya Admin</h1>
         </div>
-        <a href="{{ route('admin.admin-fees.create') }}"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
-            <i class="fa-solid fa-plus"></i> Tambah Pengaturan
-        </a>
+        <x-ui.button variant="primary" :href="route('admin.admin-fees.create')">
+            <i class="fa-solid fa-plus mr-2"></i> Tambah Pengaturan
+        </x-ui.button>
     </div>
 
     {{-- Success Message --}}
@@ -34,22 +33,18 @@
         <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <h3 class="text-lg font-semibold text-gray-900">Daftar Pengaturan Biaya Admin</h3>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('admin.admin-fees.preview') }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                    <i class="fa-solid fa-magnifying-glass"></i> Preview Biaya
-                </a>
-                <a href="{{ route('admin.admin-fees.transactions') }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-cyan-700 bg-cyan-50 rounded-lg hover:bg-cyan-100 transition-colors">
-                    <i class="fa-solid fa-clock-rotate-left"></i> Transaksi
-                </a>
-                <a href="{{ route('admin.admin-fees.statistics') }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                    <i class="fa-solid fa-chart-line"></i> Statistik
-                </a>
-                <a href="{{ route('admin.admin-fees.create') }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
-                    <i class="fa-solid fa-plus"></i> Tambah
-                </a>
+                <x-ui.button variant="outline-info" :href="route('admin.admin-fees.preview')" size="sm">
+                    <i class="fa-solid fa-magnifying-glass mr-1.5"></i> Preview Biaya
+                </x-ui.button>
+                <x-ui.button variant="info" :href="route('admin.admin-fees.transactions')" size="sm">
+                    <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Transaksi
+                </x-ui.button>
+                <x-ui.button variant="success" :href="route('admin.admin-fees.statistics')" size="sm">
+                    <i class="fa-solid fa-chart-line mr-1.5"></i> Statistik
+                </x-ui.button>
+                <x-ui.button variant="primary" :href="route('admin.admin-fees.create')" size="sm">
+                    <i class="fa-solid fa-plus mr-1.5"></i> Tambah
+                </x-ui.button>
             </div>
         </div>
 
@@ -107,19 +102,23 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <div class="flex items-center justify-end gap-1">
-                                            <a href="{{ route('admin.admin-fees.show', $setting) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Lihat"><i class="fa-solid fa-eye text-sm"></i></a>
-                                            <a href="{{ route('admin.admin-fees.edit', $setting) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg" title="Edit"><i class="fa-solid fa-pen text-sm"></i></a>
+                                            <x-ui.button variant="ghost" :href="route('admin.admin-fees.show', $setting)" size="icon-sm" title="Lihat">
+                                                <i class="fa-solid fa-eye text-sm"></i>
+                                            </x-ui.button>
+                                            <x-ui.button variant="ghost" :href="route('admin.admin-fees.edit', $setting)" size="icon-sm" title="Edit">
+                                                <i class="fa-solid fa-pen text-sm"></i>
+                                            </x-ui.button>
                                             <form action="{{ route('admin.admin-fees.toggle', $setting) }}" method="POST" class="inline">
                                                 @csrf @method('PATCH')
-                                                <button type="submit" class="p-2 text-{{ $setting->is_active ? 'red' : 'green' }}-600 hover:bg-{{ $setting->is_active ? 'red' : 'green' }}-50 rounded-lg" title="{{ $setting->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
-                                                    <i class="fa-solid fa-toggle-{{ $setting->is_active ? 'on' : 'off' }} text-sm"></i>
-                                                </button>
+                                                <x-ui.button type="submit" variant="ghost" size="icon-sm" title="{{ $setting->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                                    <i class="fa-solid fa-toggle-{{ $setting->is_active ? 'on' : 'off' }} text-sm text-{{ $setting->is_active ? 'red' : 'green' }}-600"></i>
+                                                </x-ui.button>
                                             </form>
                                             <form action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus" onclick="return confirm('Hapus pengaturan ini?')">
-                                                    <i class="fa-solid fa-trash text-sm"></i>
-                                                </button>
+                                                <x-ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus" onclick="return confirm('Hapus pengaturan ini?')">
+                                                    <i class="fa-solid fa-trash text-sm text-red-600"></i>
+                                                </x-ui.button>
                                             </form>
                                         </div>
                                     </td>
@@ -133,9 +132,9 @@
                     <i class="fa-solid fa-coins text-gray-300 text-5xl mb-4"></i>
                     <p class="text-lg font-medium text-gray-900 mb-1">Belum ada pengaturan biaya admin</p>
                     <p class="text-sm text-gray-500 mb-4">Mulai dengan membuat pengaturan biaya admin pertama Anda.</p>
-                    <a href="{{ route('admin.admin-fees.create') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
-                        <i class="fa-solid fa-plus"></i> Tambah Pengaturan
-                    </a>
+                    <x-ui.button variant="primary" :href="route('admin.admin-fees.create')">
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Pengaturan
+                    </x-ui.button>
                 </div>
             @endif
         </div>

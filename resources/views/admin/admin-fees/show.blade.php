@@ -10,14 +10,12 @@
             <h1 class="text-2xl font-bold text-gray-900">Detail Pengaturan Biaya Admin</h1>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('admin.admin-fees.index') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Kembali
-            </a>
-            <a href="{{ route('admin.admin-fees.edit', $adminFee) }}"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors">
-                <i class="fa-solid fa-pen"></i> Edit
-            </a>
+            <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+            </x-ui.button>
+            <x-ui.button variant="warning" :href="route('admin.admin-fees.edit', $adminFee)">
+                <i class="fa-solid fa-pen mr-2"></i> Edit
+            </x-ui.button>
         </div>
     </div>
 
@@ -144,18 +142,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <form action="{{ route('admin.admin-fees.toggle', $adminFee) }}" method="POST">
                         @csrf @method('PATCH')
-                        <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors {{ $adminFee->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }}"
+                        <x-ui.button type="submit" :variant="$adminFee->is_active ? 'danger' : 'success'" class="w-full"
                             onclick="return confirm('{{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }} pengaturan ini?')">
                             <i class="fa-solid fa-toggle-{{ $adminFee->is_active ? 'on' : 'off' }} mr-2"></i>
                             {{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                        </button>
+                        </x-ui.button>
                     </form>
                     <form action="{{ route('admin.admin-fees.destroy', $adminFee) }}" method="POST">
                         @csrf @method('DELETE')
-                        <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                        <x-ui.button type="submit" variant="danger" class="w-full"
                             onclick="return confirm('Hapus pengaturan ini? Tindakan ini tidak dapat dibatalkan.')">
                             <i class="fa-solid fa-trash mr-2"></i> Hapus Pengaturan
-                        </button>
+                        </x-ui.button>
                     </form>
                 </div>
             </div>

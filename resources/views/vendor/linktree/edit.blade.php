@@ -13,16 +13,16 @@
         </div>
         <div class="flex items-center gap-2">
             @if($linktree->is_active)
-            <a href="{{ route('linktree.public', $linktree->custom_url) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition">
+            <x.ui.button href="{{ route('linktree.public', $linktree->custom_url) }}" variant="info" size="sm" target="_blank">
                 <i class="fas fa-eye"></i> Lihat Publik
-            </a>
+            </x.ui.button>
             @endif
             <form action="{{ route('vendor.linktree.toggle-active', $linktree) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white {{ $linktree->is_active ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-600 hover:bg-green-700' }} rounded-lg transition">
+                <x.ui.button type="submit" variant="{{ $linktree->is_active ? 'warning' : 'success' }}" size="sm">
                     <i class="fas fa-{{ $linktree->is_active ? 'pause' : 'play' }}"></i>
                     {{ $linktree->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                </button>
+                </x.ui.button>
             </form>
         </div>
     </div>
@@ -144,12 +144,12 @@
                         </div>
                     </div>
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center gap-3">
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                            <i class="fas fa-save"></i> Simpan Pengaturan
-                        </button>
-                        <button type="button" @click="showDeleteModal = true" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition">
-                            <i class="fas fa-trash"></i> Hapus Linktree
-                        </button>
+                        <x.ui.button type="submit">
+                            <i class="fas fa-save mr-1"></i> Simpan Pengaturan
+                        </x.ui.button>
+                        <x.ui.button type="button" @click="showDeleteModal = true" variant="danger">
+                            <i class="fas fa-trash mr-1"></i> Hapus Linktree
+                        </x.ui.button>
                     </div>
                 </form>
             </div>
@@ -160,9 +160,9 @@
                     <h2 class="font-semibold text-gray-900 flex items-center gap-2">
                         <i class="fas fa-link text-gray-400"></i> Links ({{ $linktree->links->count() }})
                     </h2>
-                    <button @click="showAddLinkModal = true" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                        <i class="fas fa-plus"></i> Tambah Link
-                    </button>
+                    <x.ui.button @click="showAddLinkModal = true" variant="primary" size="sm">
+                        <i class="fas fa-plus mr-1"></i> Tambah Link
+                    </x.ui.button>
                 </div>
                 <div class="divide-y divide-gray-100">
                     @if($linktree->links->isEmpty())
@@ -186,17 +186,16 @@
                             </span>
                             <span class="text-xs text-gray-400 hidden sm:inline">{{ number_format($link->clicks_count) }} clicks</span>
                             <div class="flex items-center gap-1">
-                                <button @click="editLink({{ $link->id }}, '{{ addslashes($link->title) }}', '{{ addslashes($link->url) }}', '{{ $link->type }}', {{ $link->is_active ? 'true' : 'false' }})"
-                                        class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                                <x.ui.button @click="editLink({{ $link->id }}, '{{ addslashes($link->title) }}', '{{ addslashes($link->url) }}', '{{ $link->type }}', {{ $link->is_active ? 'true' : 'false' }})" variant="ghost" size="icon-sm" title="Edit">
                                     <i class="fas fa-pen text-xs"></i>
-                                </button>
+                                </x.ui.button>
                                 <form action="{{ route('vendor.linktree.links.destroy', [$linktree, $link]) }}" method="POST" class="inline"
                                       x-data @submit.prevent="if(confirm('Hapus link ini?')) $el.submit()">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus">
+                                    <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus">
                                         <i class="fas fa-trash text-xs"></i>
-                                    </button>
+                                    </x.ui.button>
                                 </form>
                             </div>
                         </div>
@@ -212,9 +211,9 @@
                     <h2 class="font-semibold text-gray-900 flex items-center gap-2">
                         <i class="fas fa-share-alt text-gray-400"></i> Social Media ({{ $linktree->socials->count() }})
                     </h2>
-                    <button @click="showAddSocialModal = true" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                        <i class="fas fa-plus"></i> Tambah Social
-                    </button>
+                    <x.ui.button @click="showAddSocialModal = true" variant="primary" size="sm">
+                        <i class="fas fa-plus mr-1"></i> Tambah Social
+                    </x.ui.button>
                 </div>
                 <div class="divide-y divide-gray-100">
                     @if($linktree->socials->isEmpty())
@@ -234,17 +233,16 @@
                             {{ $social->is_active ? 'Aktif' : 'Nonaktif' }}
                         </span>
                         <div class="flex items-center gap-1">
-                            <button @click="editSocial({{ $social->id }}, '{{ $social->platform }}', '{{ addslashes($social->url) }}', {{ $social->is_active ? 'true' : 'false' }})"
-                                    class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Edit">
+                            <x.ui.button @click="editSocial({{ $social->id }}, '{{ $social->platform }}', '{{ addslashes($social->url) }}', {{ $social->is_active ? 'true' : 'false' }})" variant="ghost" size="icon-sm" title="Edit">
                                 <i class="fas fa-pen text-xs"></i>
-                            </button>
+                            </x.ui.button>
                             <form action="{{ route('vendor.linktree.socials.destroy', [$linktree, $social]) }}" method="POST" class="inline"
                                   x-data @submit.prevent="if(confirm('Hapus social media ini?')) $el.submit()">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Hapus">
+                                <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus">
                                     <i class="fas fa-trash text-xs"></i>
-                                </button>
+                                </x.ui.button>
                             </form>
                         </div>
                     </div>
@@ -277,9 +275,9 @@
                             <form action="{{ route('vendor.linktree.upload-avatar', $linktree) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="file" name="avatar" accept="image/*" class="hidden" id="avatar-input" onchange="this.form.submit()">
-                                <button type="button" onclick="document.getElementById('avatar-input').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition">
-                                    <i class="fas fa-upload"></i> Upload Avatar
-                                </button>
+                                <x.ui.button type="button" onclick="document.getElementById('avatar-input').click()" variant="outline-primary" size="sm">
+                                    <i class="fas fa-upload mr-1"></i> Upload Avatar
+                                </x.ui.button>
                             </form>
                         </div>
 
@@ -298,9 +296,9 @@
                             <form action="{{ route('vendor.linktree.upload-banner', $linktree) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="file" name="banner" accept="image/*" class="hidden" id="banner-input" onchange="this.form.submit()">
-                                <button type="button" onclick="document.getElementById('banner-input').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition">
-                                    <i class="fas fa-upload"></i> Upload Banner
-                                </button>
+                                <x.ui.button type="button" onclick="document.getElementById('banner-input').click()" variant="outline-primary" size="sm">
+                                    <i class="fas fa-upload mr-1"></i> Upload Banner
+                                </x.ui.button>
                             </form>
                         </div>
 
@@ -319,9 +317,9 @@
                             <form action="{{ route('vendor.linktree.upload-qris', $linktree) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="file" name="qris_image" accept="image/*" class="hidden" id="qris-input" onchange="this.form.submit()">
-                                <button type="button" onclick="document.getElementById('qris-input').click()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition">
-                                    <i class="fas fa-upload"></i> Upload QRIS
-                                </button>
+                                <x.ui.button type="button" onclick="document.getElementById('qris-input').click()" variant="outline-primary" size="sm">
+                                    <i class="fas fa-upload mr-1"></i> Upload QRIS
+                                </x.ui.button>
                             </form>
                         </div>
                     </div>
@@ -414,8 +412,8 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 mt-6">
-                        <button type="button" @click="showAddLinkModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">Tambah Link</button>
+                        <x.ui.button type="button" @click="showAddLinkModal = false" variant="outline" size="sm">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="primary" size="sm">Tambah Link</x.ui.button>
                     </div>
                 </form>
             </div>
@@ -461,8 +459,8 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 mt-6">
-                        <button type="button" @click="showEditLinkModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">Simpan Perubahan</button>
+                        <x.ui.button type="button" @click="showEditLinkModal = false" variant="outline" size="sm">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="primary" size="sm">Simpan Perubahan</x.ui.button>
                     </div>
                 </form>
             </div>
@@ -499,8 +497,8 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 mt-6">
-                        <button type="button" @click="showAddSocialModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">Tambah</button>
+                        <x.ui.button type="button" @click="showAddSocialModal = false" variant="outline" size="sm">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="primary" size="sm">Tambah</x.ui.button>
                     </div>
                 </form>
             </div>
@@ -542,8 +540,8 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-end gap-3 mt-6">
-                        <button type="button" @click="showEditSocialModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">Simpan Perubahan</button>
+                        <x.ui.button type="button" @click="showEditSocialModal = false" variant="outline" size="sm">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="primary" size="sm">Simpan Perubahan</x.ui.button>
                     </div>
                 </form>
             </div>
@@ -569,8 +567,8 @@
                         <p class="text-xs text-gray-400 mb-6">Semua link dan social media yang terkait juga akan dihapus. Tindakan ini tidak dapat dibatalkan.</p>
                     </div>
                     <div class="flex items-center justify-center gap-3">
-                        <button type="button" @click="showDeleteModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition">Ya, Hapus</button>
+                        <x.ui.button type="button" @click="showDeleteModal = false" variant="outline" size="sm">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="danger" size="sm">Ya, Hapus</x.ui.button>
                     </div>
                 </form>
             </div>

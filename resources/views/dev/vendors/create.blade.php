@@ -77,12 +77,12 @@
                 </div>
             </div>
             <div class="flex items-center justify-end gap-3 px-4 py-3 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                <a href="{{ route('admin.vendors.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <x.ui.button type="button" variant="outline" href="{{ route('admin.vendors.index') }}">
                     <i class="fas fa-times mr-1"></i> Cancel
-                </a>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                </x.ui.button>
+                <x.ui.button type="submit" variant="primary">
                     <i class="fas fa-save mr-1"></i> Save
-                </button>
+                </x.ui.button>
             </div>
         </form>
     </div>

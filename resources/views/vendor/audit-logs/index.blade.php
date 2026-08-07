@@ -6,10 +6,9 @@
     <div class="bg-white rounded-xl border border-gray-200">
         <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Riwayat Transaksi</h3>
-            <a href="{{ route('vendor.audit-logs.export', request()->query()) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 3v4a1 1 0 001 1h4M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2zM9 9l1 1 3-3"/></svg>
-                Export CSV
-            </a>
+            <x.ui.button href="{{ route('vendor.audit-logs.export', request()->query()) }}" variant="primary" size="sm">
+                <i class="fas fa-download mr-2"></i>Export CSV
+            </x.ui.button>
         </div>
         <div class="p-5">
             {{-- Statistics Cards --}}
@@ -88,8 +87,8 @@
                         <input type="text" name="search" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Cari berdasarkan referensi, catatan..." value="{{ request('search') }}">
                     </div>
                     <div class="md:col-span-2 flex items-end gap-2">
-                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Filter</button>
-                        <a href="{{ route('vendor.audit-logs.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Reset</a>
+                        <x.ui.button type="submit" variant="primary" size="sm">Filter</x.ui.button>
+                        <x.ui.button href="{{ route('vendor.audit-logs.index') }}" variant="outline" size="sm">Reset</x.ui.button>
                     </div>
                 </div>
             </form>
@@ -138,7 +137,7 @@
                                     <div class="text-xs text-gray-500">{{ $log->created_at->format('H:i:s') }}</div>
                                 </td>
                                 <td class="py-3 px-4">
-                                    <a href="{{ route('vendor.audit-logs.show', $log->id) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Detail</a>
+                                    <x.ui.button href="{{ route('vendor.audit-logs.show', $log->id) }}" variant="ghost" size="xs">Detail</x.ui.button>
                                 </td>
                             </tr>
                         @empty

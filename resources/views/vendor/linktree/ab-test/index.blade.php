@@ -15,12 +15,12 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('vendor.linktree.show', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            <a href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                <i class="fas fa-plus"></i> Buat A/B Test Baru
-            </a>
+            <x.ui.button href="{{ route('vendor.linktree.show', $linktree) }}" variant="outline" size="sm">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+            </x.ui.button>
+            <x.ui.button href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" size="sm">
+                <i class="fas fa-plus mr-1"></i> Buat A/B Test Baru
+            </x.ui.button>
         </div>
     </div>
 
@@ -68,9 +68,9 @@
         </div>
         <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada A/B Test</h3>
         <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">Buat A/B test pertama untuk membandingkan performa dua template berbeda.</p>
-        <a href="{{ route('vendor.linktree.ab-test.create', $linktree) }}" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-            <i class="fas fa-plus"></i> Buat A/B Test Baru
-        </a>
+        <x.ui.button href="{{ route('vendor.linktree.ab-test.create', $linktree) }}">
+            <i class="fas fa-plus mr-1"></i> Buat A/B Test Baru
+        </x.ui.button>
     </div>
     @else
     {{-- A/B Tests Grid --}}
@@ -138,31 +138,31 @@
             </div>
 
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center gap-2">
-                <a href="{{ route('vendor.linktree.ab-test.show', [$linktree, $test]) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition">
-                    <i class="fas fa-eye"></i> Detail
-                </a>
+                <x.ui.button href="{{ route('vendor.linktree.ab-test.show', [$linktree, $test]) }}" variant="outline-primary" size="xs">
+                    <i class="fas fa-eye mr-1"></i> Detail
+                </x.ui.button>
                 @if($test->status === 'draft')
                 <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $test]) }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition">
-                        <i class="fas fa-play"></i> Mulai
-                    </button>
+                    <x.ui.button type="submit" variant="success" size="sm">
+                        <i class="fas fa-play mr-1"></i> Mulai
+                    </x.ui.button>
                 </form>
                 @endif
                 @if($test->status === 'running')
                 <form action="{{ route('vendor.linktree.ab-test.pause', [$linktree, $test]) }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition">
-                        <i class="fas fa-pause"></i> Jeda
-                    </button>
+                    <x.ui.button type="submit" variant="warning" size="sm">
+                        <i class="fas fa-pause mr-1"></i> Jeda
+                    </x.ui.button>
                 </form>
                 @endif
                 @if($test->status === 'paused')
                 <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $test]) }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition">
-                        <i class="fas fa-play"></i> Lanjut
-                    </button>
+                    <x.ui.button type="submit" variant="success" size="sm">
+                        <i class="fas fa-play mr-1"></i> Lanjut
+                    </x.ui.button>
                 </form>
                 @endif
             </div>

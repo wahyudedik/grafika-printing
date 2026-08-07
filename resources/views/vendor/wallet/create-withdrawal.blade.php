@@ -112,8 +112,8 @@
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
-                    <a href="{{ route('vendor.wallet.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</a>
-                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Ajukan Penarikan</button>
+                    <x.ui.button href="{{ route('vendor.wallet.index') }}" variant="outline">Batal</x.ui.button>
+                    <x.ui.button type="submit" variant="primary">Ajukan Penarikan</x.ui.button>
                 </div>
             </form>
         </div>

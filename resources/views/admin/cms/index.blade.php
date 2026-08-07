@@ -14,24 +14,24 @@
                     <h2 class="text-2xl font-bold text-gray-900">CMS Management</h2>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap">
-                    <button @click="showAddModal = true" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-plus"></i>
+                    <x-ui.button variant="primary" @click="showAddModal = true">
+                        <i class="fas fa-plus mr-2"></i>
                         Add New Setting
-                    </button>
-                    <a href="{{ route('admin.cms.preview') }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 transition-colors">
-                        <i class="fas fa-eye"></i>
+                    </x-ui.button>
+                    <x-ui.button variant="info" :href="route('admin.cms.preview')">
+                        <i class="fas fa-eye mr-2"></i>
                         Preview Landing
-                    </a>
-                    <a href="{{ route('admin.cms.statistics') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
-                        <i class="fas fa-chart-bar"></i>
+                    </x-ui.button>
+                    <x-ui.button variant="success" :href="route('admin.cms.statistics')">
+                        <i class="fas fa-chart-bar mr-2"></i>
                         Statistics
-                    </a>
+                    </x-ui.button>
                     <div class="relative" @click.away="showToolsDropdown = false">
-                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" @click="showToolsDropdown = !showToolsDropdown">
-                            <i class="fas fa-cog"></i>
+                        <x-ui.button variant="outline" @click="showToolsDropdown = !showToolsDropdown">
+                            <i class="fas fa-cog mr-2"></i>
                             Tools
                             <i class="fas fa-chevron-down text-xs"></i>
-                        </button>
+                        </x-ui.button>
                         <div x-show="showToolsDropdown" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
                             <a class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" href="{{ route('admin.cms.export') }}">
                                 <i class="fas fa-download text-xs text-gray-400"></i>Export Settings
@@ -62,18 +62,18 @@
                             @if (isset($settings[$categoryKey]) && $settings[$categoryKey]->count() > 0)
                                 <p class="text-sm text-gray-500 mb-4">{{ $settings[$categoryKey]->count() }} settings configured</p>
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                                        <i class="fas fa-edit text-xs"></i>Edit
-                                    </a>
-                                    <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-cyan-600 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100 transition-colors">
-                                        <i class="fas fa-eye text-xs"></i>View
-                                    </a>
+                                    <x-ui.button variant="outline-primary" :href="route('admin.cms.show', $categoryKey)" size="sm">
+                                        <i class="fas fa-edit text-xs mr-1"></i>Edit
+                                    </x-ui.button>
+                                    <x-ui.button variant="outline-info" :href="route('admin.cms.show', $categoryKey)" size="sm">
+                                        <i class="fas fa-eye text-xs mr-1"></i>View
+                                    </x-ui.button>
                                 </div>
                             @else
                                 <p class="text-sm text-gray-500 mb-4">No settings configured</p>
-                                <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-plus text-xs"></i>Configure
-                                </a>
+                                <x-ui.button variant="primary" :href="route('admin.cms.show', $categoryKey)" size="sm">
+                                    <i class="fas fa-plus text-xs mr-1"></i>Configure
+                                </x-ui.button>
                             @endif
                         </div>
                     </div>
@@ -143,8 +143,8 @@
                             </div>
                         </div>
                         <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                            <button type="button" @click="showAddModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Create Setting</button>
+                            <x-ui.button variant="outline" @click="showAddModal = false">Cancel</x-ui.button>
+                            <x-ui.button variant="primary" type="submit">Create Setting</x-ui.button>
                         </div>
                     </form>
                 </div>
@@ -175,8 +175,8 @@
                             </div>
                         </div>
                         <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                            <button type="button" @click="showImportModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Import Settings</button>
+                            <x-ui.button variant="outline" @click="showImportModal = false">Cancel</x-ui.button>
+                            <x-ui.button variant="primary" type="submit">Import Settings</x-ui.button>
                         </div>
                     </form>
                 </div>

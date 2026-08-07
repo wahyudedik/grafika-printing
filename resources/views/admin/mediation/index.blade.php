@@ -9,9 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Admin Panel</p>
             <h1 class="text-2xl font-bold text-gray-900">Manajemen Mediasi</h1>
         </div>
-        <a href="{{ route('admin.mediation.statistics') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100">
+        <x-ui.button variant="outline-info" :href="route('admin.mediation.statistics')">
             <i class="fas fa-chart-bar mr-2"></i> Statistik
-        </a>
+        </x-ui.button>
     </div>
 </div>
 
@@ -38,9 +38,9 @@
                 <input type="date" name="date_to" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" value="{{ request('date_to') }}">
             </div>
             <div>
-                <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <x-ui.button type="submit" variant="primary" class="w-full">
                     <i class="fas fa-filter mr-2"></i> Filter
-                </button>
+                </x-ui.button>
             </div>
         </div>
     </form>
@@ -125,9 +125,9 @@
                         <span class="text-sm text-gray-500">{{ $request->created_at->format('d M Y') }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.mediation.show', $request) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg inline-flex">
-                            <i class="fas fa-eye"></i>
-                        </a>
+                        <x-ui.button variant="ghost" :href="route('admin.mediation.show', $request)" size="icon-sm">
+                            <i class="fas fa-eye text-sm"></i>
+                        </x-ui.button>
                     </td>
                 </tr>
                 @empty

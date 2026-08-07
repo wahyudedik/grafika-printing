@@ -8,18 +8,18 @@
             <p class="text-sm text-gray-500">Pengaturan</p>
             <h1 class="text-2xl font-bold text-gray-900">Preview Biaya Admin</h1>
         </div>
-        <a href="{{ route('admin.admin-fees.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        <x.ui.button href="{{ route('admin.admin-fees.index') }}" variant="outline">
             <i class="fas fa-chevron-left mr-1"></i>Kembali
-        </a>
+        </x.ui.button>
     </div>
 
     <!-- Kalkulator Biaya Admin -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h3 class="text-sm font-semibold text-gray-900">Kalkulator Biaya Admin</h3>
-            <button type="button" onclick="calculateFees()" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+            <x.ui.button type="button" variant="primary" onclick="calculateFees()">
                 <i class="fas fa-clock mr-1"></i>Hitung Biaya
-            </button>
+            </x.ui.button>
         </div>
         <div class="p-5">
             <form id="previewForm">

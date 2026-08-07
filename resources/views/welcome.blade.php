@@ -472,7 +472,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>{{ \App\Models\CmsSetting::get('footer_copyright', '©2025 Grafika Printing. Hak Cipta Terpelihara CV. Grafika Digital Solution') }}</span>
+                <span>{{ \App\Models\CmsSetting::get('footer_copyright', '©2026 Grafika Printing. Hak Cipta Terpelihara CV. Grafika Digital Solution') }}</span>
                 <span>Dibuat dengan <i class="fas fa-heart" style="color: #ef4444; font-size: 11px;"></i> di Indonesia</span>
             </div>
         </div>

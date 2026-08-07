@@ -9,10 +9,9 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Statistik Lelang</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Ringkasan data lelang dan penawaran</p>
         </div>
-        <a href="{{ route('admin.auctions.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
-            <i class="fas fa-arrow-left"></i>
-            Kembali
-        </a>
+        <x.ui.button type="button" variant="outline" href="{{ route('admin.auctions.index') }}">
+            <i class="fas fa-arrow-left mr-1"></i> Kembali
+        </x.ui.button>
     </div>
 
     {{-- Statistics Cards - Row 1 --}}
@@ -126,9 +125,9 @@
                                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $auction->created_at->format('H:i') }}</p>
                                     </td>
                                     <td class="py-3 px-4 text-center">
-                                        <a href="{{ route('admin.auctions.show', $auction) }}" class="inline-flex items-center justify-center w-8 h-8 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors" title="Detail">
+                                        <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.auctions.show', $auction) }}" title="Detail">
                                             <i class="fas fa-eye"></i>
-                                        </a>
+                                        </x.ui.button>
                                     </td>
                                 </tr>
                             @endforeach

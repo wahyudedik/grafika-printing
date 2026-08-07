@@ -21,9 +21,9 @@
             <h1 class="text-2xl font-bold text-gray-900">Tambah Detail Rekening</h1>
             <p class="mt-1 text-sm text-gray-500">Isi form berikut untuk menambahkan detail rekening baru</p>
         </div>
-        <a href="{{ route('vendor.bank-accounts.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+        <x.ui.button href="{{ route('vendor.bank-accounts.index') }}" variant="outline">
             <i class="fas fa-arrow-left mr-2"></i>Kembali
-        </a>
+        </x.ui.button>
     </div>
 
     {{-- Form Card --}}
@@ -200,12 +200,12 @@
 
                 {{-- Submit Buttons --}}
                 <div class="mt-6 flex items-center gap-3">
-                    <button type="submit" class="inline-flex items-center px-5 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    <x.ui.button type="submit" variant="primary">
                         <i class="fas fa-save mr-2"></i>Simpan
-                    </button>
-                    <a href="{{ route('vendor.bank-accounts.index') }}" class="inline-flex items-center px-5 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
+                    </x.ui.button>
+                    <x.ui.button href="{{ route('vendor.bank-accounts.index') }}" variant="outline">
                         <i class="fas fa-times mr-2"></i>Batal
-                    </a>
+                    </x.ui.button>
                 </div>
             </form>
         </div>

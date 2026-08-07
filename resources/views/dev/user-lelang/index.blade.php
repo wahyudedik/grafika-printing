@@ -54,20 +54,19 @@
                             <option value="suspended" {{ request('status') === 'suspended' ? 'selected' : '' }}>Ditangguhkan</option>
                             <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu</option>
                         </select>
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors">
-                            <i class="fas fa-filter text-xs"></i>
-                            Filter
-                        </button>
+                        <x.ui.button type="submit" variant="primary" size="sm">
+                            <i class="fas fa-filter text-xs mr-1"></i> Filter
+                        </x.ui.button>
                         @if(request('search') || request('status'))
-                            <a href="{{ route('admin.user-lelang.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors">
+                            <x.ui.button type="button" variant="outline" size="sm" href="{{ route('admin.user-lelang.index') }}">
                                 Reset
-                            </a>
+                            </x.ui.button>
                         @endif
                     </form>
-                    <a href="{{ route('admin.user-lelang.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors">
-                        <i class="fas fa-plus text-xs"></i>
+                    <x.ui.button type="button" variant="success" href="{{ route('admin.user-lelang.create') }}">
+                        <i class="fas fa-plus text-xs mr-1"></i>
                         <span class="hidden sm:inline">Tambah User Lelang</span>
-                    </a>
+                    </x.ui.button>
                 </div>
             </div>
         </div>
@@ -136,12 +135,12 @@
                                 <td class="px-5 py-4 text-gray-700 dark:text-gray-300">Rp {{ number_format($profile->total_spent, 0, ',', '.') }}</td>
                                 <td class="px-5 py-4">
                                     <div class="flex gap-1">
-                                        <a href="{{ route('admin.user-lelang.show', $profile) }}" class="inline-flex items-center justify-center p-2 text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20 rounded-lg transition-colors" title="Lihat Detail">
+                                        <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.user-lelang.show', $profile) }}" title="Lihat Detail">
                                             <i class="fas fa-eye text-sm"></i>
-                                        </a>
-                                        <a href="{{ route('admin.user-lelang.edit', $profile) }}" class="inline-flex items-center justify-center p-2 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20 rounded-lg transition-colors" title="Edit">
+                                        </x.ui.button>
+                                        <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.user-lelang.edit', $profile) }}" title="Edit">
                                             <i class="fas fa-pen text-sm"></i>
-                                        </a>
+                                        </x.ui.button>
                                     </div>
                                 </td>
                             </tr>
@@ -176,12 +175,12 @@
                                 </div>
                             </div>
                             <div class="flex gap-1">
-                                <a href="{{ route('admin.user-lelang.show', $profile) }}" class="inline-flex items-center justify-center p-2 text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
+                                <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.user-lelang.show', $profile) }}">
                                     <i class="fas fa-eye text-sm"></i>
-                                </a>
-                                <a href="{{ route('admin.user-lelang.edit', $profile) }}" class="inline-flex items-center justify-center p-2 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20 rounded-lg transition-colors">
+                                </x.ui.button>
+                                <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.user-lelang.edit', $profile) }}">
                                     <i class="fas fa-pen text-sm"></i>
-                                </a>
+                                </x.ui.button>
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3 text-sm">
@@ -226,10 +225,9 @@
                 <i class="fas fa-users text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">Belum ada User Lelang</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 max-w-sm">Tambahkan user lelang baru untuk mulai mengelola peserta lelang.</p>
-                <a href="{{ route('admin.user-lelang.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors">
-                    <i class="fas fa-plus text-xs"></i>
-                    Tambah User Lelang
-                </a>
+                <x.ui.button type="button" variant="primary" href="{{ route('admin.user-lelang.create') }}">
+                    <i class="fas fa-plus text-xs mr-1"></i> Tambah User Lelang
+                </x.ui.button>
             </div>
         @endif
     </div>

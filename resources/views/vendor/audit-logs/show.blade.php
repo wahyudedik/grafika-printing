@@ -6,10 +6,10 @@
     <div class="bg-white rounded-xl border border-gray-200">
         <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Detail Transaksi</h3>
-            <a href="{{ route('vendor.audit-logs.index') }}" class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+            <x.ui.button href="{{ route('vendor.audit-logs.index') }}" variant="outline" size="sm">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 6l6 6-6 6"/></svg>
                 Kembali ke Daftar
-            </a>
+            </x.ui.button>
         </div>
         <div class="p-5">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

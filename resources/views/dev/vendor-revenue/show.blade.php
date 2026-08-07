@@ -12,10 +12,9 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $vendor->email }} • {{ $vendor->phone }}</p>
         </div>
         <div>
-            <a href="{{ route('admin.analytics.vendor-revenue') }}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
-                <i class="fas fa-arrow-right text-xs"></i>
-                Kembali
-            </a>
+            <x.ui.button type="button" variant="outline" href="{{ route('admin.analytics.vendor-revenue') }}">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+            </x.ui.button>
         </div>
     </div>
 

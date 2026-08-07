@@ -9,10 +9,9 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Shipping Tracking</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitoring pengiriman semua vendor</p>
         </div>
-        <a href="{{ route('admin.shipping.export', request()->query()) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium">
-            <i class="fas fa-download"></i>
-            Export CSV
-        </a>
+        <x.ui.button type="button" variant="primary" href="{{ route('admin.shipping.export', request()->query()) }}">
+            <i class="fas fa-download mr-1"></i> Export CSV
+        </x.ui.button>
     </div>
 
     {{-- Statistics Cards --}}
@@ -134,12 +133,12 @@
                     <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Search by code, resi, transaction..." value="{{ request('search') }}">
                 </div>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                    <x.ui.button type="submit" variant="primary" size="sm">
                         <i class="fas fa-filter mr-1"></i> Filter
-                    </button>
-                    <a href="{{ route('admin.shipping.index') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                    </x.ui.button>
+                    <x.ui.button type="button" variant="outline" size="sm" href="{{ route('admin.shipping.index') }}">
                         Clear
-                    </a>
+                    </x.ui.button>
                 </div>
             </div>
         </form>
@@ -213,13 +212,13 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.shipping.show', $shipping->id) }}" class="inline-flex items-center gap-1 px-3 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors text-xs font-medium">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
+                                <x.ui.button type="button" variant="outline-primary" size="xs" href="{{ route('admin.shipping.show', $shipping->id) }}">
+                                    <i class="fas fa-eye mr-1"></i> View
+                                </x.ui.button>
                                 @if($shipping->resi)
-                                    <button @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))" class="inline-flex items-center gap-1 px-3 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors text-xs font-medium">
-                                        <i class="fas fa-map-marker-alt"></i> Track
-                                    </button>
+                                    <x.ui.button type="button" variant="outline-info" size="xs" @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))">
+                                        <i class="fas fa-map-marker-alt mr-1"></i> Track
+                                    </x.ui.button>
                                 @endif
                             </div>
                         </td>
@@ -265,13 +264,13 @@
                 <p class="text-gray-500 dark:text-gray-400">Cost: <span class="font-medium text-gray-900 dark:text-white">{{ $shipping->cost ? 'Rp ' . number_format($shipping->cost, 0, ',', '.') : '-' }}</span></p>
             </div>
             <div class="flex gap-2 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <a href="{{ route('admin.shipping.show', $shipping->id) }}" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-medium">
-                    <i class="fas fa-eye"></i> View
-                </a>
+                <x.ui.button type="button" variant="outline-primary" size="xs" class="flex-1" href="{{ route('admin.shipping.show', $shipping->id) }}">
+                    <i class="fas fa-eye mr-1"></i> View
+                </x.ui.button>
                 @if($shipping->resi)
-                    <button @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))" class="flex-1 inline-flex items-center justify-center gap-1 px-3 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400 rounded-lg text-xs font-medium">
-                        <i class="fas fa-map-marker-alt"></i> Track
-                    </button>
+                    <x.ui.button type="button" variant="outline-info" size="xs" class="flex-1" @click="fetch(`/admin/shipping/{{ $shipping->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))">
+                        <i class="fas fa-map-marker-alt mr-1"></i> Track
+                    </x.ui.button>
                 @endif
             </div>
         </div>

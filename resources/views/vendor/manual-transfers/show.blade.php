@@ -5,7 +5,9 @@
 @section('content')
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
     <div class="flex items-center gap-3">
-        <a href="{{ route('vendor.manual-transfers.index') }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors"><i class="fas fa-arrow-left text-sm"></i></a>
+        <x.ui.button href="{{ route('vendor.manual-transfers.index') }}" variant="outline" size="icon-sm">
+            <i class="fas fa-arrow-left text-sm"></i>
+        </x.ui.button>
         <div>
             <h2 class="text-2xl font-bold text-gray-900">Order {{ $order->order_number }}</h2>
         </div>
@@ -123,13 +125,17 @@
                 @if($order->isPaid())
                     <form action="{{ route('vendor.manual-transfers.confirm', $order) }}" method="POST" @submit="return confirm('Konfirmasi order ini sebagai selesai?')">
                         @csrf
-                        <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">✅ Konfirmasi Selesai</button>
+                        <x.ui.button type="submit" variant="success" class="w-full">
+                            <i class="fas fa-check mr-2"></i>Konfirmasi Selesai
+                        </x.ui.button>
                     </form>
                 @endif
 
                 @if($order->status !== 'completed' && $order->status !== 'rejected')
                     <div x-data="{ open: false }">
-                        <button @click="open = true" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">❌ Tolak Order</button>
+                        <x.ui.button @click="open = true" variant="danger" class="w-full">
+                            <i class="fas fa-times mr-2"></i>Tolak Order
+                        </x.ui.button>
                         <div x-show="open" x-transition @keydown.escape.window="open = false" class="fixed inset-0 z-50 flex items-center justify-center" x-cloak>
                             <div class="fixed inset-0 bg-gray-500 bg-opacity-75" @click="open = false"></div>
                             <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 mx-4">
@@ -141,8 +147,8 @@
                                         <textarea name="rejection_reason" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="3" required placeholder="Masukkan alasan penolakan..."></textarea>
                                     </div>
                                     <div class="flex justify-end gap-3">
-                                        <button type="button" @click="open = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</button>
-                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">Tolak Order</button>
+                                        <x.ui.button @click="open = false" variant="outline">Batal</x.ui.button>
+                                        <x.ui.button type="submit" variant="danger">Tolak Order</x.ui.button>
                                     </div>
                                 </form>
                             </div>

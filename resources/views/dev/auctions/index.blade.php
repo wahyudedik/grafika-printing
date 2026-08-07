@@ -9,10 +9,9 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Manajemen Lelang</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Kelola semua lelang dan moderasi konten</p>
         </div>
-        <a href="{{ route('admin.auctions.statistics') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
-            <i class="fas fa-chart-bar"></i>
-            Statistik
-        </a>
+        <x.ui.button href="{{ route('admin.auctions.statistics') }}" variant="outline-primary" size="sm">
+            <i class="fas fa-chart-bar"></i> Statistik
+        </x.ui.button>
     </div>
 
     {{-- Filter Tabs --}}
@@ -105,23 +104,20 @@
                 {{-- Card Footer --}}
                 <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
                     <div class="flex gap-2">
-                        <a href="{{ route('admin.auctions.show', $auction) }}" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
-                            <i class="fas fa-eye text-xs"></i>
-                            Detail
-                        </a>
+                        <x.ui.button href="{{ route('admin.auctions.show', $auction) }}" variant="outline-primary" size="xs" class="flex-1">
+                            <i class="fas fa-eye text-xs"></i> Detail
+                        </x.ui.button>
                         @if($auction->status == 'pending')
                             <form action="{{ route('admin.auctions.approve', $auction) }}" method="POST" class="flex-1" x-data>
                                 @csrf
-                                <button type="submit" @click="return confirm('Setujui lelang ini?')" class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-300 rounded-lg hover:bg-emerald-100 dark:text-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-700 dark:hover:bg-emerald-900/50 transition-colors">
-                                    <i class="fas fa-check text-xs"></i>
-                                    Setujui
-                                </button>
+                                <x.ui.button type="submit" variant="outline-success" size="xs" class="w-full" @click="return confirm('Setujui lelang ini?')">
+                                    <i class="fas fa-check text-xs"></i> Setujui
+                                </x.ui.button>
                             </form>
                             <div class="flex-1" x-data="{ open: false }">
-                                <button type="button" @click="open = true" class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 dark:text-red-300 dark:bg-red-900/30 dark:border-red-700 dark:hover:bg-red-900/50 transition-colors">
-                                    <i class="fas fa-times text-xs"></i>
-                                    Tolak
-                                </button>
+                                <x.ui.button type="button" variant="outline-danger" size="xs" class="w-full" @click="open = true">
+                                    <i class="fas fa-times text-xs"></i> Tolak
+                                </x.ui.button>
                                 {{-- Reject Modal --}}
                                 <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" x-cloak @click.away="open = false">
                                     <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="open = false"></div>
@@ -138,8 +134,8 @@
                                                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Alasan ini akan dikirim ke user yang membuat lelang.</p>
                                                 </div>
                                                 <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                                                    <button type="button" @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">Batal</button>
-                                                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors">Tolak Lelang</button>
+                                                    <x.ui.button type="button" variant="outline" size="sm" @click="open = false">Batal</x.ui.button>
+                                                    <x.ui.button type="submit" variant="danger" size="sm">Tolak Lelang</x.ui.button>
                                                 </div>
                                             </form>
                                         </div>

@@ -126,12 +126,12 @@
 
                 {{-- Submit --}}
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-                    <a href="{{ route('vendor.linktree.ab-test.index', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fas fa-arrow-left"></i> Batal
-                    </a>
-                    <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                        <i class="fas fa-plus"></i> Buat A/B Test
-                    </button>
+                    <x.ui.button href="{{ route('vendor.linktree.ab-test.index', $linktree) }}" variant="outline">
+                        <i class="fas fa-arrow-left mr-1"></i> Batal
+                    </x.ui.button>
+                    <x.ui.button type="submit">
+                        <i class="fas fa-plus mr-1"></i> Buat A/B Test
+                    </x.ui.button>
                 </div>
             </div>
         </form>

@@ -8,7 +8,7 @@
         <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
         <h2 class="text-2xl font-bold text-gray-900">Riwayat Penarikan Wallet</h2>
     </div>
-    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Tarik Dana</a>
+    <x.ui.button href="{{ route('vendor.wallet.create-withdrawal') }}" variant="primary">Tarik Dana</x.ui.button>
 </div>
 
 <div class="py-6">
@@ -75,7 +75,7 @@
                     <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
                     <p class="text-lg font-medium text-gray-900">Belum ada penarikan</p>
                     <p class="text-sm text-gray-500 mt-1">Ajukan penarikan dana pertama Anda</p>
-                    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Tarik Dana</a>
+                    <x.ui.button href="{{ route('vendor.wallet.create-withdrawal') }}" variant="primary" class="mt-4">Tarik Dana</x.ui.button>
                 </div>
                 @endif
             </div>

@@ -9,9 +9,9 @@
             <h1 class="text-2xl font-bold text-gray-900">Lelang Saya</h1>
             <p class="text-sm text-gray-500 mt-1">Kelola permintaan cetak yang telah Anda buat</p>
         </div>
-        <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+        <x-ui.button :href="route('user.auctions.create')" variant="primary">
             <i class="fas fa-plus mr-2"></i> Buat Permintaan Baru
-        </a>
+        </x-ui.button>
     </div>
 
     @if (session('success'))
@@ -98,13 +98,13 @@
 
                         {{-- Actions --}}
                         <div class="flex items-center gap-2 mt-auto pt-2">
-                            <a href="{{ route('user.auctions.show', $auction) }}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                            <x-ui.button :href="route('user.auctions.show', $auction)" variant="outline-info" size="sm" class="flex-1 justify-center">
                                 <i class="fas fa-eye mr-1"></i> Lihat Detail
-                            </a>
+                            </x-ui.button>
                             @if(in_array($auction->status, ['pending', 'approved', 'active', 'bidding']))
-                                <a href="{{ route('user.auctions.edit', $auction) }}" class="inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                                <x-ui.button :href="route('user.auctions.edit', $auction)" variant="outline" size="sm" class="justify-center">
                                     <i class="fas fa-edit"></i>
-                                </a>
+                                </x-ui.button>
                             @endif
                         </div>
                     </div>
@@ -128,9 +128,9 @@
             <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
                 Anda belum membuat permintaan cetak. Buat permintaan pertama Anda sekarang!
             </p>
-            <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+            <x-ui.button :href="route('user.auctions.create')" variant="primary">
                 <i class="fas fa-plus mr-2"></i> Buat Permintaan Pertama
-            </a>
+            </x-ui.button>
         </div>
     @endif
 @endsection

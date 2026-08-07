@@ -327,11 +327,14 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 ### 7. Frontend — Tailwind CSS
 - **Tailwind CSS** digunakan untuk seluruh styling (migrasi dari Bootstrap Tabler — Agustus 2026)
 - **Alpine.js** untuk interaktivitas client-side (menggantikan Bootstrap JS)
-- **FontAwesome** untuk ikon
+- **FontAwesome** untuk ikon — import via `@fortawesome/fontawesome-free` di `resources/css/app.css`
 - **Vite** untuk build assets (`npm run dev` atau `npm run build`)
 - **SweetAlert2** via npm (bukan CDN)
-- **ApexCharts / Chart.js** untuk grafik
+- **ApexCharts** via npm — global di `resources/js/app.js` (`window.ApexCharts`)
+- **Chart.js** via npm — global di `resources/js/app.js` (`window.Chart`)
+- **SortableJS** via npm — global di `resources/js/app.js` (`window.Sortable`)
 - Linktree public page: gunakan Tailwind CSS standalone (tanpa vendor layout)
+- **⚠️ Jangan gunakan CDN** untuk Tailwind, FontAwesome, atau JS libraries — semua sudah via npm/Vite build
 
 ### 7.1 Tailwind CSS Guidelines
 - Gunakan **utility classes** Tailwind, hindari custom CSS kecuali sangat perlu
@@ -416,6 +419,17 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
    - Cek apakah route `/l/{customUrl}` terdaftar
    - Cek apakah vendor linktree `is_active = true`
 
+7. **FontAwesome icons tidak muncul**
+   - Pastikan `@import '@fortawesome/fontawesome-free/css/all.min.css';` ada di `resources/css/app.css` (sebelum `@tailwind base`)
+   - Jalankan `npm run build` ulang
+   - Cek browser console untuk 404 pada fontawesome CSS
+
+8. **ApexCharts/Chart.js/SortableJS tidak defined**
+   - Pastikan package sudah terinstall: `npm ls apexcharts chart.js sortablejs`
+   - Pastikan import ada di `resources/js/app.js` (global window objects)
+   - Jalankan `npm run build` ulang
+   - Jangan tambahkan CDN script tag — semua sudah via npm
+
 ### Log Location
 ```
 storage/logs/laravel.log
@@ -452,6 +466,8 @@ php artisan migrate:status
 | `RAJAONGKIR_API_KEY` | Ya | RajaOngkir API key |
 | `APP_URL` | Ya | Base URL aplikasi |
 | `FORCE_HTTPS` | Disarankan | Paksa HTTPS |
+
+> **⚠️ Security:** Jangan pernah commit `.env` ke version control. Gunakan `.env.example` sebagai template (tanpa secrets) dan `.env.production.example` untuk production deployment (menggunakan Redis untuk session/queue/cache).
 
 ---
 

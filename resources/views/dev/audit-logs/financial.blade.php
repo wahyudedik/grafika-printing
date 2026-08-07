@@ -12,14 +12,12 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Monitor transaksi keuangan vendor</p>
             </div>
             <div class="flex items-center gap-2">
-                <a href="{{ route('admin.audit-logs.export', request()->query()) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
-                    <i class="fas fa-download"></i>
-                    <span>Export CSV</span>
-                </a>
-                <a href="{{ route('admin.audit-logs.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-                    <i class="fas fa-arrow-left"></i>
-                    <span>Kembali</span>
-                </a>
+                <x.ui.button type="button" variant="primary" href="{{ route('admin.audit-logs.export', request()->query()) }}">
+                    <i class="fas fa-download mr-1"></i> Export CSV
+                </x.ui.button>
+                <x.ui.button type="button" variant="outline" href="{{ route('admin.audit-logs.index') }}">
+                    <i class="fas fa-arrow-left mr-1"></i> Kembali
+                </x.ui.button>
             </div>
         </div>
 
@@ -109,12 +107,12 @@
                         <input type="date" name="date_to" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" value="{{ request('date_to') }}">
                     </div>
                     <div class="flex items-end gap-2">
-                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
-                            Filter
-                        </button>
-                        <a href="{{ route('admin.audit-logs.financial') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
+                        <x.ui.button type="submit" variant="primary" size="sm">
+                            <i class="fas fa-filter mr-1"></i> Filter
+                        </x.ui.button>
+                        <x.ui.button type="button" variant="outline" size="sm" href="{{ route('admin.audit-logs.financial') }}">
                             Clear
-                        </a>
+                        </x.ui.button>
                     </div>
                 </div>
             </form>

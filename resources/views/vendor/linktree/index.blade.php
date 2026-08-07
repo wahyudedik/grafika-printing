@@ -12,9 +12,9 @@
             </h1>
             <p class="mt-1 text-sm text-gray-500">Kelola halaman linktree toko Anda</p>
         </div>
-        <a href="{{ route('vendor.linktree.create') }}" class="inline-flex items-center px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+        <x.ui.button href="{{ route('vendor.linktree.create') }}">
             <i class="fas fa-plus mr-2"></i>Buat Linktree
-        </a>
+        </x.ui.button>
     </div>
 
     {{-- Success Alert --}}
@@ -36,9 +36,9 @@
             </div>
             <h3 class="text-lg font-semibold text-gray-900 mb-2">Belum Ada Linktree</h3>
             <p class="text-gray-500 mb-6">Buat linktree pertama Anda untuk berbagi tautan penting toko Anda.</p>
-            <a href="{{ route('vendor.linktree.create') }}" class="inline-flex items-center px-5 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
+            <x.ui.button href="{{ route('vendor.linktree.create') }}">
                 <i class="fas fa-plus mr-2"></i>Buat Linktree Sekarang
-            </a>
+            </x.ui.button>
         </div>
     @else
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -100,19 +100,19 @@
 
                     {{-- Actions --}}
                     <div class="flex items-center gap-2 flex-wrap">
-                        <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="inline-flex items-center px-3 py-1.5 border border-primary-300 text-primary-700 text-xs font-medium rounded-lg hover:bg-primary-50">
+                        <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" variant="outline-primary" size="xs">
                             <i class="fas fa-edit mr-1"></i>Edit
-                        </a>
+                        </x.ui.button>
                         <form action="{{ route('vendor.linktree.toggle-active', $linktree) }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" class="inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-lg {{ $linktree->is_active ? 'border-amber-300 text-amber-700 hover:bg-amber-50' : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50' }}">
+                            <x.ui.button type="submit" variant="{{ $linktree->is_active ? 'warning' : 'success' }}" size="xs">
                                 {{ $linktree->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                            </button>
+                            </x.ui.button>
                         </form>
                         @if($linktree->is_active)
-                            <a href="{{ route('linktree.public', $linktree->custom_url) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 border border-blue-300 text-blue-700 text-xs font-medium rounded-lg hover:bg-blue-50">
+                            <x.ui.button href="{{ route('linktree.public', $linktree->custom_url) }}" variant="info" size="xs">
                                 <i class="fas fa-external-link-alt mr-1"></i>Lihat
-                            </a>
+                            </x.ui.button>
                         @endif
                     </div>
                 </div>

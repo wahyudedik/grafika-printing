@@ -7,19 +7,19 @@
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3">
-            <a href="{{ route('admin.service-configs.index') }}" class="w-10 h-10 rounded-lg border border-gray-300 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <x.ui.button href="{{ route('admin.service-configs.index') }}" variant="ghost" size="icon">
                 <i class="fas fa-arrow-left"></i>
-            </a>
+            </x.ui.button>
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $serviceInfo['name'] }} Configuration</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ $serviceInfo['description'] }}</p>
             </div>
         </div>
-        <button @click="testConnection()" :disabled="testing" class="inline-flex items-center gap-2 px-4 py-2 border border-emerald-300 dark:border-emerald-600 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors text-sm font-medium disabled:opacity-50">
-            <i x-show="!testing" class="fas fa-plug"></i>
-            <svg x-show="testing" class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <x.ui.button type="button" variant="outline-success" @click="testConnection()" :disabled="testing">
+            <i x-show="!testing" class="fas fa-plug mr-1"></i>
+            <svg x-show="testing" class="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <span x-text="testing ? 'Testing...' : 'Test Connection'"></span>
-        </button>
+        </x.ui.button>
     </div>
 
     {{-- Flash Messages --}}
@@ -93,19 +93,19 @@
                                     </div>
                                     <input type="hidden" name="label" value="{{ $config->label }}">
                                     <input type="hidden" name="description" value="{{ $config->description }}">
-                                    <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium transition-colors">
-                                        <i class="fas fa-check text-xs"></i>
+                                    <x.ui.button type="submit" variant="primary">
+                                        <i class="fas fa-check text-xs mr-1"></i>
                                         Simpan
-                                    </button>
+                                    </x.ui.button>
                                 </div>
                             </form>
                         </div>
                     @empty
                         <div class="p-8 text-center">
                             <p class="text-sm text-gray-500 dark:text-gray-400">Belum ada konfigurasi untuk {{ $serviceInfo['name'] }}.</p>
-                            <a href="{{ route('admin.service-configs.seed-defaults') }}" onclick="return confirm('Import config default dari .env?')" class="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-medium transition-colors">
-                                <i class="fas fa-file-import"></i> Import dari .env
-                            </a>
+                            <x.ui.button href="{{ route('admin.service-configs.seed-defaults') }}" variant="primary" onclick="return confirm('Import config default dari .env?')">
+                                <i class="fas fa-file-import mr-1"></i> Import dari .env
+                            </x.ui.button>
                         </div>
                     @endforelse
                 </div>
@@ -155,9 +155,9 @@
                             @if($config->is_active)
                                 <form action="{{ route('admin.service-configs.toggle', $config) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="w-full text-left px-3 py-2 border border-amber-300 dark:border-amber-600 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 text-xs font-medium transition-colors">
+                                    <x.ui.button type="submit" variant="outline-warning" size="sm" class="w-full text-left">
                                         Nonaktifkan {{ $config->label }}
-                                    </button>
+                                    </x.ui.button>
                                 </form>
                             @endif
                         @endforeach
@@ -180,7 +180,7 @@
                     <p class="text-sm text-gray-500 dark:text-gray-400" x-text="testMessage"></p>
                 </div>
                 <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl">
-                    <button @click="showTestModal = false" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-sm font-medium transition-colors">Tutup</button>
+                    <x.ui.button type="button" variant="outline" @click="showTestModal = false" class="w-full">Tutup</x.ui.button>
                 </div>
             </div>
         </div>

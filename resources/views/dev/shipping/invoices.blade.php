@@ -10,10 +10,9 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Invoice Pengiriman</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Daftar invoice pengiriman vendor</p>
         </div>
-        <a href="{{ route('admin.shipping.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-            <i class="fas fa-arrow-left"></i>
-            Kembali ke Shipping
-        </a>
+        <x.ui.button type="button" variant="outline" href="{{ route('admin.shipping.index') }}">
+            <i class="fas fa-arrow-left mr-1"></i> Kembali ke Shipping
+        </x.ui.button>
     </div>
 
     {{-- Filters --}}
@@ -41,14 +40,14 @@
                     </select>
                 </div>
                 <div>
-                    <button type="submit" class="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                    <x.ui.button type="submit" variant="primary" size="sm" class="w-full">
                         <i class="fas fa-filter mr-1"></i> Filter
-                    </button>
+                    </x.ui.button>
                 </div>
                 <div>
-                    <a href="{{ route('admin.shipping.export', request()->query()) }}" class="w-full inline-flex items-center justify-center px-4 py-2 border border-emerald-300 dark:border-emerald-700 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors text-sm font-medium">
+                    <x.ui.button type="button" variant="outline-success" size="sm" class="w-full" href="{{ route('admin.shipping.export', request()->query()) }}">
                         <i class="fas fa-download mr-1"></i> Export
-                    </a>
+                    </x.ui.button>
                 </div>
             </div>
         </form>
@@ -126,9 +125,9 @@
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium {{ $shippingBadges[$invoice->shipping_status] ?? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400' }}">{{ ucfirst(str_replace('_', ' ', $invoice->shipping_status ?? 'unknown')) }}</span>
                         </td>
                         <td class="px-4 py-3">
-                            <a href="{{ route('admin.shipping.show', $invoice->id) }}" class="inline-flex items-center justify-center w-8 h-8 border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
+                            <x.ui.button type="button" variant="outline-primary" size="icon-sm" href="{{ route('admin.shipping.show', $invoice->id) }}">
                                 <i class="fas fa-eye text-xs"></i>
-                            </a>
+                            </x.ui.button>
                         </td>
                     </tr>
                     @empty
@@ -179,9 +178,9 @@
                     ];
                 @endphp
                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $paymentBadges[$invoice->payment_status] ?? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400' }}">{{ ucfirst($invoice->payment_status ?? 'unknown') }}</span>
-                <a href="{{ route('admin.shipping.show', $invoice->id) }}" class="ml-auto inline-flex items-center gap-1 px-3 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400 rounded-lg text-xs font-medium">
-                    <i class="fas fa-eye"></i> View
-                </a>
+                <x.ui.button type="button" variant="outline-primary" size="xs" class="ml-auto" href="{{ route('admin.shipping.show', $invoice->id) }}">
+                    <i class="fas fa-eye mr-1"></i> View
+                </x.ui.button>
             </div>
         </div>
         @empty

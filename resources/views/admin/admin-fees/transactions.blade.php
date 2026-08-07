@@ -11,9 +11,9 @@
                     <p class="text-sm font-medium text-gray-500">Pengaturan</p>
                     <h1 class="text-2xl font-bold text-gray-900">Transaksi Biaya Admin</h1>
                 </div>
-                <a href="{{ route('admin.admin-fees.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
                     <i class="fas fa-arrow-left mr-2"></i>Kembali
-                </a>
+                </x-ui.button>
             </div>
         </div>
 
@@ -23,10 +23,10 @@
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Daftar Transaksi Biaya Admin</h3>
                     <div class="relative" @click.away="openDropdown = false">
-                        <button class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" @click="openDropdown = !openDropdown">
+                        <x-ui.button variant="outline-primary" @click="openDropdown = !openDropdown">
                             <i class="fas fa-filter mr-1"></i>Filter
                             <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                        </button>
+                        </x-ui.button>
                         <div x-show="openDropdown" x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                             <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ request()->fullUrlWithQuery(['status' => '']) }}">Semua Status</a>
                             <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ request()->fullUrlWithQuery(['status' => 'pending']) }}">Pending</a>
@@ -103,9 +103,9 @@
                                             <span class="text-xs text-gray-500">{{ $transaction->created_at->format('d/m/Y H:i') }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
-                                            <button type="button" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" @click="activeModal = {{ $transaction->id }}">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
+                                            <x-ui.button variant="ghost" size="icon-sm" @click="activeModal = {{ $transaction->id }}">
+                                                <i class="fas fa-eye text-sm"></i>
+                                            </x-ui.button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -232,7 +232,7 @@
                             @endif
                         </div>
                         <div class="flex justify-end mt-6 pt-4 border-t border-gray-200">
-                            <button type="button" @click="activeModal = null" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Tutup</button>
+                            <x-ui.button variant="outline" @click="activeModal = null">Tutup</x-ui.button>
                         </div>
                     </div>
                 </div>

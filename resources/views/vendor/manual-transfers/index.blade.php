@@ -66,8 +66,8 @@
             </select>
         </div>
         <div class="flex gap-2">
-            <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Filter</button>
-            <a href="{{ route('vendor.manual-transfers.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Reset</a>
+            <x.ui.button type="submit" variant="primary" size="sm">Filter</x.ui.button>
+            <x.ui.button href="{{ route('vendor.manual-transfers.index') }}" variant="outline" size="sm">Reset</x.ui.button>
         </div>
     </form>
 </div>
@@ -106,7 +106,7 @@
                         </td>
                         <td class="py-3 px-4 text-gray-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                         <td class="py-3 px-4">
-                            <a href="{{ route('vendor.manual-transfers.show', $order) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Detail</a>
+                            <x.ui.button href="{{ route('vendor.manual-transfers.show', $order) }}" variant="ghost" size="xs">Detail</x.ui.button>
                         </td>
                     </tr>
                 @empty

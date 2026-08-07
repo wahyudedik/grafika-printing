@@ -9,9 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Admin Panel</p>
             <h1 class="text-2xl font-bold text-gray-900">Detail Mediasi #{{ $mediationRequest->id }}</h1>
         </div>
-        <a href="{{ route('admin.mediation.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        <x-ui.button variant="outline" :href="route('admin.mediation.index')">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
-        </a>
+        </x-ui.button>
     </div>
 </div>
 
@@ -66,9 +66,9 @@
                     <label class="block text-sm font-semibold text-gray-900 mb-2">Bukti</label>
                     <div class="flex flex-wrap gap-2">
                         @foreach($mediationRequest->evidence_files as $file)
-                        <a href="{{ Storage::url($file) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100">
+                        <x-ui.button variant="outline-info" :href="Storage::url($file)" size="sm">
                             <i class="fas fa-file mr-1"></i> Bukti {{ $loop->iteration }}
-                        </a>
+                        </x-ui.button>
                         @endforeach
                     </div>
                 </div>
@@ -213,15 +213,15 @@
         <div class="flex gap-3">
             <form action="{{ route('admin.mediation.start-review', $mediationRequest) }}" method="POST">
                 @csrf
-                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <x-ui.button variant="primary" type="submit">
                     <i class="fas fa-eye mr-2"></i> Mulai Review
-                </button>
+                </x-ui.button>
             </form>
             <form action="{{ route('admin.mediation.close', $mediationRequest) }}" method="POST">
                 @csrf
-                <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100" onclick="return confirm('Tutup mediasi ini?')">
+                <x-ui.button variant="outline-danger" type="submit" onclick="return confirm('Tutup mediasi ini?')">
                     <i class="fas fa-times mr-2"></i> Tutup
-                </button>
+                </x-ui.button>
             </form>
         </div>
     </div>
@@ -266,12 +266,12 @@
                     <textarea name="admin_notes" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" rows="2" placeholder="Catatan internal..."></textarea>
                 </div>
                 <div class="md:col-span-2">
-                    <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700" onclick="return confirm('Selesaikan mediasi dengan keputusan ini?')">
+                    <x-ui.button type="submit" variant="success" onclick="return confirm('Selesaikan mediasi dengan keputusan ini?')">
                         <i class="fas fa-check mr-2"></i> Selesaikan Mediasi
-                    </button>
-                    <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 ml-2" onclick="document.querySelector('[name=admin_decision]').value=''; this.form.action='{{ route('admin.mediation.close', $mediationRequest) }}'; this.form.submit();">
+                    </x-ui.button>
+                    <x-ui.button type="button" variant="outline-danger" class="ml-2" onclick="document.querySelector('[name=admin_decision]').value=''; this.closest('form').action='{{ route('admin.mediation.close', $mediationRequest) }}'; this.closest('form').submit();">
                         <i class="fas fa-times mr-2"></i> Tutup
-                    </button>
+                    </x-ui.button>
                 </div>
             </div>
         </form>

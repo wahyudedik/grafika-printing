@@ -24,15 +24,15 @@
                         <i class="fas fa-lock mr-2"></i> Edit (Dikunci)
                     </span>
                 @else
-                    <a href="{{ route('user.auctions.edit', $auction) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <x-ui.button :href="route('user.auctions.edit', $auction)" variant="outline">
                         <i class="fas fa-edit mr-2"></i> Edit
-                    </a>
+                    </x-ui.button>
                 @endif
 
                 @if ($auction->status === 'paid' && !$auction->hasDeliveryConfirmation())
-                    <a href="{{ route('user.delivery-confirmation.create', $auction) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                    <x-ui.button :href="route('user.delivery-confirmation.create', $auction)" variant="success">
                         <i class="fas fa-check-circle mr-2"></i> Konfirmasi Barang
-                    </a>
+                    </x-ui.button>
                 @elseif ($auction->hasDeliveryConfirmation())
                     @php $confirmation = $auction->deliveryConfirmation; @endphp
                     @php
@@ -48,9 +48,9 @@
                     </span>
                 @endif
             @endif
-            <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <x-ui.button :href="route('user.auctions.index')" variant="outline">
                 Kembali
-            </a>
+            </x-ui.button>
         </div>
     </div>
 
@@ -120,9 +120,9 @@
                     @if ($auction->file_path)
                         <div>
                             <h4 class="text-sm font-semibold text-gray-900 mb-1">File Desain/Referensi</h4>
-                            <a href="{{ asset('storage/auction_files/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                            <x-ui.button :href="asset('storage/auction_files/' . $auction->file_path)" variant="outline-info" size="sm" target="_blank">
                                 <i class="fas fa-download mr-1"></i> Download File
-                            </a>
+                            </x-ui.button>
                         </div>
                     @endif
                 </div>
@@ -180,9 +180,9 @@
 
                             @if ($auction->bids->where('status', 'pending')->count() > 0)
                                 <div class="flex justify-end">
-                                    <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                                    <x-ui.button type="submit" variant="success">
                                         <i class="fas fa-trophy mr-2"></i> Tutup Lelang & Pilih Pemenang
-                                    </button>
+                                    </x-ui.button>
                                 </div>
                             @endif
                         </form>
@@ -195,9 +195,9 @@
                 <div class="bg-white rounded-xl border border-gray-200 px-6 py-5">
                     <form action="{{ route('user.auctions.payment', $auction) }}" method="POST" class="flex justify-end">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                        <x-ui.button type="submit" variant="primary" size="lg">
                             <i class="fas fa-credit-card mr-2"></i> Bayar Sekarang
-                        </button>
+                        </x-ui.button>
                     </form>
                 </div>
             @endif

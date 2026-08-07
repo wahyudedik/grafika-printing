@@ -114,12 +114,10 @@
 
                 {{-- Submit --}}
                 <div class="mt-6 flex items-center gap-3">
-                    <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                        <i class="fas fa-plus mr-2"></i>Buat Linktree
-                    </button>
-                    <a href="{{ route('vendor.linktree.index') }}" class="inline-flex items-center px-6 py-2.5 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50">
-                        Batal
-                    </a>
+                    <x.ui.button type="submit">
+                        <i class="fas fa-plus mr-1"></i>Buat Linktree
+                    </x.ui.button>
+                    <x.ui.button href="{{ route('vendor.linktree.index') }}" variant="outline">Batal</x.ui.button>
                 </div>
             </form>
         </div>

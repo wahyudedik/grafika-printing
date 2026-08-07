@@ -180,15 +180,15 @@
             {{-- Actions --}}
             <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
                 <h3 class="text-base font-semibold text-gray-900 mb-3"><i class="fas fa-bolt mr-2 text-primary-600"></i>Aksi</h3>
-                <a href="{{ route('vendor.linktree.show', $linktree) }}" class="flex items-center justify-center w-full px-4 py-2.5 border border-primary-300 text-primary-700 text-sm font-medium rounded-lg hover:bg-primary-50">
-                    <i class="fas fa-link mr-2"></i>Lihat Linktree
-                </a>
-                <a href="{{ url('/l/' . $linktree->custom_url) }}" target="_blank" class="flex items-center justify-center w-full px-4 py-2.5 border border-emerald-300 text-emerald-700 text-sm font-medium rounded-lg hover:bg-emerald-50">
-                    <i class="fas fa-globe mr-2"></i>Buka Halaman Publik
-                </a>
-                <a href="{{ route('vendor.linktree.template.index', $linktree) }}" class="flex items-center justify-center w-full px-4 py-2.5 border border-blue-300 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-50">
-                    <i class="fas fa-palette mr-2"></i>Template Builder
-                </a>
+                <x.ui.button href="{{ route('vendor.linktree.show', $linktree) }}" variant="outline-primary" class="w-full justify-center">
+                    <i class="fas fa-link mr-1"></i>Lihat Linktree
+                </x.ui.button>
+                <x.ui.button href="{{ url('/l/' . $linktree->custom_url) }}" variant="outline-success" class="w-full justify-center" target="_blank">
+                    <i class="fas fa-globe mr-1"></i>Buka Halaman Publik
+                </x.ui.button>
+                <x.ui.button href="{{ route('vendor.linktree.template.index', $linktree) }}" variant="outline-info" class="w-full justify-center">
+                    <i class="fas fa-palette mr-1"></i>Template Builder
+                </x.ui.button>
             </div>
         </div>
     </div>

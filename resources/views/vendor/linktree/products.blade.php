@@ -13,12 +13,12 @@
             <p class="mt-1 text-sm text-gray-500">{{ $linktree->title }} (/{{ $linktree->custom_url }})</p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('vendor.linktree.show', $linktree) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                <i class="fas fa-arrow-left mr-2"></i>Kembali
-            </a>
-            <a href="{{ url('/l/' . $linktree->custom_url) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
-                <i class="fas fa-external-link-alt mr-2"></i>Lihat Publik
-            </a>
+            <x.ui.button href="{{ route('vendor.linktree.show', $linktree) }}" variant="outline" size="sm">
+                <i class="fas fa-arrow-left mr-1"></i>Kembali
+            </x.ui.button>
+            <x.ui.button href="{{ url('/l/' . $linktree->custom_url) }}" size="sm" target="_blank">
+                <i class="fas fa-external-link-alt mr-1"></i>Lihat Publik
+            </x.ui.button>
         </div>
     </div>
 
@@ -70,9 +70,9 @@
                                 <p class="mt-1 text-xs text-gray-500">Kosongkan untuk menggunakan deskripsi default produk</p>
                                 @error('custom_description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                             </div>
-                            <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700">
-                                <i class="fas fa-plus mr-2"></i>Tambah ke Katalog
-                            </button>
+                            <x.ui.button type="submit" class="w-full justify-center">
+                                <i class="fas fa-plus mr-1"></i>Tambah ke Katalog
+                            </x.ui.button>
                         </div>
                     </form>
                     @else
@@ -138,16 +138,16 @@
                             <div class="flex items-center gap-2">
                                 <form action="{{ route('vendor.linktree.products.toggle', [$linktree, $product]) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="p-1.5 rounded-lg {{ $product->is_active ? 'text-emerald-600 hover:bg-emerald-50' : 'text-gray-400 hover:bg-gray-100' }}" title="{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
-                                        <i class="fas {{ $product->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
-                                    </button>
+                                    <x.ui.button type="submit" variant="ghost" size="icon-sm" title="{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                        <i class="fas {{ $product->is_active ? 'fa-toggle-on text-emerald-600' : 'fa-toggle-off text-gray-400' }}"></i>
+                                    </x.ui.button>
                                 </form>
-                                <button @click="openEditModal({{ $product->id }}, '{{ addslashes($product->custom_price) }}', '{{ addslashes($product->custom_description) }}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
+                                <x.ui.button @click="openEditModal({{ $product->id }}, '{{ addslashes($product->custom_price) }}', '{{ addslashes($product->custom_description) }}')" variant="ghost" size="icon-sm" title="Edit">
+                                    <i class="fas fa-edit text-blue-600"></i>
+                                </x.ui.button>
                                 <form action="{{ route('vendor.linktree.products.destroy', [$linktree, $product]) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus produk ini dari linktree?')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus"><i class="fas fa-trash"></i></button>
+                                    <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus"><i class="fas fa-trash text-red-600"></i></x.ui.button>
                                 </form>
                             </div>
                         </div>
@@ -173,8 +173,8 @@
                                             </div>
                                         </div>
                                         <div class="mt-6 flex justify-end gap-3">
-                                            <button type="button" @click="editProductId = null" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
-                                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">Simpan Perubahan</button>
+                                            <x.ui.button type="button" @click="editProductId = null" variant="outline" size="sm">Batal</x.ui.button>
+                                            <x.ui.button type="submit" variant="primary" size="sm">Simpan Perubahan</x.ui.button>
                                         </div>
                                     </form>
                                 </div>
@@ -196,7 +196,6 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 function productsManager() {
     return {

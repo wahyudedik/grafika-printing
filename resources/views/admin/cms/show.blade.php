@@ -10,12 +10,12 @@
                 {{ $categoryName }} Settings
             </h1>
             <div class="flex gap-2">
-                <a href="{{ route('admin.cms.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <i class="fas fa-arrow-left mr-1"></i>Back to CMS
-                </a>
-                <button type="button" @click="showAddModal = true" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
-                    <i class="fas fa-plus mr-1"></i>Add Setting
-                </button>
+                <x-ui.button variant="outline" :href="route('admin.cms.index')">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to CMS
+                </x-ui.button>
+                <x-ui.button variant="primary" @click="showAddModal = true">
+                    <i class="fas fa-plus mr-2"></i>Add Setting
+                </x-ui.button>
             </div>
         </div>
 
@@ -84,9 +84,9 @@
                     @endforeach
                 </div>
                 <div class="text-center mt-6">
-                    <button type="submit" class="px-6 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
+                    <x-ui.button variant="success" type="submit">
                         <i class="fas fa-save mr-2"></i>Save All Changes
-                    </button>
+                    </x-ui.button>
                 </div>
             </form>
         @else
@@ -96,9 +96,9 @@
                 </div>
                 <h4 class="text-gray-500 mb-2">No settings configured</h4>
                 <p class="text-gray-400 text-sm mb-4">Start by adding your first setting for this category.</p>
-                <button type="button" @click="showAddModal = true" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                <x-ui.button variant="primary" @click="showAddModal = true">
                     <i class="fas fa-plus mr-2"></i>Add First Setting
-                </button>
+                </x-ui.button>
             </div>
         @endif
     </div>
@@ -168,8 +168,8 @@
                         <input type="hidden" name="category" value="{{ $category }}">
                     </div>
                     <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                        <button type="button" @click="showAddModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">Create Setting</button>
+                        <x-ui.button variant="outline" @click="showAddModal = false">Cancel</x-ui.button>
+                        <x-ui.button variant="primary" type="submit">Create Setting</x-ui.button>
                     </div>
                 </form>
             </div>

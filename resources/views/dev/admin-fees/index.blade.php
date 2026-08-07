@@ -6,18 +6,18 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-900">Pengaturan Biaya Admin</h1>
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('admin.admin-fees.preview') }}" class="px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100">
+            <x.ui.button href="{{ route('admin.admin-fees.preview') }}" variant="outline-primary">
                 <i class="fas fa-eye mr-1"></i>Preview Biaya
-            </a>
-            <a href="{{ route('admin.admin-fees.transactions') }}" class="px-4 py-2 text-sm font-medium text-cyan-700 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100">
+            </x.ui.button>
+            <x.ui.button href="{{ route('admin.admin-fees.transactions') }}" variant="outline-info">
                 <i class="fas fa-clock mr-1"></i>Transaksi
-            </a>
-            <a href="{{ route('admin.admin-fees.statistics') }}" class="px-4 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100">
+            </x.ui.button>
+            <x.ui.button href="{{ route('admin.admin-fees.statistics') }}" variant="outline-success">
                 <i class="fas fa-chart-line mr-1"></i>Statistik
-            </a>
-            <a href="{{ route('admin.admin-fees.create') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+            </x.ui.button>
+            <x.ui.button href="{{ route('admin.admin-fees.create') }}" variant="primary">
                 <i class="fas fa-plus mr-1"></i>Tambah Pengaturan
-            </a>
+            </x.ui.button>
         </div>
     </div>
 
@@ -88,26 +88,26 @@
                             </td>
                             <td class="px-5 py-3 whitespace-nowrap text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <a href="{{ route('admin.admin-fees.show', $setting) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg" title="Lihat">
+                                    <x.ui.button href="{{ route('admin.admin-fees.show', $setting) }}" variant="ghost" size="icon-sm" title="Lihat">
                                         <i class="fas fa-eye text-sm"></i>
-                                    </a>
-                                    <a href="{{ route('admin.admin-fees.edit', $setting) }}" class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg" title="Edit">
+                                    </x.ui.button>
+                                    <x.ui.button href="{{ route('admin.admin-fees.edit', $setting) }}" variant="ghost" size="icon-sm" title="Edit">
                                         <i class="fas fa-edit text-sm"></i>
-                                    </a>
+                                    </x.ui.button>
                                     <form action="{{ route('admin.admin-fees.toggle', $setting) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="p-2 {{ $setting->is_active ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50' }} rounded-lg" title="{{ $setting->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                        <x.ui.button type="submit" variant="ghost" size="icon-sm" title="{{ $setting->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
                                             <i class="fas fa-eye-{{ $setting->is_active ? 'slash' : '' }} text-sm"></i>
-                                        </button>
+                                        </x.ui.button>
                                     </form>
                                     <form action="{{ route('admin.admin-fees.destroy', $setting) }}" method="POST" class="inline"
                                         onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengaturan ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="Hapus">
+                                        <x.ui.button type="submit" variant="ghost" size="icon-sm" title="Hapus">
                                             <i class="fas fa-trash text-sm"></i>
-                                        </button>
+                                        </x.ui.button>
                                     </form>
                                 </div>
                             </td>
@@ -121,9 +121,9 @@
                                     </div>
                                     <p class="text-sm font-medium text-gray-900 mb-1">Tidak ada pengaturan biaya admin</p>
                                     <p class="text-xs text-gray-500 mb-3">Belum ada pengaturan biaya admin yang dibuat.</p>
-                                    <a href="{{ route('admin.admin-fees.create') }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+                                    <x.ui.button href="{{ route('admin.admin-fees.create') }}" variant="primary">
                                         <i class="fas fa-plus mr-1"></i>Tambah Pengaturan
-                                    </a>
+                                    </x.ui.button>
                                 </div>
                             </td>
                         </tr>

@@ -157,11 +157,11 @@
 
                     {{-- Calculate Button --}}
                     <div class="text-center mt-4">
-                        <button type="submit" :disabled="calculating" class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                        <x.ui.button type="submit" variant="primary" :disabled="calculating">
                             <svg x-show="!calculating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                             <svg x-show="calculating" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>
                             <span x-text="calculating ? 'Menghitung...' : 'Hitung Ongkir'"></span>
-                        </button>
+                        </x.ui.button>
                     </div>
                 </form>
 
@@ -185,7 +185,7 @@
                                             </div>
                                             <div class="text-right">
                                                 <div class="text-sm font-bold text-primary-600">Rp <span x-text="item.cost.toLocaleString('id-ID')"></span></div>
-                                                <button type="button" @click="selectShipping(item)" class="text-xs font-medium text-primary-700 hover:text-primary-800">Pilih</button>
+                                                <x.ui.button type="button" @click="selectShipping(item)" variant="ghost" size="xs">Pilih</x.ui.button>
                                             </div>
                                         </div>
                                     </template>
@@ -220,23 +220,21 @@
                                 <input type="number" x-model="manual.cost" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" min="0" placeholder="0">
                             </div>
                         </div>
-                        <button type="button" @click="useManualInput()" class="mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors">
+                        <x.ui.button type="button" @click="useManualInput()" variant="outline-primary" size="sm" class="mt-3">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             Gunakan Input Manual
-                        </button>
+                        </x.ui.button>
                     </div>
                 </div>
             </div>
 
             {{-- Footer --}}
             <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-200">
-                <button type="button" @click="showModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    Tutup
-                </button>
-                <button type="button" x-show="selectedShipping" @click="saveShipping()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                <x.ui.button type="button" @click="showModal = false" variant="outline" size="sm">Tutup</x.ui.button>
+                <x.ui.button type="button" x-show="selectedShipping" @click="saveShipping()" variant="success" size="sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     Simpan & Kirim
-                </button>
+                </x.ui.button>
             </div>
         </div>
     </div>

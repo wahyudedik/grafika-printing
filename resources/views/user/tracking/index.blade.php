@@ -95,13 +95,13 @@
 
                         {{-- Actions --}}
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('user.orders.show', $auction) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
+                            <x-ui.button :href="route('user.orders.show', $auction)" variant="outline-info" size="sm">
                                 <i class="fas fa-eye mr-1"></i> Detail Tracking
-                            </a>
+                            </x-ui.button>
                             @if ($status === 'selesai')
-                                <a href="{{ route('vendor.ratings.create', $auction) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors">
+                                <x-ui.button :href="route('vendor.ratings.create', $auction)" variant="outline" size="sm">
                                     <i class="fas fa-star mr-1"></i> Beri Rating
-                                </a>
+                                </x-ui.button>
                             @endif
                         </div>
                     </div>
@@ -118,9 +118,9 @@
             <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
                 Pesanan akan muncul di sini setelah lelang Anda dimenangkan oleh vendor.
             </p>
-            <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+            <x-ui.button :href="route('user.auctions.index')" variant="primary">
                 <i class="fas fa-gavel mr-2"></i> Lihat Lelang
-            </a>
+            </x-ui.button>
         </div>
     @endif
 @endsection

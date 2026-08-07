@@ -40,10 +40,10 @@
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Data Pendapatan Vendor</h3>
-            <button onclick="location.reload()" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors">
-                <i class="fas fa-sync-alt text-xs"></i>
+            <x.ui.button type="button" variant="primary" onclick="location.reload()">
+                <i class="fas fa-sync-alt text-xs mr-1"></i>
                 Refresh Data
-            </button>
+            </x.ui.button>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -101,10 +101,10 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4">
-                                <a href="{{ route('admin.analytics.vendor-revenue.show', $vendor['id']) }}" class="inline-flex items-center gap-2 px-3 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-xs transition-colors">
-                                    <i class="fas fa-eye text-xs"></i>
+                                <x.ui.button href="{{ route('admin.analytics.vendor-revenue.show', $vendor['id']) }}" variant="outline-primary" size="sm">
+                                    <i class="fas fa-eye text-xs mr-1"></i>
                                     Detail
-                                </a>
+                                </x.ui.button>
                             </td>
                         </tr>
                     @empty

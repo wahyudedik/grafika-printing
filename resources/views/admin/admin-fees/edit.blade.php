@@ -10,14 +10,12 @@
             <h1 class="text-2xl font-bold text-gray-900">Edit Pengaturan Biaya Admin</h1>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('admin.admin-fees.index') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Kembali
-            </a>
-            <a href="{{ route('admin.admin-fees.show', $adminFee) }}"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
-                <i class="fa-solid fa-eye"></i> Lihat Detail
-            </a>
+            <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
+                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+            </x-ui.button>
+            <x-ui.button variant="outline-info" :href="route('admin.admin-fees.show', $adminFee)">
+                <i class="fa-solid fa-eye mr-2"></i> Lihat Detail
+            </x-ui.button>
         </div>
     </div>
 
@@ -116,10 +114,10 @@
             </div>
 
             <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                <a href="{{ route('admin.admin-fees.show', $adminFee) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Batal</a>
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
-                    <i class="fa-solid fa-check"></i> Update Pengaturan
-                </button>
+                <x-ui.button variant="outline" :href="route('admin.admin-fees.show', $adminFee)">Batal</x-ui.button>
+                <x-ui.button variant="primary" type="submit">
+                    <i class="fa-solid fa-check mr-2"></i> Update Pengaturan
+                </x-ui.button>
             </div>
         </div>
     </form>

@@ -16,9 +16,9 @@
                                    placeholder="Search users...">
                         </div>
                     </form>
-                    <a href="{{ route('admin.users.create') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex-shrink-0">
-                        <i class="fas fa-plus text-xs"></i> Add User
-                    </a>
+                    <x.ui.button type="button" variant="primary" href="{{ route('admin.users.create') }}">
+                        <i class="fas fa-plus text-xs mr-1"></i> Add User
+                    </x.ui.button>
                 </div>
             </div>
         </div>
@@ -46,18 +46,18 @@
                             <td class="px-4 py-3 text-gray-500 text-sm">{{ $user->created_at->format('d M Y') }}</td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <a href="{{ route('admin.users.show', $user->id) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View">
+                                    <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.users.show', $user->id) }}" title="View">
                                         <i class="fas fa-eye text-sm"></i>
-                                    </a>
-                                    <a href="{{ route('admin.users.edit', $user->id) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                    </x.ui.button>
+                                    <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.users.edit', $user->id) }}" title="Edit">
                                         <i class="fas fa-edit text-sm"></i>
-                                    </a>
+                                    </x.ui.button>
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" id="delete-form-{{ $user->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete" onclick="confirmDelete('delete-form-{{ $user->id }}')">
+                                        <x.ui.button type="button" variant="ghost" size="icon-sm" title="Delete" onclick="confirmDelete('delete-form-{{ $user->id }}')">
                                             <i class="fas fa-trash text-sm"></i>
-                                        </button>
+                                        </x.ui.button>
                                     </form>
                                 </div>
                             </td>
@@ -81,8 +81,8 @@
                     <div class="flex items-center justify-between">
                         <span class="text-xs text-gray-400">{{ $user->created_at->format('d M Y') }}</span>
                         <div class="flex items-center gap-1">
-                            <a href="{{ route('admin.users.show', $user->id) }}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><i class="fas fa-eye text-sm"></i></a>
-                            <a href="{{ route('admin.users.edit', $user->id) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"><i class="fas fa-edit text-sm"></i></a>
+                            <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.users.show', $user->id) }}"><i class="fas fa-eye text-sm"></i></x.ui.button>
+                            <x.ui.button type="button" variant="ghost" size="icon-sm" href="{{ route('admin.users.edit', $user->id) }}"><i class="fas fa-edit text-sm"></i></x.ui.button>
                         </div>
                     </div>
                 </div>

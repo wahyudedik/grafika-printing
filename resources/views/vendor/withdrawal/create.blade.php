@@ -8,7 +8,7 @@
         <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
         <h2 class="text-2xl font-bold text-gray-900">Ajukan Penarikan Dana</h2>
     </div>
-    <a href="{{ route('vendor.withdrawal.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Kembali</a>
+    <x.ui.button href="{{ route('vendor.withdrawal.index') }}" variant="outline">Kembali</x.ui.button>
 </div>
 
 <div class="py-6">
@@ -83,8 +83,8 @@
                         </div>
 
                         <div class="flex justify-end gap-3">
-                            <a href="{{ route('vendor.withdrawal.index') }}" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</a>
-                            <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Ajukan Penarikan</button>
+                            <x.ui.button href="{{ route('vendor.withdrawal.index') }}" variant="outline">Batal</x.ui.button>
+                            <x.ui.button type="submit" variant="primary">Ajukan Penarikan</x.ui.button>
                         </div>
                     </form>
                 </div>

@@ -9,14 +9,14 @@
         <p class="text-sm text-gray-500 mt-1">Riwayat transaksi keuangan vendor Anda</p>
     </div>
     <div class="flex items-center gap-2">
-        <a href="{{ route('vendor.audit-logs.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        <x.ui.button href="{{ route('vendor.audit-logs.index') }}" variant="outline">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Kembali ke Audit Logs
-        </a>
-        <a href="{{ route('vendor.audit-logs.export', ['action_type' => request('action_type'), 'entity_type' => request('entity_type'), 'date_from' => request('date_from'), 'date_to' => request('date_to')]) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+        </x.ui.button>
+        <x.ui.button href="{{ route('vendor.audit-logs.export', ['action_type' => request('action_type'), 'entity_type' => request('entity_type'), 'date_from' => request('date_from'), 'date_to' => request('date_to')]) }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             Export CSV
-        </a>
+        </x.ui.button>
     </div>
 </div>
 
@@ -71,13 +71,11 @@
                 </div>
             </div>
             <div class="flex items-center gap-2 mt-4">
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+                <x.ui.button type="submit" variant="primary" size="sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     Filter
-                </button>
-                <a href="{{ route('vendor.audit-logs.financial') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    Reset
-                </a>
+                </x.ui.button>
+                <x.ui.button href="{{ route('vendor.audit-logs.financial') }}" variant="outline" size="sm">Reset</x.ui.button>
             </div>
         </form>
     </div>
@@ -189,9 +187,7 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <a href="{{ route('vendor.audit-logs.show', $log->id) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-primary-700 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors">
-                            Detail
-                        </a>
+                        <x.ui.button href="{{ route('vendor.audit-logs.show', $log->id) }}" variant="outline-primary" size="xs">Detail</x.ui.button>
                     </td>
                 </tr>
                 @empty

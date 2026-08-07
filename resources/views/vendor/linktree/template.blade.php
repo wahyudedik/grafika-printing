@@ -14,13 +14,13 @@
             </p>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
+            <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" variant="outline" size="sm">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+            </x.ui.button>
             @if($linktree->is_active)
-            <a href="{{ route('linktree.public', $linktree->custom_url) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition">
-                <i class="fas fa-eye"></i> Lihat Publik
-            </a>
+            <x.ui.button href="{{ route('linktree.public', $linktree->custom_url) }}" variant="outline-info" size="sm" target="_blank">
+                <i class="fas fa-eye mr-1"></i> Lihat Publik
+            </x.ui.button>
             @endif
         </div>
     </div>
@@ -144,9 +144,9 @@
                         {{-- Reset --}}
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Reset ke Default</label>
-                            <button type="button" @click="resetColors()" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                                <i class="fas fa-undo"></i> Reset Warna
-                            </button>
+                            <x.ui.button type="button" @click="resetColors()" variant="outline" class="w-full justify-center">
+                                <i class="fas fa-undo mr-1"></i> Reset Warna
+                            </x.ui.button>
                         </div>
                     </div>
                 </div>
@@ -167,9 +167,9 @@
                         <input type="hidden" name="bg_color" :value="colors.bg">
                         <input type="hidden" name="text_color" :value="colors.text">
                         <input type="hidden" name="button_style" :value="buttonStyle">
-                        <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                            <i class="fas fa-check"></i> Terapkan Template
-                        </button>
+                        <x.ui.button type="submit">
+                            <i class="fas fa-check mr-1"></i> Terapkan Template
+                        </x.ui.button>
                     </form>
                 </div>
             </div>

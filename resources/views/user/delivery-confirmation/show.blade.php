@@ -10,9 +10,9 @@
             <h1 class="text-2xl font-bold text-gray-900">Konfirmasi Pengiriman</h1>
             <p class="text-sm text-gray-500">Detail status pengiriman pesanan Anda</p>
         </div>
-        <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        <x-ui.button :href="url()->previous()" variant="outline">
             <i class="fas fa-arrow-left text-xs"></i> Kembali
-        </a>
+        </x-ui.button>
     </div>
 
     {{-- Status Badge --}}
@@ -160,9 +160,9 @@
         </div>
         <div class="p-4">
             <p class="text-sm text-gray-500 mb-3">Jika barang yang diterima tidak sesuai atau ada masalah lainnya, Anda bisa mengajukan sengketa.</p>
-            <button type="button" @click="openModal()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 transition-colors">
+            <x-ui.button type="button" @click="openModal()" variant="outline-danger">
                 <i class="fas fa-exclamation-triangle text-xs"></i> Ajukan Sengketa
-            </button>
+            </x-ui.button>
         </div>
     </div>
     @endif
@@ -211,12 +211,12 @@
 
                     {{-- Modal Footer --}}
                     <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                        <button type="button" @click="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <x-ui.button type="button" @click="closeModal()" variant="outline">
                             Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">
+                        </x-ui.button>
+                        <x-ui.button type="submit" variant="danger">
                             Kirim Sengketa
-                        </button>
+                        </x-ui.button>
                     </div>
                 </form>
             </div>

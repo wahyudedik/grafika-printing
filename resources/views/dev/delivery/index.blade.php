@@ -9,10 +9,10 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Delivery Confirmations</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola konfirmasi pengiriman barang</p>
             </div>
-            <a href="{{ route('admin.delivery.export', request()->query()) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+            <x.ui.button href="{{ route('admin.delivery.export', request()->query()) }}" variant="primary" size="sm">
                 <i class="fas fa-download"></i>
                 <span>Export CSV</span>
-            </a>
+            </x.ui.button>
         </div>
 
         {{-- Statistics Cards --}}
@@ -111,8 +111,8 @@
                         <input type="text" name="search" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Search by code, transaction..." value="{{ request('search') }}">
                     </div>
                     <div class="flex items-end gap-2">
-                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">Filter</button>
-                        <a href="{{ route('admin.delivery.index') }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">Clear</a>
+                        <x.ui.button type="submit" variant="primary" size="sm">Filter</x.ui.button>
+                        <x.ui.button href="{{ route('admin.delivery.index') }}" variant="outline" size="sm">Clear</x.ui.button>
                     </div>
                 </div>
             </form>
@@ -176,16 +176,10 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-1">
-                                        <a href="{{ route('admin.delivery.show', $confirmation->id) }}" class="inline-flex items-center px-3 py-1.5 border border-primary-300 dark:border-primary-600 text-primary-700 dark:text-primary-300 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 text-xs font-medium transition-colors">
-                                            View
-                                        </a>
+                                        <x.ui.button href="{{ route('admin.delivery.show', $confirmation->id) }}" variant="outline-primary" size="xs">View</x.ui.button>
                                         @if($confirmation->status == 'pending')
-                                            <button @click="approveId = {{ $confirmation->id }}" class="inline-flex items-center px-3 py-1.5 border border-emerald-300 dark:border-emerald-600 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-xs font-medium transition-colors">
-                                                Approve
-                                            </button>
-                                            <button @click="rejectId = {{ $confirmation->id }}; rejectNotes = ''" class="inline-flex items-center px-3 py-1.5 border border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-medium transition-colors">
-                                                Reject
-                                            </button>
+                                            <x.ui.button type="button" variant="outline-success" size="xs" @click="approveId = {{ $confirmation->id }}">Approve</x.ui.button>
+                                            <x.ui.button type="button" variant="outline-danger" size="xs" @click="rejectId = {{ $confirmation->id }}; rejectNotes = ''">Reject</x.ui.button>
                                         @endif
                                     </div>
                                 </td>
@@ -238,10 +232,10 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <a href="{{ route('admin.delivery.show', $confirmation->id) }}" class="flex-1 text-center px-3 py-1.5 border border-primary-300 text-primary-700 rounded-lg text-xs font-medium">View</a>
+                            <x.ui.button href="{{ route('admin.delivery.show', $confirmation->id) }}" variant="outline-primary" size="xs" class="flex-1 text-center">View</x.ui.button>
                             @if($confirmation->status == 'pending')
-                                <button @click="approveId = {{ $confirmation->id }}" class="flex-1 px-3 py-1.5 border border-emerald-300 text-emerald-700 rounded-lg text-xs font-medium">Approve</button>
-                                <button @click="rejectId = {{ $confirmation->id }}; rejectNotes = ''" class="flex-1 px-3 py-1.5 border border-red-300 text-red-700 rounded-lg text-xs font-medium">Reject</button>
+                                <x.ui.button type="button" variant="outline-success" size="xs" class="flex-1" @click="approveId = {{ $confirmation->id }}">Approve</x.ui.button>
+                                <x.ui.button type="button" variant="outline-danger" size="xs" class="flex-1" @click="rejectId = {{ $confirmation->id }}; rejectNotes = ''">Reject</x.ui.button>
                             @endif
                         </div>
                     </div>
@@ -272,11 +266,11 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">Are you sure you want to approve this delivery confirmation?</p>
                     </div>
                     <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl flex justify-end gap-3">
-                        <button @click="approveId = null" type="button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium transition-colors">Cancel</button>
+                        <x.ui.button type="button" variant="outline" size="sm" @click="approveId = null">Cancel</x.ui.button>
                         <form x-show="approveId" :action="`/admin/delivery/${approveId}/approve`" method="POST">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium transition-colors">Yes, Approve</button>
+                            <x.ui.button type="submit" variant="success" size="sm">Yes, Approve</x.ui.button>
                         </form>
                     </div>
                 </div>
@@ -298,12 +292,12 @@
                         <p x-show="!rejectNotes" class="text-xs text-red-500 mt-1">Reason is required</p>
                     </div>
                     <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl flex justify-end gap-3">
-                        <button @click="rejectId = null" type="button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-sm font-medium transition-colors">Cancel</button>
+                        <x.ui.button type="button" variant="outline" size="sm" @click="rejectId = null">Cancel</x.ui.button>
                         <form x-show="rejectId && rejectNotes" :action="`/admin/delivery/${rejectId}/reject`" method="POST">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="admin_notes" :value="rejectNotes">
-                            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition-colors">Reject</button>
+                            <x.ui.button type="submit" variant="danger" size="sm">Reject</x.ui.button>
                         </form>
                     </div>
                 </div>

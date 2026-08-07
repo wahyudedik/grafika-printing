@@ -68,17 +68,17 @@
                                             <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Lunas</span>
                                         @endif
                                     @else
-                                        <button @click="openCreateInvoice({{ $auction->id }})" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Buat Invoice</button>
+                                        <x.ui.button @click="openCreateInvoice({{ $auction->id }})" variant="ghost" size="xs">Buat Invoice</x.ui.button>
                                     @endif
                                 </td>
                                 <td class="py-3 px-4">{{ $auction->shippingInvoice->waybill_number ?? '-' }}</td>
                                 <td class="py-3 px-4">
                                     <div class="flex gap-1">
                                         @if ($auction->shippingInvoice)
-                                            <button @click="openUpdateStatus({{ $auction->id }})" class="px-2 py-1 bg-primary-600 text-white rounded text-xs font-medium hover:bg-primary-700 transition-colors">Update</button>
-                                            <a href="/dashboard/tracking/{{ $auction->id }}/track" target="_blank" class="px-2 py-1 bg-blue-600 text-white rounded text-xs font-medium hover:bg-blue-700 transition-colors">Track</a>
+                                            <x.ui.button @click="openUpdateStatus({{ $auction->id }})" variant="primary" size="xs">Update</x.ui.button>
+                                            <x.ui.button href="/dashboard/tracking/{{ $auction->id }}/track" variant="info" size="xs">Track</x.ui.button>
                                         @else
-                                            <button @click="openCreateInvoice({{ $auction->id }})" class="px-2 py-1 bg-green-600 text-white rounded text-xs font-medium hover:bg-green-700 transition-colors">Setup Shipping</button>
+                                            <x.ui.button @click="openCreateInvoice({{ $auction->id }})" variant="success" size="xs">Setup Shipping</x.ui.button>
                                         @endif
                                     </div>
                                 </td>
@@ -157,8 +157,10 @@
                         <textarea name="notes" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="2" placeholder="Catatan pengiriman (opsional)"></textarea>
                     </div>
                     <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" @click="showCreateModal = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</button>
-                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm" :disabled="creatingInvoice">{{ creatingInvoice ? 'Membuat...' : 'Buat Invoice' }}</button>
+                        <x.ui.button @click="showCreateModal = false" variant="outline">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="primary" :disabled="creatingInvoice">
+                            {{ creatingInvoice ? 'Membuat...' : 'Buat Invoice' }}
+                        </x.ui.button>
                     </div>
                 </form>
             </div>
@@ -198,8 +200,8 @@
                         <textarea name="notes" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" rows="3" placeholder="Catatan status pengiriman"></textarea>
                     </div>
                     <div class="flex justify-end gap-3 mt-6">
-                        <button type="button" @click="showUpdateModal = false" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Batal</button>
-                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm" :disabled="updatingStatus">{{ updatingStatus ? 'Menyimpan...' : 'Update Status' }}</button>
+                        <x.ui.button type="button" @click="showUpdateModal = false" variant="outline" size="sm">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="primary" size="sm" :disabled="updatingStatus">{{ updatingStatus ? 'Menyimpan...' : 'Update Status' }}</x.ui.button>
                     </div>
                 </form>
             </div>

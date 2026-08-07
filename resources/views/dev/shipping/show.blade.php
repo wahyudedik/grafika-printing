@@ -9,10 +9,9 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Shipping Details</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Detail pengiriman #{{ $shippingInvoice->kode }}</p>
         </div>
-        <a href="{{ route('admin.shipping.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-            <i class="fas fa-arrow-left"></i>
-            Back to List
-        </a>
+        <x.ui.button type="button" variant="outline" href="{{ route('admin.shipping.index') }}">
+            <i class="fas fa-arrow-left mr-1"></i> Back to List
+        </x.ui.button>
     </div>
 
     {{-- Shipping & Vendor Info --}}
@@ -60,9 +59,9 @@
                     @if($shippingInvoice->resi)
                         <div class="flex items-center gap-2">
                             <code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ $shippingInvoice->resi }}</code>
-                            <button @click="fetch(`/admin/shipping/{{ $shippingInvoice->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))" class="inline-flex items-center gap-1 px-2 py-1 border border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors text-xs font-medium">
-                                <i class="fas fa-map-marker-alt"></i> Track
-                            </button>
+                            <x.ui.button type="button" variant="outline-info" size="xs" @click="fetch(`/admin/shipping/{{ $shippingInvoice->id }}/track`).then(r => r.json()).then(data => { if(data.success) { tracking = data.data; showTrackModal = true; } else { alert(data.message); } }).catch(() => alert('Failed to track shipment'))">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Track
+                            </x.ui.button>
                         </div>
                     @else
                         <span class="text-sm text-gray-400">N/A</span>
@@ -214,9 +213,9 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium">
+                    <x.ui.button type="submit" variant="primary" size="sm">
                         <i class="fas fa-save mr-1"></i> Update Status
-                    </button>
+                    </x.ui.button>
                 </div>
             </form>
         </div>

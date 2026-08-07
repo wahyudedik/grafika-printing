@@ -16,6 +16,16 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 - ✅ **Welcome page**: ~1000 baris inline CSS dipindahkan ke `resources/css/welcome.css` (external)
 - ✅ **Empty state component** (`x-ui.empty-state`) reusable baru
 
+### Catatan Update (6 Agustus 2026) — Code Quality & CDN Cleanup
+- ✅ **FontAwesome import diperbaiki**: Ditambahkan ke `resources/css/app.css` (sebelumnya hanya di `welcome.css`, menyebabkan 300+ ikon gagal load di semua panel)
+- ✅ **CDN Tailwind dihapus**: 5 view dimigrasi dari CDN Tailwind ke Vite build (`xendit/example/*`, `manual-transfer/status`, `vendor/public-profile`)
+- ✅ **CDN libraries dihapus**: 7 view dibersihkan dari CDN ApexCharts, Chart.js, dan SortableJS — semua sudah via npm
+- ✅ **npm packages ditambahkan**: `apexcharts`, `chart.js`, `sortablejs` — diimport sebagai global di `resources/js/app.js`
+- ✅ **`.env.example` dibersihkan**: Semua hardcoded API keys, passwords, dan APP_KEY dihapus (security fix)
+- ✅ **`.env.production.example` dibuat**: Template konfigurasi production dengan Redis untuk session/queue/cache
+- ✅ **Copyright year diupdate**: Default footer dari 2025 ke 2026 di `welcome.blade.php`
+- ✅ **Error pages direview**: 403, 404, 500 sudah self-contained (inline CSS), tidak perlu diubah — best practice untuk error handling
+
 ---
 
 ## Frontend Tech Stack
@@ -27,8 +37,9 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 | **FontAwesome** | 6.4.0 | Icon library |
 | **Vite** | 6.0.11 | Build assets & dev server |
 | **SweetAlert2** | 11.17.2 | Dialog & notifikasi (via npm) |
-| **ApexCharts** | - | Grafik dashboard |
-| **Chart.js** | - | Grafik tambahan |
+| **ApexCharts** | - | Grafik dashboard (via npm) |
+| **Chart.js** | - | Grafik tambahan (via npm) |
+| **SortableJS** | - | Drag & drop reorder (via npm) |
 
 ### UI Components (`resources/views/components/ui/`)
 Projek menggunakan **13 UI components** reusable yang dibangun dengan **Tailwind CSS + Alpine.js**:

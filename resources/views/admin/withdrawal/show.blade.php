@@ -10,10 +10,10 @@
             <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Panel</p>
             <h2 class="text-2xl font-bold text-gray-900">Detail Penarikan</h2>
         </div>
-        <a href="{{ route('admin.withdrawals.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <i class="fas fa-arrow-left"></i>
+        <x-ui.button variant="outline" :href="route('admin.withdrawals.index')">
+            <i class="fas fa-arrow-left mr-2"></i>
             Kembali
-        </a>
+        </x-ui.button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -24,19 +24,19 @@
                     <h3 class="text-lg font-semibold text-gray-900">Penarikan #{{ $withdrawal->withdrawal_code }}</h3>
                     <div class="flex items-center gap-2">
                         @if($withdrawal->status === 'pending')
-                            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors" @click="showApproveModal = true">
-                                <i class="fas fa-check text-xs"></i>
+                            <x-ui.button variant="success" size="sm" @click="showApproveModal = true">
+                                <i class="fas fa-check text-xs mr-1.5"></i>
                                 Setujui
-                            </button>
-                            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors" @click="showRejectModal = true">
-                                <i class="fas fa-times text-xs"></i>
+                            </x-ui.button>
+                            <x-ui.button variant="danger" size="sm" @click="showRejectModal = true">
+                                <i class="fas fa-times text-xs mr-1.5"></i>
                                 Tolak
-                            </button>
+                            </x-ui.button>
                         @elseif($withdrawal->status === 'approved')
-                            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors" @click="showCompleteModal = true">
-                                <i class="fas fa-check-double text-xs"></i>
+                            <x-ui.button variant="primary" size="sm" @click="showCompleteModal = true">
+                                <i class="fas fa-check-double text-xs mr-1.5"></i>
                                 Selesaikan
-                            </button>
+                            </x-ui.button>
                         @endif
                     </div>
                 </div>
@@ -165,8 +165,8 @@
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" @click="showApproveModal = false">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">Setujui</button>
+                        <x-ui.button variant="outline" @click="showApproveModal = false">Batal</x-ui.button>
+                        <x-ui.button variant="success" type="submit">Setujui</x-ui.button>
                     </div>
                 </form>
             </div>
@@ -194,8 +194,8 @@
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" @click="showRejectModal = false">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors">Tolak</button>
+                        <x-ui.button variant="outline" @click="showRejectModal = false">Batal</x-ui.button>
+                        <x-ui.button variant="danger" type="submit">Tolak</x-ui.button>
                     </div>
                 </form>
             </div>
@@ -223,8 +223,8 @@
                         </div>
                     </div>
                     <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" @click="showCompleteModal = false">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Selesaikan</button>
+                        <x-ui.button variant="outline" @click="showCompleteModal = false">Batal</x-ui.button>
+                        <x-ui.button variant="primary" type="submit">Selesaikan</x-ui.button>
                     </div>
                 </form>
             </div>

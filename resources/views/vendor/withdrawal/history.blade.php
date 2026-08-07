@@ -9,8 +9,10 @@
         <h2 class="text-2xl font-bold text-gray-900">Riwayat Penarikan</h2>
     </div>
     <div class="flex gap-2">
-        <a href="{{ route('vendor.withdrawal.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Kembali</a>
-        <a href="{{ route('vendor.withdrawal.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Ajukan Penarikan</a>
+        <x.ui.button href="{{ route('vendor.withdrawal.index') }}" variant="outline">Kembali</x.ui.button>
+        <x.ui.button href="{{ route('vendor.withdrawal.create') }}" variant="primary">
+            <i class="fas fa-plus mr-2"></i>Ajukan Penarikan
+        </x.ui.button>
     </div>
 </div>
 
@@ -69,7 +71,7 @@
                                 </td>
                                 <td class="py-3 px-4 text-gray-500">{{ $withdrawal->created_at->format('d M Y H:i') }}</td>
                                 <td class="py-3 px-4">
-                                    <a href="{{ route('vendor.withdrawal.show', $withdrawal) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">Detail</a>
+                                    <x.ui.button href="{{ route('vendor.withdrawal.show', $withdrawal) }}" variant="ghost" size="xs">Detail</x.ui.button>
                                 </td>
                             </tr>
                             @endforeach
@@ -82,7 +84,7 @@
                     <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
                     <p class="text-lg font-medium text-gray-900">Belum ada riwayat penarikan</p>
                     <p class="text-sm text-gray-500 mt-1">Riwayat penarikan Anda akan muncul di sini</p>
-                    <a href="{{ route('vendor.withdrawal.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm">Ajukan Penarikan</a>
+                    <x.ui.button href="{{ route('vendor.withdrawal.create') }}" variant="primary" class="mt-4">Ajukan Penarikan</x.ui.button>
                 </div>
                 @endif
             </div>

@@ -5,9 +5,9 @@
 @section('content')
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-900">Tambah Pengaturan Biaya Admin</h1>
-        <a href="{{ route('admin.admin-fees.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+        <x.ui.button href="{{ route('admin.admin-fees.index') }}" variant="outline">
             <i class="fas fa-arrow-left mr-1"></i>Kembali
-        </a>
+        </x.ui.button>
     </div>
 
     <form action="{{ route('admin.admin-fees.store') }}" method="POST">
@@ -122,12 +122,12 @@
         </div>
 
         <div class="flex gap-3 mt-6">
-            <button type="submit" class="px-6 py-2.5 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700">
+            <x.ui.button type="submit" variant="primary">
                 <i class="fas fa-save mr-2"></i>Simpan
-            </button>
-            <a href="{{ route('admin.admin-fees.index') }}" class="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            </x.ui.button>
+            <x.ui.button href="{{ route('admin.admin-fees.index') }}" variant="outline">
                 <i class="fas fa-times mr-2"></i>Batal
-            </a>
+            </x.ui.button>
         </div>
     </form>
 

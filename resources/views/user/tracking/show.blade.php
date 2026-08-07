@@ -146,19 +146,18 @@
 
     {{-- Action Buttons --}}
     <div class="flex flex-wrap items-center gap-3">
-        <a href="{{ route('user.orders.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+        <x-ui.button :href="route('user.orders.index')" variant="outline">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
-        </a>
+        </x-ui.button>
         @if ($status === 'selesai')
-            <a href="{{ route('vendor.ratings.create', $auction) }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600 transition-colors">
+            <x-ui.button :href="route('vendor.ratings.create', $auction)" variant="warning">
                 <i class="fas fa-star mr-2"></i> Beri Rating
-            </a>
+            </x-ui.button>
         @endif
         @if ($auction->transaksi->no_resi && $auction->transaksi->kurir)
-            <button @click="trackShipment('{{ $auction->transaksi->no_resi }}', '{{ $auction->transaksi->kurir }}')"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors">
+            <x-ui.button @click="trackShipment('{{ $auction->transaksi->no_resi }}', '{{ $auction->transaksi->kurir }}')" variant="info">
                 <i class="fas fa-truck mr-2"></i> Lacak Pengiriman
-            </button>
+            </x-ui.button>
         @endif
     </div>
 

@@ -111,12 +111,12 @@
 
         {{-- Actions --}}
         <div class="flex items-center justify-end gap-3">
-            <a href="{{ route('admin.vendors.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <x.ui.button type="button" variant="outline" href="{{ route('admin.vendors.index') }}">
                 <i class="fas fa-arrow-left mr-1"></i> Back
-            </a>
-            <a href="{{ route('admin.vendors.edit', $vendor->id) }}" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors">
+            </x.ui.button>
+            <x.ui.button type="button" variant="primary" href="{{ route('admin.vendors.edit', $vendor->id) }}">
                 <i class="fas fa-edit mr-1"></i> Edit
-            </a>
+            </x.ui.button>
         </div>
     </div>
 @endsection

@@ -8,7 +8,7 @@
         <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
         <h2 class="text-2xl font-bold text-gray-900">Riwayat Transaksi Wallet</h2>
     </div>
-    <a href="{{ route('vendor.wallet.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">Kembali</a>
+    <x.ui.button href="{{ route('vendor.wallet.index') }}" variant="outline">Kembali</x.ui.button>
 </div>
 
 <div class="py-6">

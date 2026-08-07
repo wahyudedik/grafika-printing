@@ -131,49 +131,43 @@
                 </div>
                 <div class="p-5">
                     <div class="flex flex-wrap gap-2">
-                        <a href="{{ route('admin.user-lelang.edit', $profile) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium text-sm transition-colors">
-                            <i class="fas fa-pen text-xs"></i>
-                            Edit Profil
-                        </a>
+                        <x.ui.button href="{{ route('admin.user-lelang.edit', $profile) }}" variant="warning" size="sm">
+                            <i class="fas fa-pen text-xs"></i> Edit Profil
+                        </x.ui.button>
 
                         @if(!$profile->is_verified)
                             <form action="{{ route('admin.user-lelang.verify', $profile) }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors" onclick="return confirm('Yakin ingin memverifikasi profil ini?')">
-                                    <i class="fas fa-check text-xs"></i>
-                                    Verifikasi
-                                </button>
+                                <x.ui.button type="submit" variant="success" size="sm" onclick="return confirm('Yakin ingin memverifikasi profil ini?')">
+                                    <i class="fas fa-check text-xs"></i> Verifikasi
+                                </x.ui.button>
                             </form>
                         @endif
 
                         @if($profile->isActive())
-                            <button type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm transition-colors" @click="showSuspendModal = true">
-                                <i class="fas fa-ban text-xs"></i>
-                                Tangguhkan
-                            </button>
+                            <x.ui.button type="button" variant="danger" size="sm" @click="showSuspendModal = true">
+                                <i class="fas fa-ban text-xs"></i> Tangguhkan
+                            </x.ui.button>
                         @elseif($profile->isSuspended())
                             <form action="{{ route('admin.user-lelang.reactivate', $profile) }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors" onclick="return confirm('Yakin ingin mengaktifkan kembali profil ini?')">
-                                    <i class="fas fa-check-circle text-xs"></i>
-                                    Aktifkan Kembali
-                                </button>
+                                <x.ui.button type="submit" variant="success" size="sm" onclick="return confirm('Yakin ingin mengaktifkan kembali profil ini?')">
+                                    <i class="fas fa-check-circle text-xs"></i> Aktifkan Kembali
+                                </x.ui.button>
                             </form>
                         @endif
 
                         <form action="{{ route('admin.user-lelang.destroy', $profile) }}" method="POST" class="inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 font-medium text-sm transition-colors" onclick="return confirm('Yakin ingin menghapus profil ini? Tindakan ini tidak dapat dibatalkan.')">
-                                <i class="fas fa-trash text-xs"></i>
-                                Hapus
-                            </button>
+                            <x.ui.button type="submit" variant="outline-danger" size="sm" onclick="return confirm('Yakin ingin menghapus profil ini? Tindakan ini tidak dapat dibatalkan.')">
+                                <i class="fas fa-trash text-xs"></i> Hapus
+                            </x.ui.button>
                         </form>
 
-                        <a href="{{ route('admin.user-lelang.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors">
-                            <i class="fas fa-arrow-left text-xs"></i>
-                            Kembali
-                        </a>
+                        <x.ui.button href="{{ route('admin.user-lelang.index') }}" variant="secondary" size="sm">
+                            <i class="fas fa-arrow-left text-xs"></i> Kembali
+                        </x.ui.button>
                     </div>
                 </div>
             </div>
@@ -290,9 +284,9 @@
                                         </td>
                                         <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">{{ $auction->created_at->format('d M Y') }}</td>
                                         <td class="px-5 py-4">
-                                            <a href="{{ route('admin.auctions.show', $auction) }}" class="inline-flex items-center justify-center p-2 text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20 rounded-lg transition-colors" title="Lihat">
+                                            <x.ui.button href="{{ route('admin.auctions.show', $auction) }}" variant="ghost" size="icon-sm" title="Lihat">
                                                 <i class="fas fa-eye text-sm"></i>
-                                            </a>
+                                            </x.ui.button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -317,9 +311,9 @@
                             <div class="p-4 space-y-2">
                                 <div class="flex items-center justify-between">
                                     <div class="font-medium text-gray-900 dark:text-white">{{ $auction->title }}</div>
-                                    <a href="{{ route('admin.auctions.show', $auction) }}" class="inline-flex items-center justify-center p-2 text-primary-600 hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-900/20 rounded-lg transition-colors">
+                                    <x.ui.button href="{{ route('admin.auctions.show', $auction) }}" variant="ghost" size="icon-sm">
                                         <i class="fas fa-eye text-sm"></i>
-                                    </a>
+                                    </x.ui.button>
                                 </div>
                                 <div class="flex items-center gap-3 text-sm">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">{{ ucfirst($auction->status) }}</span>
@@ -376,8 +370,8 @@
                         </div>
                     </div>
                     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors" @click="showSuspendModal = false">Batal</button>
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm transition-colors">Tangguhkan</button>
+                        <x.ui.button type="button" variant="secondary" size="sm" @click="showSuspendModal = false">Batal</x.ui.button>
+                        <x.ui.button type="submit" variant="danger" size="sm">Tangguhkan</x.ui.button>
                     </div>
                 </form>
             </div>

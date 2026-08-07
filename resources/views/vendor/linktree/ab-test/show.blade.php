@@ -20,51 +20,51 @@
             @if($abTest->status === 'draft')
             <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $abTest]) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition">
-                    <i class="fas fa-play"></i> Mulai Test
-                </button>
+                <x.ui.button type="submit" variant="success">
+                    <i class="fas fa-play mr-1"></i> Mulai Test
+                </x.ui.button>
             </form>
             @endif
             @if($abTest->status === 'running')
             <form action="{{ route('vendor.linktree.ab-test.pause', [$linktree, $abTest]) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-yellow-700 bg-yellow-100 rounded-lg hover:bg-yellow-200 transition">
-                    <i class="fas fa-pause"></i> Jeda
-                </button>
+                <x.ui.button type="submit" variant="warning">
+                    <i class="fas fa-pause mr-1"></i> Jeda
+                </x.ui.button>
             </form>
             <form action="{{ route('vendor.linktree.ab-test.stop', [$linktree, $abTest]) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition">
-                    <i class="fas fa-stop"></i> Hentikan & Evaluasi
-                </button>
+                <x.ui.button type="submit" variant="danger">
+                    <i class="fas fa-stop mr-1"></i> Hentikan & Evaluasi
+                </x.ui.button>
             </form>
             @endif
             @if($abTest->status === 'paused')
             <form action="{{ route('vendor.linktree.ab-test.start', [$linktree, $abTest]) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition">
-                    <i class="fas fa-play"></i> Lanjutkan
-                </button>
+                <x.ui.button type="submit" variant="success">
+                    <i class="fas fa-play mr-1"></i> Lanjutkan
+                </x.ui.button>
             </form>
             <form action="{{ route('vendor.linktree.ab-test.stop', [$linktree, $abTest]) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition">
-                    <i class="fas fa-stop"></i> Hentikan & Evaluasi
-                </button>
+                <x.ui.button type="submit" variant="danger">
+                    <i class="fas fa-stop mr-1"></i> Hentikan & Evaluasi
+                </x.ui.button>
             </form>
             @endif
             @if($abTest->status === 'completed' && $winner)
             <form action="{{ route('vendor.linktree.ab-test.apply-winner', [$linktree, $abTest]) }}" method="POST" class="inline"
                   x-data @submit.prevent="if(confirm('Terapkan template pemenang sebagai template utama?')) $el.submit()">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition">
-                    <i class="fas fa-check"></i> Terapkan Pemenang
-                </button>
+                <x.ui.button type="submit" variant="success">
+                    <i class="fas fa-check mr-1"></i> Terapkan Pemenang
+                </x.ui.button>
             </form>
             @endif
-            <a href="{{ route('vendor.linktree.ab-test.index', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
+            <x.ui.button href="{{ route('vendor.linktree.ab-test.index', $linktree) }}" variant="outline">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali
+            </x.ui.button>
         </div>
     </div>
 
@@ -261,9 +261,9 @@
             <form action="{{ route('vendor.linktree.ab-test.apply-winner', [$linktree, $abTest]) }}" method="POST" class="inline"
                   x-data @submit.prevent="if(confirm('Terapkan template pemenang?')) $el.submit()">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition">
-                    <i class="fas fa-check"></i> Terapkan Template {{ ucfirst($winner === 'variant_a' ? $abTest->variant_a : $abTest->variant_b) }}
-                </button>
+                <x.ui.button type="submit" variant="success">
+                    <i class="fas fa-check mr-1"></i> Terapkan Template {{ ucfirst($winner === 'variant_a' ? $abTest->variant_a : $abTest->variant_b) }}
+                </x.ui.button>
             </form>
             @endif
             @else
@@ -328,9 +328,9 @@
                   x-data @submit.prevent="if(confirm('Hapus A/B test ini? Data tidak bisa dikembalikan.')) $el.submit()">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition">
-                    <i class="fas fa-trash"></i> Hapus Test
-                </button>
+                <x.ui.button type="submit" variant="danger" size="sm">
+                    <i class="fas fa-trash mr-1"></i> Hapus Test
+                </x.ui.button>
             </form>
             @endif
         </div>

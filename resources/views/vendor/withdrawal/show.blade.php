@@ -8,9 +8,7 @@
         <div class="text-sm text-gray-500 font-medium">Vendor Panel</div>
         <h2 class="text-2xl font-bold text-gray-900">Detail Penarikan</h2>
     </div>
-    <a href="{{ route('vendor.withdrawal.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm">
-        Kembali
-    </a>
+    <x.ui.button href="{{ route('vendor.withdrawal.index') }}" variant="outline">Kembali</x.ui.button>
 </div>
 
 <div class="py-6">
@@ -23,7 +21,7 @@
                     @if($withdrawal->status === 'pending')
                         <form action="{{ route('vendor.withdrawal.cancel', $withdrawal) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan penarikan ini?')">
                             @csrf
-                            <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">Batalkan</button>
+                            <x.ui.button type="submit" variant="danger" size="sm">Batalkan</x.ui.button>
                         </form>
                     @endif
                 </div>

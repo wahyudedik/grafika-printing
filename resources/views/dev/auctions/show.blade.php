@@ -10,27 +10,23 @@
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Detail lelang dan semua penawaran</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            <a href="{{ route('admin.auctions.index') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
-                <i class="fas fa-arrow-left"></i>
-                Kembali
-            </a>
-            <a href="{{ route('admin.auctions.edit', $auction) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-500 border border-transparent rounded-lg hover:bg-amber-600 transition-colors">
-                <i class="fas fa-edit"></i>
-                Edit Lelang
-            </a>
+            <x.ui.button href="{{ route('admin.auctions.index') }}" variant="outline" size="sm">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </x.ui.button>
+            <x.ui.button href="{{ route('admin.auctions.edit', $auction) }}" variant="warning" size="sm">
+                <i class="fas fa-edit"></i> Edit Lelang
+            </x.ui.button>
             @if($auction->status === 'pending')
                 <form action="{{ route('admin.auctions.approve', $auction) }}" method="POST" class="inline" x-data>
                     @csrf
-                    <button type="submit" @click="return confirm('Setujui lelang ini?')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-500 border border-transparent rounded-lg hover:bg-emerald-600 transition-colors">
-                        <i class="fas fa-check"></i>
-                        Setujui Lelang
-                    </button>
+                    <x.ui.button type="submit" variant="success" size="sm" @click="return confirm('Setujui lelang ini?')">
+                        <i class="fas fa-check"></i> Setujui Lelang
+                    </x.ui.button>
                 </form>
                 <div x-data="{ open: false }">
-                    <button type="button" @click="open = true" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-500 border border-transparent rounded-lg hover:bg-red-600 transition-colors">
-                        <i class="fas fa-times"></i>
-                        Tolak Lelang
-                    </button>
+                    <x.ui.button type="button" variant="danger" size="sm" @click="open = true">
+                        <i class="fas fa-times"></i> Tolak Lelang
+                    </x.ui.button>
                     {{-- Reject Modal --}}
                     <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 overflow-y-auto" x-cloak @click.away="open = false">
                         <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="open = false"></div>
@@ -46,8 +42,8 @@
                                         <textarea name="rejection_reason" rows="4" required placeholder="Masukkan alasan penolakan lelang..." class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"></textarea>
                                     </div>
                                     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                                        <button type="button" @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">Batal</button>
-                                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors">Tolak Lelang</button>
+                                        <x.ui.button type="button" variant="outline" size="sm" @click="open = false">Batal</x.ui.button>
+                                        <x.ui.button type="submit" variant="danger" size="sm">Tolak Lelang</x.ui.button>
                                     </div>
                                 </form>
                             </div>
@@ -58,10 +54,9 @@
             @if($auction->status === 'active')
                 <form action="{{ route('admin.auctions.close', $auction) }}" method="POST" class="inline" x-data>
                     @csrf
-                    <button type="submit" @click="return confirm('Tutup lelang ini?')" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-500 border border-transparent rounded-lg hover:bg-amber-600 transition-colors">
-                        <i class="fas fa-times-circle"></i>
-                        Tutup Lelang
-                    </button>
+                    <x.ui.button type="submit" variant="warning" size="sm" @click="return confirm('Tutup lelang ini?')">
+                        <i class="fas fa-times-circle"></i> Tutup Lelang
+                    </x.ui.button>
                 </form>
             @endif
         </div>
@@ -130,10 +125,9 @@
                         @if($auction->file_path)
                             <div class="md:col-span-2">
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">File Lampiran</p>
-                                <a href="{{ asset('storage/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
-                                    <i class="fas fa-download"></i>
-                                    Download File
-                                </a>
+                                <x.ui.button href="{{ asset('storage/' . $auction->file_path) }}" variant="outline-primary" size="sm">
+                                    <i class="fas fa-download"></i> Download File
+                                </x.ui.button>
                             </div>
                         @endif
                     </div>
@@ -262,9 +256,9 @@
                                         <p class="text-xs text-gray-500 dark:text-gray-400">{{ $bid->created_at->format('H:i') }}</p>
                                     </td>
                                     <td class="py-3 px-4 text-center" x-data="{ open: false }">
-                                        <button type="button" @click="open = true" class="inline-flex items-center justify-center w-8 h-8 text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors" title="Lihat Detail">
+                                        <x.ui.button type="button" variant="ghost" size="icon-sm" @click="open = true" title="Lihat Detail">
                                             <i class="fas fa-eye"></i>
-                                        </button>
+                                        </x.ui.button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -289,7 +283,7 @@
                                         <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $bid->vendor->name }}</p>
                                     </div>
                                 </div>
-                                <button @click="open = true" class="text-primary-600 dark:text-primary-400"><i class="fas fa-eye"></i></button>
+                                <x.ui.button type="button" variant="ghost" size="icon-sm" @click="open = true"><i class="fas fa-eye"></i></x.ui.button>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm font-bold text-emerald-600 dark:text-emerald-400">Rp {{ number_format($bid->bid_amount) }}</span>
@@ -358,7 +352,7 @@
                             </div>
                         </div>
                         <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-                            <button @click="open = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">Tutup</button>
+                            <x.ui.button type="button" variant="outline" size="sm" @click="open = false">Tutup</x.ui.button>
                         </div>
                     </div>
                 </div>

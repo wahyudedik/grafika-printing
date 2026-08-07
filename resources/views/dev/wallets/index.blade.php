@@ -11,10 +11,10 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage vendor wallets and transactions</p>
         </div>
         <div class="hidden sm:block">
-            <a href="{{ route('admin.wallets.statistics') }}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-sm transition-colors">
+            <x.ui.button href="{{ route('admin.wallets.statistics') }}" variant="outline-primary" size="sm">
                 <i class="fas fa-chart-pie text-xs"></i>
                 Statistics
-            </a>
+            </x.ui.button>
         </div>
     </div>
 
@@ -66,13 +66,11 @@
                     <input type="text" name="search" class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500" placeholder="Search by vendor name or email..." value="{{ request('search') }}">
                 </div>
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium text-sm transition-colors">
+                    <x.ui.button type="submit" variant="primary" size="sm">
                         <i class="fas fa-filter text-xs"></i>
                         Filter
-                    </button>
-                    <a href="{{ route('admin.wallets.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors">
-                        Reset
-                    </a>
+                    </x.ui.button>
+                    <x.ui.button href="{{ route('admin.wallets.index') }}" variant="secondary" size="sm">Reset</x.ui.button>
                 </div>
             </div>
         </form>
@@ -132,24 +130,20 @@
                                 </td>
                                 <td class="px-5 py-4">
                                     <div class="flex flex-wrap gap-1">
-                                        <a href="{{ route('admin.wallets.show', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-xs transition-colors">
-                                            <i class="fas fa-eye text-xs"></i>
-                                            View
-                                        </a>
-                                        <a href="{{ route('admin.wallets.transactions', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 font-medium text-xs transition-colors">
-                                            <i class="fas fa-list text-xs"></i>
-                                            Transactions
-                                        </a>
+                                        <x.ui.button href="{{ route('admin.wallets.show', $wallet->id) }}" variant="outline-primary" size="xs">
+                                            <i class="fas fa-eye text-xs"></i> View
+                                        </x.ui.button>
+                                        <x.ui.button href="{{ route('admin.wallets.transactions', $wallet->id) }}" variant="info" size="xs">
+                                            <i class="fas fa-list text-xs"></i> Transactions
+                                        </x.ui.button>
                                         @if ($wallet->status === 'active')
-                                            <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 font-medium text-xs transition-colors" @click="freezeWalletId = {{ $wallet->id }}; freezeReason = ''; showFreezeModal = true">
-                                                <i class="fas fa-snowflake text-xs"></i>
-                                                Freeze
-                                            </button>
+                                            <x.ui.button type="button" variant="outline-danger" size="xs" @click="freezeWalletId = {{ $wallet->id }}; freezeReason = ''; showFreezeModal = true">
+                                                <i class="fas fa-snowflake text-xs"></i> Freeze
+                                            </x.ui.button>
                                         @elseif($wallet->status === 'frozen')
-                                            <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 font-medium text-xs transition-colors" @click="unfreezeWalletId = {{ $wallet->id }}; unfreezeReason = ''; showUnfreezeModal = true">
-                                                <i class="fas fa-sun text-xs"></i>
-                                                Unfreeze
-                                            </button>
+                                            <x.ui.button type="button" variant="outline-success" size="xs" @click="unfreezeWalletId = {{ $wallet->id }}; unfreezeReason = ''; showUnfreezeModal = true">
+                                                <i class="fas fa-sun text-xs"></i> Unfreeze
+                                            </x.ui.button>
                                         @endif
                                     </div>
                                 </td>
@@ -191,20 +185,20 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <a href="{{ route('admin.wallets.show', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-primary-300 dark:border-primary-700 text-primary-700 dark:text-primary-400 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 font-medium text-xs transition-colors">
+                            <x.ui.button href="{{ route('admin.wallets.show', $wallet->id) }}" variant="outline-primary" size="xs">
                                 <i class="fas fa-eye text-xs"></i> View
-                            </a>
-                            <a href="{{ route('admin.wallets.transactions', $wallet->id) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-400 rounded-lg hover:bg-sky-50 dark:hover:bg-sky-900/20 font-medium text-xs transition-colors">
+                            </x.ui.button>
+                            <x.ui.button href="{{ route('admin.wallets.transactions', $wallet->id) }}" variant="info" size="xs">
                                 <i class="fas fa-list text-xs"></i> Transactions
-                            </a>
+                            </x.ui.button>
                             @if ($wallet->status === 'active')
-                                <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 font-medium text-xs transition-colors" @click="freezeWalletId = {{ $wallet->id }}; freezeReason = ''; showFreezeModal = true">
+                                <x.ui.button type="button" variant="outline-danger" size="xs" @click="freezeWalletId = {{ $wallet->id }}; freezeReason = ''; showFreezeModal = true">
                                     <i class="fas fa-snowflake text-xs"></i> Freeze
-                                </button>
+                                </x.ui.button>
                             @elseif($wallet->status === 'frozen')
-                                <button type="button" class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 font-medium text-xs transition-colors" @click="unfreezeWalletId = {{ $wallet->id }}; unfreezeReason = ''; showUnfreezeModal = true">
+                                <x.ui.button type="button" variant="outline-success" size="xs" @click="unfreezeWalletId = {{ $wallet->id }}; unfreezeReason = ''; showUnfreezeModal = true">
                                     <i class="fas fa-sun text-xs"></i> Unfreeze
-                                </button>
+                                </x.ui.button>
                             @endif
                         </div>
                     </div>
@@ -246,8 +240,8 @@
                         </div>
                     </div>
                     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors" @click="showFreezeModal = false">Cancel</button>
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm transition-colors">Freeze Wallet</button>
+                        <x.ui.button type="button" variant="secondary" size="sm" @click="showFreezeModal = false">Cancel</x.ui.button>
+                        <x.ui.button type="submit" variant="danger" size="sm">Freeze Wallet</x.ui.button>
                     </div>
                 </form>
             </div>
@@ -276,8 +270,8 @@
                         </div>
                     </div>
                     <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
-                        <button type="button" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 font-medium text-sm transition-colors" @click="showUnfreezeModal = false">Cancel</button>
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm transition-colors">Unfreeze Wallet</button>
+                        <x.ui.button type="button" variant="secondary" size="sm" @click="showUnfreezeModal = false">Cancel</x.ui.button>
+                        <x.ui.button type="submit" variant="success" size="sm">Unfreeze Wallet</x.ui.button>
                     </div>
                 </form>
             </div>

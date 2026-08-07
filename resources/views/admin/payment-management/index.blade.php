@@ -7,9 +7,9 @@
                 <p class="text-sm font-medium text-gray-500">Manajemen</p>
                 <h1 class="text-2xl font-bold text-gray-900">Payment Management</h1>
             </div>
-            <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="bulkCheckStatus()">
+            <x-ui.button variant="outline-info" onclick="bulkCheckStatus()">
                 <i class="fas fa-sync-alt mr-2"></i> Bulk Check Status
-            </button>
+            </x-ui.button>
         </div>
     </div>
 
@@ -75,9 +75,9 @@
                             <span class="text-sm text-gray-500">{{ $auction->created_at->diffForHumans() }}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right">
-                            <button type="button" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="createNewPaymentLink({{ $auction->id }})">
+                            <x-ui.button variant="outline-primary" size="sm" onclick="createNewPaymentLink({{ $auction->id }})">
                                 Create New Link
-                            </button>
+                            </x-ui.button>
                         </td>
                     </tr>
                     @endforeach
@@ -123,9 +123,9 @@
                             <span class="text-sm text-gray-500">{{ $payment->expires_at->diffForHumans() }}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right">
-                            <button type="button" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="checkPaymentStatus({{ $payment->id }})">
+                            <x-ui.button variant="outline-primary" size="sm" onclick="checkPaymentStatus({{ $payment->id }})">
                                 Check Status
-                            </button>
+                            </x-ui.button>
                         </td>
                     </tr>
                     @endforeach
@@ -171,9 +171,9 @@
                             <span class="text-sm text-gray-500">{{ $payment->updated_at->diffForHumans() }}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right">
-                            <button type="button" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="checkPaymentStatus({{ $payment->id }})">
+                            <x-ui.button variant="outline-primary" size="sm" onclick="checkPaymentStatus({{ $payment->id }})">
                                 Check Status
-                            </button>
+                            </x-ui.button>
                         </td>
                     </tr>
                     @endforeach

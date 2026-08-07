@@ -9,10 +9,9 @@
             <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Lelang</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Edit data lelang {{ $auction->title }}</p>
         </div>
-        <a href="{{ route('admin.auctions.show', $auction) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
-            <i class="fas fa-arrow-left"></i>
-            Kembali ke Detail
-        </a>
+        <x.ui.button href="{{ route('admin.auctions.show', $auction) }}" variant="outline" size="sm">
+            <i class="fas fa-arrow-left"></i> Kembali ke Detail
+        </x.ui.button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -123,23 +122,19 @@
                         @if($auction->file_path)
                             <div class="mt-2">
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">File saat ini:</p>
-                                <a href="{{ asset('storage/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
-                                    <i class="fas fa-file-alt"></i>
-                                    Lihat File
-                                </a>
+                                <x.ui.button href="{{ asset('storage/' . $auction->file_path) }}" variant="outline-primary" size="xs">
+                                    <i class="fas fa-file-alt"></i> Lihat File
+                                </x.ui.button>
                             </div>
                         @endif
                     </div>
 
                     {{-- Submit --}}
                     <div class="flex items-center gap-3 pt-2">
-                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary-600 border border-transparent rounded-lg hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors" data-loading>
-                            <i class="fas fa-check"></i>
-                            Simpan Perubahan
-                        </button>
-                        <a href="{{ route('admin.auctions.show', $auction) }}" class="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:hover:bg-gray-700 transition-colors">
-                            Batal
-                        </a>
+                        <x.ui.button type="submit" variant="primary" size="md" data-loading>
+                            <i class="fas fa-check"></i> Simpan Perubahan
+                        </x.ui.button>
+                        <x.ui.button href="{{ route('admin.auctions.show', $auction) }}" variant="outline" size="md">Batal</x.ui.button>
                     </div>
                 </form>
             </div>
@@ -194,26 +189,23 @@
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Aksi Cepat</h3>
                 </div>
                 <div class="px-6 py-4 space-y-3">
-                    <a href="{{ route('admin.auctions.show', $auction) }}" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-300 rounded-lg hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-900/30 dark:border-primary-700 dark:hover:bg-primary-900/50 transition-colors">
-                        <i class="fas fa-eye"></i>
-                        Lihat Detail
-                    </a>
+                    <x.ui.button href="{{ route('admin.auctions.show', $auction) }}" variant="outline-primary" size="sm" class="w-full">
+                        <i class="fas fa-eye"></i> Lihat Detail
+                    </x.ui.button>
                     @if($auction->status === 'active')
                         <form action="{{ route('admin.auctions.close', $auction) }}" method="POST" x-data>
                             @csrf
-                            <button type="submit" @click="return confirm('Tutup lelang ini?')" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 dark:text-amber-300 dark:bg-amber-900/30 dark:border-amber-700 dark:hover:bg-amber-900/50 transition-colors">
-                                <i class="fas fa-times-circle"></i>
-                                Tutup Lelang
-                            </button>
+                            <x.ui.button type="submit" variant="warning" size="sm" class="w-full" @click="return confirm('Tutup lelang ini?')">
+                                <i class="fas fa-times-circle"></i> Tutup Lelang
+                            </x.ui.button>
                         </form>
                     @endif
                     <form action="{{ route('admin.auctions.destroy', $auction) }}" method="POST" x-data>
                         @csrf
                         @method('DELETE')
-                        <button type="submit" @click="return confirm('Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!')" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 border border-red-300 rounded-lg hover:bg-red-100 dark:text-red-300 dark:bg-red-900/30 dark:border-red-700 dark:hover:bg-red-900/50 transition-colors">
-                            <i class="fas fa-trash"></i>
-                            Hapus Lelang
-                        </button>
+                        <x.ui.button type="submit" variant="danger" size="sm" class="w-full" @click="return confirm('Hapus lelang ini? Tindakan ini tidak dapat dibatalkan!')">
+                            <i class="fas fa-trash"></i> Hapus Lelang
+                        </x.ui.button>
                     </form>
                 </div>
             </div>

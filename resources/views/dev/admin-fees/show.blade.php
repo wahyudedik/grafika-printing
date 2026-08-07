@@ -6,12 +6,12 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-900">{{ $adminFee->name }}</h1>
         <div class="flex gap-2">
-            <a href="{{ route('admin.admin-fees.edit', $adminFee) }}" class="px-4 py-2 text-sm font-medium text-white bg-yellow-500 rounded-lg hover:bg-yellow-600">
-                <i class="fas fa-edit mr-1"></i>Edit
-            </a>
-            <a href="{{ route('admin.admin-fees.index') }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                <i class="fas fa-times mr-1"></i>Kembali
-            </a>
+            <x.ui.button type="button" variant="primary" href="{{ route('admin.admin-fees.edit', $adminFee) }}">
+                <i class="fas fa-edit mr-1"></i> Edit
+            </x.ui.button>
+            <x.ui.button type="button" variant="outline" href="{{ route('admin.admin-fees.index') }}">
+                <i class="fas fa-times mr-1"></i> Kembali
+            </x.ui.button>
         </div>
     </div>
 

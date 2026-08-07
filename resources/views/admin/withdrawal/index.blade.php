@@ -45,8 +45,8 @@
                     <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" name="date_to" value="{{ request('date_to') }}">
                 </div>
                 <div class="sm:w-48 flex items-end gap-2">
-                    <button type="submit" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">Filter</button>
-                    <a href="{{ route('admin.withdrawals.index') }}" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-center">Reset</a>
+                    <x-ui.button type="submit" variant="primary" class="flex-1">Filter</x-ui.button>
+                    <x-ui.button variant="outline" :href="route('admin.withdrawals.index')" class="flex-1 text-center">Reset</x-ui.button>
                 </div>
             </form>
         </div>
@@ -56,10 +56,10 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Daftar Penarikan</h3>
-            <a href="{{ route('admin.withdrawals.statistics') }}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                <i class="fas fa-chart-bar text-xs"></i>
+            <x-ui.button variant="outline-info" :href="route('admin.withdrawals.statistics')" size="sm">
+                <i class="fas fa-chart-bar mr-1.5 text-xs"></i>
                 Statistik
-            </a>
+            </x-ui.button>
         </div>
 
         @if($withdrawals->count() > 0)

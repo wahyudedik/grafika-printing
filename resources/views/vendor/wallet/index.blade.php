@@ -8,10 +8,9 @@
         <h2 class="text-2xl font-bold text-gray-900">Wallet Dashboard</h2>
         <p class="text-sm text-gray-500">Kelola saldo dan penarikan dana Anda</p>
     </div>
-    <a href="{{ route('vendor.wallet.create-withdrawal') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium">
-        <i class="fas fa-money-bill-wave"></i>
-        Tarik Dana
-    </a>
+    <x.ui.button href="{{ route('vendor.wallet.create-withdrawal') }}" variant="primary">
+        <i class="fas fa-money-bill-wave mr-2"></i>Tarik Dana
+    </x.ui.button>
 </div>
 
 @if (session('success'))

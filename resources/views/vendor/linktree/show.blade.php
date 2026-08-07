@@ -16,28 +16,28 @@
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             @if($linktree->is_active)
-            <a href="{{ route('linktree.public', $linktree->custom_url) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition">
-                <i class="fas fa-eye"></i> Lihat Publik
-            </a>
+            <x.ui.button href="{{ route('linktree.public', $linktree->custom_url) }}" variant="outline-info" size="sm" target="_blank">
+                <i class="fas fa-eye mr-1"></i> Lihat Publik
+            </x.ui.button>
             @endif
-            <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">
-                <i class="fas fa-pen"></i> Edit
-            </a>
-            <a href="{{ route('vendor.linktree.template.index', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 transition">
-                <i class="fas fa-palette"></i> Template
-            </a>
-            <a href="{{ route('vendor.linktree.analytics', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-purple-700 bg-purple-100 rounded-lg hover:bg-purple-200 transition">
-                <i class="fas fa-chart-bar"></i> Analytics
-            </a>
-            <a href="{{ route('vendor.linktree.products', $linktree) }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition">
-                <i class="fas fa-box"></i> Produk
-            </a>
+            <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" size="sm">
+                <i class="fas fa-pen mr-1"></i> Edit
+            </x.ui.button>
+            <x.ui.button href="{{ route('vendor.linktree.template.index', $linktree) }}" variant="info" size="sm">
+                <i class="fas fa-palette mr-1"></i> Template
+            </x.ui.button>
+            <x.ui.button href="{{ route('vendor.linktree.analytics', $linktree) }}" variant="outline-info" size="sm">
+                <i class="fas fa-chart-bar mr-1"></i> Analytics
+            </x.ui.button>
+            <x.ui.button href="{{ route('vendor.linktree.products', $linktree) }}" variant="outline-primary" size="sm">
+                <i class="fas fa-box mr-1"></i> Produk
+            </x.ui.button>
 
             {{-- Dropdown Tools --}}
             <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                    <i class="fas fa-folder-open"></i> Link Tools <i class="fas fa-chevron-down text-xs"></i>
-                </button>
+                <x.ui.button @click="open = !open" variant="outline" size="sm">
+                    <i class="fas fa-folder-open mr-1"></i> Link Tools <i class="fas fa-chevron-down text-xs ml-1"></i>
+                </x.ui.button>
                 <div x-show="open" @click.away="open = false" x-transition
                      class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-10">
                     <a href="{{ route('vendor.linktree.export-links', $linktree) }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
@@ -55,9 +55,9 @@
 
             <form action="{{ route('vendor.linktree.toggle-active', $linktree) }}" method="POST" class="inline">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white {{ $linktree->is_active ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-600 hover:bg-green-700' }} rounded-lg transition">
+                <x.ui.button type="submit" variant="{{ $linktree->is_active ? 'warning' : 'success' }}">
                     {{ $linktree->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                </button>
+                </x.ui.button>
             </form>
         </div>
     </div>
@@ -109,9 +109,9 @@
                                         <span class="bg-gray-50 px-3 py-2 text-xs text-gray-500 border-r border-gray-300 shrink-0">{{ config('app.url') }}/l/</span>
                                         <input type="text" value="{{ $linktree->custom_url }}" readonly class="flex-1 px-3 py-2 text-sm bg-white focus:outline-none">
                                     </div>
-                                    <button onclick="copyToClipboard('{{ config('app.url') }}/l/{{ $linktree->custom_url }}')" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition shrink-0">
-                                        <i class="fas fa-copy"></i> Salin
-                                    </button>
+                                    <x.ui.button onclick="copyToClipboard('{{ config('app.url') }}/l/{{ $linktree->custom_url }}')" variant="outline-primary" size="xs">
+                                        <i class="fas fa-copy mr-1"></i> Salin
+                                    </x.ui.button>
                                 </div>
                             </div>
                         </div>
@@ -385,21 +385,21 @@
                     </h2>
                 </div>
                 <div class="p-4 space-y-2">
-                    <a href="{{ route('vendor.linktree.edit', $linktree) }}" class="w-full inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-primary-700 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition">
-                        <i class="fas fa-pen"></i> Edit Linktree
-                    </a>
+                    <x.ui.button href="{{ route('vendor.linktree.edit', $linktree) }}" variant="outline-primary" class="w-full justify-center">
+                        <i class="fas fa-pen mr-1"></i> Edit Linktree
+                    </x.ui.button>
                     @if($linktree->is_active)
-                    <button onclick="generateQRCode('{{ config('app.url') }}/l/{{ $linktree->custom_url }}')" class="w-full inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition">
-                        <i class="fas fa-qrcode"></i> Generate QR Code
-                    </button>
+                    <x.ui.button onclick="generateQRCode('{{ config('app.url') }}/l/{{ $linktree->custom_url }}')" variant="outline-info" class="w-full justify-center">
+                        <i class="fas fa-qrcode mr-1"></i> Generate QR Code
+                    </x.ui.button>
                     @endif
                     <form action="{{ route('vendor.linktree.destroy', $linktree) }}" method="POST"
                           x-data @submit.prevent="if(confirm('Apakah Anda yakin ingin menghapus linktree ini? Semua link dan social media akan ikut terhapus.')) $el.submit()">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-full inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition">
-                            <i class="fas fa-trash"></i> Hapus Linktree
-                        </button>
+                        <x.ui.button type="submit" variant="danger" class="w-full">
+                            <i class="fas fa-trash mr-1"></i> Hapus Linktree
+                        </x.ui.button>
                     </form>
                 </div>
             </div>
@@ -429,10 +429,10 @@
             </div>
             <p class="text-xs text-gray-500 text-center mb-4" x-text="qrText"></p>
             <div class="flex items-center justify-center gap-3">
-                <button @click="downloadQR()" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-700 bg-primary-100 rounded-lg hover:bg-primary-200 transition">
-                    <i class="fas fa-download"></i> Download
-                </button>
-                <button @click="open = false" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition">Tutup</button>
+                <x.ui.button @click="downloadQR()" variant="outline-primary" size="sm">
+                    <i class="fas fa-download mr-1"></i> Download
+                </x.ui.button>
+                <x.ui.button @click="open = false" variant="primary" size="sm">Tutup</x.ui.button>
             </div>
         </div>
     </div>

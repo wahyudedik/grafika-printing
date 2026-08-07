@@ -9,10 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Pengaturan</p>
             <h1 class="text-2xl font-bold text-gray-900">Statistik Biaya Admin</h1>
         </div>
-        <a href="{{ route('admin.admin-fees.index') }}"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <i class="fa-solid fa-arrow-left"></i> Kembali
-        </a>
+        <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+        </x-ui.button>
     </div>
 
     {{-- Stats Cards --}}
@@ -68,9 +67,9 @@
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Grafik Pendapatan Biaya Admin</h3>
             <div class="relative" x-data="{ openPeriod: false }" @click.away="openPeriod = false">
-                <button class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors" @click="openPeriod = !openPeriod">
-                    <i class="fa-solid fa-clock"></i> Periode <i class="fa-solid fa-chevron-down text-xs"></i>
-                </button>
+                <x-ui.button variant="outline-info" size="sm" @click="openPeriod = !openPeriod">
+                    <i class="fa-solid fa-clock mr-1"></i> Periode <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
+                </x-ui.button>
                 <div x-show="openPeriod" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                     <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ request()->fullUrlWithQuery(['period' => '7days']) }}">7 Hari Terakhir</a>
                     <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ request()->fullUrlWithQuery(['period' => '30days']) }}">30 Hari Terakhir</a>
@@ -162,14 +161,12 @@
         </div>
         <div class="p-6">
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('admin.admin-fees.transactions') }}?export=excel"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
-                    <i class="fa-solid fa-file-excel"></i> Export ke Excel
-                </a>
-                <a href="{{ route('admin.admin-fees.transactions') }}?export=pdf"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
-                    <i class="fa-solid fa-file-pdf"></i> Export ke PDF
-                </a>
+                <x-ui.button variant="outline-success" :href="route('admin.admin-fees.transactions') . '?export=excel'">
+                    <i class="fa-solid fa-file-excel mr-2"></i> Export ke Excel
+                </x-ui.button>
+                <x-ui.button variant="outline-danger" :href="route('admin.admin-fees.transactions') . '?export=pdf'">
+                    <i class="fa-solid fa-file-pdf mr-2"></i> Export ke PDF
+                </x-ui.button>
             </div>
         </div>
     </div>

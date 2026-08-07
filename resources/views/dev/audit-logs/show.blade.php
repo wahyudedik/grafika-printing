@@ -9,10 +9,9 @@
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Audit Log Details</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Detail log audit #{{ $log->id }}</p>
             </div>
-            <a href="{{ route('admin.audit-logs.index') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-sm font-medium">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back to List</span>
-            </a>
+            <x.ui.button type="button" variant="outline" href="{{ route('admin.audit-logs.index') }}">
+                <i class="fas fa-arrow-left mr-1"></i> Back to List
+            </x.ui.button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -7,9 +7,9 @@
                 <p class="text-sm font-medium text-gray-500">Payment Management</p>
                 <h1 class="text-2xl font-bold text-gray-900">Payment Details</h1>
             </div>
-            <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <x-ui.button variant="outline" :href="route('admin.payments.index')">
                 <i class="fas fa-arrow-left mr-2"></i> Back
-            </a>
+            </x-ui.button>
         </div>
     </div>
 
@@ -104,13 +104,13 @@
             <div class="border-t border-gray-200 pt-6">
                 <div class="flex items-center gap-3">
                     @if ($payment->status === 'pending')
-                    <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700" onclick="checkPaymentStatus({{ $payment->id }})">
+                    <x-ui.button variant="primary" onclick="checkPaymentStatus({{ $payment->id }})">
                         <i class="fas fa-sync-alt mr-2"></i> Check Status
-                    </button>
+                    </x-ui.button>
                     @endif
-                    <button type="button" class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-300 rounded-lg hover:bg-blue-100" onclick="resendNotification({{ $payment->id }})">
+                    <x-ui.button variant="outline-info" onclick="resendNotification({{ $payment->id }})">
                         <i class="fas fa-paper-plane mr-2"></i> Resend Notification
-                    </button>
+                    </x-ui.button>
                 </div>
             </div>
         </div>

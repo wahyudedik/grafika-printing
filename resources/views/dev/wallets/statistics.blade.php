@@ -11,10 +11,9 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Comprehensive wallet analytics and insights</p>
         </div>
         <div>
-            <a href="{{ route('admin.wallets.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-sm transition-colors">
-                <i class="fas fa-arrow-right text-xs"></i>
-                Back to Wallets
-            </a>
+            <x.ui.button type="button" variant="outline" href="{{ route('admin.wallets.index') }}">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Wallets
+            </x.ui.button>
         </div>
     </div>
 
