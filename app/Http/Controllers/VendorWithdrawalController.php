@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Models\VendorWithdrawal;
 use App\Models\VendorWallet;
 use App\Models\Vendor;
@@ -17,11 +19,10 @@ class VendorWithdrawalController extends Controller
      */
     public function index()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan');
         }
 
         $withdrawals = VendorWithdrawal::where('vendor_id', $vendor->id)
@@ -39,11 +40,10 @@ class VendorWithdrawalController extends Controller
      */
     public function create()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan');
         }
 
         $wallet = $vendor->getOrCreateWallet();
@@ -66,11 +66,10 @@ class VendorWithdrawalController extends Controller
             'notes' => 'nullable|string|max:500'
         ]);
 
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan');
         }
 
         $wallet = $vendor->getOrCreateWallet();
@@ -78,14 +77,12 @@ class VendorWithdrawalController extends Controller
 
         // Check minimum withdrawal amount
         if ($request->amount < $minWithdrawal) {
-            return redirect()->back()
-                ->with('toast_error', "Minimum penarikan adalah Rp " . number_format($minWithdrawal, 0, ',', '.'));
+            return FlashMessage::backError("Minimum penarikan adalah Rp " . number_format($minWithdrawal, 0, ',', '.'));
         }
 
         // Check if vendor has sufficient balance
         if (!$wallet->hasSufficientBalance($request->amount)) {
-            return redirect()->back()
-                ->with('toast_error', 'Saldo tidak mencukupi');
+            return FlashMessage::backError('Saldo tidak mencukupi');
         }
 
         try {
@@ -106,16 +103,14 @@ class VendorWithdrawalController extends Controller
                 'method' => $request->input('method')
             ]);
 
-            return redirect()->route('vendor.withdrawal.index')
-                ->with('toast_success', 'Permintaan penarikan berhasil diajukan! Kode: ' . $withdrawal->withdrawal_code);
+            return FlashMessage::success(redirect()->route('vendor.withdrawal.index'), 'Permintaan penarikan berhasil diajukan! Kode: ' . $withdrawal->withdrawal_code);
         } catch (\Exception $e) {
             Log::error('Withdrawal request failed', [
                 'vendor_id' => $vendor->id,
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('toast_error', 'Gagal mengajukan penarikan: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal mengajukan penarikan: ' . $e->getMessage());
         }
     }
 
@@ -124,7 +119,7 @@ class VendorWithdrawalController extends Controller
      */
     public function show(VendorWithdrawal $withdrawal)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor || $withdrawal->vendor_id !== $vendor->id) {
             abort(403, 'Anda tidak memiliki akses untuk melihat penarikan ini');
@@ -138,15 +133,14 @@ class VendorWithdrawalController extends Controller
      */
     public function cancel(VendorWithdrawal $withdrawal)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor || $withdrawal->vendor_id !== $vendor->id) {
             abort(403, 'Anda tidak memiliki akses untuk membatalkan penarikan ini');
         }
 
         if ($withdrawal->status !== 'pending') {
-            return redirect()->back()
-                ->with('toast_error', 'Penarikan tidak dapat dibatalkan');
+            return FlashMessage::backError('Penarikan tidak dapat dibatalkan');
         }
 
         try {
@@ -157,8 +151,7 @@ class VendorWithdrawalController extends Controller
                 'withdrawal_id' => $withdrawal->id
             ]);
 
-            return redirect()->route('vendor.withdrawal.index')
-                ->with('toast_success', 'Penarikan berhasil dibatalkan');
+            return FlashMessage::success(redirect()->route('vendor.withdrawal.index'), 'Penarikan berhasil dibatalkan');
         } catch (\Exception $e) {
             Log::error('Withdrawal cancellation failed', [
                 'vendor_id' => $vendor->id,
@@ -166,8 +159,7 @@ class VendorWithdrawalController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('toast_error', 'Gagal membatalkan penarikan: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal membatalkan penarikan: ' . $e->getMessage());
         }
     }
 
@@ -197,11 +189,10 @@ class VendorWithdrawalController extends Controller
      */
     public function history()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan');
         }
 
         $withdrawals = VendorWithdrawal::where('vendor_id', $vendor->id)

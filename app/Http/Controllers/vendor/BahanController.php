@@ -6,15 +6,26 @@ use App\Models\Vendor\Bahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use App\Models\Vendor\WholesalePrice;
+use App\Http\Requests\StoreBahanRequest;
+use App\Http\Requests\UpdateBahanRequest;
+use App\Http\Responses\FlashMessage;
+
+
 
 class BahanController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->requireVendor();
+
         $bahan = Bahan::search($request->search)
             ->stockFilter($request->stok)
             ->wholesaleFilter($request->has_wholesale)
@@ -29,28 +40,31 @@ class BahanController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         return view('bahan.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBahanRequest $request)
     {
-        $validated = $this->validateBahan($request);
+        $vendorId = $this->requireVendor()->id;
 
-        return DB::transaction(function () use ($request, $validated) {
+        $validated = $request->validated();
+
+        return DB::transaction(function () use ($request, $validated, $vendorId) {
             // Add vendor_id to validated data
-            $validated['vendor_id'] = session('current_vendor_id');
+            $validated['vendor_id'] = $vendorId;
 
             // Create bahan
             $bahan = Bahan::create($validated);
 
             // Process wholesale prices
-            $this->processWholesalePrices($bahan->id, $request);
+            $this->processWholesalePrices($bahan->id, $request, $vendorId);
 
-            return redirect()->route('vendor.materials.index')
-                ->with('toast_success', 'Bahan berhasil ditambahkan!');
+            return FlashMessage::success(redirect()->route('vendor.materials.index'), 'Bahan berhasil ditambahkan!');
         });
     }
 
@@ -59,6 +73,8 @@ class BahanController extends Controller
      */
     public function show(string $id)
     {
+        $this->requireVendor();
+
         $bahan = Bahan::with('wholesalePrices')->findOrFail($id);
         return view('bahan.show', compact('bahan'));
     }
@@ -68,6 +84,8 @@ class BahanController extends Controller
      */
     public function edit(string $id)
     {
+        $this->requireVendor();
+
         $bahan = Bahan::with('wholesalePrices')->findOrFail($id);
         return view('bahan.edit', compact('bahan'));
     }
@@ -75,9 +93,11 @@ class BahanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateBahanRequest $request, string $id)
     {
-        $validated = $this->validateBahan($request);
+        $this->requireVendor();
+
+        $validated = $request->validated();
 
         return DB::transaction(function () use ($request, $validated, $id) {
             $bahan = Bahan::findOrFail($id);
@@ -87,13 +107,12 @@ class BahanController extends Controller
             $this->updateExistingWholesalePrices($request);
 
             // Add new wholesale prices
-            $this->addNewWholesalePrices($bahan->id, $request);
+            $this->addNewWholesalePrices($bahan->id, $request, $this->getVendorId());
 
             // Delete removed wholesale prices
             $this->deleteRemovedWholesalePrices($request);
 
-            return redirect()->route('vendor.materials.index')
-                ->with('toast_success', 'Bahan berhasil diperbarui!');
+            return FlashMessage::success(redirect()->route('vendor.materials.index'), 'Bahan berhasil diperbarui!');
         });
     }
 
@@ -102,6 +121,8 @@ class BahanController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->requireVendor();
+
         return DB::transaction(function () use ($id) {
             $bahan = Bahan::findOrFail($id);
 
@@ -111,28 +132,15 @@ class BahanController extends Controller
             // Delete the bahan
             $bahan->delete();
 
-            return redirect()->route('vendor.materials.index')
-                ->with('toast_success', 'Bahan berhasil dihapus!');
+            return FlashMessage::success(redirect()->route('vendor.materials.index'), 'Bahan berhasil dihapus!');
         });
     }
 
-    /**
-     * Validate bahan data
-     */
-    private function validateBahan(Request $request)
-    {
-        return $request->validate([
-            'nama_bahan' => 'required|string|max:255',
-            'hpp' => 'required|numeric|min:0',
-            'satuan' => 'required|string|max:50',
-            'stok' => 'required|numeric|min:0',
-        ]);
-    }
 
     /**
      * Process wholesale prices for create
      */
-    private function processWholesalePrices($bahanId, $request)
+    private function processWholesalePrices($bahanId, $request, $vendorId)
     {
         if (!$request->has('wholesale_min_qty') || !is_array($request->wholesale_min_qty)) {
             return;
@@ -146,7 +154,7 @@ class BahanController extends Controller
             }
 
             $wholesaleData[] = [
-                'vendor_id' => session('current_vendor_id'),
+                'vendor_id' => $vendorId,
                 'bahan_id' => $bahanId,
                 'min_quantity' => $min_qty,
                 'max_quantity' => $request->wholesale_max_qty[$key] ?? null,
@@ -191,7 +199,7 @@ class BahanController extends Controller
     /**
      * Add new wholesale prices
      */
-    private function addNewWholesalePrices($bahanId, $request)
+    private function addNewWholesalePrices($bahanId, $request, $vendorId)
     {
         if (!$request->has('new_wholesale_min_qty') || !is_array($request->new_wholesale_min_qty)) {
             return;
@@ -203,7 +211,7 @@ class BahanController extends Controller
             }
 
             WholesalePrice::create([
-                'vendor_id' => session('current_vendor_id'),
+                'vendor_id' => $vendorId,
                 'bahan_id' => $bahanId,
                 'min_quantity' => $min_qty,
                 'max_quantity' => $request->new_wholesale_max_qty[$key] ?? null,
@@ -230,6 +238,8 @@ class BahanController extends Controller
      */
     public function bulkUpdate(Request $request)
     {
+        $this->requireVendor();
+
         $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'exists:bahans,id',
@@ -243,19 +253,18 @@ class BahanController extends Controller
         // Validate value based on field
         if ($field === 'stok') {
             if (!is_numeric($value) || $value < 0) {
-                return redirect()->back()->with('toast_error', 'Nilai stok harus angka positif.');
+                return FlashMessage::backError('Nilai stok harus angka positif.');
             }
             $value = (int) $value;
         } elseif ($field === 'hpp') {
             if (!is_numeric($value) || $value < 0) {
-                return redirect()->back()->with('toast_error', 'Nilai HPP harus angka positif.');
+                return FlashMessage::backError('Nilai HPP harus angka positif.');
             }
             $value = (float) $value;
         }
 
         $updated = Bahan::whereIn('id', $request->ids)->update([$field => $value]);
 
-        return redirect()->back()
-            ->with('toast_success', "Berhasil memperbarui {$updated} bahan ({$field}).");
+        return FlashMessage::backSuccess("Berhasil memperbarui {$updated} bahan ({$field}).");
     }
 }

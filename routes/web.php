@@ -44,11 +44,11 @@ Route::get('/vendor/{vendor}/profile', function (\App\Models\Vendor $vendor) {
     return view('vendor.public-profile', compact('vendor'));
 })->name('vendor.public.profile');
 
-// Public Linktree route
-Route::get('/l/{customUrl}', [LinktreePublicController::class, 'show'])->name('linktree.public');
-Route::get('/l/{customUrl}/click/{linkId}', [LinktreePublicController::class, 'trackClick'])->name('linktree.click');
-Route::post('/l/{customUrl}/pay/qris', [LinktreePaymentController::class, 'generateQris'])->name('linktree.pay.qris');
-Route::get('/l/{customUrl}/pay/status/{invoiceId}', [LinktreePaymentController::class, 'checkStatus'])->name('linktree.pay.status');
+// Public Linktree route (with rate limiting to prevent abuse)
+Route::get('/l/{customUrl}', [LinktreePublicController::class, 'show'])->middleware('throttle:public-page')->name('linktree.public');
+Route::get('/l/{customUrl}/click/{linkId}', [LinktreePublicController::class, 'trackClick'])->middleware('throttle:public-page')->name('linktree.click');
+Route::post('/l/{customUrl}/pay/qris', [LinktreePaymentController::class, 'generateQris'])->middleware('throttle:public-page')->name('linktree.pay.qris');
+Route::get('/l/{customUrl}/pay/status/{invoiceId}', [LinktreePaymentController::class, 'checkStatus'])->middleware('throttle:public-page')->name('linktree.pay.status');
 
 // ============================================================================
 // AUTHENTICATION ROUTES
@@ -548,9 +548,9 @@ Route::prefix('api')->name('api.')->group(function () {
 // MANUAL TRANSFER ROUTES (Public - no auth required)
 // ============================================================================
 
-Route::post('/manual-transfer/order', [\App\Http\Controllers\ManualTransferController::class, 'placeOrder'])->name('manual-transfer.place');
+Route::post('/manual-transfer/order', [\App\Http\Controllers\ManualTransferController::class, 'placeOrder'])->middleware('throttle:manual-transfer')->name('manual-transfer.place');
 Route::get('/manual-transfer/{orderNumber}/status', [\App\Http\Controllers\ManualTransferController::class, 'checkStatus'])->name('manual-transfer.status');
-Route::post('/manual-transfer/{orderNumber}/upload-proof', [\App\Http\Controllers\ManualTransferController::class, 'uploadProof'])->name('manual-transfer.upload-proof');
+Route::post('/manual-transfer/{orderNumber}/upload-proof', [\App\Http\Controllers\ManualTransferController::class, 'uploadProof'])->middleware('throttle:manual-transfer')->name('manual-transfer.upload-proof');
 
 // ============================================================================
 // WEBHOOK ROUTES - Xendit webhook sudah ditangani di API routes (api/xendit/webhook)

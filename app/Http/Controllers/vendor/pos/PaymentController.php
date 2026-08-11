@@ -1,18 +1,24 @@
 <?php
 
+
+
 namespace App\Http\Controllers\vendor\pos;
 
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\Transaksi;
 use App\Services\XenditService;
 use App\Services\AdminFeeService;
+use App\Http\Responses\FlashMessage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Http\Concerns\HasVendorContext;
 
 class PaymentController extends Controller
 {
+    use HasVendorContext;
+
+
     protected $xenditService;
     protected $adminFeeService;
 
@@ -28,15 +34,14 @@ class PaymentController extends Controller
     public function showPaymentOptions(Transaksi $transaksi)
     {
         // Check if user is authorized to access this transaction
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
         if (!$vendor || $transaksi->vendor_id !== $vendor->id) {
             abort(403, 'Unauthorized access to transaction.');
         }
 
         // Check if transaction is ready for payment
         if ($transaksi->status !== 'pending') {
-            return redirect()->route('vendor.pos.invoice.show', $transaksi)
-                ->with('error', 'Transaction is not ready for payment.');
+            return FlashMessage::error(redirect()->route('vendor.pos.invoice.show', $transaksi), 'Transaction is not ready for payment.');
         }
 
         return view('pos.payment-options', compact('transaksi'));
@@ -73,16 +78,14 @@ class PaymentController extends Controller
                 ]);
             });
 
-            return redirect()->route('vendor.pos.payment.success', $transaksi)
-                ->with('success', 'Cash payment processed successfully!');
+            return FlashMessage::success(redirect()->route('vendor.pos.payment.success', $transaksi), 'Cash payment processed successfully!');
         } catch (\Exception $e) {
             Log::error('Cash payment failed', [
                 'transaction_id' => $transaksi->id,
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('error', 'Failed to process cash payment: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to process cash payment: ' . $e->getMessage());
         }
     }
 
@@ -166,8 +169,7 @@ class PaymentController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return redirect()->route('vendor.pos.payment.failure', $transaksi)
-                ->with('error', 'Failed to create payment link: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.payment.failure', $transaksi), 'Failed to create payment link: ' . $e->getMessage());
         }
     }
 
@@ -177,7 +179,7 @@ class PaymentController extends Controller
     public function paymentSuccess(Transaksi $transaksi)
     {
         // Check if user is authorized to access this transaction
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
         if (!$vendor || $transaksi->vendor_id !== $vendor->id) {
             abort(403, 'Unauthorized access to transaction.');
         }
@@ -199,7 +201,7 @@ class PaymentController extends Controller
     public function paymentFailure(Transaksi $transaksi)
     {
         // Check if user is authorized to access this transaction
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
         if (!$vendor || $transaksi->vendor_id !== $vendor->id) {
             abort(403, 'Unauthorized access to transaction.');
         }

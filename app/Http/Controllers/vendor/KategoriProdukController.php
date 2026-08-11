@@ -3,18 +3,29 @@
 namespace App\Http\Controllers\vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use App\Models\Vendor\KategoriProduk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Http\Requests\StoreKategoriProdukRequest;
+use App\Http\Requests\UpdateKategoriProdukRequest;
+use App\Http\Responses\FlashMessage;
+
+
 
 class KategoriProdukController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->requireVendor();
+
         $query = KategoriProduk::query();
 
         // Search functionality
@@ -37,26 +48,27 @@ class KategoriProdukController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         return view('kategori_produk.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreKategoriProdukRequest $request)
     {
-        $request->validate([
-            'nama_kategori' => 'required|string|max:255',
-        ]);
+        $vendorId = $this->requireVendor()->id;
+
+        $validated = $request->validated();
 
         KategoriProduk::create([
-            'nama_kategori' => $request->nama_kategori,
-            'slug' => Str::slug($request->nama_kategori),
-            'vendor_id' => session('current_vendor_id', 1) // Assuming you store current vendor ID in session
+            'nama_kategori' => $validated['nama_kategori'],
+            'slug' => Str::slug($validated['nama_kategori']),
+            'vendor_id' => $vendorId
         ]);
 
-        return redirect()->route('vendor.categories.index')
-            ->with('toast_success', 'Kategori produk berhasil ditambahkan.');
+        return FlashMessage::success(redirect()->route('vendor.categories.index'), 'Kategori produk berhasil ditambahkan.');
     }
 
     /**
@@ -64,6 +76,8 @@ class KategoriProdukController extends Controller
      */
     public function show(KategoriProduk $kategoriProduk)
     {
+        $this->requireVendor();
+
         return view('kategori_produk.show', compact('kategoriProduk'));
     }
 
@@ -72,25 +86,26 @@ class KategoriProdukController extends Controller
      */
     public function edit(KategoriProduk $kategoriProduk)
     {
+        $this->requireVendor();
+
         return view('kategori_produk.edit', compact('kategoriProduk'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, KategoriProduk $kategoriProduk)
+    public function update(UpdateKategoriProdukRequest $request, KategoriProduk $kategoriProduk)
     {
-        $request->validate([
-            'nama_kategori' => 'required|string|max:255',
-        ]);
+        $this->requireVendor();
+
+        $validated = $request->validated();
 
         $kategoriProduk->update([
-            'nama_kategori' => $request->nama_kategori,
+            'nama_kategori' => $validated['nama_kategori'],
             'slug' => Str::slug($request->nama_kategori)
         ]);
 
-        return redirect()->route('vendor.categories.index')
-            ->with('toast_success', 'Kategori produk berhasil diperbarui.');
+        return FlashMessage::success(redirect()->route('vendor.categories.index'), 'Kategori produk berhasil diperbarui.');
     }
 
     /**
@@ -98,15 +113,15 @@ class KategoriProdukController extends Controller
      */
     public function destroy(KategoriProduk $kategoriProduk)
     {
+        $this->requireVendor();
+
         // Check if category has products
         if ($kategoriProduk->produk()->count() > 0) {
-            return redirect()->route('vendor.categories.index')
-                ->with('toast_error', 'Kategori tidak dapat dihapus karena masih memiliki produk terkait.');
+            return FlashMessage::error(redirect()->route('vendor.categories.index'), 'Kategori tidak dapat dihapus karena masih memiliki produk terkait.');
         }
 
         $kategoriProduk->delete();
 
-        return redirect()->route('vendor.categories.index')
-            ->with('toast_success', 'Kategori produk berhasil dihapus.');
+        return FlashMessage::success(redirect()->route('vendor.categories.index'), 'Kategori produk berhasil dihapus.');
     }
 }

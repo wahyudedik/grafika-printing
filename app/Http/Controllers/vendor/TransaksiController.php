@@ -15,11 +15,21 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\TransaksiItem;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use App\Models\Vendor\TransaksiItemSpecifications;
+use App\Http\Concerns\HasVendorContext;
+use App\Http\Requests\StoreTransaksiRequest;
+use App\Http\Requests\UpdateTransaksiRequest;
+use App\Http\Responses\FlashMessage;
+use App\Services\AuditLogService;
+use App\Actions\Transaksi\CreateTransaksi;
+
+
 
 class TransaksiController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
@@ -72,18 +82,16 @@ class TransaksiController extends Controller
      */
     public function create()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $pelanggans = Pelanggan::where('vendor_id', $vendor->id)->get();
 
         if ($pelanggans->isEmpty()) {
-            return redirect()->route('vendor.customers.create')
-                ->with('toast_info', 'Anda belum memiliki pelanggan. Silakan tambahkan pelanggan terlebih dahulu.');
+            return FlashMessage::info(redirect()->route('vendor.customers.create'), 'Anda belum memiliki pelanggan. Silakan tambahkan pelanggan terlebih dahulu.');
         }
 
         $produks = Produk::where('vendor_id', $vendor->id)
@@ -91,8 +99,7 @@ class TransaksiController extends Controller
             ->get();
 
         if ($produks->isEmpty()) {
-            return redirect()->route('vendor.products.create')
-                ->with('toast_info', 'Anda belum memiliki produk. Silakan tambahkan produk terlebih dahulu.');
+            return FlashMessage::info(redirect()->route('vendor.products.create'), 'Anda belum memiliki produk. Silakan tambahkan produk terlebih dahulu.');
         }
 
         $paymentMethods = [
@@ -109,105 +116,40 @@ class TransaksiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTransaksiRequest $request)
     {
         // Get current vendor from session
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
-        // Validate main transaction data
-        $validator = Validator::make($request->all(), [
-            'pelanggan_id' => 'required|exists:pelanggans,id',
-            'payment_method' => 'required|string',
-            'estimasi_selesai' => 'required|date',
-            'catatan' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.produk_id' => 'required|exists:produks,id',
-            'items.*.kuantitas' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        $validated = $request->validated();
 
         // Begin transaction
         DB::beginTransaction();
 
         try {
-            // Generate transaction code
-            $transactionCode = 'TRX-' . date('Ymd') . '-' . strtoupper(Str::random(5));
-
-            // Calculate total price
-            $totalPrice = 0;
-            foreach ($request->items as $item) {
-                $totalPrice += $item['kuantitas'] * $item['harga_satuan'];
-            }
-
-            // Ambil jumlah pembayaran dari request
-            $terbayar = $request->input('terbayar', $totalPrice);
-
-            // Hitung kembalian
-            $kembali = max(0, $terbayar - $totalPrice);
-
-            // Create transaction
-            $transaksi = Transaksi::create([
+            $transaksi = (new CreateTransaksi)->run([
                 'vendor_id' => $vendor->id,
-                'kode' => $transactionCode,
                 'user_id' => Auth::id(),
-                'pelanggan_id' => $request->pelanggan_id,
-                'total_harga' => $totalPrice,
-                'status' => 'pending',
-                'payment_method' => $request->payment_method,
-                'estimasi_selesai' => $request->estimasi_selesai,
-                'tanggal_dibuat' => now(),
-                'progress_percentage' => 0,
-                'catatan' => $request->catatan,
-                'terbayar' => $terbayar,
-                'kembali' => $kembali
+                'pelanggan_id' => $validated['pelanggan_id'],
+                'payment_method' => $validated['payment_method'],
+                'estimasi_selesai' => $validated['estimasi_selesai'] ?? null,
+                'catatan' => $validated['catatan'] ?? null,
+                'terbayar' => $request->input('terbayar'),
+                'items' => $validated['items'],
             ]);
-
-            // Process transaction items
-            foreach ($request->items as $itemData) {
-                $item = TransaksiItem::create([
-                    'vendor_id' => $vendor->id,
-                    'transaksi_id' => $transaksi->id,
-                    'produk_id' => $itemData['produk_id'],
-                    'kuantitas' => $itemData['kuantitas'],
-                    'harga_satuan' => $itemData['harga_satuan']
-                ]);
-
-                // Process specifications if provided
-                if (isset($itemData['specifications']) && is_array($itemData['specifications'])) {
-                    foreach ($itemData['specifications'] as $specId => $specData) {
-                        if (empty($specData['value']) && !isset($specData['bahan_id'])) {
-                            continue; // Skip empty specs
-                        }
-
-                        TransaksiItemSpecifications::create([
-                            'vendor_id' => $vendor->id,
-                            'transaksi_item_id' => $item->id,
-                            'spesifikasi_produk_id' => $specId,
-                            'bahan_id' => $specData['bahan_id'] ?? null,
-                            'value' => $specData['value'] ?? null,
-                            'input_type' => $specData['input_type'] ?? 'text',
-                            'price' => $specData['price'] ?? 0
-                        ]);
-                    }
-                }
-            }
 
             DB::commit();
 
-            return redirect()->route('transaksi.show', $transaksi->id)
-                ->with('toast_success', 'Transaksi berhasil dibuat dengan kode: ' . $transactionCode);
+            AuditLogService::logCreated($transaksi, 'Transaksi baru dibuat: ' . $transaksi->kode);
+
+            return FlashMessage::success(redirect()->route('transaksi.show', $transaksi->id), 'Transaksi berhasil dibuat dengan kode: ' . $transaksi->kode);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('toast_error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return FlashMessage::backError('Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -216,11 +158,10 @@ class TransaksiController extends Controller
      */
     public function show(string $id)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)
@@ -233,6 +174,8 @@ class TransaksiController extends Controller
             ])
             ->findOrFail($id);
 
+        $this->authorize('view', $transaksi);
+
         return view('transaksi.show', compact('transaksi'));
     }
 
@@ -241,11 +184,10 @@ class TransaksiController extends Controller
      */
     public function edit(string $id)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)
@@ -284,36 +226,29 @@ class TransaksiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateTransaksiRequest $request, string $id)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)->findOrFail($id);
 
-        // Validate main transaction data
-        $validator = Validator::make($request->all(), [
-            'pelanggan_id' => 'required|exists:pelanggans,id',
-            'payment_method' => 'required|string',
-            'estimasi_selesai' => 'required|date',
-            'status' => 'required|string|in:pending,processing,quality_check,completed,cancelled',
-            'catatan' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.id' => 'nullable|exists:transaksi_items,id',
-            'items.*.produk_id' => 'required|exists:produks,id',
-            'items.*.kuantitas' => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
-        ]);
+        $this->authorize('update', $transaksi);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        $validated = $request->validated();
 
         // Begin transaction
+        // Capture old values for audit log
+        $oldValues = [
+            'total_harga' => $transaksi->total_harga,
+            'status' => $transaksi->status,
+            'payment_method' => $transaksi->payment_method,
+            'pelanggan_id' => $transaksi->pelanggan_id,
+        ];
+
         DB::beginTransaction();
 
         try {
@@ -411,11 +346,12 @@ class TransaksiController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transaksi.show', $transaksi->id)
-                ->with('toast_success', 'Transaksi berhasil diperbarui.');
+            AuditLogService::logUpdated($transaksi, $oldValues, 'Transaksi diperbarui: ' . $transaksi->kode);
+
+            return FlashMessage::success(redirect()->route('transaksi.show', $transaksi->id), 'Transaksi berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('toast_error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+            return FlashMessage::backError('Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -424,14 +360,15 @@ class TransaksiController extends Controller
      */
     public function destroy(string $id)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)->findOrFail($id);
+
+        $this->authorize('delete', $transaksi);
 
         // Begin transaction
         DB::beginTransaction();
@@ -452,11 +389,12 @@ class TransaksiController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transaksi.index')
-                ->with('toast_success', 'Transaksi berhasil dihapus.');
+            AuditLogService::logDeleted($transaksi, 'Transaksi dihapus: ' . $transaksi->kode);
+
+            return FlashMessage::success(redirect()->route('transaksi.index'), 'Transaksi berhasil dihapus.');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('toast_error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return FlashMessage::backError('Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -465,11 +403,10 @@ class TransaksiController extends Controller
      */
     public function generateInvoice(string $id)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
         }
 
         $transaksi = Transaksi::where('vendor_id', $vendor->id)

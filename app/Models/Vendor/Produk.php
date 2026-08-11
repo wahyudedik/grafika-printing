@@ -7,11 +7,14 @@ use App\Models\Vendor\TenantModel;
 use App\Models\Vendor\EstimasiProduk;
 use App\Models\Vendor\KategoriProduk;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Database\Eloquent\Builder;
 
 class Produk extends TenantModel
 {
+    use SoftDeletes;
+
     protected $table = 'produks';
 
     protected $fillable = [

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\FlashMessage;
+use App\Services\AuthorizationService;
+
 use App\Models\User;
 use App\Models\LelangUserProfile;
 use Illuminate\Http\Request;
@@ -9,11 +12,20 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    protected $authorizationService;
+
+    public function __construct(AuthorizationService $authorizationService)
+    {
+        $this->authorizationService = $authorizationService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorizationService->requireAdmin();
+
         $query = User::query();
 
         if ($request->has('search') && $request->search !== '') {
@@ -72,6 +84,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizationService->requireAdmin();
         try {
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
@@ -83,9 +96,9 @@ class UserController extends Controller
             $validatedData['password'] = bcrypt($request->password);
             User::create($validatedData);
 
-            return redirect()->route('users.index')->with('toast_success', 'User created successfully');
+            return FlashMessage::success(redirect()->route('users.index'), 'User created successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error creating user');
+            return FlashMessage::backError('Error creating user');
         }
     }
 
@@ -98,7 +111,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             return view('dev.users.show', compact('user'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error showing user');
+            return FlashMessage::backError('Error showing user');
         }
     }
 
@@ -111,7 +124,7 @@ class UserController extends Controller
             $user = User::findOrFail($id);
             return view('dev.users.edit', compact('user'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error editing user');
+            return FlashMessage::backError('Error editing user');
         }
     }
 
@@ -120,6 +133,7 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $this->authorizationService->requireAdmin();
         try {
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
@@ -137,9 +151,9 @@ class UserController extends Controller
             }
 
             $user->update($validatedData);
-            return redirect()->route('users.index')->with('toast_success', 'User updated successfully');
+            return FlashMessage::success(redirect()->route('users.index'), 'User updated successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error updating user');
+            return FlashMessage::backError('Error updating user');
         }
     }
 
@@ -148,11 +162,12 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->authorizationService->requireAdmin();
         try {
             User::destroy($id);
-            return redirect()->route('users.index')->with('toast_success', 'User deleted successfully');
+            return FlashMessage::success(redirect()->route('users.index'), 'User deleted successfully');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error deleting user');
+            return FlashMessage::backError('Error deleting user');
         }
     }
 }

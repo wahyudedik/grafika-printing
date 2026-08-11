@@ -8,12 +8,16 @@ use Illuminate\Http\Request;
 use App\Models\Vendor\Transaksi;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use App\Models\Vendor\TransaksiItem;
 
 class LaporanController extends Controller
 {
+    use HasVendorContext;
+
     public function penjualanHarian(Request $request)
     {
+        $this->requireVendor();
         // Validate input
         $request->validate([
             'date' => 'nullable|date_format:Y-m-d'
@@ -52,6 +56,7 @@ class LaporanController extends Controller
 
     public function penjualanBulanan(Request $request)
     {
+        $this->requireVendor();
         // Validate input
         $request->validate([
             'month' => 'nullable|date_format:Y-m'
@@ -112,6 +117,7 @@ class LaporanController extends Controller
 
     public function penjualanTahunan(Request $request)
     {
+        $this->requireVendor();
         $year = $request->input('year', now()->year);
 
         $transaksis = Transaksi::with(['pelanggan'])
@@ -164,6 +170,7 @@ class LaporanController extends Controller
 
     public function exportPenjualan(Request $request)
     {
+        $this->requireVendor();
         $type = $request->input('type', 'daily');
         $date = $request->input('date');
 

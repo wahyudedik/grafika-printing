@@ -5,6 +5,7 @@ namespace App\Models\Vendor;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Vendor\Pelanggan;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\Models\Vendor\TransaksiItem;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +14,8 @@ use App\Models\Vendor\TransaksiItemSpecifications;
 
 class Transaksi extends TenantModel
 {
+    use SoftDeletes;
+
     protected $table = 'transaksis';
 
     protected $fillable = [

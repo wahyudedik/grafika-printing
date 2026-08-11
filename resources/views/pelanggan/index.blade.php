@@ -42,7 +42,8 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Desktop Table --}}
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -113,6 +114,59 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile Cards --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @forelse ($pelanggan as $item)
+                <div class="p-4 space-y-2">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <a href="{{ route('vendor.customers.show', $item->id) }}" class="font-medium text-gray-900 hover:text-blue-600">{{ $item->nama }}</a>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ $item->kode }}</p>
+                        </div>
+                        @if ($item->transaksi_terakhir)
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 ml-2 flex-shrink-0">
+                                {{ $item->transaksi_terakhir->format('d M Y') }}
+                            </span>
+                        @else
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500 ml-2 flex-shrink-0">Belum ada</span>
+                        @endif
+                    </div>
+                    <div class="text-sm text-gray-500 space-y-0.5">
+                        @if ($item->email)
+                            <div class="flex items-center gap-1.5"><i class="fas fa-envelope text-xs text-gray-400 w-4"></i> {{ $item->email }}</div>
+                        @endif
+                        @if ($item->no_telp)
+                            <div class="flex items-center gap-1.5"><i class="fas fa-phone text-xs text-gray-400 w-4"></i> {{ $item->no_telp }}</div>
+                        @endif
+                        @if ($item->alamat)
+                            <div class="flex items-center gap-1.5"><i class="fas fa-map-marker-alt text-xs text-gray-400 w-4"></i> {{ \Illuminate\Support\Str::limit($item->alamat, 40) }}</div>
+                        @endif
+                    </div>
+                    <div class="flex items-center justify-end gap-1 pt-1">
+                        <a href="{{ route('vendor.customers.show', $item->id) }}"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Lihat">
+                            <i class="fas fa-eye text-sm"></i>
+                        </a>
+                        <a href="{{ route('vendor.customers.edit', $item->id) }}"
+                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <button type="button"
+                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition delete-btn"
+                            data-id="{{ $item->id }}" title="Hapus">
+                            <i class="fas fa-trash-alt text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            @empty
+                <div class="p-8 text-center">
+                    <i class="fas fa-user-slash text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-sm font-medium text-gray-900 mb-1">Tidak ada data pelanggan</p>
+                    <p class="text-sm text-gray-500">Silahkan tambahkan pelanggan baru</p>
+                </div>
+            @endforelse
         </div>
         <div class="px-6 py-4 border-t border-gray-200">
             {{ $pelanggan->links('components.pagination') }}

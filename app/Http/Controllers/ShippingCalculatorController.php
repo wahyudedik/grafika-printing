@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Services\RajaOngkirService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,8 +26,7 @@ class ShippingCalculatorController extends Controller
         $vendor = Auth::user()->vendorUser->first();
 
         if (!$vendor) {
-            return redirect()->route('vendor.dashboard')
-                ->with('toast_error', 'Vendor tidak ditemukan');
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan');
         }
 
         // Get cities data (you can cache this or load from database)

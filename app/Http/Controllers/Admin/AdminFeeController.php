@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\FlashMessage;
 use App\Models\AdminFeeSetting;
 use App\Models\AdminFeeTransaction;
 use App\Services\AdminFeeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+
 
 class AdminFeeController extends Controller
 {
@@ -78,8 +80,7 @@ class AdminFeeController extends Controller
             'is_active' => true
         ]);
 
-        return redirect()->route('admin.admin-fees.index')
-            ->with('success', 'Pengaturan biaya admin berhasil dibuat');
+        return FlashMessage::success(redirect()->route('admin.admin-fees.index'), 'Pengaturan biaya admin berhasil dibuat');
     }
 
     /**
@@ -140,8 +141,7 @@ class AdminFeeController extends Controller
             'updated_by' => Auth::id()
         ]);
 
-        return redirect()->route('admin.admin-fees.index')
-            ->with('success', 'Pengaturan biaya admin berhasil diperbarui');
+        return FlashMessage::success(redirect()->route('admin.admin-fees.index'), 'Pengaturan biaya admin berhasil diperbarui');
     }
 
     /**
@@ -156,8 +156,7 @@ class AdminFeeController extends Controller
 
         $status = $adminFee->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
-        return redirect()->back()
-            ->with('success', "Pengaturan biaya admin berhasil {$status}");
+        return FlashMessage::backSuccess("Pengaturan biaya admin berhasil {$status}");
     }
 
     /**
@@ -167,8 +166,7 @@ class AdminFeeController extends Controller
     {
         $adminFee->delete();
 
-        return redirect()->route('admin.admin-fees.index')
-            ->with('success', 'Pengaturan biaya admin berhasil dihapus');
+        return FlashMessage::success(redirect()->route('admin.admin-fees.index'), 'Pengaturan biaya admin berhasil dihapus');
     }
 
     /**

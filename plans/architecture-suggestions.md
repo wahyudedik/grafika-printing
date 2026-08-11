@@ -1,6 +1,6 @@
 # Saran Perbaikan Arsitektur — Grafika-Printing
 
-> Dokumen ini berisi rekomendasi arsitektur berdasarkan hasil **Comprehensive Audit III** (7 Agustus 2026).
+> Dokumen ini berisi rekomendasi arsitektur berdasarkan hasil **Comprehensive Audit III** (7 Agustus 2026) dan **Audit Lanjutan** (11 Agustus 2026).
 > Setiap rekomendasi dilengkapi dengan alasan, implementasi, dan prioritas.
 
 ---
@@ -15,6 +15,12 @@
 | 4 | API Response Standardization | 🟢 NORMAL | ~12 file | Controllers |
 | 5 | Rate Limiting | 🟡 PENTING | ~5 file | Routes, Providers |
 | 6 | Activity Log Enhancement | 🟢 NORMAL | ~10 file | Controllers |
+| 7 | Vendor Context Trait | 🔴 KRITIS | ~20 file | Controllers |
+| 8 | Flash Message Standardization | 🟡 PENTING | ~25 file | Controllers, Views |
+| 9 | Controller Refactoring (Fat → Thin) | 🟡 PENTING | ~8 file | Controllers, Actions |
+| 10 | Centralized File Upload Service | 🟡 PENTING | ~10 file | Services, Controllers |
+| 11 | Laravel Policies & Gates | 🟡 PENTING | ~15 file | Policies, Controllers |
+| 12 | Soft Deletes & Model Conventions | 🟢 NORMAL | ~20 file | Models, Migrations |
 
 ---
 
@@ -816,24 +822,1086 @@ class ProdukController extends Controller
 
 ---
 
+## 7. 🔴 Vendor Context Trait (DRY Refactor)
+
+### Masalah (KRITIS)
+Pola `Auth::user()->vendorUser->first()` diulang **60+ kali** di seluruh controllers. Ini:
+- **Melanggar DRY** — kode sama di banyak tempat
+- **Rentan error** — jika logika vendor context berubah, harus update semua tempat
+- **Tidak konsisten** — beberapa pakai `Auth::user()->vendorUser->first()`, beberapa `Auth::user()->vendorUser()->first()` (with/without parentheses), beberapa pakai `Tenant::getVendorId()`
+
+### Bukti Dari Kode
+
+```php
+// POS Controller — 10x pengulangan
+$vendor = Auth::user()->vendorUser->first();  // line 22, 46, 77, 118, 210, 289
+
+// Withdrawal Controller — 6x pengulangan
+$vendor = Auth::user()->vendorUser->first();  // line 20, 42, 69, 127, 141, 200
+
+// Thermal Print Controller — 5x pengulangan
+$vendor = Auth::user()->vendorUser->first();  // line 20, 53, 86, 110, 151
+
+// Transaksi Controller — 7x pengulangan
+$vendor = Auth::user()->vendorUser->first();  // line 75, 115, 219, 244, 289, 427, 468
+```
+
+### Implementasi
+
+#### 7.1 Buat Trait
+```php
+// app/Http/Concerns/HasVendorContext.php
+namespace App\Http\Concerns;
+
+use App\Facades\Tenant;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\Auth;
+
+trait HasVendorContext
+{
+    /**
+     * Get the current vendor from authenticated user.
+     * Uses Tenant facade for consistent vendor context.
+     */
+    protected function getVendor(): ?Vendor
+    {
+        $vendorId = Tenant::getVendorId();
+        
+        if ($vendorId) {
+            return Vendor::find($vendorId);
+        }
+        
+        // Fallback: get vendor from user relationship
+        return Auth::user()?->vendorUser()?->first();
+    }
+    
+    /**
+     * Get the current vendor ID.
+     */
+    protected function getVendorId(): ?int
+    {
+        return Tenant::getVendorId() ?? Auth::user()?->vendorUser()?->first()?->id;
+    }
+    
+    /**
+     * Require vendor context or abort.
+     */
+    protected function requireVendor(): Vendor
+    {
+        $vendor = $this->getVendor();
+        
+        if (!$vendor) {
+            abort(403, 'Tidak ada vendor context yang tersedia.');
+        }
+        
+        return $vendor;
+    }
+    
+    /**
+     * Check if given model belongs to current vendor.
+     */
+    protected function isOwnedByCurrentVendor($model): bool
+    {
+        if (!method_exists($model, 'vendor_id')) {
+            return false;
+        }
+        
+        return $model->vendor_id === $this->getVendorId();
+    }
+    
+    /**
+     * Enforce vendor ownership or abort.
+     */
+    protected function authorizeVendorOwnership($model): void
+    {
+        if (!$this->isOwnedByCurrentVendor($model)) {
+            abort(403, 'Akses ditolak: data bukan milik vendor ini.');
+        }
+    }
+}
+```
+
+#### 7.2 Gunakan di Controller
+```php
+// SEBELUM (POS Controller)
+class PosController extends Controller
+{
+    public function index(Request $request)
+    {
+        $vendor = Auth::user()->vendorUser->first();  // Duplikat!
+        if (!$vendor) { ... }
+        // ...
+    }
+    
+    public function addToCart(Request $request)
+    {
+        $vendor = Auth::user()->vendorUser->first();  // Duplikat!
+        if (!$vendor) { ... }
+        // ...
+    }
+}
+
+// SESUDAH
+class PosController extends Controller
+{
+    use HasVendorContext;
+    
+    public function index(Request $request)
+    {
+        $vendor = $this->requireVendor();  // Single source of truth
+        // ... logic
+    }
+    
+    public function addToCart(Request $request)
+    {
+        $vendor = $this->requireVendor();  // Consistent!
+        // ... logic
+    }
+    
+    public function show(Transaksi $transaksi)
+    {
+        $this->authorizeVendorOwnership($transaksi);  // Authorization built-in
+        // ... logic
+    }
+}
+```
+
+### File yang Perlu Diubah
+- `app/Http/Concerns/HasVendorContext.php` (BARU)
+- `app/Http/Controllers/vendor/pos/PosController.php` (10x duplikasi)
+- `app/Http/Controllers/vendor/pos/ThermalPrintController.php` (5x duplikasi)
+- `app/Http/Controllers/vendor/pos/InvoiceController.php` (2x duplikasi)
+- `app/Http/Controllers/vendor/pos/CheckoutController.php` (4x duplikasi)
+- `app/Http/Controllers/vendor/pos/PaymentController.php` (3x duplikasi)
+- `app/Http/Controllers/vendor/TransaksiController.php` (7x duplikasi)
+- `app/Http/Controllers/vendor/LinktreeController.php` (5x duplikasi)
+- `app/Http/Controllers/VendorWithdrawalController.php` (6x duplikasi)
+- `app/Http/Controllers/VendorWalletController.php` (7x duplikasi)
+- `app/Http/Controllers/VendorBankAccountController.php` (7x duplikasi)
+- `app/Http/Controllers/vendor/AuctionBidController.php` (5x duplikasi)
+- `app/Http/Controllers/vendor/AbTestController.php` (1x duplikasi)
+- `app/Http/Controllers/vendor/TemplateController.php` (1x duplikasi)
+- `app/Http/Controllers/ShippingCalculatorController.php` (2x duplikasi)
+- `app/Http/Controllers/OrderTrackingController.php` (3x duplikasi)
+- `app/Http/Controllers/VendorAuditLogController.php` (4x duplikasi)
+
+**Prioritas:** 🔴 KRITIS — DRY principle, maintainability, consistency
+**Estimasi:** ~20 file (1 baru + 19 existing)
+
+---
+
+## 8. Flash Message Standardization
+
+### Masalah
+Terdapat **inconsistency** dalam penggunaan flash message keys di seluruh controllers:
+
+| Key Pattern | Contoh Penggunaan | Jumlah |
+|-------------|-------------------|--------|
+| `toast_success` | Produk, Kategori, Spesifikasi, Bahan, Alat | ~60 |
+| `success` | Linktree, Pengguna, Admin, OrderTracking | ~80 |
+| `toast_error` | POS, Transaksi, Withdrawal, ThermalPrint | ~40 |
+| `error` | Linktree, POS, Payment, Vendor | ~40 |
+| `toast_info` | Transaksi (redirect prompts) | ~5 |
+| `info` | VendorRating, AuctionBid | ~5 |
+
+**Total: 245+ flash message calls dengan 6 variasi key berbeda.**
+
+### Dampak
+- View components harus handle semua variasi key
+- Konsistensi UX terganggu (beberapa pakai toast, beberapa plain)
+- Maintenance menjadi lebih sulit
+
+### Implementasi
+
+#### 8.1 Buat Flash Message Helper
+```php
+// app/Http/Responses/FlashMessage.php
+namespace App\Http\Responses;
+
+use Illuminate\Http\RedirectResponse;
+
+class FlashMessage
+{
+    private static array $keys = [
+        'success' => 'toast_success',
+        'error'   => 'toast_error',
+        'warning' => 'toast_warning',
+        'info'    => 'toast_info',
+    ];
+
+    /**
+     * Send a flash message with consistent key naming.
+     */
+    public static function send(
+        RedirectResponse $redirect,
+        string $message,
+        string $type = 'success'
+    ): RedirectResponse {
+        $key = self::$keys[$type] ?? 'toast_success';
+        return $redirect->with($key, $message);
+    }
+
+    public static function success(RedirectResponse $redirect, string $message): RedirectResponse
+    {
+        return self::send($redirect, $message, 'success');
+    }
+
+    public static function error(RedirectResponse $redirect, string $message): RedirectResponse
+    {
+        return self::send($redirect, $message, 'error');
+    }
+
+    public static function warning(RedirectResponse $redirect, string $message): RedirectResponse
+    {
+        return self::send($redirect, $message, 'warning');
+    }
+
+    public static function info(RedirectResponse $redirect, string $message): RedirectResponse
+    {
+        return self::send($redirect, $message, 'info');
+    }
+}
+```
+
+#### 8.2 Gunakan di Controller
+```php
+use App\Http\Responses\FlashMessage;
+
+class ProdukController extends Controller
+{
+    public function store(StoreProdukRequest $request)
+    {
+        $produk = Produk::create($request->validated());
+        
+        // SEBELUM: return redirect()->route('...')->with('toast_success', '...');
+        // SESUDAH:
+        return FlashMessage::success(
+            redirect()->route('vendor.products.index'),
+            'Produk berhasil ditambahkan!'
+        );
+    }
+}
+```
+
+#### 8.3 Update View Components
+```blade
+{{-- resources/views/components/notification.blade.php --}}
+@if(session('toast_success'))
+    <x-ui.alert type="success" :message="session('toast_success')" />
+@endif
+
+@if(session('toast_error'))
+    <x-ui.alert type="error" :message="session('toast_error')" />
+@endif
+
+@if(session('toast_info'))
+    <x-ui.alert type="info" :message="session('toast_info')" />
+@endif
+
+@if(session('toast_warning'))
+    <x-ui.alert type="warning" :message="session('toast_warning')" />
+@endif
+```
+
+### File yang Perlu Diubah
+- `app/Http/Responses/FlashMessage.php` (BARU)
+- Semua controllers (~25 file) — migrasi dari `->with()` manual ke `FlashMessage::`
+- `resources/views/components/notification.blade.php`
+- `resources/views/dev/components/notification.blade.php`
+- `resources/views/user/components/notification.blade.php`
+
+**Prioritas:** 🟡 PENTING — Consistency, maintainability
+**Estimasi:** ~25 file (1 baru + 24 existing)
+
+---
+
+## 9. Controller Refactoring (Fat → Thin)
+
+### Masalah
+Beberapa controller sudah terlalu besar dan melakukan terlalu banyak hal:
+
+| Controller | Baris | Masalah |
+|-----------|-------|---------|
+| `LinktreeController` | 920 | CRUD + media upload + products + analytics + A/B test |
+| `TransaksiController` | 537 | CRUD + spec processing + PDF generation + inline validation |
+| `ProdukController` | 461 | CRUD + spec processing + inline validation + bulk update |
+| `UserDashboardController` | 347+ | Dashboard logic + lelang dashboard + stats |
+
+### Implementasi — Action Classes Pattern
+
+#### 9.1 Buat Base Action
+```php
+// app/Actions/BaseAction.php
+namespace App\Actions;
+
+abstract class BaseAction
+{
+    /**
+     * Execute the action.
+     */
+    abstract public function handle(array $data): mixed;
+    
+    /**
+     * Run the action with validation.
+     */
+    public function run(array $data): mixed
+    {
+        return $this->handle($data);
+    }
+}
+```
+
+#### 9.2 Contoh: Linktree Actions
+```php
+// app/Actions/Linktree/CreateLinktree.php
+namespace App\Actions\Linktree;
+
+use App\Actions\BaseAction;
+use App\Models\Vendor\Linktree;
+use App\Facades\Tenant;
+
+class CreateLinktree extends BaseAction
+{
+    public function handle(array $data): Linktree
+    {
+        $vendorId = Tenant::getVendorId();
+        
+        $data['vendor_id'] = $vendorId;
+        $data['is_active'] = false;
+        $data['views_count'] = 0;
+        $data['clicks_count'] = 0;
+        
+        // Set default colors
+        $data['primary_color'] = $data['primary_color'] ?? $this->getDefaultColor($data['template'], 'primary');
+        $data['secondary_color'] = $data['secondary_color'] ?? $this->getDefaultColor($data['template'], 'secondary');
+        $data['bg_color'] = $data['bg_color'] ?? $this->getDefaultColor($data['template'], 'bg');
+        $data['text_color'] = $data['text_color'] ?? $this->getDefaultColor($data['template'], 'text');
+        
+        return Linktree::create($data);
+    }
+    
+    protected function getDefaultColor(string $template, string $type): string
+    {
+        $colors = [
+            'minimal' => ['primary' => '#000000', 'secondary' => '#ffffff', 'bg' => '#ffffff', 'text' => '#000000'],
+            'colorful' => ['primary' => '#6366f1', 'secondary' => '#8b5cf6', 'bg' => '#faf5ff', 'text' => '#1e1b4b'],
+            // ... lainnya
+        ];
+        
+        return $colors[$template][$type] ?? '#000000';
+    }
+}
+```
+
+```php
+// app/Actions/Linktree/UploadMedia.php
+namespace App\Actions\Linktree;
+
+use App\Actions\BaseAction;
+use App\Models\Vendor\Linktree;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
+class UploadMedia extends BaseAction
+{
+    public function handle(array $data): string
+    {
+        /** @var Linktree $linktree */
+        $linktree = $data['linktree'];
+        /** @var UploadedFile $file */
+        $file = $data['file'];
+        $type = $data['type']; // 'avatar', 'banner', 'qris'
+        
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $path = "linktree/{$type}/{$filename}";
+        
+        Storage::disk('public')->put($path, file_get_contents($file));
+        
+        // Delete old file if exists
+        $oldPath = match($type) {
+            'avatar' => $linktree->avatar_path,
+            'banner' => $linktree->banner_path,
+            'qris' => $linktree->qris_image_path,
+            default => null,
+        };
+        
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+        
+        return $path;
+    }
+}
+```
+
+#### 9.3 Refactored Controller
+```php
+// app/Http/Controllers/vendor/LinktreeController.php
+namespace App\Http\Controllers\Vendor;
+
+use App\Http\Controllers\Controller;
+use App\Actions\Linktree\CreateLinktree;
+use App\Actions\Linktree\UploadMedia;
+
+class LinktreeController extends Controller
+{
+    public function __construct(
+        protected CreateLinktree $createLinktree,
+        protected UploadMedia $uploadMedia,
+    ) {}
+    
+    public function store(StoreLinktreeRequest $request)
+    {
+        $linktree = $this->createLinktree->run($request->validated());
+        
+        return FlashMessage::success(
+            redirect()->route('vendor.linktree.edit', $linktree),
+            'Linktree berhasil dibuat!'
+        );
+    }
+    
+    public function uploadAvatar(UploadAvatarRequest $request, Linktree $linktree)
+    {
+        $path = $this->uploadMedia->run([
+            'linktree' => $linktree,
+            'file' => $request->file('avatar'),
+            'type' => 'avatar',
+        ]);
+        
+        $linktree->update(['avatar_path' => $path]);
+        
+        return FlashMessage::success(back(), 'Avatar berhasil diupload!');
+    }
+}
+```
+
+### File yang Perlu Diubah
+- `app/Actions/` (BARU — direktori baru)
+- `app/Actions/BaseAction.php` (BARU)
+- `app/Actions/Linktree/CreateLinktree.php` (BARU)
+- `app/Actions/Linktree/UploadMedia.php` (BARU)
+- `app/Actions/Transaksi/CreateTransaksi.php` (BARU)
+- `app/Actions/Produk/CreateProduk.php` (BARU)
+- `app/Http/Controllers/vendor/LinktreeController.php` (920 → ~200 baris)
+- `app/Http/Controllers/vendor/TransaksiController.php` (537 → ~200 baris)
+- `app/Http/Controllers/vendor/ProdukController.php` (461 → ~180 baris)
+
+**Prioritas:** 🟡 PENTING — Maintainability, testability
+**Estimasi:** ~8 file (6 baru + 3 existing refactored)
+
+---
+
+## 10. Centralized File Upload Service
+
+### Masalah
+File upload dilakukan dengan cara yang berbeda-beda di berbagai controller:
+
+```php
+// Cara 1: move() — ProdukController
+$file->move(public_path('produk_gambar'), $gambarName);
+
+// Cara 2: Storage::disk('public')->put() — LinktreeController
+Storage::disk('public')->put($path, file_get_contents($file));
+
+// Cara 3: storeAs() — beberapa tempat
+$file->storeAs('avatars', $filename, 'public');
+
+// Tidak ada validasi ukuran tipe konsisten
+// Tidak ada cleanup file lama yang konsisten
+```
+
+### Implementasi
+
+#### 10.1 Buat FileUploadService
+```php
+// app/Services/FileUploadService.php
+namespace App\Services;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+class FileUploadService
+{
+    /**
+     * Upload file to disk with consistent naming and validation.
+     */
+    public static function upload(
+        UploadedFile $file,
+        string $directory,
+        ?string $filename = null,
+        string $disk = 'public'
+    ): string {
+        $filename = $filename ?: time() . '_' . Str::random(8) . '.' . $file->getClientOriginalExtension();
+        
+        $path = $file->storeAs($directory, $filename, $disk);
+        
+        return $path;
+    }
+    
+    /**
+     * Upload and replace old file.
+     */
+    public static function uploadReplace(
+        UploadedFile $file,
+        string $directory,
+        ?string $oldPath = null,
+        string $disk = 'public'
+    ): string {
+        // Delete old file
+        if ($oldPath && self::exists($oldPath, $disk)) {
+            self::delete($oldPath, $disk);
+        }
+        
+        return self::upload($file, $directory, disk: $disk);
+    }
+    
+    /**
+     * Upload multiple files.
+     */
+    public static function uploadMultiple(
+        array $files,
+        string $directory,
+        string $disk = 'public'
+    ): array {
+        return array_map(
+            fn ($file) => self::upload($file, $directory, disk: $disk),
+            $files
+        );
+    }
+    
+    /**
+     * Check if file exists.
+     */
+    public static function exists(string $path, string $disk = 'public'): bool
+    {
+        return Storage::disk($disk)->exists($path);
+    }
+    
+    /**
+     * Delete file.
+     */
+    public static function delete(string $path, string $disk = 'public'): bool
+    {
+        if (self::exists($path, $disk)) {
+            return Storage::disk($disk)->delete($path);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get URL for file.
+     */
+    public static function url(string $path, string $disk = 'public'): string
+    {
+        return Storage::disk($disk)->url($path);
+    }
+    
+    // =========================================================
+    // Convenience methods for specific upload types
+    // =========================================================
+    
+    public static function uploadProductImage(UploadedFile $file, ?string $oldPath = null): string
+    {
+        return self::uploadReplace($file, 'produk_gambar', $oldPath);
+    }
+    
+    public static function uploadVendorLogo(UploadedFile $file, ?string $oldPath = null): string
+    {
+        return self::uploadReplace($file, 'vendors_logo', $oldPath);
+    }
+    
+    public static function uploadLinktreeAvatar(UploadedFile $file, ?string $oldPath = null): string
+    {
+        return self::uploadReplace($file, 'linktree/avatars', $oldPath);
+    }
+    
+    public static function uploadLinktreeBanner(UploadedFile $file, ?string $oldPath = null): string
+    {
+        return self::uploadReplace($file, 'linktree/banners', $oldPath);
+    }
+    
+    public static function uploadLinktreeQris(UploadedFile $file, ?string $oldPath = null): string
+    {
+        return self::uploadReplace($file, 'linktree/qris', $oldPath);
+    }
+    
+    public static function uploadProofFile(UploadedFile $file): string
+    {
+        return self::upload($file, 'proofs');
+    }
+    
+    public static function uploadAuctionFile(UploadedFile $file): string
+    {
+        return self::upload($file, 'auctions');
+    }
+}
+```
+
+#### 10.2 Gunakan di Controller
+```php
+use App\Services\FileUploadService;
+
+class ProdukController extends Controller
+{
+    public function store(StoreProdukRequest $request)
+    {
+        // SEBELUM:
+        // $gambarName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        // $file->move(public_path('produk_gambar'), $gambarName);
+        // $gambars[] = 'produk_gambar/' . $gambarName;
+        
+        // SESUDAH:
+        $gambars = [];
+        if ($request->hasFile('gambar')) {
+            $gambars = FileUploadService::uploadMultiple(
+                $request->file('gambar'),
+                'produk_gambar'
+            );
+        }
+        
+        // ... create produk
+    }
+}
+```
+
+### File yang Perlu Diubah
+- `app/Services/FileUploadService.php` (BARU)
+- `app/Http/Controllers/vendor/ProdukController.php`
+- `app/Http/Controllers/vendor/LinktreeController.php` (3 upload methods)
+- `app/Http/Controllers/vendor/pos/PosController.php`
+- `app/Http/Controllers/vendor/pos/CheckoutController.php`
+- `app/Http/Controllers/vendor/BahanController.php`
+- `app/Http/Controllers/AuctionController.php`
+- `app/Http/Controllers/ManualTransferController.php`
+- `app/Http/Controllers/VendorBankAccountController.php`
+- `app/Http/Controllers/VendorController.php`
+
+**Prioritas:** 🟡 PENTING — Consistency, security (file validation), maintainability
+**Estimasi:** ~10 file (1 baru + 9 existing)
+
+---
+
+## 11. Laravel Policies & Gates
+
+### Masalah
+Authorization checks dilakukan secara inline di dalam controller methods, menciptakan code yang duplikat dan sulit di-maintain:
+
+```php
+// Duplikasi di banyak controller:
+if ($auction->user_id !== Auth::id()) {
+    abort(403);
+}
+
+if ($produk->vendor_id !== Tenant::getVendorId()) {
+    abort(403);
+}
+
+$vendor = Auth::user()->vendorUser->first();
+if (!$vendor || $transaksi->vendor_id !== $vendor->id) {
+    // ...
+}
+```
+
+### Implementasi
+
+#### 11.1 Buat Policies
+
+```php
+// app/Policies/ProdukPolicy.php
+namespace App\Policies;
+
+use App\Models\Vendor\Produk;
+use App\Models\User;
+use App\Facades\Tenant;
+
+class ProdukPolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return in_array($user->usertype, ['dev', 'admin', 'vendor']);
+    }
+
+    public function view(User $user, Produk $produk): bool
+    {
+        if (in_array($user->usertype, ['dev', 'admin'])) {
+            return true;
+        }
+        
+        return $produk->vendor_id === Tenant::getVendorId();
+    }
+
+    public function create(User $user): bool
+    {
+        return in_array($user->usertype, ['dev', 'admin', 'vendor']);
+    }
+
+    public function update(User $user, Produk $produk): bool
+    {
+        if (in_array($user->usertype, ['dev', 'admin'])) {
+            return true;
+        }
+        
+        return $produk->vendor_id === Tenant::getVendorId();
+    }
+
+    public function delete(User $user, Produk $produk): bool
+    {
+        return $this->update($user, $produk);
+    }
+}
+```
+
+```php
+// app/Policies/AuctionPolicy.php
+namespace App\Policies;
+
+use App\Models\Auction;
+use App\Models\User;
+
+class AuctionPolicy
+{
+    public function viewAny(User $user): bool
+    {
+        return true; // Public
+    }
+
+    public function view(User $user, Auction $auction): bool
+    {
+        // Owner, winning vendor, admin/dev can view
+        if ($auction->user_id === $user->id) return true;
+        if (in_array($user->usertype, ['dev', 'admin'])) return true;
+        
+        // Winning vendor can view
+        if ($user->usertype === 'vendor' && $auction->winner_vendor_id) {
+            $vendor = $user->vendorUser()->first();
+            return $vendor && $auction->winner_vendor_id === $vendor->id;
+        }
+        
+        return false;
+    }
+
+    public function create(User $user): bool
+    {
+        return in_array($user->usertype, ['user', 'dev']);
+    }
+
+    public function update(User $user, Auction $auction): bool
+    {
+        if (in_array($user->usertype, ['dev', 'admin'])) return true;
+        
+        return $auction->user_id === $user->id 
+            && in_array($auction->status, ['pending', 'draft']);
+    }
+
+    public function delete(User $user, Auction $auction): bool
+    {
+        if (in_array($user->usertype, ['dev', 'admin'])) return true;
+        
+        return $auction->user_id === $user->id 
+            && !in_array($auction->status, ['paid', 'in_production', 'completed']);
+    }
+
+    public function pay(User $user, Auction $auction): bool
+    {
+        return $auction->user_id === $user->id 
+            && $auction->status === 'active';
+    }
+
+    public function bid(User $user, Auction $auction): bool
+    {
+        return $user->usertype === 'vendor' 
+            && $auction->status === 'active'
+            && $auction->deadline > now();
+    }
+}
+```
+
+```php
+// app/Policies/TransaksiPolicy.php
+namespace App\Policies;
+
+use App\Models\Vendor\Transaksi;
+use App\Models\User;
+use App\Facades\Tenant;
+
+class TransaksiPolicy
+{
+    public function view(User $user, Transaksi $transaksi): bool
+    {
+        if (in_array($user->usertype, ['dev', 'admin'])) return true;
+        
+        return $transaksi->vendor_id === Tenant::getVendorId();
+    }
+
+    public function update(User $user, Transaksi $transaksi): bool
+    {
+        return $this->view($user, $transaksi);
+    }
+
+    public function delete(User $user, Transaksi $transaksi): bool
+    {
+        if (in_array($user->usertype, ['dev', 'admin'])) return true;
+        
+        return $transaksi->vendor_id === Tenant::getVendorId()
+            && in_array($transaksi->status, ['pending']);
+    }
+}
+```
+
+#### 11.2 Register Policies
+```php
+// app/Providers/AuthServiceProvider.php (jika ada)
+// atau bootstrap/app.php
+use App\Policies\ProdukPolicy;
+use App\Policies\AuctionPolicy;
+use App\Policies\TransaksiPolicy;
+
+Gate::policy(\App\Models\Vendor\Produk::class, ProdukPolicy::class);
+Gate::policy(\App\Models\Auction::class, AuctionPolicy::class);
+Gate::policy(\App\Models\Vendor\Transaksi::class, TransaksiPolicy::class);
+```
+
+#### 11.3 Gunakan di Controller
+```php
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
+class ProdukController extends Controller
+{
+    use AuthorizesRequests;
+    
+    public function show(Produk $produk)
+    {
+        $this->authorize('view', $produk);
+        // ... logic tanpa manual check
+    }
+    
+    public function update(UpdateProdukRequest $request, Produk $produk)
+    {
+        $this->authorize('update', $produk);
+        // ... logic
+    }
+    
+    public function destroy(Produk $produk)
+    {
+        $this->authorize('delete', $produk);
+        $produk->delete();
+        // ...
+    }
+}
+```
+
+### File yang Perlu Diubah
+- `app/Policies/ProdukPolicy.php` (BARU)
+- `app/Policies/AuctionPolicy.php` (BARU)
+- `app/Policies/TransaksiPolicy.php` (BARU)
+- `app/Policies/LinktreePolicy.php` (BARU)
+- `app/Policies/UserPolicy.php` (BARU)
+- `app/Providers/AuthServiceProvider.php` atau `bootstrap/app.php`
+- `app/Http/Controllers/vendor/ProdukController.php`
+- `app/Http/Controllers/vendor/TransaksiController.php`
+- `app/Http/Controllers/vendor/LinktreeController.php`
+- `app/Http/Controllers/AuctionController.php`
+- `app/Http/Controllers/vendor/AuctionBidController.php`
+- `app/Http/Controllers/OrderTrackingController.php`
+- `app/Http/Controllers/DeliveryConfirmationController.php`
+
+**Prioritas:** 🟡 PENTING — Security, maintainability, Laravel best practice
+**Estimasi:** ~15 file (5 baru + 10 existing)
+
+---
+
+## 12. Soft Deletes & Model Conventions
+
+### Masalah
+Tidak ada model yang menggunakan `SoftDeletes`. Ketika data dihapus, hilang permanen tanpa audit trail. Untuk platform bisnis percetakan, ini berisiko tinggi.
+
+Selain itu, beberapa model tidak memiliki timestamp management yang konsisten.
+
+### Implementasi
+
+#### 12.1 Tambah SoftDeletes ke Model Penting
+```php
+// app/Models/Vendor/Produk.php
+namespace App\Models\Vendor;
+
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Produk extends TenantModel
+{
+    use SoftDeletes;
+    
+    // ... existing code
+}
+
+// app/Models/Vendor/Transaksi.php
+class Transaksi extends TenantModel
+{
+    use SoftDeletes;
+    
+    // ... existing code
+}
+
+// app/Models/Vendor/Pelanggan.php
+class Pelanggan extends TenantModel
+{
+    use SoftDeletes;
+    
+    // ... existing code
+}
+
+// app/Models/Auction.php
+class Auction extends UserTenantModel
+{
+    use SoftDeletes;
+    
+    // ... existing code
+}
+
+// app/Models/User.php
+class User extends Authenticatable
+{
+    use SoftDeletes;
+    
+    // ... existing code
+}
+```
+
+#### 12.2 Migrations untuk SoftDeletes
+```php
+// database/migrations/xxxx_add_soft_deletes_to_produks_table.php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('produks', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+        
+        Schema::table('transaksis', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+        
+        Schema::table('pelanggans', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+        
+        Schema::table('auctions', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+        
+        Schema::table('users', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+    }
+    
+    public function down(): void
+    {
+        Schema::table('produks', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+        
+        Schema::table('transaksis', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+        
+        Schema::table('pelanggans', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+        
+        Schema::table('auctions', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+        
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+    }
+};
+```
+
+#### 12.3 Force Delete Only for Admin
+```php
+// Di controller admin:
+class AuctionManagementController extends Controller
+{
+    public function destroy(Auction $auction)
+    {
+        $this->authorize('delete', $auction);
+        
+        // Gunakan force delete hanya untuk admin
+        $auction->forceDelete();
+        
+        return redirect()->route('admin.auctions.index')
+            ->with('success', 'Lelang berhasil dihapus permanen!');
+    }
+}
+
+// Di controller vendor/user:
+class AuctionController extends Controller
+{
+    public function destroy(Auction $auction)
+    {
+        $this->authorize('delete', $auction);
+        
+        // Soft delete — bisa dipulihkan oleh admin
+        $auction->delete();
+        
+        return redirect()->route('user.auctions.index')
+            ->with('success', 'Lelang berhasil dihapus.');
+    }
+}
+```
+
+### File yang Perlu Diubah
+- `app/Models/Vendor/Produk.php`
+- `app/Models/Vendor/Transaksi.php`
+- `app/Models/Vendor/Pelanggan.php`
+- `app/Models/Auction.php`
+- `app/Models/User.php`
+- `database/migrations/xxxx_add_soft_deletes.php` (BARU)
+- `app/Http/Controllers/Admin/AuctionManagementController.php` (force delete)
+- `app/Http/Controllers/vendor/ProdukController.php` (restore capabilities)
+- `app/Http/Controllers/vendor/TransaksiController.php`
+- `app/Http/Controllers/vendor/PelangganController.php`
+
+**Prioritas:** 🟢 NORMAL — Data safety, audit trail
+**Estimasi:** ~20 file (1 migration baru + 10 model + 9 controllers)
+
+---
+
 ## Prioritas Implementasi
 
-### Phase 1 (Segera) — Security
-1. **Middleware Authorization Check** — Cegah unauthorized access
-2. **Rate Limiting** — Cegah abuse
+### Phase 1 (Segera) — Security & DRY
+1. **Vendor Context Trait (#7)** — Eliminasi 60+ duplikasi kode
+2. **Middleware Authorization Check (#2)** — Cegah unauthorized access
+3. **Rate Limiting (#5)** — Cegah abuse
 
-### Phase 2 (Minggu Depan) — Code Quality
-3. **Request Validation Classes** — Centralize validation logic
-4. **API Response Standardization** — Consistent responses
+### Phase 2 (Minggu Ini) — Code Quality
+4. **Flash Message Standardization (#8)** — Consistent UX
+5. **Request Validation Classes (#3)** — Centralize validation logic
+6. **Laravel Policies & Gates (#11)** — Authorization yang terstruktur
 
-### Phase 3 (Bulan Depan) — Enhancement
-5. **Activity Log Enhancement** — Better audit trail
-6. **Extract Confirm Dialog Helper** — Optional refactor
+### Phase 3 (Minggu Depan) — Architecture
+7. **Centralized File Upload Service (#10)** — Consistent file handling
+8. **Controller Refactoring (#9)** — Fat → Thin controllers
+9. **API Response Standardization (#4)** — Consistent responses
+
+### Phase 4 (Bulan Depan) — Enhancement
+10. **Activity Log Enhancement (#6)** — Better audit trail
+11. **Soft Deletes & Model Conventions (#12)** — Data safety
+12. **Extract Confirm Dialog Helper (#1)** — Optional refactor
 
 ---
 
 ## Checklist Implementasi
 
+- [ ] Buat `HasVendorContext` trait dan apply ke semua vendor controllers
 - [ ] Buat `AuthorizationService` dan register di provider
 - [ ] Tambah authorization check di semua vendor controllers
 - [ ] Buat 10+ Request validation classes
@@ -841,12 +1909,35 @@ class ProdukController extends Controller
 - [ ] Update controllers untuk gunakan ApiResponse
 - [ ] Tambah rate limiting di AppServiceProvider
 - [ ] Apply rate limiting ke public routes
+- [ ] Buat `FlashMessage` helper dan standarisasi semua flash messages
+- [ ] Buat Action classes untuk Linktree, Transaksi, Produk
+- [ ] Buat `FileUploadService` dan konsolidasi semua file upload
+- [ ] Buat Laravel Policies (Produk, Auction, Transaksi, Linktree, User)
+- [ ] Register Policies di AuthServiceProvider
 - [ ] Enhance `AuditLogService`
 - [ ] Gunakan `AuditLogService` di controllers
-- [ ] Update documentation (FEATURES.md, ROADMAP.md)
+- [ ] Tambah SoftDeletes ke model-model penting
+- [ ] Buat migration untuk SoftDeletes
+- [ ] Update documentation (FEATURES.md, ROADMAP.md, AGENT.md)
+
+---
+
+## Statistik Impact
+
+| Metrik | Sebelum | Sesudah (Estimasi) |
+|--------|---------|---------------------|
+| Duplikasi vendor context | 60+ | 0 (centralized) |
+| Flash message keys | 6 variasi | 1 standar |
+| Inline auth checks | 30+ | 0 (policies) |
+| Inline validation | 25+ | 0 (request classes) |
+| File upload patterns | 4 cara | 1 service |
+| Controller terbesar | 920 baris | ~200 baris |
+| Request classes | 2 | 15+ |
+| Policies | 0 | 5 |
 
 ---
 
 *Document created: 7 Agustus 2026*
-*Based on: Comprehensive Audit III findings*
-*Next review: Setelah implementasi selesai*
+*Extended: 11 Agustus 2026*
+*Based on: Comprehensive Audit III findings + Codebase Deep Analysis*
+*Next review: Setelah Phase 1 selesai*

@@ -26,19 +26,16 @@ class PaymentManagementController extends Controller
     {
         // Get stuck payments (waiting_payment for more than 24 hours)
         $stuckPayments = Auction::where('status', 'waiting_payment')
-            ->where('created_at', '<', now()->subHours(24))
-            ->with(['user', 'winnerVendor', 'xenditPayments'])
+            ->where('created_at', '<', now()->subHours(24)) ->with(['user', 'winnerVendor', 'xenditPayments'])
             ->get();
 
         // Get expired payments
         $expiredPayments = XenditPayment::where('status', 'pending')
-            ->where('expires_at', '<', now())
-            ->with('auction.user')
+            ->where('expires_at', '<', now()) ->with('auction.user')
             ->get();
 
         // Get failed payments
-        $failedPayments = XenditPayment::where('status', 'failed')
-            ->with('auction.user')
+        $failedPayments = XenditPayment::where('status', 'failed') ->with('auction.user')
             ->get();
 
         // Get payment statistics

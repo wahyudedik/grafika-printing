@@ -43,7 +43,8 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Desktop Table --}}
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -108,6 +109,55 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Mobile Cards --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @forelse ($spesifikasi as $item)
+                <div class="p-4 space-y-2">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <a href="{{ route('vendor.specifications.show', $item->id) }}" class="font-medium text-gray-900 hover:text-blue-600">{{ $item->nama_spesifikasi }}</a>
+                            <p class="text-sm text-gray-500 mt-0.5">{{ $item->satuan ?? '-' }}</p>
+                        </div>
+                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full ml-2 flex-shrink-0
+                            {{ $item->isNumeric() ? 'bg-blue-100 text-blue-700' : ($item->isSelect() ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700') }}">
+                            {{ $item->tipe_input }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-end gap-1 pt-1">
+                        <a href="{{ route('vendor.specifications.show', $item->id) }}"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Lihat">
+                            <i class="fas fa-eye text-sm"></i>
+                        </a>
+                        <a href="{{ route('vendor.specifications.edit', $item->id) }}"
+                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Edit">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <form action="{{ route('vendor.specifications.destroy', $item->id) }}" method="POST"
+                            class="inline" id="delete-form-m-{{ $item->id }}">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button"
+                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                                title="Hapus"
+                                onclick="confirmDelete('delete-form-m-{{ $item->id }}')">
+                                <i class="fas fa-trash-alt text-sm"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <div class="p-8 text-center">
+                    <i class="fas fa-database text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-sm font-medium text-gray-900 mb-1">Tidak ada data spesifikasi</p>
+                    <a href="{{ route('vendor.specifications.create') }}"
+                        class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition">
+                        <i class="fas fa-plus"></i> Tambah Spesifikasi
+                    </a>
+                </div>
+            @endforelse
+        </div>
+
         <div class="px-6 py-4 border-t border-gray-200">
             {{ $spesifikasi->links('dev.components.pagination') }}
         </div>

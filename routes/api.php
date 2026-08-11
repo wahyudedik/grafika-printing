@@ -34,7 +34,7 @@ Route::prefix('mobile')->name('mobile.')->group(function () {
 Route::prefix('xendit')->name('api.xendit.')->group(function () {
     // Webhook route (no auth required, skip CSRF)
     Route::post('/webhook', [XenditWebhookController::class, 'handleWebhook'])
-        ->middleware([\App\Http\Middleware\XenditWebhookMiddleware::class])
+        ->middleware([\App\Http\Middleware\XenditWebhookMiddleware::class, 'throttle:webhook'])
         ->name('webhook');
 
     // Payment status and management routes (API only)

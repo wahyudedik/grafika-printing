@@ -54,7 +54,8 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Desktop Table --}}
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -70,6 +71,22 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($transaksis as $transaksi)
+                        @php
+                            $statusColors = [
+                                'pending' => 'bg-yellow-100 text-yellow-800',
+                                'processing' => 'bg-blue-100 text-blue-800',
+                                'quality_check' => 'bg-purple-100 text-purple-800',
+                                'completed' => 'bg-green-100 text-green-800',
+                                'cancelled' => 'bg-red-100 text-red-800',
+                            ];
+                            $statusLabels = [
+                                'pending' => 'Pending',
+                                'processing' => 'Diproses',
+                                'quality_check' => 'QC',
+                                'completed' => 'Selesai',
+                                'cancelled' => 'Dibatalkan',
+                            ];
+                        @endphp
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 <a href="{{ route('vendor.transactions.show', $transaksi->id) }}" class="text-blue-600 hover:text-blue-800 font-medium">
@@ -80,22 +97,6 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaksi->tanggal_dibuat->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @php
-                                    $statusColors = [
-                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                        'processing' => 'bg-blue-100 text-blue-800',
-                                        'quality_check' => 'bg-purple-100 text-purple-800',
-                                        'completed' => 'bg-green-100 text-green-800',
-                                        'cancelled' => 'bg-red-100 text-red-800',
-                                    ];
-                                    $statusLabels = [
-                                        'pending' => 'Pending',
-                                        'processing' => 'Diproses',
-                                        'quality_check' => 'QC',
-                                        'completed' => 'Selesai',
-                                        'cancelled' => 'Dibatalkan',
-                                    ];
-                                @endphp
                                 <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $statusColors[$transaksi->status] }}">
                                     {{ $statusLabels[$transaksi->status] }}
                                 </span>
@@ -152,6 +153,76 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile Cards --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @php
+                $statusColors = [
+                    'pending' => 'bg-yellow-100 text-yellow-800',
+                    'processing' => 'bg-blue-100 text-blue-800',
+                    'quality_check' => 'bg-purple-100 text-purple-800',
+                    'completed' => 'bg-green-100 text-green-800',
+                    'cancelled' => 'bg-red-100 text-red-800',
+                ];
+                $statusLabels = [
+                    'pending' => 'Pending',
+                    'processing' => 'Diproses',
+                    'quality_check' => 'QC',
+                    'completed' => 'Selesai',
+                    'cancelled' => 'Dibatalkan',
+                ];
+            @endphp
+            @forelse ($transaksis as $transaksi)
+                <div class="p-4 space-y-2">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <a href="{{ route('vendor.transactions.show', $transaksi->id) }}" class="font-medium text-blue-600 hover:text-blue-800">
+                                {{ $transaksi->kode }}
+                            </a>
+                            <p class="text-sm text-gray-500 mt-0.5">{{ $transaksi->pelanggan->nama ?? 'N/A' }}</p>
+                        </div>
+                        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $statusColors[$transaksi->status] }} ml-2 flex-shrink-0">
+                            {{ $statusLabels[$transaksi->status] }}
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">{{ $transaksi->tanggal_dibuat->format('d/m/Y H:i') }}</span>
+                        <span class="font-medium text-gray-900">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">{{ $transaksi->payment_method }}</span>
+                        <span class="text-gray-300">·</span>
+                        <span class="text-xs text-gray-500">{{ $transaksi->progress_percentage }}%</span>
+                        <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $transaksi->progress_percentage }}%"></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-1 pt-1">
+                        <a href="{{ route('vendor.transactions.show', $transaksi->id) }}"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat">
+                            <i class="fas fa-eye text-sm"></i>
+                        </a>
+                        <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
+                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <button type="button"
+                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            onclick="confirmDelete('delete-form-{{ $transaksi->id }}')" title="Hapus">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            @empty
+                <div class="p-8 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-receipt text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900">Tidak ada data transaksi</p>
+                    <p class="text-sm text-gray-500 mt-1">Silahkan tambahkan transaksi baru</p>
+                </div>
+            @endforelse
         </div>
 
         @if ($transaksis->hasPages())

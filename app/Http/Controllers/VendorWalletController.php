@@ -8,6 +8,8 @@ use App\Models\VendorWithdrawal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Responses\FlashMessage;
+
 
 class VendorWalletController extends Controller
 {
@@ -16,7 +18,7 @@ class VendorWalletController extends Controller
      */
     public function index()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
             abort(403, 'Anda tidak memiliki akses vendor');
@@ -52,7 +54,7 @@ class VendorWalletController extends Controller
      */
     public function transactions()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
             abort(403, 'Anda tidak memiliki akses vendor');
@@ -72,7 +74,7 @@ class VendorWalletController extends Controller
      */
     public function withdrawals()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
             abort(403, 'Anda tidak memiliki akses vendor');
@@ -92,7 +94,7 @@ class VendorWalletController extends Controller
      */
     public function createWithdrawal()
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
             abort(403, 'Anda tidak memiliki akses vendor');
@@ -108,7 +110,7 @@ class VendorWalletController extends Controller
      */
     public function storeWithdrawal(Request $request)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
             abort(403, 'Anda tidak memiliki akses vendor');
@@ -134,12 +136,9 @@ class VendorWalletController extends Controller
                 $request->notes
             );
 
-            return redirect()->route('vendor.wallet.withdrawals')
-                ->with('success', 'Permintaan penarikan dana berhasil dikirim!');
+            return FlashMessage::success(redirect()->route('vendor.wallet.withdrawals'), 'Permintaan penarikan dana berhasil dikirim!');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
-                ->withInput();
+            return FlashMessage::backError('Terjadi kesalahan: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -148,7 +147,7 @@ class VendorWalletController extends Controller
      */
     public function showWithdrawal(VendorWithdrawal $withdrawal)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor || $withdrawal->vendor_id !== $vendor->id) {
             abort(403, 'Anda tidak memiliki akses untuk melihat penarikan ini');
@@ -162,20 +161,18 @@ class VendorWalletController extends Controller
      */
     public function cancelWithdrawal(VendorWithdrawal $withdrawal)
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor || $withdrawal->vendor_id !== $vendor->id) {
             abort(403, 'Anda tidak memiliki akses untuk membatalkan penarikan ini');
         }
 
         if ($withdrawal->status !== 'pending') {
-            return redirect()->back()
-                ->with('error', 'Penarikan tidak dapat dibatalkan');
+            return FlashMessage::backError('Penarikan tidak dapat dibatalkan');
         }
 
         $withdrawal->update(['status' => 'cancelled']);
 
-        return redirect()->route('vendor.wallet.withdrawals')
-            ->with('success', 'Penarikan berhasil dibatalkan');
+        return FlashMessage::success(redirect()->route('vendor.wallet.withdrawals'), 'Penarikan berhasil dibatalkan');
     }
 }

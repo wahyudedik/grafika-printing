@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\FlashMessage;
 use App\Models\LelangUserProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+
 
 class UserLelangController extends Controller
 {
@@ -63,8 +65,7 @@ class UserLelangController extends Controller
         ];
 
         // Recent auctions
-        $recentAuctions = $profile->auctions()
-            ->with('bids.vendor')
+        $recentAuctions = $profile->auctions() ->with('bids.vendor')
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
@@ -106,8 +107,7 @@ class UserLelangController extends Controller
 
         $profile = LelangUserProfile::create($validated);
 
-        return redirect()->route('admin.user-lelang.show', $profile)
-            ->with('success', 'Profil User Lelang berhasil dibuat.');
+        return FlashMessage::success(redirect()->route('admin.user-lelang.show', $profile), 'Profil User Lelang berhasil dibuat.');
     }
 
     /**
@@ -138,8 +138,7 @@ class UserLelangController extends Controller
 
         $profile->update($validated);
 
-        return redirect()->route('admin.user-lelang.show', $profile)
-            ->with('success', 'Profil User Lelang berhasil diperbarui.');
+        return FlashMessage::success(redirect()->route('admin.user-lelang.show', $profile), 'Profil User Lelang berhasil diperbarui.');
     }
 
     /**
@@ -149,8 +148,7 @@ class UserLelangController extends Controller
     {
         $profile->delete();
 
-        return redirect()->route('admin.user-lelang.index')
-            ->with('success', 'Profil User Lelang berhasil dihapus.');
+        return FlashMessage::success(redirect()->route('admin.user-lelang.index'), 'Profil User Lelang berhasil dihapus.');
     }
 
     /**
@@ -160,8 +158,7 @@ class UserLelangController extends Controller
     {
         $profile->verify(Auth::id());
 
-        return redirect()->route('admin.user-lelang.show', $profile)
-            ->with('success', 'Profil User Lelang berhasil diverifikasi.');
+        return FlashMessage::success(redirect()->route('admin.user-lelang.show', $profile), 'Profil User Lelang berhasil diverifikasi.');
     }
 
     /**
@@ -175,8 +172,7 @@ class UserLelangController extends Controller
 
         $profile->suspend($request->reason);
 
-        return redirect()->route('admin.user-lelang.show', $profile)
-            ->with('success', 'Profil User Lelang berhasil ditangguhkan.');
+        return FlashMessage::success(redirect()->route('admin.user-lelang.show', $profile), 'Profil User Lelang berhasil ditangguhkan.');
     }
 
     /**
@@ -186,7 +182,6 @@ class UserLelangController extends Controller
     {
         $profile->reactivate();
 
-        return redirect()->route('admin.user-lelang.show', $profile)
-            ->with('success', 'Profil User Lelang berhasil diaktifkan kembali.');
+        return FlashMessage::success(redirect()->route('admin.user-lelang.show', $profile), 'Profil User Lelang berhasil diaktifkan kembali.');
     }
 }

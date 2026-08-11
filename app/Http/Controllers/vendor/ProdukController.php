@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\vendor;
 
+use App\Http\Responses\FlashMessage;
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use App\Models\Vendor\Produk;
 use App\Models\Vendor\KategoriProduk;
 use App\Models\Vendor\Spesifikasi;
@@ -10,18 +12,29 @@ use App\Models\Vendor\Alat;
 use App\Models\Vendor\Bahan;
 use App\Models\Vendor\EstimasiProduk;
 use App\Models\Vendor\SpesifikasiProduk;
+use App\Http\Requests\StoreProdukRequest;
+use App\Services\AuditLogService;
+use App\Actions\Produk\CreateProduk;
+use App\Http\Requests\UpdateProdukRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+
+
 class ProdukController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->requireVendor();
+
         $query = Produk::query();
 
         // Search functionality
@@ -45,7 +58,7 @@ class ProdukController extends Controller
         }
 
         // Get products with pagination
-        $produks = $query->with('kategori')->latest()->paginate(10);
+        $produks = $query->with(['kategori', 'spesifikasiProduk', 'estimasiProduk'])->latest()->paginate(10);
 
         return view('produk.index', compact('produks', 'kategories', 'selectedCategory'));
     }
@@ -55,6 +68,8 @@ class ProdukController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         $kategories = KategoriProduk::all();
         $spesifikasis = Spesifikasi::all();
         $alats = Alat::all();
@@ -66,95 +81,20 @@ class ProdukController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProdukRequest $request)
     {
-        // Modify validation rules to handle "new" category
-        $rules = [
-            'nama_produk' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
-            'harga_jual' => 'nullable|numeric|min:0',
-            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'spesifikasi' => 'nullable|array',
-            'spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
-            'spesifikasi.*.wajib_diisi' => 'boolean',
-            'spesifikasi.*.pilihan' => 'nullable|array',
-            'spesifikasi.*.bahan_ids' => 'nullable|array',
-            'spesifikasi.*.bahan_ids.*' => 'exists:bahans,id',
-            'estimasi' => 'nullable|array',
-            'estimasi.*.alat_id' => 'required|exists:alats,id',
-            'estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
-            'estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
-        ];
+        $validated = $request->validated();
 
-        // Conditional validation for category
-        if ($request->kategori_id === 'new') {
-            $rules['new_kategori'] = 'required|string|max:255';
-        } else {
-            $rules['kategori_id'] = 'required|exists:kategori_produks,id';
-        }
+        $vendor = $this->requireVendor();
 
-        $request->validate($rules);
+        $produk = (new CreateProduk)->run(array_merge($validated, [
+            'vendor_id' => $vendor->id,
+            'gambar' => $request->file('gambar'),
+        ]));
 
-        // Handle category - create new if needed
-        $kategori_id = $request->kategori_id;
-        if ($request->kategori_id === 'new' && !empty($request->new_kategori)) {
-            $kategori = KategoriProduk::create([
-                'nama_kategori' => $request->new_kategori,
-                'slug' => Str::slug($request->new_kategori),
-            ]);
-            $kategori_id = $kategori->id;
-        }
+        AuditLogService::logCreated($produk, 'Produk baru ditambahkan: ' . $produk->nama_produk);
 
-        // Handle image uploads
-        $gambars = [];
-        if ($request->hasFile('gambar')) {
-            foreach ($request->file('gambar') as $file) {
-                $gambarName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('produk_gambar'), $gambarName);
-                $gambars[] = 'produk_gambar/' . $gambarName;
-            }
-        }
-
-        // Create the product
-        $produk = Produk::create([
-            'nama_produk' => $request->nama_produk,
-            'deskripsi' => $request->deskripsi,
-            'kategori_id' => $kategori_id,
-            'gambar' => $gambars,
-            'harga_jual' => $request->harga_jual ?: null,
-        ]);
-
-        // Handle specifications
-        if ($request->has('spesifikasi')) {
-            foreach ($request->spesifikasi as $spec) {
-                $specModel = SpesifikasiProduk::create([
-                    'produk_id' => $produk->id,
-                    'spesifikasi_id' => $spec['spesifikasi_id'],
-                    'wajib_diisi' => $spec['wajib_diisi'] ?? false,
-                    'pilihan' => $spec['pilihan'] ?? [],
-                ]);
-
-                // Handle bahan (materials) for this specification
-                if (isset($spec['bahan_ids']) && is_array($spec['bahan_ids'])) {
-                    $specModel->bahanSpesifikasiProduk()->attach($spec['bahan_ids']);
-                }
-            }
-        }
-
-        // Handle production estimates
-        if ($request->has('estimasi')) {
-            foreach ($request->estimasi as $estimasi) {
-                EstimasiProduk::create([
-                    'produk_id' => $produk->id,
-                    'alat_id' => $estimasi['alat_id'],
-                    'waktu_persiapan' => $estimasi['waktu_persiapan'],
-                    'waktu_produksi_per_unit' => $estimasi['waktu_produksi_per_unit'],
-                ]);
-            }
-        }
-
-        return redirect()->route('vendor.products.index')
-            ->with('toast_success', 'Produk berhasil ditambahkan!');
+        return FlashMessage::success(redirect()->route('vendor.products.index'), 'Produk berhasil ditambahkan!');
     }
 
     /**
@@ -162,12 +102,16 @@ class ProdukController extends Controller
      */
     public function show(string $id)
     {
+        $this->requireVendor();
+
         $produk = Produk::with([
             'kategori',
             'spesifikasiProduk.spesifikasi',
             'spesifikasiProduk.bahanSpesifikasiProduk',
             'estimasiProduk.alat'
         ])->findOrFail($id);
+
+        $this->authorize('view', $produk);
 
         return view('produk.show', compact('produk'));
     }
@@ -177,11 +121,15 @@ class ProdukController extends Controller
      */
     public function edit(string $id)
     {
+        $this->requireVendor();
+
         $produk = Produk::with([
             'spesifikasiProduk.spesifikasi',
             'spesifikasiProduk.bahanSpesifikasiProduk',
             'estimasiProduk'
         ])->findOrFail($id);
+
+        $this->authorize('update', $produk);
 
         $kategories = KategoriProduk::all();
         $spesifikasis = Spesifikasi::all();
@@ -194,49 +142,21 @@ class ProdukController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProdukRequest $request, string $id)
     {
+        $this->requireVendor();
+
         $produk = Produk::findOrFail($id);
 
-        // Modify validation rules to handle "new" category
-        $rules = [
-            'nama_produk' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
-            'harga_jual' => 'nullable|numeric|min:0',
-            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'spesifikasi' => 'nullable|array',
-            'spesifikasi.*.id' => 'nullable|exists:spesifikasi_produks,id',
-            'spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
-            'spesifikasi.*.wajib_diisi' => 'boolean',
-            'spesifikasi.*.pilihan' => 'nullable|array',
-            'spesifikasi.*.bahan_ids' => 'nullable|array',
-            'spesifikasi.*.bahan_ids.*' => 'exists:bahans,id',
-            'new_spesifikasi' => 'nullable|array',
-            'new_spesifikasi.*.spesifikasi_id' => 'required|exists:spesifikasis,id',
-            'new_spesifikasi.*.wajib_diisi' => 'boolean',
-            'new_spesifikasi.*.pilihan' => 'nullable|array',
-            'new_spesifikasi.*.bahan_ids' => 'nullable|array',
-            'new_spesifikasi.*.bahan_ids.*' => 'exists:bahans,id',
-            'estimasi' => 'nullable|array',
-            'estimasi.*.id' => 'nullable|exists:estimasi_produks,id',
-            'estimasi.*.alat_id' => 'required|exists:alats,id',
-            'estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
-            'estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
-            'new_estimasi' => 'nullable|array',
-            'new_estimasi.*.alat_id' => 'required|exists:alats,id',
-            'new_estimasi.*.waktu_persiapan' => 'required|numeric|min:0',
-            'new_estimasi.*.waktu_produksi_per_unit' => 'required|numeric|min:0',
-            'delete_image' => 'nullable|array',
+        $this->authorize('update', $produk);
+
+        // Capture old values for audit log
+        $oldValues = [
+            'nama_produk' => $produk->nama_produk,
+            'deskripsi' => $produk->deskripsi,
+            'kategori_id' => $produk->kategori_id,
+            'harga_jual' => $produk->harga_jual,
         ];
-
-        // Conditional validation for category
-        if ($request->kategori_id === 'new') {
-            $rules['new_kategori'] = 'required|string|max:255';
-        } else {
-            $rules['kategori_id'] = 'required|exists:kategori_produks,id';
-        }
-
-        $request->validate($rules);
 
         // Handle category - create new if needed
         $kategori_id = $request->kategori_id;
@@ -389,8 +309,9 @@ class ProdukController extends Controller
             }
         }
 
-        return redirect()->route('vendor.products.index')
-            ->with('toast_success', 'Produk berhasil diperbarui!');
+        AuditLogService::logUpdated($produk, $oldValues, 'Produk diperbarui: ' . $produk->nama_produk);
+
+        return FlashMessage::success(redirect()->route('vendor.products.index'), 'Produk berhasil diperbarui!');
     }
 
     /**
@@ -398,7 +319,11 @@ class ProdukController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->requireVendor();
+
         $produk = Produk::findOrFail($id);
+
+        $this->authorize('delete', $produk);
 
         // Delete associated images
         if (!empty($produk->gambar)) {
@@ -422,8 +347,9 @@ class ProdukController extends Controller
         // Delete the product
         $produk->delete();
 
-        return redirect()->route('vendor.products.index')
-            ->with('toast_success', 'Produk berhasil dihapus!');
+        AuditLogService::logDeleted($produk, 'Produk dihapus: ' . $produk->nama_produk);
+
+        return FlashMessage::success(redirect()->route('vendor.products.index'), 'Produk berhasil dihapus!');
     }
 
     /**
@@ -431,6 +357,8 @@ class ProdukController extends Controller
      */
     public function bulkUpdate(Request $request)
     {
+        $this->requireVendor();
+
         $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'exists:produks,id',
@@ -443,18 +371,18 @@ class ProdukController extends Controller
 
         if ($field === 'kategori_id') {
             if (!is_numeric($value) || $value < 1) {
-                return redirect()->back()->with('toast_error', 'Kategori tidak valid.');
+                return FlashMessage::backError('Kategori tidak valid.');
             }
             $value = (int) $value;
         } elseif ($field === 'harga_jual') {
             if (!is_numeric($value) || $value < 0) {
-                return redirect()->back()->with('toast_error', 'Nilai harga harus angka positif.');
+                return FlashMessage::backError('Nilai harga harus angka positif.');
             }
             $value = (float) $value;
         }
 
         $updated = Produk::whereIn('id', $request->ids)->update([$field => $value]);
 
-        return redirect()->back()->with('toast_success', "Berhasil memperbarui {$updated} produk ({$field}).");
+        return FlashMessage::backSuccess("Berhasil memperbarui {$updated} produk ({$field}).");
     }
 }

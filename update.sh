@@ -139,7 +139,7 @@ create_backup() {
     cd "$BACKUP_DIR"
     ls -t backup_*.tar.gz 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
     ls -t db_backup_*.sql 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
-    ls -t env_backup_* 2>/dev/null | grep -v "db_backup\|backup_" | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
+    ls -t env_backup_* 2>/dev/null | grep -v "\.sql$\|\.tar\.gz$" | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
 
     print_success "Backups cleaned (keeping last $MAX_BACKUPS)"
 }
@@ -187,8 +187,8 @@ update_dependencies() {
     print_success "Composer dependencies updated"
 
     # NPM
-    print_info "Updating NPM dependencies..."
-    npm install --production=false
+    print_info "Updating NPM dependencies and rebuilding assets..."
+    npm ci --no-audit --no-fund --include=dev
     npm run build
     print_success "NPM dependencies updated and assets built"
 }
@@ -201,16 +201,15 @@ run_migrations() {
 
     cd "$APP_DIR"
 
-    # Check if there are pending migrations
-    PENDING=$(php artisan migrate:pending 2>/dev/null | grep -c "migrations")
+    # Run landlord migrations (multi-tenant)
+    print_info "Running landlord migrations..."
+    php artisan tenants:migrate --force 2>/dev/null || php artisan migrate --force
+    print_success "Landlord migrations completed"
 
-    if [ "$PENDING" -gt 0 ]; then
-        print_info "Running pending migrations..."
-        php artisan migrate --force
-        print_success "Migrations completed"
-    else
-        print_info "No pending migrations"
-    fi
+    # Run tenant migrations
+    print_info "Running tenant migrations..."
+    php artisan tenants:migrate --tenant=* --force 2>/dev/null || true
+    print_success "Tenant migrations completed"
 }
 
 # ============================================
@@ -233,6 +232,7 @@ optimize_application() {
     php artisan route:cache
     php artisan view:cache
     php artisan event:cache
+    php artisan icons:cache 2>/dev/null || true
 
     print_success "Application optimized"
 }
@@ -335,7 +335,7 @@ rollback() {
 
     print_info "Latest backup: $LATEST_BACKUP"
     echo "  Database backup: $LATEST_DB_BACKUP"
-    echo "  Env backup: $LATEST_ENV_ENV"
+    echo "  Env backup: $LATEST_ENV_BACKUP"
     echo ""
     read -p "  Restore from backup? This will OVERWRITE current data! (y/N): " confirm
     if [[ $confirm != [yY] ]]; then
@@ -364,8 +364,7 @@ rollback() {
 
     # Restore application files
     print_info "Restoring application files..."
-    cd /var/www
-    tar -xzf "$LATEST_BACKUP" -C / 2>/dev/null || true
+    tar -xzf "$LATEST_BACKUP" -C "$APP_DIR" 2>/dev/null || true
     cd "$APP_DIR"
 
     # Re-optimize
@@ -402,7 +401,7 @@ main() {
             echo "  2. Create backup (database + .env)"
             echo "  3. Pull latest changes from git"
             echo "  4. Update dependencies"
-            echo "  5. Run migrations"
+            echo "  5. Run migrations (landlord + tenant)"
             echo "  6. Optimize application"
             echo "  7. Fix permissions"
             echo "  8. Restart services"

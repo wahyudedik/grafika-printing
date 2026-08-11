@@ -6,19 +6,30 @@ use App\Models\Vendor;
 use App\Models\Vendor\Alat;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\StoreAlatRequest;
+use App\Http\Requests\UpdateAlatRequest;
+use App\Http\Responses\FlashMessage;
+
+
 
 class AlatController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->requireVendor();
+
         try {
             // Validate input
             $request->validate([
@@ -52,7 +63,7 @@ class AlatController extends Controller
             $alat = $query->paginate(10);
             return view('alat.index', compact('alat'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error getting alat: ' . $e->getMessage());
+            return FlashMessage::backError('Error getting alat: ' . $e->getMessage());
         }
     }
 
@@ -61,47 +72,24 @@ class AlatController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         return view('alat.create');
     }
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAlatRequest $request)
     {
-        $request->validate([
-            'nama_alat' => 'required|string|max:255',
-            'merek' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'spesifikasi_alat' => 'required|string',
-            'status' => 'required|in:aktif,maintenance,rusak',
-            'tanggal_pembelian' => 'required|date',
-            'kapasitas_cetak_per_jam' => 'required|integer|min:1',
-            'tersedia' => 'required|boolean',
-        ]);
-
         try {
-            // Get the current vendor ID from session
-            $vendorId = session('current_vendor_id');
-
-            // If not in session, try to get from authenticated user's relationship
-            if (!$vendorId) {
-                $vendor = Vendor::forUser(Auth::id())->first();
-
-                if ($vendor) {
-                    $vendorId = $vendor->id;
-                    // Store in session for future use
-                    Session::put('current_vendor_id', $vendorId);
-                } else {
-                    return redirect()->back()->with('toast_error', 'No associated vendor found')->withInput();
-                }
-            }
+            $vendorId = $this->requireVendor()->id;
 
             // Create alat with vendor_id
             Alat::create(array_merge($request->all(), ['vendor_id' => $vendorId]));
 
-            return redirect()->route('vendor.tools.index')->with('toast_success', 'Alat berhasil ditambahkan');
+            return FlashMessage::success(redirect()->route('vendor.tools.index'), 'Alat berhasil ditambahkan');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error adding alat: ' . $e->getMessage())->withInput();
+            return FlashMessage::backError('Error adding alat: ' . $e->getMessage())->withInput();
         }
     }
     /**
@@ -109,11 +97,13 @@ class AlatController extends Controller
      */
     public function show(string $id)
     {
+        $this->requireVendor();
+
         try {
             $alat = Alat::findOrFail($id);
             return view('alat.show', compact('alat'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error finding alat: ' . $e->getMessage());
+            return FlashMessage::backError('Error finding alat: ' . $e->getMessage());
         }
     }
 
@@ -122,29 +112,22 @@ class AlatController extends Controller
      */
     public function edit(string $id)
     {
+        $this->requireVendor();
+
         try {
             $alat = Alat::findOrFail($id);
             return view('alat.edit', compact('alat'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error finding alat: ' . $e->getMessage());
+            return FlashMessage::backError('Error finding alat: ' . $e->getMessage());
         }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAlatRequest $request, string $id)
     {
-        $request->validate([
-            'nama_alat' => 'required|string|max:255',
-            'merek' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'spesifikasi_alat' => 'required|string',
-            'status' => 'required|in:aktif,maintenance,rusak',
-            'tanggal_pembelian' => 'required|date',
-            'kapasitas_cetak_per_jam' => 'required|integer|min:1',
-            'tersedia' => 'required|boolean',
-        ]);
+        $this->requireVendor();
 
         try {
             $alat = Alat::findOrFail($id);
@@ -154,9 +137,9 @@ class AlatController extends Controller
             $data['vendor_id'] = $alat->vendor_id;
 
             $alat->update($data);
-            return redirect()->route('vendor.tools.index')->with('toast_success', 'Alat berhasil diperbarui');
+            return FlashMessage::success(redirect()->route('vendor.tools.index'), 'Alat berhasil diperbarui');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error updating alat: ' . $e->getMessage())->withInput();
+            return FlashMessage::backError('Error updating alat: ' . $e->getMessage())->withInput();
         }
     }
     /**
@@ -164,12 +147,14 @@ class AlatController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->requireVendor();
+
         try {
             $alat = Alat::findOrFail($id);
             $alat->delete();
-            return redirect()->route('vendor.tools.index')->with('toast_success', 'Alat berhasil dihapus');
+            return FlashMessage::success(redirect()->route('vendor.tools.index'), 'Alat berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error deleting alat: ' . $e->getMessage());
+            return FlashMessage::backError('Error deleting alat: ' . $e->getMessage());
         }
     }
 
@@ -178,6 +163,8 @@ class AlatController extends Controller
      */
     public function bulkUpdate(Request $request)
     {
+        $this->requireVendor();
+
         $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'exists:alats,id',
@@ -191,7 +178,7 @@ class AlatController extends Controller
         // Validate value based on field
         if ($field === 'status') {
             if (!in_array($value, ['aktif', 'maintenance', 'rusak'])) {
-                return redirect()->back()->with('toast_error', 'Status tidak valid.');
+                return FlashMessage::backError('Status tidak valid.');
             }
         } elseif ($field === 'tersedia') {
             $value = (bool) $value;
@@ -199,7 +186,6 @@ class AlatController extends Controller
 
         $updated = Alat::whereIn('id', $request->ids)->update([$field => $value]);
 
-        return redirect()->back()
-            ->with('toast_success', "Berhasil memperbarui {$updated} alat ({$field}).");
+        return FlashMessage::backSuccess("Berhasil memperbarui {$updated} alat ({$field}).");
     }
 }

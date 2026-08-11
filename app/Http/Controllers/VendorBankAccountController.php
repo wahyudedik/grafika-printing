@@ -6,6 +6,8 @@ use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Responses\FlashMessage;
+
 
 class VendorBankAccountController extends Controller
 {
@@ -88,8 +90,7 @@ class VendorBankAccountController extends Controller
 
         $vendor->update($data);
 
-        return redirect()->route('vendor.bank-accounts.index')
-            ->with('success', 'Detail rekening berhasil disimpan');
+        return FlashMessage::success(redirect()->route('vendor.bank-accounts.index'), 'Detail rekening berhasil disimpan');
     }
 
     /**
@@ -164,8 +165,7 @@ class VendorBankAccountController extends Controller
 
         $vendor->update($data);
 
-        return redirect()->route('vendor.bank-accounts.index')
-            ->with('success', 'Detail rekening berhasil diperbarui');
+        return FlashMessage::success(redirect()->route('vendor.bank-accounts.index'), 'Detail rekening berhasil diperbarui');
     }
 
     /**
@@ -203,8 +203,7 @@ class VendorBankAccountController extends Controller
 
         $vendor->update($data);
 
-        return redirect()->route('vendor.bank-accounts.index')
-            ->with('success', 'Detail rekening berhasil dihapus');
+        return FlashMessage::success(redirect()->route('vendor.bank-accounts.index'), 'Detail rekening berhasil dihapus');
     }
 
     /**

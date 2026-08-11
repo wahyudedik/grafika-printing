@@ -2,20 +2,31 @@
 
 namespace App\Http\Controllers\vendor;
 
+use App\Http\Responses\FlashMessage;
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use App\Models\Vendor\Pelanggan;
+use App\Facades\Tenant;
+use App\Http\Requests\StorePelangganRequest;
+use App\Http\Requests\UpdatePelangganRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+
+
 class PelangganController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->requireVendor();
+
         $query = Pelanggan::query();
 
         // Search functionality
@@ -38,15 +49,18 @@ class PelangganController extends Controller
             }
         }
 
-        // Use with() to load the latest transaction for each customer
-        $query->withCount('transaksi');
+        // Eager load transaction count + latest transaction to avoid N+1 queries
+        $query->withCount('transaksi')
+            ->with(['transaksi' => function ($q) {
+                $q->latest('created_at')->limit(1);
+            }]);
 
         $pelanggan = $query->latest()->paginate(10);
 
-        // Update transaksi_terakhir for display purposes
+        // Update transaksi_terakhir from the eager-loaded latest transaction
         foreach ($pelanggan as $customer) {
-            if (!$customer->transaksi_terakhir && $customer->transaksi_count > 0) {
-                $customer->transaksi_terakhir = $customer->getLatestTransactionDate();
+            if (!$customer->transaksi_terakhir && $customer->transaksi_count > 0 && $customer->transaksi->isNotEmpty()) {
+                $customer->transaksi_terakhir = $customer->transaksi->first()->created_at;
             }
         }
 
@@ -58,31 +72,29 @@ class PelangganController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         return view('pelanggan.create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePelangganRequest $request)
     {
-        $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'alamat' => 'nullable|string',
-            'no_telp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-        ]);
+        $vendorId = $this->requireVendor()->id;
+
+        $validated = $request->validated();
 
         // Generate a unique customer code
         $validated['kode'] = 'C' . strtoupper(Str::random(6));
 
         // Set vendor_id from authenticated user's vendor
-        $validated['vendor_id'] = Auth::user()->vendor_id;
+        $validated['vendor_id'] = $vendorId;
 
         $pelanggan = Pelanggan::create($validated);
 
-        return redirect()->route('vendor.customers.index')
-            ->with('toast_success', 'Pelanggan berhasil ditambahkan.');
+        return FlashMessage::success(redirect()->route('vendor.customers.index'), 'Pelanggan berhasil ditambahkan.');
     }
 
     /**
@@ -90,6 +102,8 @@ class PelangganController extends Controller
      */
     public function show(string $id)
     {
+        $this->requireVendor();
+
         $pelanggan = Pelanggan::findOrFail($id);
 
         return view('pelanggan.show', compact('pelanggan'));
@@ -100,6 +114,8 @@ class PelangganController extends Controller
      */
     public function edit(string $id)
     {
+        $this->requireVendor();
+
         $pelanggan = Pelanggan::findOrFail($id);
 
         return view('pelanggan.edit', compact('pelanggan'));
@@ -108,22 +124,18 @@ class PelangganController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePelangganRequest $request, string $id)
     {
+        $this->requireVendor();
+
         $pelanggan = Pelanggan::findOrFail($id);
 
-        $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'alamat' => 'nullable|string',
-            'no_telp' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-        ]);
+        $validated = $request->validated();
 
         // Ensure we don't change the vendor_id
         $pelanggan->update($validated);
 
-        return redirect()->route('vendor.customers.index')
-            ->with('toast_success', 'Pelanggan berhasil diperbarui.');
+        return FlashMessage::success(redirect()->route('vendor.customers.index'), 'Pelanggan berhasil diperbarui.');
     }
 
     /**
@@ -131,17 +143,17 @@ class PelangganController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->requireVendor();
+
         $pelanggan = Pelanggan::findOrFail($id);
 
         // Check if the customer has any transactions
         if ($pelanggan->transaksi()->count() > 0) {
-            return redirect()->route('vendor.customers.index')
-                ->with('toast_error', 'Pelanggan tidak dapat dihapus karena memiliki transaksi.');
+            return FlashMessage::error(redirect()->route('vendor.customers.index'), 'Pelanggan tidak dapat dihapus karena memiliki transaksi.');
         }
 
         $pelanggan->delete();
 
-        return redirect()->route('vendor.customers.index')
-            ->with('toast_success', 'Pelanggan berhasil dihapus.');
+        return FlashMessage::success(redirect()->route('vendor.customers.index'), 'Pelanggan berhasil dihapus.');
     }
 }

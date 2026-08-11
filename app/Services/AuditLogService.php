@@ -6,6 +6,7 @@ use App\Models\FinancialAuditLog;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
 
 class AuditLogService
 {
@@ -246,5 +247,97 @@ class AuditLogService
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get();
+    }
+
+    // =========================================================================
+    // GENERIC AUDIT LOG METHODS
+    // =========================================================================
+
+    /**
+     * Log a generic activity
+     */
+    public static function log(string $action, string $description = '', array $extra = []): void
+    {
+        try {
+            $user = auth()->user();
+
+            self::logFinancialTransaction([
+                'vendor_id' => $extra['vendor_id'] ?? $user?->vendorUser?->first()?->vendor_id ?? null,
+                'action_type' => $action,
+                'entity_type' => $extra['entity_type'] ?? class_basename($extra['model'] ?? ''),
+                'entity_id' => $extra['entity_id'] ?? $extra['model']?->id ?? null,
+                'old_data' => $extra['old_values'] ?? null,
+                'new_data' => $extra['new_values'] ?? null,
+                'amount' => $extra['amount'] ?? null,
+                'status' => $extra['status'] ?? 'completed',
+                'notes' => $description,
+                'risk_level' => $extra['risk_level'] ?? FinancialAuditLog::RISK_LOW,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to create generic audit log: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Log model creation
+     */
+    public static function logCreated($model, string $description = ''): void
+    {
+        $vendorId = method_exists($model, 'vendor_id') ? $model->vendor_id : null;
+
+        self::log('created', $description ?: class_basename($model) . ' created', [
+            'vendor_id' => $vendorId,
+            'entity_type' => class_basename($model),
+            'entity_id' => $model->id,
+            'new_values' => $model->toArray(),
+        ]);
+    }
+
+    /**
+     * Log model update with old and new values
+     */
+    public static function logUpdated($model, array $oldValues, string $description = ''): void
+    {
+        $vendorId = method_exists($model, 'vendor_id') ? $model->vendor_id : null;
+
+        self::log('updated', $description ?: class_basename($model) . ' updated', [
+            'vendor_id' => $vendorId,
+            'entity_type' => class_basename($model),
+            'entity_id' => $model->id,
+            'old_values' => $oldValues,
+            'new_values' => $model->toArray(),
+        ]);
+    }
+
+    /**
+     * Log model deletion
+     */
+    public static function logDeleted($model, string $description = ''): void
+    {
+        $vendorId = method_exists($model, 'vendor_id') ? $model->vendor_id : null;
+
+        self::log('deleted', $description ?: class_basename($model) . ' deleted', [
+            'vendor_id' => $vendorId,
+            'entity_type' => class_basename($model),
+            'entity_id' => $model->id,
+            'old_values' => $model->toArray(),
+            'risk_level' => FinancialAuditLog::RISK_HIGH,
+        ]);
+    }
+
+    /**
+     * Log status change
+     */
+    public static function logStatusChange($model, string $oldStatus, string $newStatus): void
+    {
+        $vendorId = method_exists($model, 'vendor_id') ? $model->vendor_id : null;
+
+        self::log('status_changed', class_basename($model) . " status: {$oldStatus} → {$newStatus}", [
+            'vendor_id' => $vendorId,
+            'entity_type' => class_basename($model),
+            'entity_id' => $model->id,
+            'old_values' => ['status' => $oldStatus],
+            'new_values' => ['status' => $newStatus],
+        ]);
     }
 }

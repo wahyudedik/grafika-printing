@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\vendor\pos;
 
+use App\Http\Responses\FlashMessage;
+
 use Carbon\Carbon;
 use App\Models\Vendor\Bahan;
 use Illuminate\Http\Request;
@@ -13,13 +15,19 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\EstimasiProduk;
+use App\Http\Concerns\HasVendorContext;
+
+
 
 class CheckoutController extends Controller
 {
+    use HasVendorContext;
+
+
     public function process(Request $request)
     {
         // Dapatkan vendor dari user yang sedang login
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         $validatedData = $request->validate([
             'pelanggan_id' => 'required|exists:pelanggans,id',
@@ -148,12 +156,11 @@ class CheckoutController extends Controller
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
             $cartItems = session('cart', []);
 
             if (empty($cartItems)) {
-                return redirect()->route('vendor.pos.cart')
-                    ->with('toast_error', 'Your cart is empty. Please add items before checkout.');
+                return FlashMessage::error(redirect()->route('vendor.pos.cart'), 'Your cart is empty. Please add items before checkout.');
             }
 
             $totalAmount = collect($cartItems)->sum('total_price');
@@ -174,15 +181,14 @@ class CheckoutController extends Controller
             ));
         } catch (\Exception $e) {
             Log::error('Error displaying checkout: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.cart')
-                ->with('toast_error', 'Failed to load checkout page: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.cart'), 'Failed to load checkout page: ' . $e->getMessage());
         }
     }
 
     public function createCustomer(Request $request)
     {
         // Dapatkan vendor dari user yang sedang login
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         try {
             $validated = $request->validate([
@@ -208,7 +214,7 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('toast_success', 'Customer created successfully');
+            return FlashMessage::backSuccess('Customer created successfully');
         } catch (\Exception $e) {
             Log::error('Error creating customer: ' . $e->getMessage());
 
@@ -219,8 +225,7 @@ class CheckoutController extends Controller
                 ], 500);
             }
 
-            return redirect()->back()
-                ->with('toast_error', 'Failed to create customer: ' . $e->getMessage())
+            return FlashMessage::backError('Failed to create customer: ' . $e->getMessage())
                 ->withInput();
         }
     }

@@ -2,26 +2,32 @@
 
 namespace App\Http\Controllers\vendor\pos;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Models\Vendor\Transaksi;
 use App\Models\Vendor\PrinterSetting;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Http\Concerns\HasVendorContext;
+
+
 
 class ThermalPrintController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Direct thermal printing with browser print dialog
      */
     public function printDirect(Transaksi $transaksi)
     {
         try {
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             if (!$vendor) {
-                return redirect()->route('vendor.dashboard')
-                    ->with('toast_error', 'Vendor tidak ditemukan.');
+                return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan.');
             }
 
             $transaksi = Transaksi::with([
@@ -39,8 +45,7 @@ class ThermalPrintController extends Controller
             return view('pos.thermal-print', compact('transaksi', 'printerSettings'));
         } catch (\Exception $e) {
             Log::error('Thermal print error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Gagal mencetak: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal mencetak: ' . $e->getMessage());
         }
     }
 
@@ -50,11 +55,10 @@ class ThermalPrintController extends Controller
     public function printViaJS(Transaksi $transaksi)
     {
         try {
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             if (!$vendor) {
-                return redirect()->route('vendor.dashboard')
-                    ->with('toast_error', 'Vendor tidak ditemukan.');
+                return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan.');
             }
 
             $transaksi = Transaksi::with([
@@ -72,8 +76,7 @@ class ThermalPrintController extends Controller
             return view('pos.thermal-print-js', compact('transaksi', 'printerSettings'));
         } catch (\Exception $e) {
             Log::error('Thermal print JS error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Gagal mencetak: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal mencetak: ' . $e->getMessage());
         }
     }
 
@@ -83,11 +86,10 @@ class ThermalPrintController extends Controller
     public function showSettings()
     {
         try {
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             if (!$vendor) {
-                return redirect()->route('vendor.dashboard')
-                    ->with('toast_error', 'Vendor tidak ditemukan.');
+                return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan.');
             }
 
             $printerSettings = PrinterSetting::forVendor($vendor->id);
@@ -95,8 +97,7 @@ class ThermalPrintController extends Controller
             return view('pos.printer-settings', compact('printerSettings', 'vendor'));
         } catch (\Exception $e) {
             Log::error('Printer settings error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Gagal membuka pengaturan printer.');
+            return FlashMessage::backError('Gagal membuka pengaturan printer.');
         }
     }
 
@@ -106,11 +107,10 @@ class ThermalPrintController extends Controller
     public function saveSettings(Request $request)
     {
         try {
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             if (!$vendor) {
-                return redirect()->route('vendor.dashboard')
-                    ->with('toast_error', 'Vendor tidak ditemukan.');
+                return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan.');
             }
 
             $validated = $request->validate([
@@ -132,12 +132,10 @@ class ThermalPrintController extends Controller
             $printerSettings = PrinterSetting::forVendor($vendor->id);
             $printerSettings->update($validated);
 
-            return redirect()->route('vendor.pos.printer.settings')
-                ->with('toast_success', 'Pengaturan printer berhasil disimpan!');
+            return FlashMessage::success(redirect()->route('vendor.pos.printer.settings'), 'Pengaturan printer berhasil disimpan!');
         } catch (\Exception $e) {
             Log::error('Save printer settings error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Gagal menyimpan pengaturan: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal menyimpan pengaturan: ' . $e->getMessage());
         }
     }
 
@@ -147,7 +145,7 @@ class ThermalPrintController extends Controller
     public function getPrinterSettings()
     {
         try {
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             if (!$vendor) {
                 return response()->json([

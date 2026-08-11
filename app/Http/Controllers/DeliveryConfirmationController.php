@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Responses\FlashMessage;
+
 
 class DeliveryConfirmationController extends Controller
 {
@@ -47,8 +49,7 @@ class DeliveryConfirmationController extends Controller
         // Check if already confirmed
         $existingConfirmation = DeliveryConfirmation::where('auction_id', $auction->id)->first();
         if ($existingConfirmation) {
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('info', 'Delivery confirmation already exists');
+            return FlashMessage::info(redirect()->route('user.auctions.show', $auction), 'Delivery confirmation already exists');
         }
 
         return view('user.delivery-confirmation.create', compact('auction'));
@@ -102,13 +103,10 @@ class DeliveryConfirmationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('success', 'Delivery confirmation submitted successfully');
+            return FlashMessage::success(redirect()->route('user.auctions.show', $auction), 'Delivery confirmation submitted successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Error submitting confirmation: ' . $e->getMessage())
-                ->withInput();
+            return FlashMessage::backError('Error submitting confirmation: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -147,8 +145,7 @@ class DeliveryConfirmationController extends Controller
         // Process payment to vendor
         $this->processVendorPayment($confirmation->auction, $confirmation);
 
-        return redirect()->back()
-            ->with('success', 'Delivery confirmed successfully');
+        return FlashMessage::backSuccess('Delivery confirmed successfully');
     }
 
     /**
@@ -236,12 +233,10 @@ class DeliveryConfirmationController extends Controller
 
             DB::commit();
 
-            return redirect()->back()
-                ->with('success', 'Dispute resolved successfully');
+            return FlashMessage::backSuccess('Dispute resolved successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Error resolving dispute: ' . $e->getMessage());
+            return FlashMessage::backError('Error resolving dispute: ' . $e->getMessage());
         }
     }
 

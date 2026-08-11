@@ -70,8 +70,7 @@ class VendorRevenueController extends Controller
 
         // Get recent auction wins
         $recentAuctionWins = $vendor->auctionBids()
-            ->where('status', 'accepted')
-            ->with('auction')
+            ->where('status', 'accepted') ->with('auction')
             ->latest()
             ->limit(10)
             ->get();

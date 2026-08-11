@@ -3,16 +3,27 @@
 namespace App\Http\Controllers\vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
 use App\Models\Vendor\Spesifikasi;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreSpesifikasiRequest;
+use App\Http\Requests\UpdateSpesifikasiRequest;
+use App\Http\Responses\FlashMessage;
+
+
 
 class SpesifikasiController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->requireVendor();
+
         $query = Spesifikasi::query();
 
         // Search functionality
@@ -34,6 +45,8 @@ class SpesifikasiController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         $tipeInput = Spesifikasi::TIPE_INPUT;
         return view('spesifikasi.create', compact('tipeInput'));
     }
@@ -41,13 +54,9 @@ class SpesifikasiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSpesifikasiRequest $request)
     {
-        $validated = $request->validate([
-            'nama_spesifikasi' => 'required|string|max:255',
-            'tipe_input' => 'required|in:' . implode(',', Spesifikasi::TIPE_INPUT),
-            'satuan' => 'nullable|string|max:50',
-        ]);
+        $validated = $request->validated();
 
         // Set default empty string for satuan when not provided
         if (!isset($validated['satuan'])) {
@@ -56,8 +65,7 @@ class SpesifikasiController extends Controller
 
         Spesifikasi::create($validated);
 
-        return redirect()->route('vendor.specifications.index')
-            ->with('toast_success', 'Spesifikasi berhasil ditambahkan.');
+        return FlashMessage::success(redirect()->route('vendor.specifications.index'), 'Spesifikasi berhasil ditambahkan.');
     }
 
     /**
@@ -65,6 +73,8 @@ class SpesifikasiController extends Controller
      */
     public function show(string $id)
     {
+        $this->requireVendor();
+
         $spesifikasi = Spesifikasi::findOrFail($id);
         return view('spesifikasi.show', compact('spesifikasi'));
     }
@@ -74,6 +84,8 @@ class SpesifikasiController extends Controller
      */
     public function edit(string $id)
     {
+        $this->requireVendor();
+
         $spesifikasi = Spesifikasi::findOrFail($id);
         $tipeInput = Spesifikasi::TIPE_INPUT;
         return view('spesifikasi.edit', compact('spesifikasi', 'tipeInput'));
@@ -82,15 +94,13 @@ class SpesifikasiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateSpesifikasiRequest $request, string $id)
     {
+        $this->requireVendor();
+
         $spesifikasi = Spesifikasi::findOrFail($id);
 
-        $validated = $request->validate([
-            'nama_spesifikasi' => 'required|string|max:255',
-            'tipe_input' => 'required|in:' . implode(',', Spesifikasi::TIPE_INPUT),
-            'satuan' => 'nullable|string|max:50',
-        ]);
+        $validated = $request->validated();
 
         // Set default empty string for satuan when not provided
         if (!isset($validated['satuan'])) {
@@ -99,8 +109,7 @@ class SpesifikasiController extends Controller
 
         $spesifikasi->update($validated);
 
-        return redirect()->route('vendor.specifications.index')
-            ->with('toast_success', 'Spesifikasi berhasil diperbarui.');
+        return FlashMessage::success(redirect()->route('vendor.specifications.index'), 'Spesifikasi berhasil diperbarui.');
     }
 
     /**
@@ -108,17 +117,17 @@ class SpesifikasiController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->requireVendor();
+
         $spesifikasi = Spesifikasi::findOrFail($id);
 
         // Check if the specification is being used
         if ($spesifikasi->spesifikasiProduk()->count() > 0) {
-            return redirect()->route('vendor.specifications.index')
-                ->with('toast_error', 'Spesifikasi tidak dapat dihapus karena sedang digunakan oleh produk.');
+            return FlashMessage::error(redirect()->route('vendor.specifications.index'), 'Spesifikasi tidak dapat dihapus karena sedang digunakan oleh produk.');
         }
 
         $spesifikasi->delete();
 
-        return redirect()->route('vendor.specifications.index')
-            ->with('toast_success', 'Spesifikasi berhasil dihapus.');
+        return FlashMessage::success(redirect()->route('vendor.specifications.index'), 'Spesifikasi berhasil dihapus.');
     }
 }

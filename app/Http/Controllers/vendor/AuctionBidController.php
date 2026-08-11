@@ -5,11 +5,18 @@ namespace App\Http\Controllers\vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Models\AuctionBid;
+use App\Http\Responses\FlashMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Concerns\HasVendorContext;
+
+
 
 class AuctionBidController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of available auctions for bidding
      */
@@ -31,12 +38,11 @@ class AuctionBidController extends Controller
     {
         // Check if auction is still active
         if (!$auction->isActive()) {
-            return redirect()->route('vendor.auctions.index')
-                ->with('error', 'Lelang sudah tidak aktif atau sudah berakhir');
+            return FlashMessage::error(redirect()->route('vendor.auctions.index'), 'Lelang sudah tidak aktif atau sudah berakhir');
         }
 
         // Check if vendor already bid on this auction
-        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorUser = $this->requireVendor();
         $vendorId = $vendorUser ? $vendorUser->id : null;
 
         $existingBid = null;
@@ -47,8 +53,7 @@ class AuctionBidController extends Controller
         }
 
         if ($existingBid) {
-            return redirect()->route('vendor.auctions.show', $auction)
-                ->with('info', 'Anda sudah memberikan penawaran untuk lelang ini');
+            return FlashMessage::info(redirect()->route('vendor.auctions.show', $auction), 'Anda sudah memberikan penawaran untuk lelang ini');
         }
 
         return view('auctions.bid', compact('auction'));
@@ -61,8 +66,7 @@ class AuctionBidController extends Controller
     {
         // Check if auction is still active
         if (!$auction->isActive()) {
-            return redirect()->route('vendor.auctions.index')
-                ->with('error', 'Lelang sudah tidak aktif atau sudah berakhir');
+            return FlashMessage::error(redirect()->route('vendor.auctions.index'), 'Lelang sudah tidak aktif atau sudah berakhir');
         }
 
         $request->validate([
@@ -75,8 +79,7 @@ class AuctionBidController extends Controller
         $vendorUser = $user->vendorUser->first();
 
         if (!$vendorUser) {
-            return redirect()->route('vendor.auctions.index')
-                ->with('error', 'Anda tidak memiliki akses vendor. Silakan hubungi administrator.');
+            return FlashMessage::error(redirect()->route('vendor.auctions.index'), 'Anda tidak memiliki akses vendor. Silakan hubungi administrator.');
         }
 
         $vendorId = $vendorUser->id; // Use vendor's ID directly
@@ -87,8 +90,7 @@ class AuctionBidController extends Controller
             ->first();
 
         if ($existingBid) {
-            return redirect()->route('vendor.auctions.show', $auction)
-                ->with('error', 'Anda sudah memberikan penawaran untuk lelang ini');
+            return FlashMessage::error(redirect()->route('vendor.auctions.show', $auction), 'Anda sudah memberikan penawaran untuk lelang ini');
         }
 
         // Create new bid
@@ -109,8 +111,7 @@ class AuctionBidController extends Controller
             \Log::warning('Gagal mengirim notifikasi bid baru: ' . $e->getMessage());
         }
 
-        return redirect()->route('vendor.auctions.show', $auction)
-            ->with('success', 'Penawaran berhasil dikirim!');
+        return FlashMessage::success(redirect()->route('vendor.auctions.show', $auction), 'Penawaran berhasil dikirim!');
     }
 
     /**
@@ -121,7 +122,7 @@ class AuctionBidController extends Controller
         $auction->load(['user', 'bids.vendor', 'winnerVendor']);
 
         // Get vendor's bid for this auction
-        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorUser = $this->requireVendor();
         $vendorId = $vendorUser ? $vendorUser->id : null;
 
         $myBid = null;
@@ -140,7 +141,7 @@ class AuctionBidController extends Controller
     public function edit(AuctionBid $bid)
     {
         // Check if bid belongs to current vendor
-        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorUser = $this->requireVendor();
         if (!$vendorUser) {
             abort(403, 'Anda tidak memiliki akses vendor.');
         }
@@ -152,8 +153,7 @@ class AuctionBidController extends Controller
 
         // Check if auction is still active
         if (!$bid->auction->isActive()) {
-            return redirect()->route('vendor.auctions.show', $bid->auction)
-                ->with('error', 'Lelang sudah tidak aktif, tidak bisa mengedit penawaran');
+            return FlashMessage::error(redirect()->route('vendor.auctions.show', $bid->auction), 'Lelang sudah tidak aktif, tidak bisa mengedit penawaran');
         }
 
         return view('auctions.edit-bid', compact('bid'));
@@ -165,7 +165,7 @@ class AuctionBidController extends Controller
     public function update(Request $request, AuctionBid $bid)
     {
         // Check if bid belongs to current vendor
-        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorUser = $this->requireVendor();
         if (!$vendorUser) {
             abort(403, 'Anda tidak memiliki akses vendor.');
         }
@@ -177,8 +177,7 @@ class AuctionBidController extends Controller
 
         // Check if auction is still active
         if (!$bid->auction->isActive()) {
-            return redirect()->route('vendor.auctions.show', $bid->auction)
-                ->with('error', 'Lelang sudah tidak aktif, tidak bisa mengedit penawaran');
+            return FlashMessage::error(redirect()->route('vendor.auctions.show', $bid->auction), 'Lelang sudah tidak aktif, tidak bisa mengedit penawaran');
         }
 
         $request->validate([
@@ -191,8 +190,7 @@ class AuctionBidController extends Controller
             'message' => $request->message
         ]);
 
-        return redirect()->route('vendor.auctions.show', $bid->auction)
-            ->with('success', 'Penawaran berhasil diperbarui!');
+        return FlashMessage::success(redirect()->route('vendor.auctions.show', $bid->auction), 'Penawaran berhasil diperbarui!');
     }
 
     /**
@@ -201,7 +199,7 @@ class AuctionBidController extends Controller
     public function destroy(AuctionBid $bid)
     {
         // Check if bid belongs to current vendor
-        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorUser = $this->requireVendor();
         if (!$vendorUser) {
             abort(403, 'Anda tidak memiliki akses vendor.');
         }
@@ -213,15 +211,13 @@ class AuctionBidController extends Controller
 
         // Check if auction is still active
         if (!$bid->auction->isActive()) {
-            return redirect()->route('vendor.auctions.show', $bid->auction)
-                ->with('error', 'Lelang sudah tidak aktif, tidak bisa menghapus penawaran');
+            return FlashMessage::error(redirect()->route('vendor.auctions.show', $bid->auction), 'Lelang sudah tidak aktif, tidak bisa menghapus penawaran');
         }
 
         $auction = $bid->auction;
         $bid->delete();
 
-        return redirect()->route('vendor.auctions.show', $auction)
-            ->with('success', 'Penawaran berhasil dihapus!');
+        return FlashMessage::success(redirect()->route('vendor.auctions.show', $auction), 'Penawaran berhasil dihapus!');
     }
 
     /**
@@ -229,7 +225,7 @@ class AuctionBidController extends Controller
      */
     public function myBids()
     {
-        $vendorUser = Auth::user()->vendorUser->first();
+        $vendorUser = $this->requireVendor();
         if (!$vendorUser) {
             abort(403, 'Anda tidak memiliki akses vendor.');
         }

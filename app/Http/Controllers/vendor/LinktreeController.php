@@ -8,18 +8,28 @@ use App\Models\Vendor\LinktreeLink;
 use App\Models\Vendor\LinktreeSocial;
 use App\Models\Vendor\LinktreeProduct;
 use App\Models\Vendor\Produk;
+use App\Http\Requests\StoreLinktreeRequest;
+use App\Http\Requests\UpdateLinktreeRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use App\Http\Concerns\HasVendorContext;
+use App\Http\Responses\FlashMessage;
+use App\Services\AuditLogService;
+use App\Actions\Linktree\CreateLinktree;
+
+
 
 class LinktreeController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of the vendor's linktrees.
      */
     public function index()
     {
-        $vendor = Auth::user()->vendorUser()->first();
+        $vendor = $this->getVendor();
         $linktrees = Linktree::where('vendor_id', $vendor->id)
             ->withCount(['activeLinks', 'activeSocials'])
             ->orderBy('created_at', 'desc')
@@ -33,7 +43,7 @@ class LinktreeController extends Controller
      */
     public function create()
     {
-        $vendor = Auth::user()->vendorUser()->first();
+        $vendor = $this->getVendor();
 
         // Check if vendor already has a linktree
         $existingCount = Linktree::where('vendor_id', $vendor->id)->count();
@@ -44,41 +54,22 @@ class LinktreeController extends Controller
     /**
      * Store a newly created linktree.
      */
-    public function store(Request $request)
+    public function store(StoreLinktreeRequest $request)
     {
-        $vendor = Auth::user()->vendorUser()->first();
+        $vendor = $this->getVendor();
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'custom_url' => 'required|string|max:50|unique:linktrees,custom_url|regex:/^[a-z0-9\-]+$/',
-            'bio' => 'nullable|string|max:500',
-            'template' => 'required|in:minimal,colorful,dark,professional',
-            'primary_color' => 'nullable|string|max:7',
-            'secondary_color' => 'nullable|string|max:7',
-            'bg_color' => 'nullable|string|max:7',
-            'text_color' => 'nullable|string|max:7',
-            'button_style' => 'required|in:rounded,square,pill',
-        ]);
-
-        // Set defaults
+        $validated = $request->validated();
         $validated['vendor_id'] = $vendor->id;
-        $validated['is_active'] = false;
-        $validated['views_count'] = 0;
-        $validated['clicks_count'] = 0;
-
-        // Set default colors based on template
-        $validated['primary_color'] = $validated['primary_color'] ?? $this->getDefaultColor($validated['template'], 'primary');
-        $validated['secondary_color'] = $validated['secondary_color'] ?? $this->getDefaultColor($validated['template'], 'secondary');
-        $validated['bg_color'] = $validated['bg_color'] ?? $this->getDefaultColor($validated['template'], 'bg');
-        $validated['text_color'] = $validated['text_color'] ?? $this->getDefaultColor($validated['template'], 'text');
 
         try {
-            $linktree = Linktree::create($validated);
-            return redirect()->route('vendor.linktree.edit', $linktree)
-                ->with('success', 'Linktree berhasil dibuat! Sekarang tambahkan link dan sosial media.');
+            $linktree = (new CreateLinktree)->run($validated);
+
+            AuditLogService::logCreated($linktree, 'Linktree baru dibuat: ' . $linktree->name);
+
+            return FlashMessage::success(redirect()->route('vendor.linktree.edit', $linktree), 'Linktree berhasil dibuat! Sekarang tambahkan link dan sosial media.');
         } catch (\Exception $e) {
             \Log::error('Gagal membuat linktree: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal membuat linktree. Silakan coba lagi.');
+            return FlashMessage::backError('Gagal membuat linktree. Silakan coba lagi.')->withInput();
         }
     }
 
@@ -140,7 +131,7 @@ class LinktreeController extends Controller
             $query->orderBy('sort_order');
         }]);
 
-        $vendor = Auth::user()->vendorUser()->first();
+        $vendor = $this->getVendor();
 
         return view('vendor.linktree.edit', compact('linktree', 'vendor'));
     }
@@ -148,25 +139,19 @@ class LinktreeController extends Controller
     /**
      * Update the specified linktree.
      */
-    public function update(Request $request, Linktree $linktree)
+    public function update(UpdateLinktreeRequest $request, Linktree $linktree)
     {
-        $this->authorizeLinktree($linktree);
+        $this->authorize('update', $linktree);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'custom_url' => 'required|string|max:50|regex:/^[a-z0-9\-]+$/',
-            'bio' => 'nullable|string|max:500',
-            'template' => 'required|in:minimal,colorful,dark,professional',
-            'primary_color' => 'nullable|string|max:7',
-            'secondary_color' => 'nullable|string|max:7',
-            'bg_color' => 'nullable|string|max:7',
-            'text_color' => 'nullable|string|max:7',
-            'button_style' => 'required|in:rounded,square,pill',
-            'is_active' => 'boolean',
-            'show_qris' => 'boolean',
-            'meta_title' => 'nullable|string|max:255',
-            'meta_description' => 'nullable|string|max:500',
-        ]);
+        $validated = $request->validated();
+
+        // Capture old values for audit log
+        $oldValues = [
+            'name' => $linktree->name,
+            'custom_url' => $linktree->custom_url,
+            'template' => $linktree->template,
+            'is_active' => $linktree->is_active,
+        ];
 
         // Check custom_url uniqueness (excluding current linktree)
         if (Linktree::where('custom_url', $validated['custom_url'])->where('id', '!=', $linktree->id)->exists()) {
@@ -178,10 +163,13 @@ class LinktreeController extends Controller
 
         try {
             $linktree->update($validated);
-            return back()->with('success', 'Pengaturan linktree berhasil diperbarui!');
+
+            AuditLogService::logUpdated($linktree, $oldValues, 'Linktree diperbarui: ' . $linktree->name);
+
+            return FlashMessage::backSuccess('Pengaturan linktree berhasil diperbarui!');
         } catch (\Exception $e) {
             \Log::error('Gagal update linktree: ' . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal memperbarui linktree. Silakan coba lagi.');
+            return FlashMessage::backError('Gagal memperbarui linktree. Silakan coba lagi.')->withInput();
         }
     }
 
@@ -190,19 +178,21 @@ class LinktreeController extends Controller
      */
     public function destroy(Linktree $linktree)
     {
-        $this->authorizeLinktree($linktree);
+        $this->authorize('delete', $linktree);
 
         try {
             // Delete related links and socials
             $linktree->links()->delete();
             $linktree->socials()->delete();
+
+            AuditLogService::logDeleted($linktree, 'Linktree dihapus: ' . $linktree->name);
+
             $linktree->delete();
 
-            return redirect()->route('vendor.linktree.index')
-                ->with('success', 'Linktree berhasil dihapus.');
+            return FlashMessage::success(redirect()->route('vendor.linktree.index'), 'Linktree berhasil dihapus.');
         } catch (\Exception $e) {
             \Log::error('Gagal hapus linktree: ' . $e->getMessage());
-            return back()->with('error', 'Gagal menghapus linktree. Silakan coba lagi.');
+            return FlashMessage::backError('Gagal menghapus linktree. Silakan coba lagi.');
         }
     }
 
@@ -217,7 +207,7 @@ class LinktreeController extends Controller
 
         $status = $linktree->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
-        return back()->with('success', "Linktree berhasil {$status}!");
+        return FlashMessage::backSuccess("Linktree berhasil {$status}!");
     }
 
     // =========================================================================
@@ -246,7 +236,7 @@ class LinktreeController extends Controller
 
         LinktreeLink::create($validated);
 
-        return back()->with('success', 'Link berhasil ditambahkan!');
+        return FlashMessage::backSuccess('Link berhasil ditambahkan!');
     }
 
     /**
@@ -269,7 +259,7 @@ class LinktreeController extends Controller
 
         $link->update($validated);
 
-        return back()->with('success', 'Link berhasil diperbarui!');
+        return FlashMessage::backSuccess('Link berhasil diperbarui!');
     }
 
     /**
@@ -282,7 +272,7 @@ class LinktreeController extends Controller
 
         $link->delete();
 
-        return back()->with('success', 'Link berhasil dihapus!');
+        return FlashMessage::backSuccess('Link berhasil dihapus!');
     }
 
     /**
@@ -328,7 +318,7 @@ class LinktreeController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Platform ' . $validated['platform'] . ' sudah ditambahkan!');
+            return FlashMessage::backError('Platform ' . $validated['platform'] . ' sudah ditambahkan!');
         }
 
         $validated['vendor_id'] = $linktree->vendor_id;
@@ -338,7 +328,7 @@ class LinktreeController extends Controller
 
         LinktreeSocial::create($validated);
 
-        return back()->with('success', 'Social media berhasil ditambahkan!');
+        return FlashMessage::backSuccess('Social media berhasil ditambahkan!');
     }
 
     /**
@@ -359,7 +349,7 @@ class LinktreeController extends Controller
 
         $social->update($validated);
 
-        return back()->with('success', 'Social media berhasil diperbarui!');
+        return FlashMessage::backSuccess('Social media berhasil diperbarui!');
     }
 
     /**
@@ -372,7 +362,7 @@ class LinktreeController extends Controller
 
         $social->delete();
 
-        return back()->with('success', 'Social media berhasil dihapus!');
+        return FlashMessage::backSuccess('Social media berhasil dihapus!');
     }
 
     // =========================================================================
@@ -409,10 +399,10 @@ class LinktreeController extends Controller
 
             $linktree->update(['avatar' => $filename]);
 
-            return back()->with('success', 'Avatar berhasil diupload!');
+            return FlashMessage::backSuccess('Avatar berhasil diupload!');
         } catch (\Exception $e) {
             \Log::error('Gagal upload avatar: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengupload avatar. Pastikan file gambar valid dan coba lagi.');
+            return FlashMessage::backError('Gagal mengupload avatar. Pastikan file gambar valid dan coba lagi.');
         }
     }
 
@@ -446,10 +436,10 @@ class LinktreeController extends Controller
 
             $linktree->update(['banner' => $filename]);
 
-            return back()->with('success', 'Banner berhasil diupload!');
+            return FlashMessage::backSuccess('Banner berhasil diupload!');
         } catch (\Exception $e) {
             \Log::error('Gagal upload banner: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengupload banner. Pastikan file gambar valid dan coba lagi.');
+            return FlashMessage::backError('Gagal mengupload banner. Pastikan file gambar valid dan coba lagi.');
         }
     }
 
@@ -483,10 +473,10 @@ class LinktreeController extends Controller
 
             $linktree->update(['qris_image' => $filename, 'show_qris' => true]);
 
-            return back()->with('success', 'Gambar QRIS berhasil diupload!');
+            return FlashMessage::backSuccess('Gambar QRIS berhasil diupload!');
         } catch (\Exception $e) {
             \Log::error('Gagal upload QRIS: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengupload gambar QRIS. Pastikan file gambar valid dan coba lagi.');
+            return FlashMessage::backError('Gagal mengupload gambar QRIS. Pastikan file gambar valid dan coba lagi.');
         }
     }
 
@@ -680,13 +670,12 @@ class LinktreeController extends Controller
                 $message .= " {$skippedCount} baris dilewati.";
             }
 
-            $flashData = ['success' => $message];
+            $flash = FlashMessage::success(redirect()->route('vendor.linktree.show', $linktree), $message);
             if (!empty($errors)) {
-                $flashData['errors_list'] = $errors;
+                $flash->with('errors_list', $errors);
             }
 
-            return redirect()->route('vendor.linktree.show', $linktree)
-                ->with($flashData);
+            return $flash;
 
         } catch (\Exception $e) {
             \Log::error("Linktree import error: {$e->getMessage()}");
@@ -741,7 +730,7 @@ class LinktreeController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Produk ini sudah ditambahkan ke linktree.');
+            return FlashMessage::backError('Produk ini sudah ditambahkan ke linktree.');
         }
 
         // Verify the product belongs to the same vendor
@@ -762,8 +751,7 @@ class LinktreeController extends Controller
             'custom_description' => $validated['custom_description'] ?? null,
         ]);
 
-        return redirect()->route('vendor.linktree.products', $linktree)
-            ->with('success', 'Produk berhasil ditambahkan ke linktree!');
+        return FlashMessage::success(redirect()->route('vendor.linktree.products', $linktree), 'Produk berhasil ditambahkan ke linktree!');
     }
 
     /**
@@ -782,8 +770,7 @@ class LinktreeController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('vendor.linktree.products', $linktree)
-            ->with('success', 'Produk berhasil diperbarui!');
+        return FlashMessage::success(redirect()->route('vendor.linktree.products', $linktree), 'Produk berhasil diperbarui!');
     }
 
     /**
@@ -798,8 +785,7 @@ class LinktreeController extends Controller
 
         $status = $product->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
-        return redirect()->route('vendor.linktree.products', $linktree)
-            ->with('success', "Produk berhasil {$status}!");
+        return FlashMessage::success(redirect()->route('vendor.linktree.products', $linktree), "Produk berhasil {$status}!");
     }
 
     /**
@@ -812,8 +798,7 @@ class LinktreeController extends Controller
 
         $product->delete();
 
-        return redirect()->route('vendor.linktree.products', $linktree)
-            ->with('success', 'Produk berhasil dihapus dari linktree.');
+        return FlashMessage::success(redirect()->route('vendor.linktree.products', $linktree), 'Produk berhasil dihapus dari linktree.');
     }
 
     /**
@@ -840,17 +825,6 @@ class LinktreeController extends Controller
     // =========================================================================
     // HELPER METHODS
     // =========================================================================
-
-    /**
-     * Authorize that the linktree belongs to the current vendor.
-     */
-    private function authorizeLinktree(Linktree $linktree): void
-    {
-        $vendor = Auth::user()->vendorUser()->first();
-        if ($linktree->vendor_id !== $vendor->id) {
-            abort(403, 'Anda tidak memiliki akses ke linktree ini.');
-        }
-    }
 
     /**
      * Authorize that the link belongs to the linktree.

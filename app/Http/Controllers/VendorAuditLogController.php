@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FinancialAuditLog;
 use App\Services\AuditLogService;
+use App\Http\Responses\FlashMessage;
 use Illuminate\Http\Request;
 
 class VendorAuditLogController extends Controller
@@ -16,7 +17,7 @@ class VendorAuditLogController extends Controller
         $vendorId = auth()->user()->vendor_id;
 
         if (!$vendorId) {
-            return redirect()->back()->with('error', 'Vendor not found');
+            return FlashMessage::backError('Vendor not found');
         }
 
         $query = FinancialAuditLog::forVendor($vendorId)
@@ -72,7 +73,7 @@ class VendorAuditLogController extends Controller
         $vendorId = auth()->user()->vendor_id;
 
         if (!$vendorId) {
-            return redirect()->back()->with('error', 'Vendor not found');
+            return FlashMessage::backError('Vendor not found');
         }
 
         $log = FinancialAuditLog::forVendor($vendorId)
@@ -90,7 +91,7 @@ class VendorAuditLogController extends Controller
         $vendorId = auth()->user()->vendor_id;
 
         if (!$vendorId) {
-            return redirect()->back()->with('error', 'Vendor not found');
+            return FlashMessage::backError('Vendor not found');
         }
 
         $logs = FinancialAuditLog::forVendor($vendorId)
@@ -110,7 +111,7 @@ class VendorAuditLogController extends Controller
         $vendorId = auth()->user()->vendor_id;
 
         if (!$vendorId) {
-            return redirect()->back()->with('error', 'Vendor not found');
+            return FlashMessage::backError('Vendor not found');
         }
 
         $query = FinancialAuditLog::forVendor($vendorId)->with(['user', 'vendor']);

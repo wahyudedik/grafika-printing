@@ -3,23 +3,32 @@
 namespace App\Http\Controllers\vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Concerns\HasVendorContext;
+use App\Http\Responses\FlashMessage;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Facades\Tenant;
+use App\Http\Requests\StorePenggunaRequest;
+use App\Http\Requests\UpdatePenggunaRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Services\AuditLogService;
+
+
 
 class PenggunaController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display a listing of users associated with the current vendor.
      */
     public function index(Request $request)
     {
-        $vendorId = Tenant::getVendorId();
-        $vendor = Vendor::findOrFail($vendorId);
+        $vendor = $this->requireVendor();
+        $vendorId = $vendor->id;
 
         $query = $vendor->users();
 
@@ -41,21 +50,19 @@ class PenggunaController extends Controller
      */
     public function create()
     {
+        $this->requireVendor();
+
         return view('pengguna.create');
     }
 
     /**
      * Store a newly created user and attach to the current vendor.
      */
-    public function store(Request $request)
+    public function store(StorePenggunaRequest $request)
     {
-        $vendorId = Tenant::getVendorId();
+        $vendorId = $this->requireVendor()->id;
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
             'name' => $validated['name'],
@@ -67,8 +74,9 @@ class PenggunaController extends Controller
         // Attach the user to the current vendor
         $user->vendorUser()->attach($vendorId);
 
-        return redirect()->route('vendor.users.index')
-            ->with('success', "Pengguna \"{$user->name}\" berhasil ditambahkan.");
+        AuditLogService::logCreated($user, 'Pengguna baru ditambahkan: ' . $user->name);
+
+        return FlashMessage::success(redirect()->route('vendor.users.index'), "Pengguna \"{$user->name}\" berhasil ditambahkan.");
     }
 
     /**
@@ -76,8 +84,7 @@ class PenggunaController extends Controller
      */
     public function show(string $id)
     {
-        $vendorId = Tenant::getVendorId();
-        $vendor = Vendor::findOrFail($vendorId);
+        $vendor = $this->requireVendor();
 
         // Ensure the user belongs to this vendor
         $user = $vendor->users()->findOrFail($id);
@@ -90,8 +97,7 @@ class PenggunaController extends Controller
      */
     public function edit(User $user)
     {
-        $vendorId = Tenant::getVendorId();
-        $vendor = Vendor::findOrFail($vendorId);
+        $vendor = $this->requireVendor();
 
         // Ensure the user belongs to this vendor
         $vendor->users()->findOrFail($user->id);
@@ -102,19 +108,20 @@ class PenggunaController extends Controller
     /**
      * Update the specified user.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdatePenggunaRequest $request, User $user)
     {
-        $vendorId = Tenant::getVendorId();
-        $vendor = Vendor::findOrFail($vendorId);
+        $vendor = $this->requireVendor();
 
         // Ensure the user belongs to this vendor
         $vendor->users()->findOrFail($user->id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => ['nullable', 'confirmed', Password::min(8)],
-        ]);
+        $validated = $request->validated();
+
+        // Capture old values for audit log
+        $oldValues = [
+            'name' => $user->name,
+            'email' => $user->email,
+        ];
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
@@ -125,8 +132,9 @@ class PenggunaController extends Controller
 
         $user->save();
 
-        return redirect()->route('vendor.users.show', $user->id)
-            ->with('success', "Pengguna \"{$user->name}\" berhasil diperbarui.");
+        AuditLogService::logUpdated($user, $oldValues, 'Pengguna diperbarui: ' . $user->name);
+
+        return FlashMessage::success(redirect()->route('vendor.users.show', $user->id), "Pengguna \"{$user->name}\" berhasil diperbarui.");
     }
 
     /**
@@ -135,8 +143,8 @@ class PenggunaController extends Controller
      */
     public function destroy(User $user)
     {
-        $vendorId = Tenant::getVendorId();
-        $vendor = Vendor::findOrFail($vendorId);
+        $vendor = $this->requireVendor();
+        $vendorId = $vendor->id;
 
         // Ensure the user belongs to this vendor
         $vendor->users()->findOrFail($user->id);
@@ -147,13 +155,13 @@ class PenggunaController extends Controller
         if ($user->vendorUser()->count() > 1) {
             // Just detach from this vendor
             $user->vendorUser()->detach($vendorId);
-            return redirect()->route('vendor.users.index')
-                ->with('success', "Pengguna \"{$userName}\" berhasil dilepas dari vendor ini.");
+            AuditLogService::log('detach_user', 'Pengguna dilepas dari vendor: ' . $userName);
+            return FlashMessage::success(redirect()->route('vendor.users.index'), "Pengguna \"{$userName}\" berhasil dilepas dari vendor ini.");
         } else {
             // User only belongs to this vendor, delete entirely
             $user->delete();
-            return redirect()->route('vendor.users.index')
-                ->with('success', "Pengguna \"{$userName}\" berhasil dihapus.");
+            AuditLogService::logDeleted($user, 'Pengguna dihapus: ' . $userName);
+            return FlashMessage::success(redirect()->route('vendor.users.index'), "Pengguna \"{$userName}\" berhasil dihapus.");
         }
     }
 }

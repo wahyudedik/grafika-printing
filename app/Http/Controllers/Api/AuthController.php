@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -23,32 +24,21 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+            return ApiResponse::validationError($validator->errors(), 'Validation error');
         }
 
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid credentials'
-            ], 401);
+            return ApiResponse::error('Invalid credentials', 401);
         }
 
         $user = Auth::user();
         $token = $user->createToken('mobile-app')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-                'token_type' => 'Bearer'
-            ]
-        ]);
+        return ApiResponse::success([
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'Bearer'
+        ], 'Login successful');
     }
 
     /**
@@ -64,11 +54,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
+            return ApiResponse::validationError($validator->errors(), 'Validation error');
         }
 
         $user = User::create([
@@ -80,15 +66,11 @@ class AuthController extends Controller
 
         $token = $user->createToken('mobile-app')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration successful',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-                'token_type' => 'Bearer'
-            ]
-        ], 201);
+        return ApiResponse::created([
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'Bearer'
+        ], 'Registration successful');
     }
 
     /**
@@ -98,10 +80,7 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout successful'
-        ]);
+        return ApiResponse::success(null, 'Logout successful');
     }
 
     /**
@@ -109,9 +88,6 @@ class AuthController extends Controller
      */
     public function user(Request $request): JsonResponse
     {
-        return response()->json([
-            'success' => true,
-            'data' => $request->user()
-        ]);
+        return ApiResponse::success($request->user());
     }
 }

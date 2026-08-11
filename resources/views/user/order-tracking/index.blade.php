@@ -13,8 +13,8 @@
 
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         @if($orderTrackings->count() > 0)
-            {{-- Table --}}
-            <div class="overflow-x-auto">
+            {{-- Desktop Table --}}
+            <div class="hidden md:block overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-gray-100 bg-gray-50">
@@ -67,6 +67,48 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            {{-- Mobile Cards --}}
+            <div class="md:hidden divide-y divide-gray-100">
+                @foreach($orderTrackings as $tracking)
+                    @php
+                        $statusConfig = [
+                            'pending' => ['label' => 'Menunggu', 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'],
+                            'confirmed' => ['label' => 'Dikonfirmasi', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
+                            'processing' => ['label' => 'Diproses', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                            'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
+                            'delivered' => ['label' => 'Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                            'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                        ];
+                        $status = $statusConfig[$tracking->status] ?? $statusConfig['pending'];
+                    @endphp
+                    <div class="p-4 space-y-2">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-gray-900">#{{ $tracking->order_code ?? $tracking->id }}</div>
+                                <p class="text-sm text-gray-500 truncate">{{ $tracking->auction->title ?? '-' }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $status['bg'] }} {{ $status['text'] }} ml-2 flex-shrink-0">
+                                {{ $status['label'] }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-gray-500">{{ $tracking->vendor->name ?? '-' }}</span>
+                            <span class="text-gray-400 text-xs">{{ $tracking->created_at->format('d M Y') }}</span>
+                        </div>
+                        @if($tracking->tracking_number)
+                            <div class="text-xs text-gray-500">
+                                <i class="fas fa-truck mr-1"></i> {{ $tracking->tracking_number }}
+                            </div>
+                        @endif
+                        <div class="flex items-center justify-end pt-1">
+                            <x-ui.button :href="route('user.orders.show', $tracking)" variant="outline-info" size="sm">
+                                <i class="fas fa-eye mr-1"></i> Detail
+                            </x-ui.button>
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
             {{-- Pagination --}}

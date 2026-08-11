@@ -6,6 +6,8 @@ use App\Models\ManualTransferOrder;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Http\Responses\FlashMessage;
+
 
 class ManualTransferController extends Controller
 {
@@ -67,8 +69,7 @@ class ManualTransferController extends Controller
             ]);
         }
 
-        return redirect()->route('manual-transfer.status', $order->order_number)
-            ->with('success', 'Order berhasil dibuat. Silakan lakukan transfer.');
+        return FlashMessage::success(redirect()->route('manual-transfer.status', $order->order_number), 'Order berhasil dibuat. Silakan lakukan transfer.');
     }
 
     /**
@@ -111,6 +112,6 @@ class ManualTransferController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Bukti transfer berhasil diunggah. Menunggu konfirmasi vendor.');
+        return FlashMessage::backSuccess('Bukti transfer berhasil diunggah. Menunggu konfirmasi vendor.');
     }
 }

@@ -5,10 +5,15 @@ namespace App\Http\Controllers\vendor;
 use App\Http\Controllers\Controller;
 use App\Models\ManualTransferOrder;
 use App\Services\TenantManager;
+use App\Http\Responses\FlashMessage;
 use Illuminate\Http\Request;
+
+
 
 class VendorManualTransferController extends Controller
 {
+
+
     protected TenantManager $tenantManager;
 
     public function __construct(TenantManager $tenantManager)
@@ -66,12 +71,12 @@ class VendorManualTransferController extends Controller
         $this->authorizeOrder($order);
 
         if (!$order->isPaid()) {
-            return back()->with('error', 'Hanya order yang sudah dibayar yang bisa dikonfirmasi.');
+            return FlashMessage::backError('Hanya order yang sudah dibayar yang bisa dikonfirmasi.');
         }
 
         $order->complete();
 
-        return back()->with('success', "Order {$order->order_number} berhasil dikonfirmasi.");
+        return FlashMessage::backSuccess("Order {$order->order_number} berhasil dikonfirmasi.");
     }
 
     /**
@@ -82,7 +87,7 @@ class VendorManualTransferController extends Controller
         $this->authorizeOrder($order);
 
         if ($order->status === ManualTransferOrder::STATUS_COMPLETED) {
-            return back()->with('error', 'Order yang sudah selesai tidak bisa ditolak.');
+            return FlashMessage::backError('Order yang sudah selesai tidak bisa ditolak.');
         }
 
         $request->validate([
@@ -91,7 +96,7 @@ class VendorManualTransferController extends Controller
 
         $order->reject($request->rejection_reason);
 
-        return back()->with('success', "Order {$order->order_number} berhasil ditolak.");
+        return FlashMessage::backSuccess("Order {$order->order_number} berhasil ditolak.");
     }
 
     /**

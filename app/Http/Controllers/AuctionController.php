@@ -6,11 +6,16 @@ use App\Models\Auction;
 use App\Models\AuctionBid;
 use App\Models\LelangUserProfile;
 use App\Services\AuctionToPosService;
+use App\Http\Requests\StoreAuctionRequest;
+use App\Http\Requests\UpdateAuctionRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Http\Responses\FlashMessage;
+use App\Services\AuditLogService;
+
 
 class AuctionController extends Controller
 {
@@ -39,29 +44,9 @@ class AuctionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAuctionRequest $request)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'category' => 'required|string|max:100',
-            'quantity' => 'required|integer|min:1',
-            'budget' => 'required|numeric|min:0',
-            'deadline' => 'required|date|after:today',
-            'specifications' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
-            'alamat_pengiriman' => 'required|string',
-            'no_telp' => 'required|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]+$/',
-            'email_pengiriman' => 'nullable|email',
-            'catatan_khusus' => 'nullable|string'
-        ], [
-            'no_telp.regex' => 'Format nomor telepon tidak valid. Gunakan format: 08123456789, +628123456789, atau (0812) 345-6789',
-            'deadline.after' => 'Deadline harus setelah hari ini',
-            'budget.min' => 'Budget harus lebih dari 0',
-            'quantity.min' => 'Jumlah produksi harus minimal 1'
-        ]);
-
-        $data = $request->all();
+        $data = $request->validated();
         $data['user_id'] = Auth::id();
 
         // Generate auction code
@@ -92,13 +77,14 @@ class AuctionController extends Controller
             $data['file_path'] = $fileName;
         }
 
-        Auction::create($data);
+        $auction = Auction::create($data);
 
         // Auto-create LelangUserProfile if user doesn't have one yet
         LelangUserProfile::getOrCreate(Auth::id());
 
-        return redirect()->route('user.auctions.index')
-            ->with('success', 'Permintaan cetak berhasil dibuat! Lelang Anda sedang menunggu verifikasi admin.');
+        AuditLogService::logCreated($auction, 'Auction baru dibuat: ' . $auction->title);
+
+        return FlashMessage::success(redirect()->route('user.auctions.index'), 'Permintaan cetak berhasil dibuat! Lelang Anda sedang menunggu verifikasi admin.');
     }
 
     /**
@@ -106,6 +92,9 @@ class AuctionController extends Controller
      */
     public function show(Auction $auction)
     {
+        // Authorization: only owner, admin/dev, or winning vendor can view
+        $this->authorize('view', $auction);
+
         $auction->load(['user', 'bids.vendor', 'winnerVendor']);
 
         return view('user.auctions.show', compact('auction'));
@@ -116,15 +105,11 @@ class AuctionController extends Controller
      */
     public function edit(Auction $auction)
     {
-        // Only allow user who created the auction to edit
-        if ($auction->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $auction);
 
         // Prevent editing after payment is completed
         if ($auction->status === 'paid' || $auction->status === 'completed') {
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('error', 'Lelang ini sudah dibayar dan tidak dapat diedit lagi.');
+            return FlashMessage::error(redirect()->route('user.auctions.show', $auction), 'Lelang ini sudah dibayar dan tidak dapat diedit lagi.');
         }
 
         return view('user.auctions.edit', compact('auction'));
@@ -133,31 +118,25 @@ class AuctionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Auction $auction)
+    public function update(UpdateAuctionRequest $request, Auction $auction)
     {
-        // Only allow user who created the auction to update
-        if ($auction->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $auction);
 
         // Prevent updating after payment is completed
         if ($auction->status === 'paid' || $auction->status === 'completed') {
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('error', 'Lelang ini sudah dibayar dan tidak dapat diedit lagi.');
+            return FlashMessage::error(redirect()->route('user.auctions.show', $auction), 'Lelang ini sudah dibayar dan tidak dapat diedit lagi.');
         }
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'category' => 'required|string|max:100',
-            'quantity' => 'required|integer|min:1',
-            'budget' => 'required|numeric|min:0',
-            'deadline' => 'required|date|after:today',
-            'specifications' => 'nullable|string',
-            'file' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240'
-        ]);
+        $data = $request->validated();
 
-        $data = $request->all();
+        // Capture old values for audit log
+        $oldValues = [
+            'title' => $auction->title,
+            'description' => $auction->description,
+            'budget' => $auction->budget,
+            'deadline' => $auction->deadline,
+            'status' => $auction->status,
+        ];
 
         // Handle file upload
         if ($request->hasFile('file')) {
@@ -174,8 +153,9 @@ class AuctionController extends Controller
 
         $auction->update($data);
 
-        return redirect()->route('user.auctions.show', $auction)
-            ->with('success', 'Permintaan cetak berhasil diperbarui!');
+        AuditLogService::logUpdated($auction, $oldValues, 'Auction diupdate: ' . $auction->title);
+
+        return FlashMessage::success(redirect()->route('user.auctions.show', $auction), 'Permintaan cetak berhasil diperbarui!');
     }
 
     /**
@@ -183,10 +163,7 @@ class AuctionController extends Controller
      */
     public function destroy(Auction $auction)
     {
-        // Only allow user who created the auction to delete
-        if ($auction->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('delete', $auction);
 
         // Delete file if exists
         if ($auction->file_path && Storage::disk('public')->exists('auction_files/' . $auction->file_path)) {
@@ -195,8 +172,9 @@ class AuctionController extends Controller
 
         $auction->delete();
 
-        return redirect()->route('user.auctions.index')
-            ->with('success', 'Permintaan cetak berhasil dihapus!');
+        AuditLogService::logDeleted($auction, 'Auction dihapus: ' . $auction->title);
+
+        return FlashMessage::success(redirect()->route('user.auctions.index'), 'Permintaan cetak berhasil dihapus!');
     }
 
     /**
@@ -204,8 +182,7 @@ class AuctionController extends Controller
      */
     public function myAuctions()
     {
-        $auctions = Auction::where('user_id', Auth::id())
-            ->with(['bids.vendor', 'winnerVendor'])
+        $auctions = Auction::where('user_id', Auth::id()) ->with(['bids.vendor', 'winnerVendor'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -217,10 +194,7 @@ class AuctionController extends Controller
      */
     public function closeAuction(Request $request, Auction $auction)
     {
-        // Only allow user who created the auction to close
-        if ($auction->user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('update', $auction);
 
         $request->validate([
             'winner_bid_id' => 'required|exists:auction_bids,id'
@@ -317,8 +291,7 @@ class AuctionController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('error', 'Gagal membuat link pembayaran. Silakan coba lagi.');
+            return FlashMessage::error(redirect()->route('user.auctions.show', $auction), 'Gagal membuat link pembayaran. Silakan coba lagi.');
         }
     }
 
@@ -327,15 +300,14 @@ class AuctionController extends Controller
      */
     public function createPayment(Auction $auction)
     {
-        // Check if auction is waiting for payment
-        if ($auction->status !== 'waiting_payment') {
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('error', 'Lelang ini tidak memerlukan pembayaran.');
+        // Authorization: only auction owner can create payment
+        if ($auction->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk pembayaran ini.');
         }
 
-        // Check if user is the auction owner
-        if ($auction->user_id !== Auth::id()) {
-            abort(403);
+        // Check if auction is waiting for payment
+        if ($auction->status !== 'waiting_payment') {
+            return FlashMessage::error(redirect()->route('user.auctions.show', $auction), 'Lelang ini tidak memerlukan pembayaran.');
         }
 
         // Redirect to payment confirmation page

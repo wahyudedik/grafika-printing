@@ -2,7 +2,17 @@
 
 namespace App\Providers;
 
+use App\Policies\ProdukPolicy;
+use App\Policies\AuctionPolicy;
+use App\Policies\TransaksiPolicy;
+use App\Policies\LinktreePolicy;
+use App\Policies\UserPolicy;
+use App\Services\AuthorizationService;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 
@@ -17,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('tenant', function ($app) {
             return new \App\Services\TenantManager();
         });
+
+        // Register AuthorizationService as singleton
+        $this->app->singleton(AuthorizationService::class);
     }
 
     /**
@@ -24,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Set default pagination view to Bootstrap-compatible (Tabler) for Laravel 13+
+        // Set default pagination view
         Paginator::defaultView('components.pagination');
 
         Blade::directive('decimal', function ($expression) {
@@ -37,11 +50,54 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Apply service config overrides from database
-        // This allows admin to manage API keys via panel instead of .env only
         try {
             \App\Services\ServiceConfigOverride::applyAll();
         } catch (\Exception $e) {
-            // Silently fail if table doesn't exist yet (e.g., during migration)
+            // Silently fail if table doesn't exist yet
         }
+
+        // =====================================================
+        // POLICY REGISTRATION
+        // =====================================================
+
+        Gate::policy(\App\Models\Vendor\Produk::class, ProdukPolicy::class);
+        Gate::policy(\App\Models\Auction::class, AuctionPolicy::class);
+        Gate::policy(\App\Models\Vendor\Transaksi::class, TransaksiPolicy::class);
+        Gate::policy(\App\Models\Vendor\Linktree::class, LinktreePolicy::class);
+        Gate::policy(\App\Models\User::class, UserPolicy::class);
+
+        // =====================================================
+        // RATE LIMITING
+        // =====================================================
+
+        // General API rate limit
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        // Public page rate limit (linktree, welcome page)
+        RateLimiter::for('public-page', function (Request $request) {
+            return Limit::perMinute(30)->by($request->ip());
+        });
+
+        // Manual transfer (prevent spam)
+        RateLimiter::for('manual-transfer', function (Request $request) {
+            return Limit::perHour(5)->by($request->ip());
+        });
+
+        // Auth routes (prevent brute force)
+        RateLimiter::for('auth', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        // Webhook (high volume allowed)
+        RateLimiter::for('webhook', function (Request $request) {
+            return Limit::perMinute(100)->by($request->ip());
+        });
+
+        // Vendor POS actions
+        RateLimiter::for('vendor-pos', function (Request $request) {
+            return Limit::perMinute(120)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

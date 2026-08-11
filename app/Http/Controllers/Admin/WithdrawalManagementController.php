@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Http\Controllers\Controller;
 use App\Models\VendorWithdrawal;
 use App\Models\Vendor;
@@ -74,8 +76,7 @@ class WithdrawalManagementController extends Controller
                 'amount' => $withdrawal->amount
             ]);
 
-            return redirect()->back()
-                ->with('toast_success', 'Penarikan berhasil disetujui');
+            return FlashMessage::backSuccess('Penarikan berhasil disetujui');
         } catch (\Exception $e) {
             Log::error('Withdrawal approval failed', [
                 'withdrawal_id' => $withdrawal->id,
@@ -83,8 +84,7 @@ class WithdrawalManagementController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('toast_error', 'Gagal menyetujui penarikan: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal menyetujui penarikan: ' . $e->getMessage());
         }
     }
 
@@ -107,8 +107,7 @@ class WithdrawalManagementController extends Controller
                 'reason' => $request->admin_notes
             ]);
 
-            return redirect()->back()
-                ->with('toast_success', 'Penarikan berhasil ditolak');
+            return FlashMessage::backSuccess('Penarikan berhasil ditolak');
         } catch (\Exception $e) {
             Log::error('Withdrawal rejection failed', [
                 'withdrawal_id' => $withdrawal->id,
@@ -116,8 +115,7 @@ class WithdrawalManagementController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('toast_error', 'Gagal menolak penarikan: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal menolak penarikan: ' . $e->getMessage());
         }
     }
 
@@ -154,8 +152,7 @@ class WithdrawalManagementController extends Controller
                 'amount' => $withdrawal->amount
             ]);
 
-            return redirect()->back()
-                ->with('toast_success', 'Penarikan berhasil diselesaikan');
+            return FlashMessage::backSuccess('Penarikan berhasil diselesaikan');
         } catch (\Exception $e) {
             Log::error('Withdrawal completion failed', [
                 'withdrawal_id' => $withdrawal->id,
@@ -163,8 +160,7 @@ class WithdrawalManagementController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('toast_error', 'Gagal menyelesaikan penarikan: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal menyelesaikan penarikan: ' . $e->getMessage());
         }
     }
 
@@ -220,16 +216,14 @@ class WithdrawalManagementController extends Controller
                 'approved_count' => $approvedCount
             ]);
 
-            return redirect()->back()
-                ->with('toast_success', "Berhasil menyetujui {$approvedCount} penarikan");
+            return FlashMessage::backSuccess("Berhasil menyetujui {$approvedCount} penarikan");
         } catch (\Exception $e) {
             Log::error('Bulk approval failed', [
                 'admin_id' => Auth::id(),
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->back()
-                ->with('toast_error', 'Gagal melakukan bulk approval: ' . $e->getMessage());
+            return FlashMessage::backError('Gagal melakukan bulk approval: ' . $e->getMessage());
         }
     }
 }

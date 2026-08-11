@@ -22,10 +22,11 @@ APP_NAME="grafika-printing"
 APP_USER="www-data"
 APP_GROUP="www-data"
 DOMAIN="grafika.noteds.com"
-DB_NAME="grafikaprinting"
+DB_NAME="grafika_printing"
 DB_USER="grafika_user"
 DB_PASSWORD=""  # Akan diminta saat runtime
 PHP_VERSION="8.2"
+NODE_VERSION="20"
 REPO_URL="https://github.com/wahyuedv/grafika-printing.git"
 BRANCH="main"
 
@@ -137,9 +138,9 @@ install_system_deps() {
     mv composer.phar /usr/local/bin/composer
     print_success "Composer installed"
 
-    # Install Node.js 18.x
-    print_info "Installing Node.js 18.x..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+    # Install Node.js 20.x (required for Vite 6)
+    print_info "Installing Node.js 20.x..."
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
     apt install -y nodejs
     print_success "Node.js $(node -v) installed"
 
@@ -216,8 +217,8 @@ setup_application() {
     print_success "Composer dependencies installed"
 
     # Install Node.js dependencies and build
-    print_info "Installing Node.js dependencies..."
-    npm install
+    print_info "Installing Node.js dependencies and building assets..."
+    npm ci --no-audit --no-fund
     npm run build
     print_success "NPM dependencies installed and assets built"
 
@@ -246,15 +247,21 @@ setup_application() {
 
     print_success ".env configured for production"
 
-    # Run migrations
-    print_info "Running database migrations..."
-    php artisan migrate --force
-    print_success "Migrations completed"
+    # Run landlord migrations (multi-tenant)
+    print_info "Running landlord migrations..."
+    php artisan tenants:migrate --force 2>/dev/null || php artisan migrate --force
+    print_success "Landlord migrations completed"
+
+    # Run tenant migrations
+    print_info "Running tenant migrations..."
+    php artisan tenants:migrate --tenant=* --force 2>/dev/null || true
+    print_success "Tenant migrations completed"
 
     # Seed database (optional)
     read -p "  Jalankan database seeder? (y/N): " seed_confirm
     if [[ $seed_confirm == [yY] ]]; then
         php artisan db:seed --force
+        php artisan tenants:seed --force 2>/dev/null || true
         print_success "Database seeded"
     fi
 
@@ -269,6 +276,7 @@ setup_application() {
     php artisan route:cache
     php artisan view:cache
     php artisan event:cache
+    php artisan icons:cache 2>/dev/null || true
     print_success "Caches optimized"
 }
 
@@ -558,6 +566,8 @@ main() {
     echo -e "${GREEN}║     2. Update Xendit webhook URL di dashboard Xendit         ║${NC}"
     echo -e "${GREEN}║     3. Test pembayaran dengan Xendit sandbox                 ║${NC}"
     echo -e "${GREEN}║     4. Update .env dengan API keys production                 ║${NC}"
+    echo -e "${GREEN}║     5. Setup vendor tenants via admin panel                   ║${NC}"
+    echo -e "${GREEN}║     6. Jalankan: php artisan tenants:migrate --tenant=*       ║${NC}"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
 }
 

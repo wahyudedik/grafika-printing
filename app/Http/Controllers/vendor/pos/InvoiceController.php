@@ -2,21 +2,28 @@
 
 namespace App\Http\Controllers\vendor\pos;
 
+use App\Http\Responses\FlashMessage;
+
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Vendor\Transaksi;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use App\Http\Concerns\HasVendorContext;
+
+
 
 class InvoiceController extends Controller
 {
+    use HasVendorContext;
+
+
     public function show(Transaksi $transaksi)
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             $transaksi = Transaksi::with([
                 'transaksiItem.produk',
@@ -30,8 +37,7 @@ class InvoiceController extends Controller
             return view('pos.show', compact('transaksi'));
         } catch (\Exception $e) {
             Log::error('Error showing invoice: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.index')
-                ->with('toast_error', 'Failed to display invoice: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.index'), 'Failed to display invoice: ' . $e->getMessage());
         }
     }
 
@@ -39,7 +45,7 @@ class InvoiceController extends Controller
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             $transaksi = Transaksi::with([
                 'transaksiItem.produk',
@@ -87,8 +93,7 @@ class InvoiceController extends Controller
             return $pdf->download("invoice-{$transaksi->kode}.pdf");
         } catch (\Exception $e) {
             Log::error('Error downloading invoice: ' . $e->getMessage() . ' - ' . $e->getTraceAsString());
-            return redirect()->route('vendor.pos.index')
-                ->with('toast_error', 'Failed to download invoice: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.index'), 'Failed to download invoice: ' . $e->getMessage());
         }
     }
 

@@ -7,6 +7,8 @@ use App\Models\AuctionBid;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Responses\FlashMessage;
+
 
 class AuctionManagementController extends Controller
 {
@@ -55,12 +57,10 @@ class AuctionManagementController extends Controller
             // Send notification to user
             $auction->user->notify(new \App\Notifications\AuctionApproved($auction));
 
-            return redirect()->route('admin.auctions.index')
-                ->with('success', 'Lelang berhasil disetujui dan diaktifkan!');
+            return FlashMessage::success(redirect()->route('admin.auctions.index'), 'Lelang berhasil disetujui dan diaktifkan!');
         }
 
-        return redirect()->route('admin.auctions.index')
-            ->with('error', 'Lelang tidak dapat disetujui karena statusnya bukan pending.');
+        return FlashMessage::error(redirect()->route('admin.auctions.index'), 'Lelang tidak dapat disetujui karena statusnya bukan pending.');
     }
 
     /**
@@ -83,12 +83,10 @@ class AuctionManagementController extends Controller
             // Send notification to user
             $auction->user->notify(new \App\Notifications\AuctionRejected($auction, $request->rejection_reason));
 
-            return redirect()->route('admin.auctions.index')
-                ->with('success', 'Lelang berhasil ditolak!');
+            return FlashMessage::success(redirect()->route('admin.auctions.index'), 'Lelang berhasil ditolak!');
         }
 
-        return redirect()->route('admin.auctions.index')
-            ->with('error', 'Lelang tidak dapat ditolak karena statusnya bukan pending.');
+        return FlashMessage::error(redirect()->route('admin.auctions.index'), 'Lelang tidak dapat ditolak karena statusnya bukan pending.');
     }
 
     /**
@@ -99,12 +97,10 @@ class AuctionManagementController extends Controller
         if ($auction->status === 'active') {
             $auction->update(['status' => 'closed']);
 
-            return redirect()->route('admin.auctions.index')
-                ->with('success', 'Lelang berhasil ditutup!');
+            return FlashMessage::success(redirect()->route('admin.auctions.index'), 'Lelang berhasil ditutup!');
         }
 
-        return redirect()->route('admin.auctions.index')
-            ->with('error', 'Lelang tidak dapat ditutup karena statusnya bukan active.');
+        return FlashMessage::error(redirect()->route('admin.auctions.index'), 'Lelang tidak dapat ditutup karena statusnya bukan active.');
     }
 
     /**
@@ -123,8 +119,7 @@ class AuctionManagementController extends Controller
         // Delete the auction
         $auction->delete();
 
-        return redirect()->route('admin.auctions.index')
-            ->with('success', 'Lelang berhasil dihapus!');
+        return FlashMessage::success(redirect()->route('admin.auctions.index'), 'Lelang berhasil dihapus!');
     }
 
     /**
@@ -213,7 +208,6 @@ class AuctionManagementController extends Controller
 
         $auction->update($data);
 
-        return redirect()->route('admin.auctions.show', $auction)
-            ->with('success', 'Data lelang berhasil diperbarui!');
+        return FlashMessage::success(redirect()->route('admin.auctions.show', $auction), 'Data lelang berhasil diperbarui!');
     }
 }

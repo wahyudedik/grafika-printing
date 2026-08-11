@@ -89,7 +89,8 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Desktop Table --}}
+        <div class="hidden md:block overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -182,6 +183,70 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile Cards --}}
+        <div class="md:hidden divide-y divide-gray-100">
+            @forelse ($produks as $produk)
+                <div class="p-4 space-y-2" :class="selectedIds.includes({{ $produk->id }}) ? 'bg-primary/5' : ''">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            @if (!empty($produk->gambar) && isset($produk->gambar[0]))
+                                <img class="h-10 w-10 rounded-full object-cover flex-shrink-0" src="{{ asset($produk->gambar[0]) }}" alt="{{ $produk->nama_produk }}">
+                            @else
+                                <div class="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold flex-shrink-0">
+                                    {{ substr($produk->nama_produk, 0, 2) }}
+                                </div>
+                            @endif
+                            <div class="flex-1 min-w-0">
+                                <a href="{{ route('vendor.products.show', $produk->id) }}" class="font-medium text-gray-900 hover:text-blue-600 truncate block">{{ $produk->nama_produk }}</a>
+                                <p class="text-sm text-gray-500 truncate">{{ $produk->kategori->nama_kategori ?? 'Tidak ada kategori' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 ml-2 flex-shrink-0">
+                            <input type="checkbox" value="{{ $produk->id }}"
+                                @change="toggleItem({{ $produk->id }})"
+                                :checked="selectedIds.includes({{ $produk->id }})"
+                                class="rounded border-gray-300 text-primary focus:ring-primary">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-medium text-gray-900">
+                            @if($produk->harga_jual)
+                                Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}
+                            @else
+                                <span class="text-gray-400">-</span>
+                            @endif
+                        </span>
+                        @if ($produk->estimasiProduk->count() > 0)
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">Tersedia</span>
+                        @else
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">Belum diatur</span>
+                        @endif
+                    </div>
+                    <div class="flex items-center justify-end gap-1 pt-1">
+                        <a href="{{ route('vendor.products.show', $produk->id) }}"
+                            class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat">
+                            <i class="fas fa-eye text-sm"></i>
+                        </a>
+                        <a href="{{ route('vendor.products.edit', $produk->id) }}"
+                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                            <i class="fas fa-edit text-sm"></i>
+                        </a>
+                        <button type="button"
+                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors delete-btn"
+                            data-id="{{ $produk->id }}" title="Hapus">
+                            <i class="fas fa-trash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            @empty
+                <div class="p-8 text-center">
+                    <i class="fas fa-box text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-sm font-medium text-gray-900 mb-1">Tidak ada data produk</p>
+                    <p class="text-sm text-gray-500">Silahkan tambahkan produk baru</p>
+                </div>
+            @endforelse
         </div>
         <div class="px-6 py-4 border-t border-gray-200">
             {{ $produks->links('dev.components.pagination') }}

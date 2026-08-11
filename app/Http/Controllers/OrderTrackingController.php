@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Responses\FlashMessage;
+
 
 class OrderTrackingController extends Controller
 {
@@ -28,8 +30,7 @@ class OrderTrackingController extends Controller
     {
         $user = Auth::user();
 
-        $orderTrackings = OrderTracking::where('user_id', $user->id)
-            ->with(['auction', 'vendor'])
+        $orderTrackings = OrderTracking::where('user_id', $user->id) ->with(['auction', 'vendor'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -56,14 +57,13 @@ class OrderTrackingController extends Controller
      */
     public function vendorIndex(): View
     {
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
 
         if (!$vendor) {
             abort(403, 'Vendor access required');
         }
 
-        $orderTrackings = OrderTracking::where('vendor_id', $vendor->id)
-            ->with(['auction', 'user'])
+        $orderTrackings = OrderTracking::where('vendor_id', $vendor->id) ->with(['auction', 'user'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -76,7 +76,7 @@ class OrderTrackingController extends Controller
     public function updateStatus(Request $request, OrderTracking $orderTracking): RedirectResponse
     {
         // Check if vendor can update this order tracking
-        $vendor = Auth::user()->vendorUser->first();
+        $vendor = $this->requireVendor();
         if (!$vendor || $orderTracking->vendor_id !== $vendor->id) {
             abort(403, 'Unauthorized action.');
         }
@@ -98,8 +98,7 @@ class OrderTrackingController extends Controller
             $request->notes
         );
 
-        return redirect()->back()
-            ->with('success', 'Order status updated successfully');
+        return FlashMessage::backSuccess('Order status updated successfully');
     }
 
     /**
@@ -126,8 +125,7 @@ class OrderTrackingController extends Controller
             $request->file('evidence_files', [])
         );
 
-        return redirect()->back()
-            ->with('success', 'Mediation request submitted successfully');
+        return FlashMessage::backSuccess('Mediation request submitted successfully');
     }
 
     /**
@@ -153,8 +151,7 @@ class OrderTrackingController extends Controller
             $request->feedback
         );
 
-        return redirect()->back()
-            ->with('success', 'Delivery confirmed successfully');
+        return FlashMessage::backSuccess('Delivery confirmed successfully');
     }
 
     /**

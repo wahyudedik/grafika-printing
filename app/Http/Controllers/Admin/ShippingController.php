@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Http\Controllers\Controller;
 use App\Models\ShippingInvoice;
 use App\Models\DeliveryConfirmation;
@@ -129,7 +131,7 @@ class ShippingController extends Controller
             'updated_at' => now()
         ]);
 
-        return redirect()->back()->with('toast_success', 'Shipping status updated successfully');
+        return FlashMessage::backSuccess('Shipping status updated successfully');
     }
 
     /**

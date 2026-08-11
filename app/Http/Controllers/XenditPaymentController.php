@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\XenditPayment;
 use App\Models\Auction;
 use App\Services\XenditService;
+use App\Http\Responses\ApiResponse;
 
 class XenditPaymentController extends Controller
 {
@@ -28,12 +29,12 @@ class XenditPaymentController extends Controller
         try {
             // Check if auction is waiting for payment
             if ($auction->status !== 'waiting_payment') {
-                return response()->json(['error' => 'Lelang ini tidak memerlukan pembayaran.'], 400);
+                return ApiResponse::error('Lelang ini tidak memerlukan pembayaran.', 400);
             }
 
             // Check if user is the auction owner
             if ($auction->user_id !== Auth::id()) {
-                return response()->json(['error' => 'Unauthorized.'], 403);
+                return ApiResponse::forbidden('Unauthorized.');
             }
 
             // Validate request
@@ -92,7 +93,7 @@ class XenditPaymentController extends Controller
 
             if (!$response) {
                 Log::error('Failed to create payment - response is null');
-                return response()->json(['error' => 'Failed to create payment'], 500);
+                return ApiResponse::error('Failed to create payment', 500);
             }
 
             // Save payment record
@@ -112,18 +113,17 @@ class XenditPaymentController extends Controller
                 'auction_id' => $auction->id
             ]);
 
-            return response()->json([
-                'success' => true,
+            return ApiResponse::success([
                 'payment' => $payment,
                 'checkout_url' => $response['invoice_url'] ?? $response['checkout_url'] ?? null,
                 'xenpayment_id' => $response['id'] ?? null
-            ]);
+            ], 'Payment link created successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('Xendit payment validation failed', [
                 'auction_id' => $auction->id,
                 'errors' => $e->errors()
             ]);
-            return response()->json(['error' => 'Data tidak valid.', 'details' => $e->errors()], 422);
+            return ApiResponse::validationError($e->errors(), 'Data tidak valid.');
         } catch (\Exception $e) {
             Log::error('Error creating Xendit payment', [
                 'auction_id' => $auction->id,
@@ -131,7 +131,7 @@ class XenditPaymentController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return response()->json(['error' => 'Gagal membuat pembayaran. Silakan coba lagi.'], 500);
+            return ApiResponse::error('Gagal membuat pembayaran. Silakan coba lagi.', 500);
         }
     }
 
@@ -154,7 +154,7 @@ class XenditPaymentController extends Controller
                 ]);
             }
 
-            return response()->json([
+            return ApiResponse::success([
                 'payment' => $payment,
                 'status' => $payment->status
             ]);
@@ -164,7 +164,7 @@ class XenditPaymentController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json(['error' => 'Failed to get payment status'], 500);
+            return ApiResponse::error('Failed to get payment status', 500);
         }
     }
 
@@ -176,8 +176,7 @@ class XenditPaymentController extends Controller
         try {
             $methods = $this->xenditService->getAvailablePaymentMethods();
 
-            return response()->json([
-                'success' => true,
+            return ApiResponse::success([
                 'payment_methods' => $methods
             ]);
         } catch (\Exception $e) {
@@ -185,7 +184,7 @@ class XenditPaymentController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json(['error' => 'Failed to get payment methods'], 500);
+            return ApiResponse::error('Failed to get payment methods', 500);
         }
     }
 
@@ -199,26 +198,23 @@ class XenditPaymentController extends Controller
                 $response = $this->xenditService->expirePaymentLink($payment->xendit_id);
             } else {
                 // XenPayment doesn't have expire functionality
-                return response()->json(['error' => 'Cannot expire XenPayment'], 400);
+                return ApiResponse::error('Cannot expire XenPayment', 400);
             }
 
             if ($response) {
                 $payment->update(['status' => 'expired']);
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Payment expired successfully'
-                ]);
+                return ApiResponse::success(null, 'Payment expired successfully');
             }
 
-            return response()->json(['error' => 'Failed to expire payment'], 500);
+            return ApiResponse::error('Failed to expire payment', 500);
         } catch (\Exception $e) {
             Log::error('Error expiring payment', [
                 'payment_id' => $payment->id,
                 'error' => $e->getMessage()
             ]);
 
-            return response()->json(['error' => 'Failed to expire payment'], 500);
+            return ApiResponse::error('Failed to expire payment', 500);
         }
     }
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Http\Controllers\Controller;
 use App\Models\CmsSetting;
 use Illuminate\Http\Request;
@@ -75,12 +77,10 @@ class CmsController extends Controller
             // Clear cache
             CmsSetting::clearCache();
 
-            return redirect()->back()
-                ->with('toast_success', 'CMS settings updated successfully!');
+            return FlashMessage::backSuccess('CMS settings updated successfully!');
         } catch (\Exception $e) {
             Log::error('CMS update error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to update CMS settings: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to update CMS settings: ' . $e->getMessage());
         }
     }
 
@@ -165,12 +165,10 @@ class CmsController extends Controller
         try {
             CmsSetting::create($request->all());
 
-            return redirect()->back()
-                ->with('toast_success', 'New setting created successfully!');
+            return FlashMessage::backSuccess('New setting created successfully!');
         } catch (\Exception $e) {
             Log::error('CMS setting creation error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to create setting: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to create setting: ' . $e->getMessage());
         }
     }
 
@@ -186,12 +184,10 @@ class CmsController extends Controller
             // Clear cache
             CmsSetting::clearCache();
 
-            return redirect()->back()
-                ->with('toast_success', 'Setting deleted successfully!');
+            return FlashMessage::backSuccess('Setting deleted successfully!');
         } catch (\Exception $e) {
             Log::error('CMS setting deletion error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to delete setting: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to delete setting: ' . $e->getMessage());
         }
     }
 
@@ -268,8 +264,7 @@ class CmsController extends Controller
                 ->header('Content-Type', 'application/json');
         } catch (\Exception $e) {
             Log::error('CMS export error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to export settings: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to export settings: ' . $e->getMessage());
         }
     }
 
@@ -301,12 +296,10 @@ class CmsController extends Controller
             // Clear cache
             CmsSetting::clearCache();
 
-            return redirect()->back()
-                ->with('toast_success', 'Settings imported successfully!');
+            return FlashMessage::backSuccess('Settings imported successfully!');
         } catch (\Exception $e) {
             Log::error('CMS import error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to import settings: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to import settings: ' . $e->getMessage());
         }
     }
 
@@ -325,12 +318,10 @@ class CmsController extends Controller
             // Clear cache
             CmsSetting::clearCache();
 
-            return redirect()->back()
-                ->with('toast_success', 'Settings reset to default successfully!');
+            return FlashMessage::backSuccess('Settings reset to default successfully!');
         } catch (\Exception $e) {
             Log::error('CMS reset error: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to reset settings: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to reset settings: ' . $e->getMessage());
         }
     }
 }

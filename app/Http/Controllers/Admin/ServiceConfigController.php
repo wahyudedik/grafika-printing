@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\FlashMessage;
 use App\Models\ServiceConfig;
 use App\Services\ServiceConfigOverride;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+
 
 class ServiceConfigController extends Controller
 {
@@ -31,8 +33,7 @@ class ServiceConfigController extends Controller
         $services = ServiceConfig::getAvailableServices();
 
         if (!isset($services[$service])) {
-            return redirect()->route('admin.service-configs.index')
-                ->with('error', "Service '{$service}' tidak ditemukan.");
+            return FlashMessage::error(redirect()->route('admin.service-configs.index'), "Service '{$service}' tidak ditemukan.");
         }
 
         $configs = ServiceConfig::forService($service);
@@ -62,7 +63,7 @@ class ServiceConfigController extends Controller
             ->exists();
 
         if ($exists) {
-            return back()->with('error', "Key '{$validated['key']}' sudah ada untuk service ini.");
+            return FlashMessage::backError("Key '{$validated['key']}' sudah ada untuk service ini.");
         }
 
         ServiceConfig::setValue(
@@ -80,7 +81,7 @@ class ServiceConfigController extends Controller
         // Apply config override
         ServiceConfigOverride::applyFor($validated['service_name']);
 
-        return back()->with('success', "Config '{$validated['label']}' berhasil ditambahkan.");
+        return FlashMessage::backSuccess("Config '{$validated['label']}' berhasil ditambahkan.");
     }
 
     /**
@@ -109,7 +110,7 @@ class ServiceConfigController extends Controller
         // Apply config override
         ServiceConfigOverride::applyFor($serviceConfig->service_name);
 
-        return back()->with('success', "Config '{$serviceConfig->label}' berhasil diupdate.");
+        return FlashMessage::backSuccess("Config '{$serviceConfig->label}' berhasil diupdate.");
     }
 
     /**
@@ -126,7 +127,7 @@ class ServiceConfigController extends Controller
         ServiceConfig::clearServiceCache($serviceName);
         ServiceConfigOverride::applyFor($serviceName);
 
-        return back()->with('success', "Config '{$label}' berhasil dihapus.");
+        return FlashMessage::backSuccess("Config '{$label}' berhasil dihapus.");
     }
 
     /**
@@ -141,7 +142,7 @@ class ServiceConfigController extends Controller
 
         $status = $serviceConfig->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
-        return back()->with('success', "Config '{$serviceConfig->label}' berhasil {$status}.");
+        return FlashMessage::backSuccess("Config '{$serviceConfig->label}' berhasil {$status}.");
     }
 
     /**
@@ -172,10 +173,10 @@ class ServiceConfigController extends Controller
             // Apply all overrides
             ServiceConfigOverride::applyAll();
 
-            return back()->with('success', "{$count} config default berhasil di-import dari .env.");
+            return FlashMessage::backSuccess("{$count} config default berhasil di-import dari .env.");
         }
 
-        return back()->with('info', 'Semua config default sudah ada di database.');
+        return FlashMessage::info(redirect()->back(), 'Semua config default sudah ada di database.');
     }
 
     /**
@@ -186,6 +187,6 @@ class ServiceConfigController extends Controller
         ServiceConfig::clearAllCache();
         Artisan::call('config:clear');
 
-        return back()->with('success', 'Cache config berhasil dibersihkan.');
+        return FlashMessage::backSuccess('Cache config berhasil dibersihkan.');
     }
 }

@@ -8,6 +8,8 @@ use App\Models\Auction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Responses\FlashMessage;
+
 
 class VendorRatingController extends Controller
 {
@@ -45,8 +47,7 @@ class VendorRatingController extends Controller
             ->first();
 
         if ($existingRating) {
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('info', 'Anda sudah memberikan rating untuk lelang ini');
+            return FlashMessage::info(redirect()->route('user.auctions.show', $auction), 'Anda sudah memberikan rating untuk lelang ini');
         }
 
         $vendor = $auction->winnerVendor;
@@ -84,8 +85,7 @@ class VendorRatingController extends Controller
             ->first();
 
         if ($existingRating) {
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('error', 'Anda sudah memberikan rating untuk lelang ini');
+            return FlashMessage::error(redirect()->route('user.auctions.show', $auction), 'Anda sudah memberikan rating untuk lelang ini');
         }
 
         DB::beginTransaction();
@@ -103,12 +103,10 @@ class VendorRatingController extends Controller
 
             DB::commit();
 
-            return redirect()->route('user.auctions.show', $auction)
-                ->with('success', 'Rating berhasil dikirim! Rating akan ditampilkan setelah diverifikasi admin.');
+            return FlashMessage::success(redirect()->route('user.auctions.show', $auction), 'Rating berhasil dikirim! Rating akan ditampilkan setelah diverifikasi admin.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat menyimpan rating: ' . $e->getMessage());
+            return FlashMessage::backError('Terjadi kesalahan saat menyimpan rating: ' . $e->getMessage());
         }
     }
 

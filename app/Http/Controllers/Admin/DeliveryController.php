@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryConfirmation;
 use App\Models\ShippingInvoice;
@@ -103,7 +105,7 @@ class DeliveryController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('toast_success', 'Delivery confirmation approved successfully');
+        return FlashMessage::backSuccess('Delivery confirmation approved successfully');
     }
 
     /**
@@ -124,7 +126,7 @@ class DeliveryController extends Controller
             'rejected_by' => auth()->id()
         ]);
 
-        return redirect()->back()->with('toast_success', 'Delivery confirmation rejected');
+        return FlashMessage::backSuccess('Delivery confirmation rejected');
     }
 
     /**

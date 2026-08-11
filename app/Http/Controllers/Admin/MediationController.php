@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\FlashMessage;
 use App\Models\MediationRequest;
 use App\Models\EscrowPayment;
 use App\Models\OrderTracking;
@@ -74,8 +75,7 @@ class MediationController extends Controller
             'admin_notes' => 'Mediation review started by admin'
         ]);
 
-        return redirect()->back()
-            ->with('success', 'Mediation review started');
+        return FlashMessage::backSuccess('Mediation review started');
     }
 
     /**
@@ -115,8 +115,7 @@ class MediationController extends Controller
             }
         });
 
-        return redirect()->route('admin.mediation.index')
-            ->with('success', 'Mediation resolved successfully');
+        return FlashMessage::success(redirect()->route('admin.mediation.index'), 'Mediation resolved successfully');
     }
 
     /**
@@ -126,8 +125,7 @@ class MediationController extends Controller
     {
         $mediationRequest->close();
 
-        return redirect()->back()
-            ->with('success', 'Mediation closed');
+        return FlashMessage::backSuccess('Mediation closed');
     }
 
     /**

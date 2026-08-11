@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\vendor\pos;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Models\Vendor\Bahan;
 use Illuminate\Http\Request;
 use App\Models\Vendor\Produk;
@@ -10,16 +12,21 @@ use App\Models\Vendor\EstimasiProduk;
 use App\Models\Vendor\WholesalePrice;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Concerns\HasVendorContext;
+
+
 
 class PosController extends Controller
 {
+    use HasVendorContext;
+
+
     // Menampilkan halaman pos
     public function index()
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             $products = Produk::with([
                 'vendor',
@@ -34,7 +41,7 @@ class PosController extends Controller
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
             Log::error('Error in POS index: ' . $e->getMessage());
-            return redirect()->back()->with('toast_error', 'Failed to load POS: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to load POS: ' . $e->getMessage());
         }
     }
 
@@ -43,7 +50,7 @@ class PosController extends Controller
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
 
             $products = Produk::whereHas('kategori', function ($query) use ($slug) {
                 $query->where('slug', $slug);
@@ -64,8 +71,7 @@ class PosController extends Controller
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
             Log::error('Error in POS category: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.index')
-                ->with('error', 'Failed to load category: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.index'), 'Failed to load category: ' . $e->getMessage());
         }
     }
 
@@ -74,7 +80,7 @@ class PosController extends Controller
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
             $search = $request->get('search');
 
             $products = Produk::where('vendor_id', $vendor->id)
@@ -98,8 +104,7 @@ class PosController extends Controller
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
             Log::error('Error in POS search: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.index')
-                ->with('error', 'Search failed: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.index'), 'Search failed: ' . $e->getMessage());
         }
     }
 
@@ -115,7 +120,7 @@ class PosController extends Controller
             ]);
 
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
             $product = Produk::with('spesifikasiProduk')
                 ->where('vendor_id', $vendor->id)
                 ->findOrFail($request->product_id);
@@ -123,7 +128,7 @@ class PosController extends Controller
             // Check if required specifications are provided
             foreach ($product->spesifikasiProduk as $spec) {
                 if ($spec->wajib_diisi && (!isset($request->specifications[$spec->id]) || $request->specifications[$spec->id] === '')) {
-                    return redirect()->back()->with('toast_error', 'Please fill in all required specifications');
+                    return FlashMessage::backError('Please fill in all required specifications');
                 }
             }
 
@@ -131,7 +136,7 @@ class PosController extends Controller
             $specifications = $request->specifications;
 
             if (!$specifications) {
-                return redirect()->back()->with('error', 'Please select product specifications');
+                return FlashMessage::backError('Please select product specifications');
             }
 
             $specDetails = [];
@@ -193,12 +198,10 @@ class PosController extends Controller
             $cart[] = $cartItem;
             session()->put('cart', $cart);
 
-            return redirect()->route('vendor.pos.cart')
-                ->with('toast_success', 'Product added to cart successfully');
+            return FlashMessage::success(redirect()->route('vendor.pos.cart'), 'Product added to cart successfully');
         } catch (\Exception $e) {
             Log::error('Error adding to cart: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('toast_error', 'Failed to add product to cart: ' . $e->getMessage());
+            return FlashMessage::backError('Failed to add product to cart: ' . $e->getMessage());
         }
     }
 
@@ -207,7 +210,7 @@ class PosController extends Controller
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
             $cartItems = session('cart', []);
             $products = Produk::where('vendor_id', $vendor->id)->get();
 
@@ -241,8 +244,7 @@ class PosController extends Controller
             return view('pos.cart', compact('cartItems', 'products'));
         } catch (\Exception $e) {
             Log::error('Error in cart view: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.index')
-                ->with('error', 'Failed to load cart: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.index'), 'Failed to load cart: ' . $e->getMessage());
         }
     }
 
@@ -258,12 +260,10 @@ class PosController extends Controller
                 session()->put('cart', $cart);
             }
 
-            return redirect()->route('vendor.pos.cart')
-                ->with('success', 'Item removed successfully');
+            return FlashMessage::success(redirect()->route('vendor.pos.cart'), 'Item removed successfully');
         } catch (\Exception $e) {
             Log::error('Error removing item: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.cart')
-                ->with('error', 'Failed to remove item: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.cart'), 'Failed to remove item: ' . $e->getMessage());
         }
     }
 
@@ -272,12 +272,10 @@ class PosController extends Controller
     {
         try {
             session()->forget('cart');
-            return redirect()->route('vendor.pos.cart')
-                ->with('success', 'Cart cleared successfully');
+            return FlashMessage::success(redirect()->route('vendor.pos.cart'), 'Cart cleared successfully');
         } catch (\Exception $e) {
             Log::error('Error clearing cart: ' . $e->getMessage());
-            return redirect()->route('vendor.pos.cart')
-                ->with('error', 'Failed to clear cart: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('vendor.pos.cart'), 'Failed to clear cart: ' . $e->getMessage());
         }
     }
 
@@ -286,7 +284,7 @@ class PosController extends Controller
     {
         try {
             // Dapatkan vendor dari user yang sedang login
-            $vendor = Auth::user()->vendorUser->first();
+            $vendor = $this->requireVendor();
             $product = Produk::where('vendor_id', $vendor->id)
                 ->findOrFail($request->product_id);
 

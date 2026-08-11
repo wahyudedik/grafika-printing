@@ -3,14 +3,20 @@
 namespace App\Http\Controllers\vendor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Responses\FlashMessage;
 use App\Models\LinktreeAbTest;
 use App\Models\LinktreeAbTestResult;
 use App\Models\Vendor\Linktree;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Concerns\HasVendorContext;
+
+
 
 class AbTestController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Display list of A/B tests for a linktree.
      */
@@ -38,8 +44,7 @@ class AbTestController extends Controller
         // Can't create if there's already a running test
         $runningTest = $linktree->abTests()->where('status', 'running')->first();
         if ($runningTest) {
-            return redirect()->route('vendor.linktree.ab-test.index', $linktree)
-                ->with('error', 'Ada A/B test yang sedang berjalan. Hentikan terlebih dahulu.');
+            return FlashMessage::error(redirect()->route('vendor.linktree.ab-test.index', $linktree), 'Ada A/B test yang sedang berjalan. Hentikan terlebih dahulu.');
         }
 
         $templates = ['minimal', 'colorful', 'dark', 'professional'];
@@ -82,8 +87,7 @@ class AbTestController extends Controller
             'status' => 'draft',
         ]);
 
-        return redirect()->route('vendor.linktree.ab-test.index', $linktree)
-            ->with('success', 'A/B test berhasil dibuat. Klik "Mulai" untuk memulai test.');
+        return FlashMessage::success(redirect()->route('vendor.linktree.ab-test.index', $linktree), 'A/B test berhasil dibuat. Klik "Mulai" untuk memulai test.');
     }
 
     /**
@@ -126,7 +130,7 @@ class AbTestController extends Controller
         $this->authorizeAbTest($abTest, $linktree);
 
         if ($abTest->status !== 'draft' && $abTest->status !== 'paused') {
-            return back()->with('error', 'Test hanya bisa dimulai dari status draft atau dijeda.');
+            return FlashMessage::backError('Test hanya bisa dimulai dari status draft atau dijeda.');
         }
 
         // Check no other running tests
@@ -136,7 +140,7 @@ class AbTestController extends Controller
             ->first();
 
         if ($runningTest) {
-            return back()->with('error', 'Ada A/B test lain yang sedang berjalan. Hentikan terlebih dahulu.');
+            return FlashMessage::backError('Ada A/B test lain yang sedang berjalan. Hentikan terlebih dahulu.');
         }
 
         $abTest->update([
@@ -144,7 +148,7 @@ class AbTestController extends Controller
             'started_at' => $abTest->started_at ?? now(),
         ]);
 
-        return back()->with('success', 'A/B test berhasil dimulai!');
+        return FlashMessage::backSuccess('A/B test berhasil dimulai!');
     }
 
     /**
@@ -156,12 +160,12 @@ class AbTestController extends Controller
         $this->authorizeAbTest($abTest, $linktree);
 
         if ($abTest->status !== 'running') {
-            return back()->with('error', 'Test yang dijeda harus dalam status berjalan.');
+            return FlashMessage::backError('Test yang dijeda harus dalam status berjalan.');
         }
 
         $abTest->update(['status' => 'paused']);
 
-        return back()->with('success', 'A/B test berhasil dijeda.');
+        return FlashMessage::backSuccess('A/B test berhasil dijeda.');
     }
 
     /**
@@ -173,7 +177,7 @@ class AbTestController extends Controller
         $this->authorizeAbTest($abTest, $linktree);
 
         if (!in_array($abTest->status, ['running', 'paused'])) {
-            return back()->with('error', 'Test tidak bisa dihentikan dari status saat ini.');
+            return FlashMessage::backError('Test tidak bisa dihentikan dari status saat ini.');
         }
 
         $winner = $abTest->evaluate();
@@ -192,7 +196,7 @@ class AbTestController extends Controller
             $message .= ' Tidak ada pemenang yang signifikan.';
         }
 
-        return back()->with('success', $message);
+        return FlashMessage::backSuccess($message);
     }
 
     /**
@@ -204,14 +208,14 @@ class AbTestController extends Controller
         $this->authorizeAbTest($abTest, $linktree);
 
         if ($abTest->status !== 'completed' || !$abTest->winner) {
-            return back()->with('error', 'Test belum selesai atau belum ada pemenang.');
+            return FlashMessage::backError('Test belum selesai atau belum ada pemenang.');
         }
 
         $winnerTemplate = $abTest->winner === 'variant_a' ? $abTest->variant_a : $abTest->variant_b;
 
         $linktree->update(['template' => $winnerTemplate]);
 
-        return back()->with('success', "Template berhasil diubah ke \"{$winnerTemplate}\" berdasarkan hasil A/B test.");
+        return FlashMessage::backSuccess("Template berhasil diubah ke \"{$winnerTemplate}\" berdasarkan hasil A/B test.");
     }
 
     /**
@@ -223,13 +227,12 @@ class AbTestController extends Controller
         $this->authorizeAbTest($abTest, $linktree);
 
         if ($abTest->status === 'running') {
-            return back()->with('error', 'Hentikan test terlebih dahulu sebelum menghapus.');
+            return FlashMessage::backError('Hentikan test terlebih dahulu sebelum menghapus.');
         }
 
         $abTest->delete();
 
-        return redirect()->route('vendor.linktree.ab-test.index', $linktree)
-            ->with('success', 'A/B test berhasil dihapus.');
+        return FlashMessage::success(redirect()->route('vendor.linktree.ab-test.index', $linktree), 'A/B test berhasil dihapus.');
     }
 
     // =========================================================================
@@ -238,7 +241,7 @@ class AbTestController extends Controller
 
     private function authorizeLinktree(Linktree $linktree): void
     {
-        $vendor = Auth::user()->vendorUser()->first();
+        $vendor = $this->getVendor();
         if ($linktree->vendor_id !== $vendor->id) {
             abort(403, 'Anda tidak memiliki akses ke linktree ini.');
         }

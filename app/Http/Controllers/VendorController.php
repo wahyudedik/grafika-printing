@@ -2,17 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\FlashMessage;
+use App\Services\AuthorizationService;
+
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
 
 class VendorController extends Controller
 {
+    protected $authorizationService;
+
+    public function __construct(AuthorizationService $authorizationService)
+    {
+        $this->authorizationService = $authorizationService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorizationService->requireAdmin();
         try {
             $vendor = Vendor::query();
             if ($request->has('search')) {
@@ -26,7 +37,7 @@ class VendorController extends Controller
             $vendors = $vendor->paginate($perPage);
             return view('dev.vendors.index', compact('vendors'));
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return FlashMessage::backError('Something went wrong');
         }
     }
 
@@ -39,7 +50,7 @@ class VendorController extends Controller
             $users = User::get();
             return view('dev.vendors.create', compact('users'));
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return FlashMessage::backError('Something went wrong');
         }
     }
 
@@ -48,6 +59,7 @@ class VendorController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorizationService->requireAdmin();
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -81,9 +93,9 @@ class VendorController extends Controller
 
             $vendors->vendorUser()->attach($request->user_id);
 
-            return redirect()->route('admin.vendors.index')->with('toast_success', 'Vendor created successfully');
+            return FlashMessage::success(redirect()->route('admin.vendors.index'), 'Vendor created successfully');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong' . $th->getMessage());
+            return FlashMessage::backError('Something went wrong' . $th->getMessage());
         }
     }
 
@@ -97,9 +109,9 @@ class VendorController extends Controller
             $users = $vendor->vendorUser()->first();
             return view('dev.vendors.show', compact('vendor', 'users'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->back()->with('toast_error', 'Error loading vendor');
+            return FlashMessage::backError('Error loading vendor');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return FlashMessage::backError('Something went wrong');
         }
     }
 
@@ -113,9 +125,9 @@ class VendorController extends Controller
             $users = $vendor->vendorUser()->first();
             return view('dev.vendors.edit', compact('vendor', 'users'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->back()->with('toast_error', 'Error loading vendor');
+            return FlashMessage::backError('Error loading vendor');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return FlashMessage::backError('Something went wrong');
         }
     }
 
@@ -124,6 +136,7 @@ class VendorController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        $this->authorizationService->requireAdmin();
         try {
             $vendor = Vendor::findOrFail($id);
             $request->validate([
@@ -161,9 +174,9 @@ class VendorController extends Controller
 
             $vendor->vendorUser()->sync($request->user_id);
 
-            return redirect()->route('admin.vendors.index')->with('toast_success', 'Vendor updated successfully');
+            return FlashMessage::success(redirect()->route('admin.vendors.index'), 'Vendor updated successfully');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong' . $th->getMessage());
+            return FlashMessage::backError('Something went wrong' . $th->getMessage());
         }
     }
 
@@ -172,15 +185,16 @@ class VendorController extends Controller
      */
     public function destroy(string $id)
     {
+        $this->authorizationService->requireAdmin();
         try {
             $vendor = Vendor::findOrFail($id);
             if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
                 unlink(public_path('vendors_logo/' . $vendor->logo));
             }
             $vendor->delete();
-            return redirect()->route('admin.vendors.index')->with('toast_success', 'Vendor deleted successfully');
+            return FlashMessage::success(redirect()->route('admin.vendors.index'), 'Vendor deleted successfully');
         } catch (\Throwable $th) {
-            return redirect()->back()->with('toast_error', 'Something went wrong');
+            return FlashMessage::backError('Something went wrong');
         }
     }
 }

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\HasVendorContext;
+use App\Http\Responses\FlashMessage;
+
 use App\Models\User;
 use App\Models\Vendor;
 use App\Models\Vendor\Transaksi;
@@ -18,16 +21,13 @@ use Illuminate\Support\Facades\Log;
 
 class UserDashboardController extends Controller
 {
+    use HasVendorContext;
     public function vendorDashboard()
     {
         try {
-            // Check if user has vendor relationship
-            $user = Auth::user();
-            if (!$user->vendorUser || $user->vendorUser->isEmpty()) {
-                return redirect('/login')->with('error', 'No vendor account associated with this user.');
-            }
-
-            $vendorId = $user->vendorUser->first()->vendor_id;
+            // Enforce vendor context via trait — aborts 403 if not a vendor
+            $vendor = $this->requireVendor();
+            $vendorId = $vendor->id;
 
             // Get counts for dashboard widgets
             $userCount = User::whereHas('vendorUser', function ($query) use ($vendorId) {
@@ -37,18 +37,13 @@ class UserDashboardController extends Controller
                 ->where('id', $vendorId)
                 ->count();
 
-            // Get product count if Produk model exists
-            $productCount = 0;
-            if (class_exists('App\Models\Vendor\Produk')) {
-                $productCount = Produk::count();
-            } else {
-                $productCount = 256; // Placeholder
-            }
+            // Get product count — filtered by vendor_id
+            $productCount = Produk::where('vendor_id', $vendorId)->count();
 
-            // Get bahan (materials) count
-            $bahanCount = Bahan::count();
+            // Get bahan (materials) count — filtered by vendor_id
+            $bahanCount = Bahan::where('vendor_id', $vendorId)->count();
 
-            // Get today's transactions
+            // Get today's transactions — TransaksiModel auto-scopes by vendor_id via TenantModel
             $todayTransactions = Transaksi::whereDate('tanggal_dibuat', Carbon::today())->count();
             $yesterdayTransactions = Transaksi::whereDate('tanggal_dibuat', Carbon::yesterday())->count();
 
@@ -77,7 +72,7 @@ class UserDashboardController extends Controller
             if ($monthlyTransactions > 0) {
                 $averageOrderValue = (Transaksi::whereMonth('tanggal_dibuat', Carbon::now()->month)
                     ->whereYear('tanggal_dibuat', Carbon::now()->year)
-                    ->sum('total_harga') / $monthlyTransactions) / 1000; // Convert to thousands
+                    ->sum('total_harga') / $monthlyTransactions) / 1000;
             }
 
             if ($lastMonthTransactions > 0) {
@@ -103,24 +98,31 @@ class UserDashboardController extends Controller
                 ? round((($averageOrderValue - $lastMonthAverageOrderValue) / $lastMonthAverageOrderValue) * 100)
                 : 0;
 
-            // Get popular products data
+            // Get popular products data — filtered by vendor_id
             $popularProducts = ['labels' => [], 'data' => []];
 
-            if (class_exists('App\Models\Vendor\Produk')) {
-                // Get the most frequently ordered products
-                $topProducts = TransaksiItem::select('produk_id')
-                    ->selectRaw('COUNT(*) as order_count')
-                    ->groupBy('produk_id')
-                    ->orderBy('order_count', 'desc')
-                    ->limit(6)
-                    ->get();
+            // Get the most frequently ordered products for this vendor
+            $topProducts = TransaksiItem::select('produk_id')
+                ->selectRaw('COUNT(*) as order_count')
+                ->whereHas('transaksi', function ($q) use ($vendorId) {
+                    $q->where('vendor_id', $vendorId);
+                })
+                ->groupBy('produk_id')
+                ->orderBy('order_count', 'desc')
+                ->limit(6)
+                ->get();
 
-                foreach ($topProducts as $item) {
-                    $produk = Produk::find($item->produk_id);
-                    if ($produk) {
-                        $popularProducts['labels'][] = $produk->nama_produk ?? 'Product #' . $item->produk_id;
-                        $popularProducts['data'][] = $item->order_count;
-                    }
+            // Batch fetch products to avoid N+1 queries
+            $productIds = $topProducts->pluck('produk_id')->filter()->values()->all();
+            $productsMap = Produk::where('vendor_id', $vendorId)
+                ->whereIn('id', $productIds)
+                ->pluck('nama_produk', 'id')
+                ->toArray();
+
+            foreach ($topProducts as $item) {
+                if (isset($productsMap[$item->produk_id])) {
+                    $popularProducts['labels'][] = $productsMap[$item->produk_id] ?? 'Product #' . $item->produk_id;
+                    $popularProducts['data'][] = $item->order_count;
                 }
             }
 
@@ -146,17 +148,19 @@ class UserDashboardController extends Controller
                 $revenueData['data'][] = round($revenue, 1);
             }
 
-            // Get low stock materials
-            $lowStockMaterials = Bahan::where('stok', '<', 10)
+            // Get low stock materials — filtered by vendor_id
+            $lowStockMaterials = Bahan::where('vendor_id', $vendorId)
+                ->where('stok', '<', 10)
                 ->where('stok', '>', 0)
                 ->orderBy('stok', 'asc')
                 ->limit(5)
                 ->get();
 
-            // Get out of stock materials
-            $outOfStockCount = Bahan::where('stok', '=', 0)->count();
+            // Get out of stock materials — filtered by vendor_id
+            $outOfStockCount = Bahan::where('vendor_id', $vendorId)
+                ->where('stok', '=', 0)->count();
 
-            // Get pending orders count
+            // Get pending orders count — TransaksiModel auto-scopes by vendor_id via TenantModel
             $pendingOrdersCount = Transaksi::where('status', 'pending')->count();
 
             // Get processing orders count
@@ -167,6 +171,8 @@ class UserDashboardController extends Controller
                 ->whereMonth('tanggal_dibuat', Carbon::now()->month)
                 ->whereYear('tanggal_dibuat', Carbon::now()->year)
                 ->count();
+
+            session()->flash('toast_success', 'Selamat datang di dashboard Anda');
 
             return view('dashboard', compact(
                 'userCount',
@@ -188,9 +194,9 @@ class UserDashboardController extends Controller
                 'pendingOrdersCount',
                 'processingOrdersCount',
                 'completedOrdersCount'
-            ))->with('toast_success', 'Welcome to your dashboard');
+            ));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error loading dashboard: ' . $e->getMessage());
+            return FlashMessage::backError('Error loading dashboard: ' . $e->getMessage());
         }
     }
 
@@ -233,7 +239,7 @@ class UserDashboardController extends Controller
                 'highRiskLogs'
             ));
         } catch (\Exception $e) {
-            return redirect()->back()->with('toast_error', 'Error loading dashboard: ' . $e->getMessage());
+            return FlashMessage::backError('Error loading dashboard: ' . $e->getMessage());
         }
     }
 
@@ -345,7 +351,7 @@ class UserDashboardController extends Controller
             ));
         } catch (\Exception $e) {
             Log::error('Error loading lelang dashboard', ['error' => $e->getMessage()]);
-            return redirect()->route('user.dashboard')->with('error', 'Gagal memuat dashboard lelang.');
+            return FlashMessage::error(redirect()->route('user.dashboard'), 'Gagal memuat dashboard lelang.');
         }
     }
 

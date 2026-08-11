@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Responses\FlashMessage;
+
 use App\Http\Controllers\Controller;
 use App\Models\VendorWallet;
 use App\Models\VendorWalletTransaction;
@@ -117,7 +119,7 @@ class WalletManagementController extends Controller
             'frozen_by' => auth()->id()
         ]);
 
-        return redirect()->back()->with('toast_success', 'Wallet frozen successfully');
+        return FlashMessage::backSuccess('Wallet frozen successfully');
     }
 
     /**
@@ -138,7 +140,7 @@ class WalletManagementController extends Controller
             'unfrozen_by' => auth()->id()
         ]);
 
-        return redirect()->back()->with('toast_success', 'Wallet unfrozen successfully');
+        return FlashMessage::backSuccess('Wallet unfrozen successfully');
     }
 
     /**

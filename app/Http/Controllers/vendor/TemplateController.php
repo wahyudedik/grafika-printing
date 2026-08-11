@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\Linktree;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Concerns\HasVendorContext;
+use App\Http\Responses\FlashMessage;
+
+
 
 class TemplateController extends Controller
 {
+    use HasVendorContext;
+
+
     /**
      * Available templates with their preview images and descriptions.
      */
@@ -138,10 +144,10 @@ class TemplateController extends Controller
         try {
             $linktree->update($validated);
 
-            return back()->with('success', "Template {$templateConfig['name']} berhasil diterapkan!");
+            return FlashMessage::backSuccess("Template {$templateConfig['name']} berhasil diterapkan!");
         } catch (\Exception $e) {
             \Log::error('Gagal apply template: ' . $e->getMessage());
-            return back()->with('error', 'Gagal menerapkan template. Silakan coba lagi.');
+            return FlashMessage::backError('Gagal menerapkan template. Silakan coba lagi.');
         }
     }
 
@@ -165,7 +171,7 @@ class TemplateController extends Controller
      */
     private function authorizeLinktree(Linktree $linktree): void
     {
-        $vendor = Auth::user()->vendorUser()->first();
+        $vendor = $this->getVendor();
         if ($linktree->vendor_id !== $vendor->id) {
             abort(403, 'Anda tidak memiliki akses ke linktree ini.');
         }

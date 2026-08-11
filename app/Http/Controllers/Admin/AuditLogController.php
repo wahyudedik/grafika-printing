@@ -94,8 +94,7 @@ class AuditLogController extends Controller
      */
     public function financial()
     {
-        $logs = FinancialAuditLog::financialActions()
-            ->with(['user', 'vendor'])
+        $logs = FinancialAuditLog::financialActions() ->with(['user', 'vendor'])
             ->orderBy('created_at', 'desc')
             ->paginate(50);
 

@@ -8,7 +8,10 @@ use App\Services\AdminFeeService;
 use App\Services\XenditService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Responses\FlashMessage;
 use Illuminate\View\View;
+
 
 class PaymentConfirmationController extends Controller
 {
@@ -26,16 +29,20 @@ class PaymentConfirmationController extends Controller
      */
     public function show(Auction $auction): View|RedirectResponse
     {
+        // Authorization: only auction owner or admin can view payment confirmation
+        if ($auction->user_id !== Auth::id()
+            && !in_array(Auth::user()->usertype, ['dev', 'admin'])
+        ) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat halaman ini.');
+        }
+
         // Get winning bid
         $winningBid = $auction->bids()
-            ->where('is_winning', true)
-            ->with('vendor')
+            ->where('is_winning', true) ->with('vendor')
             ->first();
 
         if (!$winningBid) {
-            return redirect()
-                ->route('auctions.show', $auction)
-                ->with('error', 'No winning bid found for this auction.');
+            return FlashMessage::error(redirect()->route('auctions.show', $auction), 'No winning bid found for this auction.');
         }
 
         // Calculate fees
@@ -56,6 +63,11 @@ class PaymentConfirmationController extends Controller
      */
     public function process(Request $request, Auction $auction): RedirectResponse
     {
+        // Authorization: only auction owner can process payment
+        if ($auction->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk memproses pembayaran ini.');
+        }
+
         $request->validate([
             'payment_method' => 'required|string|in:bank_transfer,credit_card,ewallet,retail_outlet,qris',
             'agree_terms' => 'required|accepted'
@@ -63,14 +75,11 @@ class PaymentConfirmationController extends Controller
 
         // Get winning bid
         $winningBid = $auction->bids()
-            ->where('is_winning', true)
-            ->with('vendor')
+            ->where('is_winning', true) ->with('vendor')
             ->first();
 
         if (!$winningBid) {
-            return redirect()
-                ->route('auctions.show', $auction)
-                ->with('error', 'No winning bid found for this auction.');
+            return FlashMessage::error(redirect()->route('auctions.show', $auction), 'No winning bid found for this auction.');
         }
 
         try {
@@ -141,12 +150,9 @@ class PaymentConfirmationController extends Controller
                 throw new \Exception('Payment link URL not received from Xendit');
             }
 
-            return redirect($paymentLink['invoice_url'])
-                ->with('success', 'Link pembayaran berhasil dibuat! Silakan selesaikan pembayaran Anda.');
+            return FlashMessage::success(redirect($paymentLink['invoice_url']), 'Link pembayaran berhasil dibuat! Silakan selesaikan pembayaran Anda.');
         } catch (\Exception $e) {
-            return redirect()
-                ->route('payments.confirmation', $auction)
-                ->with('error', 'Gagal membuat pembayaran: ' . $e->getMessage());
+            return FlashMessage::error(redirect()->route('payments.confirmation', $auction), 'Gagal membuat pembayaran: ' . $e->getMessage());
         }
     }
 
@@ -155,6 +161,11 @@ class PaymentConfirmationController extends Controller
      */
     public function success(Auction $auction): View
     {
+        // Authorization: only auction owner can view success page
+        if ($auction->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+
         return view('payments.success', compact('auction'));
     }
 
@@ -163,6 +174,11 @@ class PaymentConfirmationController extends Controller
      */
     public function failure(Auction $auction): View
     {
+        // Authorization: only auction owner can view failure page
+        if ($auction->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+
         return view('payments.failure', compact('auction'));
     }
 }

@@ -19,8 +19,7 @@ class LinktreePublicController extends Controller
     public function show(Request $request, string $customUrl)
     {
         $linktree = Linktree::where('custom_url', $customUrl)
-            ->where('is_active', true)
-            ->with(['activeLinks', 'activeSocials', 'activeLinktreeProducts' => function ($query) {
+            ->where('is_active', true) ->with(['activeLinks', 'activeSocials', 'activeLinktreeProducts' => function ($query) {
                 $query->with('produk');
             }])
             ->first();
