@@ -86,9 +86,9 @@
                         @endif
                     </ul>
                     <div class="mt-3">
-                        <x.ui.button type="button" variant="warning" href="{{ route('admin.payments.index') }}">
+                        <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500 px-4 py-2 text-sm">
                             <i class="fas fa-cog mr-1"></i> Manage Payment Issues
-                        </x.ui.button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -146,9 +146,9 @@
                         </div>
                     </div>
                 </div>
-                <x.ui.button type="button" variant="primary" href="{{ route('admin.payments.index') }}">
+                <a href="{{ route('admin.payments.index') }}" class="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-4 py-2 text-sm">
                     <i class="fas fa-cog mr-1"></i> Manage All Issues
-                </x.ui.button>
+                </a>
             </div>
         </div>
 
@@ -224,8 +224,9 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Revenue Chart
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Revenue Chart — lazy load Chart.js
+            const Chart = await window.loadChart();
             const revenueCtx = document.getElementById('revenueChart').getContext('2d');
             new Chart(revenueCtx, {
                 type: 'line',

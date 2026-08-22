@@ -195,9 +195,10 @@ function productsManager() {
             this.editPrice = price;
             this.editDescription = description;
         },
-        init() {
+        async init() {
             const productList = document.getElementById('product-list');
             if (productList) {
+                const Sortable = await window.loadSortable();
                 new Sortable(productList, {
                     handle: '.fa-grip-vertical',
                     animation: 150,

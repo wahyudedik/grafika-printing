@@ -355,7 +355,7 @@
                     <p style="margin: 2px 0;">No. Resi: {{ $transaksi->no_resi }}</p>
                 @endif
                 @if ($transaksi->is_cod)
-                    <p style="margin: 2px 0; color: #dc3545; font-weight: bold;">⚠ COD - Bayar di Tempat</p>
+                    <p style="margin: 2px 0; color: #dc3545; font-weight: bold;"><i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> COD - Bayar di Tempat</p>
                     @if (isset($transaksi->shipping_payment_status) && $transaksi->shipping_payment_status)
                         <p style="margin: 2px 0;">
                             Status Pembayaran Ongkir:

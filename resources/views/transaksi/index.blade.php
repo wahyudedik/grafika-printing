@@ -100,6 +100,9 @@
                                 <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $statusColors[$transaksi->status] }}">
                                     {{ $statusLabels[$transaksi->status] }}
                                 </span>
+                                @if ($transaksi->is_voided)
+                                    <span class="ml-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">VOIDED</span>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaksi->payment_method }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -116,21 +119,18 @@
                                         class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
-                                        class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form id="delete-form-{{ $transaksi->id }}"
-                                        action="{{ route('vendor.transactions.destroy', $transaksi->id) }}"
-                                        method="POST" class="hidden">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                    <button type="button"
-                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        onclick="confirmDelete('delete-form-{{ $transaksi->id }}')" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    @if (!$transaksi->is_voided)
+                                        <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
+                                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endif
+                                    @if ($transaksi->canBeVoided())
+                                        <a href="{{ route('vendor.transactions.void', $transaksi->id) }}"
+                                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Void">
+                                            <i class="fas fa-ban"></i>
+                                        </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -184,6 +184,9 @@
                         </div>
                         <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $statusColors[$transaksi->status] }} ml-2 flex-shrink-0">
                             {{ $statusLabels[$transaksi->status] }}
+                            @if ($transaksi->is_voided)
+                                <span class="ml-1 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-red-100 text-red-800">VOIDED</span>
+                            @endif
                         </span>
                     </div>
                     <div class="flex items-center justify-between text-sm">
@@ -203,15 +206,18 @@
                             class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Lihat">
                             <i class="fas fa-eye text-sm"></i>
                         </a>
-                        <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
-                            class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
-                            <i class="fas fa-edit text-sm"></i>
-                        </a>
-                        <button type="button"
-                            class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            onclick="confirmDelete('delete-form-{{ $transaksi->id }}')" title="Hapus">
-                            <i class="fas fa-trash text-sm"></i>
-                        </button>
+                        @if (!$transaksi->is_voided)
+                            <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
+                                class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edit">
+                                <i class="fas fa-edit text-sm"></i>
+                            </a>
+                        @endif
+                        @if ($transaksi->canBeVoided())
+                            <a href="{{ route('vendor.transactions.void', $transaksi->id) }}"
+                                class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Void">
+                                <i class="fas fa-ban text-sm"></i>
+                            </a>
+                        @endif
                     </div>
                 </div>
             @empty
@@ -227,7 +233,7 @@
 
         @if ($transaksis->hasPages())
             <div class="border-t border-gray-200 px-6 py-4">
-                {{ $transaksis->links('dev.components.pagination') }}
+                {{ $transaksis->links('components.pagination') }}
             </div>
         @endif
     </div>

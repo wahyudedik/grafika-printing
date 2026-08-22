@@ -16,6 +16,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Vendor\EstimasiProduk;
 use App\Http\Concerns\HasVendorContext;
+use App\Services\StockService;
+use App\Services\PriceCalculationService;
+use App\Services\DiscountService;
+use App\Notifications\VendorNewOrderNotification;
+use App\Facades\Tenant;
 
 
 
@@ -23,8 +28,18 @@ class CheckoutController extends Controller
 {
     use HasVendorContext;
 
+    protected StockService $stockService;
+    protected PriceCalculationService $priceCalcService;
+    protected DiscountService $discountService;
 
-    public function process(Request $request)
+    public function __construct(StockService $stockService, PriceCalculationService $priceCalcService, DiscountService $discountService)
+    {
+        $this->stockService = $stockService;
+        $this->priceCalcService = $priceCalcService;
+        $this->discountService = $discountService;
+    }
+
+    public function processCheckout(Request $request)
     {
         // Dapatkan vendor dari user yang sedang login
         $vendor = $this->requireVendor();
@@ -33,7 +48,8 @@ class CheckoutController extends Controller
             'pelanggan_id' => 'required|exists:pelanggans,id',
             'payment_method' => 'required|in:cash,transfer,qris',
             'payment_amount' => 'nullable|numeric', // Tambahkan validasi untuk jumlah pembayaran
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
+            'coupon_code' => 'nullable|string|max:50',
         ]);
 
         DB::beginTransaction();
@@ -44,6 +60,17 @@ class CheckoutController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Your cart is empty. Please add items before checkout.'
+                ], 400);
+            }
+
+            // Validate stock using StockService before creating transaction
+            try {
+                $this->stockService->validateStock($cartItems);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
                 ], 400);
             }
 
@@ -60,24 +87,44 @@ class CheckoutController extends Controller
             $startTime = $latestPending ? Carbon::parse($latestPending->estimasi_selesai) : now();
             $estimatedCompletion = $startTime->addMinutes($totalTime);
 
-            // Hitung total harga
-            $totalAmount = collect($cartItems)->sum('total_price');
+            // Hitung total harga menggunakan PriceCalculationService
+            $cartSummary = $this->priceCalcService->calculateCartTotal($cartItems);
+            $totalAmount = $cartSummary['subtotal'];
+            $totalHpp = $cartSummary['hpp_total'];
+            $totalLaba = $cartSummary['profit'];
+
+            // Apply coupon discount if provided
+            $discountData = null;
+            $discountAmount = 0;
+            if (!empty($validatedData['coupon_code'])) {
+                $discountData = $this->discountService->validateCoupon($validatedData['coupon_code'], $totalAmount);
+                if ($discountData['valid']) {
+                    $discountAmount = $discountData['discount_amount'];
+                }
+            }
+
+            // Total setelah diskon
+            $totalAfterDiscount = max(0, $totalAmount - $discountAmount);
 
             // Hitung jumlah terbayar dan kembalian
             $paymentAmount = $validatedData['payment_method'] === 'cash' && isset($validatedData['payment_amount'])
                 ? (float) $validatedData['payment_amount']
-                : $totalAmount;
+                : $totalAfterDiscount;
 
-            $changeAmount = max(0, $paymentAmount - $totalAmount);
+            $changeAmount = max(0, $paymentAmount - $totalAfterDiscount);
 
             $transaksi = Transaksi::create([
                 'vendor_id' => $vendor->id,
                 'kode' => 'TRX-' . date('Ymd') . '-' . rand(1000, 9999),
                 'user_id' => Auth::id(),
                 'pelanggan_id' => $validatedData['pelanggan_id'],
-                'total_harga' => $totalAmount,
-                'terbayar' => $paymentAmount, // Tambahkan jumlah terbayar
-                'kembali' => $changeAmount, // Tambahkan jumlah kembalian
+                'total_harga' => $totalAfterDiscount,
+                'diskon_total' => $discountAmount,
+                'total_sebelum_diskon' => $totalAmount,
+                'hpp_total' => $totalHpp,
+                'laba_total' => $totalLaba - $discountAmount,
+                'terbayar' => $paymentAmount,
+                'kembali' => $changeAmount,
                 'status' => 'pending',
                 'payment_method' => $validatedData['payment_method'],
                 'estimasi_selesai' => $estimatedCompletion,
@@ -86,37 +133,68 @@ class CheckoutController extends Controller
                 'catatan' => $validatedData['catatan']
             ]);
 
+            // Record discount to transaksi_discounts table
+            if ($discountData && $discountData['valid'] && $discountAmount > 0) {
+                $this->discountService->applyDiscountToTransaction(
+                    $transaksi,
+                    $discountData,
+                    Auth::user()
+                );
+            }
+
             foreach ($cartItems as $item) {
+                // Bug 4 Fix: Validasi quantity untuk mencegah division by zero
+                if ($item['quantity'] <= 0) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Jumlah item tidak valid (quantity harus lebih dari 0).'
+                    ], 400);
+                }
+
+                // Hitung HPP per item menggunakan PriceCalculationService
+                $itemHpp = $this->priceCalcService->calculateHppTotal(
+                    $item['specifications'] ?? [],
+                    $item['quantity']
+                );
+                $hppTotalItem = $itemHpp['total_hpp'];
+                $hargaSatuan = $item['total_price'] / $item['quantity'];
+                $labaItem = ($item['total_price']) - $hppTotalItem;
+
                 $transaksiItem = $transaksi->transaksiItem()->create([
                     'vendor_id' => $vendor->id,
                     'produk_id' => $item['product_id'],
                     'kuantitas' => $item['quantity'],
-                    'harga_satuan' => $item['total_price'] / $item['quantity']
+                    'harga_satuan' => $hargaSatuan,
+                    'hpp_satuan' => $item['quantity'] > 0 ? $hppTotalItem / $item['quantity'] : 0,
+                    'hpp_total' => $hppTotalItem,
+                    'laba' => $labaItem,
                 ]);
 
                 foreach ($item['specifications'] as $specId => $spec) {
+                    // Hitung HPP per spesifikasi
+                    $bahan = \App\Models\Vendor\Bahan::find($spec['bahan_id'] ?? null);
+                    $hppPrice = 0;
+                    if ($bahan) {
+                        $hppPrice = ($spec['input_type'] ?? '') === 'number'
+                            ? (float) $bahan->hpp * (float) ($spec['value'] ?? 0) * $item['quantity']
+                            : (float) $bahan->hpp * $item['quantity'];
+                    }
+
                     $transaksiItem->transaksiItemSpecifications()->create([
                         'vendor_id' => $vendor->id,
                         'spesifikasi_produk_id' => $specId,
                         'bahan_id' => $spec['bahan_id'],
-                        'value' => $spec['value'],  // Ubah dari 'nilai_spesifikasi' menjadi 'value'
+                        'value' => $spec['value'],
                         'input_type' => $spec['input_type'],
-                        'price' => $spec['price']
+                        'price' => $spec['price'],
+                        'hpp_price' => $hppPrice,
                     ]);
-
-                    // Update stock
-                    $bahan = Bahan::find($spec['bahan_id']);
-                    if ($bahan) {
-                        if ($spec['input_type'] === 'number') {
-                            // PERBAIKAN: Pastikan nilai desimal dipertahankan
-                            $bahan->decrement('stok', (float)$spec['value'] * $item['quantity']);
-                        } else {
-                            $bahan->decrement('stok', $item['quantity']);
-                        }
-                        $bahan->checkStockLevel();
-                    }
                 }
             }
+
+            // Decrement stock via StockService after transaction items are created
+            $this->stockService->decrementStock($transaksi);
 
             // Update customer's last transaction timestamp
             $pelanggan = Pelanggan::find($validatedData['pelanggan_id']);
@@ -128,6 +206,21 @@ class CheckoutController extends Controller
 
             DB::commit();
             session()->forget('cart');
+            session()->forget('applied_coupon');
+
+            // Send notification to vendor for cash payments (online payments get notified via webhook)
+            if ($validatedData['payment_method'] === 'cash') {
+                $vendorObj = Tenant::getVendorId() ? \App\Models\Vendor::find(Tenant::getVendorId()) : null;
+                if ($vendorObj) {
+                    $vendorObj->notify(new VendorNewOrderNotification($transaksi));
+                }
+            }
+
+            // Check low stock after order
+            $lowStockItems = $this->stockService->checkLowStock($vendor->id);
+            if ($lowStockItems->isNotEmpty()) {
+                $this->stockService->notifyLowStock($vendor, $lowStockItems);
+            }
 
             // Redirect to payment options instead of invoice
             return response()->json([
@@ -135,7 +228,7 @@ class CheckoutController extends Controller
                 'paymentUrl' => route('vendor.pos.payment.options', [
                     'transaksi' => $transaksi->id
                 ]),
-                'invoiceUrl' => route('vendor.pos.invoice.show', [
+                'invoiceUrl' => route('vendor.pos.invoice', [
                     'transaksi' => $transaksi->id
                 ]),
                 'downloadUrl' => route('vendor.pos.invoice.download', [
@@ -228,6 +321,52 @@ class CheckoutController extends Controller
             return FlashMessage::backError('Failed to create customer: ' . $e->getMessage())
                 ->withInput();
         }
+    }
+
+    /**
+     * AJAX: Validate and apply coupon code
+     */
+    public function applyCoupon(Request $request)
+    {
+        $vendor = $this->requireVendor();
+
+        $validated = $request->validate([
+            'coupon_code' => 'required|string|max:50',
+        ]);
+
+        $cartItems = session('cart', []);
+        if (empty($cartItems)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Keranjang kosong. Tambahkan item terlebih dahulu.',
+            ], 400);
+        }
+
+        $cartSummary = $this->priceCalcService->calculateCartTotal($cartItems);
+        $subtotal = $cartSummary['subtotal'];
+
+        $result = $this->discountService->validateCoupon($validated['coupon_code'], $subtotal);
+
+        if ($result['valid']) {
+            session(['applied_coupon' => [
+                'code' => $result['coupon']->code,
+                'name' => $result['coupon']->name,
+                'type' => $result['coupon']->type,
+                'value' => $result['coupon']->value,
+                'discount_amount' => $result['discount_amount'],
+            ]]);
+        }
+
+        return response()->json($result);
+    }
+
+    /**
+     * Remove applied coupon from session
+     */
+    public function removeCoupon()
+    {
+        session()->forget('applied_coupon');
+        return response()->json(['success' => true, 'message' => 'Kupon berhasil dihapus.']);
     }
 
     private function calculateEstimatedCompletion($cartItems)

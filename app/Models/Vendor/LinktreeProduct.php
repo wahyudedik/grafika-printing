@@ -96,6 +96,91 @@ class LinktreeProduct extends Model
     }
 
     /**
+     * Get ringkasan spesifikasi produk
+     * Contoh: "Bahan: Kertas Art Carton | Ukuran: A4 | Finishing: Laminasi"
+     */
+    public function getSpesifikasiSummaryAttribute(): string
+    {
+        if (!$this->produk) return '-';
+
+        $specs = $this->produk->spesifikasiProduk()->with(['spesifikasi', 'bahanSpesifikasiProduk'])->get();
+
+        if ($specs->isEmpty()) return '-';
+
+        return $specs->map(function ($spec) {
+            $nama = $spec->spesifikasi->nama_spesifikasi ?? '-';
+            $pilihan = $spec->pilihan ?? [];
+            $value = is_array($pilihan) && count($pilihan) > 0
+                ? implode(', ', $pilihan)
+                : '-';
+
+            return "{$nama}: {$value}";
+        })->implode(' | ');
+    }
+
+    /**
+     * Get nama kategori dari produk
+     */
+    public function getKategoriNameAttribute(): string
+    {
+        return $this->produk?->kategori?->nama_kategori ?? '-';
+    }
+
+    /**
+     * Get daftar bahan yang tersedia untuk produk ini (collection of nama_bahan)
+     */
+    public function getBahansListAttribute()
+    {
+        if (!$this->produk) return collect();
+
+        $bahans = collect();
+        $this->produk->spesifikasiProduk()->with('bahanSpesifikasiProduk')->each(function ($spec) use (&$bahans) {
+            $spec->bahanSpesifikasiProduk->each(function ($bahan) use (&$bahans) {
+                $bahans->push($bahan->nama_bahan);
+            });
+        });
+
+        return $bahans->unique()->values();
+    }
+
+    /**
+     * Get array lengkap spesifikasi dengan nama, tipe_input, satuan, pilihan
+     */
+    public function getFullSpecsAttribute(): array
+    {
+        if (!$this->produk) return [];
+
+        return $this->produk->spesifikasiProduk()->with(['spesifikasi', 'bahanSpesifikasiProduk'])->get()
+            ->map(function ($spec) {
+                return [
+                    'nama' => $spec->spesifikasi->nama_spesifikasi ?? '-',
+                    'tipe_input' => $spec->spesifikasi->tipe_input ?? '-',
+                    'satuan' => $spec->spesifikasi->satuan ?? null,
+                    'pilihan' => $spec->pilihan ?? [],
+                    'wajib_diisi' => $spec->wajib_diisi ?? false,
+                    'bahans' => $spec->bahanSpesifikasiProduk->map(fn($b) => [
+                        'id' => $b->id,
+                        'nama' => $b->nama_bahan,
+                        'hpp' => $b->hpp,
+                    ])->toArray(),
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Load spesifikasiProduk dengan relasi spesifikasi dan bahanSpesifikasiProduk
+     */
+    public function loadFullSpecs(): self
+    {
+        if ($this->produk) {
+            $this->produk->load('spesifikasiProduk.spesifikasi', 'spesifikasiProduk.bahanSpesifikasiProduk');
+        }
+
+        return $this;
+    }
+
+    /**
      * Scope: hanya produk aktif
      */
     public function scopeActive($query)

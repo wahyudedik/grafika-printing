@@ -196,8 +196,9 @@ class AdminFeeController extends Controller
         }
 
         $transactions = $query->orderBy('created_at', 'desc')->paginate(20);
+        $vendors = \App\Models\Vendor::select('id', 'name')->orderBy('name')->get();
 
-        return view('admin.admin-fees.transactions', compact('transactions'));
+        return view('admin.admin-fees.transactions', compact('transactions', 'vendors'));
     }
 
     /**

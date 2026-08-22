@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vendor\Linktree;
+use App\Models\Vendor\LinktreeOrder;
+use App\Models\Vendor\LinktreeProduct;
 use App\Models\LinktreeAbTest;
 use App\Models\LinktreeAbTestResult;
 use App\Models\ServiceConfig;
@@ -19,8 +21,14 @@ class LinktreePublicController extends Controller
     public function show(Request $request, string $customUrl)
     {
         $linktree = Linktree::where('custom_url', $customUrl)
-            ->where('is_active', true) ->with(['activeLinks', 'activeSocials', 'activeLinktreeProducts' => function ($query) {
-                $query->with('produk');
+            ->where('is_active', true)
+            ->with(['activeLinks', 'activeSocials'])
+            ->with(['activeLinktreeProducts' => function ($query) {
+                $query->with(['produk' => function($q) {
+                    $q->with(['spesifikasiProduk' => function($q2) {
+                        $q2->with(['spesifikasi', 'bahanSpesifikasiProduk']);
+                    }, 'kategori']);
+                }]);
             }])
             ->first();
 
@@ -223,5 +231,114 @@ class LinktreePublicController extends Controller
             $apiKey = config('services.xendit.api_key');
             return !empty($apiKey) && $apiKey !== 'your-xendit-api-key';
         }
+    }
+
+    /**
+     * Show product detail for modal (JSON API).
+     */
+    public function showProduct(string $customUrl, string $linktreeProduct)
+    {
+        $linktree = Linktree::where('custom_url', $customUrl)->first();
+        if (!$linktree) {
+            abort(404, 'Linktree tidak ditemukan.');
+        }
+
+        $product = LinktreeProduct::where('id', $linktreeProduct)
+            ->where('linktree_id', $linktree->id)
+            ->first();
+
+        if (!$product) {
+            abort(404, 'Produk tidak ditemukan.');
+        }
+
+        // Eager load full specs
+        $product->load(['produk' => function($q) {
+            $q->with(['spesifikasiProduk' => function($q2) {
+                $q2->with(['spesifikasi', 'bahanSpesifikasiProduk']);
+            }, 'kategori']);
+        }]);
+
+        return response()->json([
+            'product' => $product,
+            'specs' => $product->full_specs,
+            'bahans' => $product->bahans_list,
+        ]);
+    }
+
+    /**
+     * Store a new order from linktree product.
+     */
+    public function storeOrder(Request $request, string $customUrl, string $linktreeProduct)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'nullable|email|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'selected_specs' => 'required|array|min:1',
+            'quantity' => 'required|integer|min:1',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        $linktree = Linktree::where('custom_url', $customUrl)->first();
+        if (!$linktree) {
+            return back()->withErrors(['error' => 'Linktree tidak ditemukan.']);
+        }
+
+        $product = LinktreeProduct::where('id', $linktreeProduct)
+            ->where('linktree_id', $linktree->id)
+            ->first();
+
+        if (!$product || !$product->is_active) {
+            return back()->withErrors(['error' => 'Produk tidak tersedia.']);
+        }
+
+        $order = new LinktreeOrder();
+        $order->vendor_id = $linktree->vendor_id;
+        $order->fill([
+            'linktree_id' => $linktree->id,
+            'linktree_product_id' => $product->id,
+            'produk_id' => $product->produk_id,
+            'user_id' => auth()->id(),
+            'customer_name' => $request->customer_name,
+            'customer_email' => $request->customer_email,
+            'customer_phone' => $request->customer_phone,
+            'selected_specs' => $request->selected_specs,
+            'quantity' => $request->quantity,
+            'notes' => $request->notes,
+            'status' => 'pending',
+            'payment_status' => 'unpaid',
+        ]);
+        $order->save();
+
+        // Generate WhatsApp message
+        $order->whatsapp_message = $order->generateWhatsAppMessage();
+        $order->save();
+
+        return redirect()->route('linktree.order.success', [
+            'customUrl' => $linktree->custom_url,
+            'uuid' => $order->uuid,
+        ]);
+    }
+
+    /**
+     * Order success page with WhatsApp button.
+     */
+    public function orderSuccess(string $customUrl, string $uuid)
+    {
+        $linktree = Linktree::where('custom_url', $customUrl)->first();
+        if (!$linktree) {
+            abort(404, 'Linktree tidak ditemukan.');
+        }
+
+        $order = LinktreeOrder::where('uuid', $uuid)
+            ->where('linktree_id', $linktree->id)
+            ->with(['produk', 'linktreeProduct'])
+            ->firstOrFail();
+
+        return view('linktree.order-success', [
+            'linktree' => $linktree,
+            'order' => $order,
+            'whatsappUrl' => $order->getWhatsAppUrl(),
+        ]);
     }
 }

@@ -28,14 +28,6 @@ export default {
                     900: '#1e3a8a',
                 },
             },
-            spacing: {
-                '0.25rem': '0.25rem',
-                '0.5rem': '0.5rem',
-                '0.75rem': '0.75rem',
-                '1rem': '1rem',
-                '1.25rem': '1.25rem',
-                '1.5rem': '1.5rem',
-            },
             screens: {
                 'xs': '475px',
             },

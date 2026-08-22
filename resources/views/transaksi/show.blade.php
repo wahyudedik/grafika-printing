@@ -4,12 +4,25 @@
 @section('content')
     <div class="bg-white rounded-xl shadow-sm">
         <div class="border-b border-gray-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <h3 class="text-lg font-semibold text-gray-900">Detail Transaksi: {{ $transaksi->kode }}</h3>
+            <h3 class="text-lg font-semibold text-gray-900">
+                Detail Transaksi: {{ $transaksi->kode }}
+                @if ($transaksi->is_voided)
+                    <span class="ml-2 px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">VOIDED</span>
+                @endif
+            </h3>
             <div class="flex items-center gap-2">
-                <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
+                @if ($transaksi->canBeVoided())
+                    <a href="{{ route('vendor.transactions.void', $transaksi->id) }}"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                        <i class="fas fa-ban"></i> Void
+                    </a>
+                @endif
+                @if (!$transaksi->is_voided)
+                    <a href="{{ route('vendor.transactions.edit', $transaksi->id) }}"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                @endif
                 <a href="{{ route('vendor.transactions.index') }}"
                     class="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                     <i class="fas fa-arrow-left"></i> Kembali
@@ -69,6 +82,42 @@
                                 <dt class="text-sm text-gray-500">Metode Pembayaran</dt>
                                 <dd class="text-sm text-gray-900">{{ $transaksi->payment_method }}</dd>
                             </div>
+                            @if ($transaksi->is_voided)
+                                <div class="border-t border-red-200 pt-3 mt-3 space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <dt class="text-sm font-medium text-red-600">Status Void</dt>
+                                        <dd>
+                                            <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                                {{ $transaksi->void_status_label }}
+                                            </span>
+                                        </dd>
+                                    </div>
+                                    @if ($transaksi->void_reason)
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm text-gray-500">Alasan Void</dt>
+                                            <dd class="text-sm text-gray-900 text-right max-w-[200px]">{{ $transaksi->void_reason }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($transaksi->voided_at)
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm text-gray-500">Waktu Void</dt>
+                                            <dd class="text-sm text-gray-900">{{ $transaksi->voided_at->format('d/m/Y H:i') }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($transaksi->refund_amount)
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm text-gray-500">Jumlah Refund</dt>
+                                            <dd class="text-sm font-medium text-amber-600">Rp {{ number_format($transaksi->refund_amount, 0, ',', '.') }}</dd>
+                                        </div>
+                                    @endif
+                                    @if ($transaksi->refund_id)
+                                        <div class="flex justify-between">
+                                            <dt class="text-sm text-gray-500">Refund ID</dt>
+                                            <dd class="text-xs text-gray-500 font-mono">{{ $transaksi->refund_id }}</dd>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
                             <div class="flex justify-between">
                                 <dt class="text-sm text-gray-500">Estimasi Selesai</dt>
                                 <dd class="text-sm text-gray-900">{{ $transaksi->estimasi_selesai->format('d/m/Y') }}</dd>
@@ -76,6 +125,16 @@
                             <div class="border-t border-gray-200 pt-3 flex justify-between">
                                 <dt class="text-sm font-medium text-gray-900">Total Harga</dt>
                                 <dd class="text-sm font-bold text-gray-900">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-500">Total HPP</dt>
+                                <dd class="text-sm text-gray-900">Rp {{ number_format($transaksi->hpp_total ?? 0, 0, ',', '.') }}</dd>
+                            </div>
+                            <div class="flex justify-between">
+                                <dt class="text-sm text-gray-500">Laba</dt>
+                                <dd class="text-sm font-medium {{ ($transaksi->laba_total ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    Rp {{ number_format($transaksi->laba_total ?? 0, 0, ',', '.') }}
+                                </dd>
                             </div>
                             <div class="flex justify-between">
                                 <dt class="text-sm text-gray-500">Terbayar</dt>
@@ -126,6 +185,8 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kuantitas</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Satuan</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">HPP</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Laba</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -154,6 +215,12 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         Rp {{ number_format($item->kuantitas * $item->harga_satuan, 0, ',', '.') }}
                                     </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                        Rp {{ number_format($item->hpp_total ?? 0, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium {{ ($item->laba ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                        Rp {{ number_format($item->laba ?? 0, 0, ',', '.') }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -161,6 +228,10 @@
                             <tr>
                                 <th colspan="3" class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Total:</th>
                                 <th class="px-6 py-3 text-sm font-bold text-gray-900">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</th>
+                                <th class="px-6 py-3 text-sm text-gray-500 text-right">Rp {{ number_format($transaksi->hpp_total ?? 0, 0, ',', '.') }}</th>
+                                <th class="px-6 py-3 text-sm text-right font-bold {{ ($transaksi->laba_total ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    Rp {{ number_format($transaksi->laba_total ?? 0, 0, ',', '.') }}
+                                </th>
                             </tr>
                         </tfoot>
                     </table>
@@ -225,11 +296,12 @@
                 @endif
             </div>
             <div class="flex items-center gap-2">
-                <button type="button"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                    onclick="confirmDelete({{ $transaksi->id }})">
-                    <i class="fas fa-trash"></i> Hapus
-                </button>
+                @if ($transaksi->canBeVoided())
+                    <a href="{{ route('vendor.transactions.void', $transaksi->id) }}"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors">
+                        <i class="fas fa-ban"></i> Void
+                    </a>
+                @endif
                 <a href="{{ route('vendor.transactions.invoice', $transaksi->id) }}" target="_blank"
                     class="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                     <i class="fas fa-file-invoice"></i> Cetak Invoice

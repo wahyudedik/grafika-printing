@@ -428,7 +428,7 @@ class PosFlowTest extends TestCase
         $casts = $produk->getCasts();
 
         $this->assertEquals('array', $casts['gambar']);
-        $this->assertEquals('decimal:2', $casts['harga_dasar']);
+        $this->assertEquals('decimal:2', $casts['harga_jual']);
     }
 
     public function test_produk_belongs_to_kategori(): void

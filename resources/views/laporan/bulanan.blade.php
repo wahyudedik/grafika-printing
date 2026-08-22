@@ -152,7 +152,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", async function() {
             const penjualanHarianData = {
                 labels: [
                     @foreach (range(1, $selectedMonth->daysInMonth) as $day)
@@ -211,6 +211,7 @@
                 }
             };
 
+            const ApexCharts = await window.loadApexCharts();
             const chart = new ApexCharts(document.querySelector("#chart-penjualan-harian"), options);
             chart.render();
         });

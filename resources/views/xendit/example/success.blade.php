@@ -70,16 +70,10 @@
 
                 <!-- Action Buttons -->
                 <div class="space-y-3">
-                    <a href="{{ route('xendit.example.show-payment', $payment->external_id) }}"
-                        class="block w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition duration-200">
-                        <i class="fas fa-receipt mr-2"></i>
-                        Lihat Detail Pembayaran
-                    </a>
-
-                    <a href="{{ route('xendit.example.index') }}"
+                    <a href="{{ route('user.dashboard') }}"
                         class="block w-full bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition duration-200">
                         <i class="fas fa-home mr-2"></i>
-                        Kembali ke Halaman Utama
+                        Kembali ke Dashboard
                     </a>
                 </div>
             </div>

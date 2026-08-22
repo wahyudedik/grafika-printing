@@ -45,8 +45,8 @@
                     <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" name="date_to" value="{{ request('date_to') }}">
                 </div>
                 <div class="sm:w-48 flex items-end gap-2">
-                    <x-ui.button type="submit" variant="primary" class="flex-1">Filter</x-ui.button>
-                    <x-ui.button variant="outline" :href="route('admin.withdrawals.index')" class="flex-1 text-center">Reset</x-ui.button>
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Filter</button>
+                    <a href="{{ route('admin.withdrawals.index') }}" class="flex-1 text-center inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">Reset</a>
                 </div>
             </form>
         </div>
@@ -56,10 +56,10 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Daftar Penarikan</h3>
-            <x-ui.button variant="outline-info" :href="route('admin.withdrawals.statistics')" size="sm">
+            <a href="{{ route('admin.withdrawals.statistics') }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                 <i class="fas fa-chart-bar mr-1.5 text-xs"></i>
                 Statistik
-            </x-ui.button>
+            </a>
         </div>
 
         @if($withdrawals->count() > 0)

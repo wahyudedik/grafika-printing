@@ -34,6 +34,8 @@ return [
     'rajaongkir' => [
         'api_key' => env('RAJAONGKIR_API_KEY'),
         'base_url' => env('RAJAONGKIR_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
+        'delivery_api_key' => env('RAJAONGKIR_DELIVERY_API_KEY'),
+        'delivery_base_url' => env('RAJAONGKIR_DELIVERY_BASE_URL', 'https://rajaongkir.komerce.id/api/v1'),
     ],
 
     'xendit' => [

@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Pembayaran Tunai - ' . $transaksi->kode)
 
@@ -25,7 +25,7 @@
                         </div>
                         <div>
                             <p><span class="text-gray-600">Total:</span> <span class="font-bold text-primary">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span></p>
-                            <p><span class="text-gray-600">Item:</span> <span class="font-medium">{{ $transaksi->transaksiItems->count() }} item</span></p>
+                            <p><span class="text-gray-600">Item:</span> <span class="font-medium">{{ $transaksi->transaksiItem->count() }} item</span></p>
                         </div>
                     </div>
                 </div>

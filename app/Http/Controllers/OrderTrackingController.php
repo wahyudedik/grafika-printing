@@ -11,11 +11,15 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Concerns\HasVendorContext;
 use App\Http\Responses\FlashMessage;
+use Illuminate\Support\Facades\Log;
 
 
 class OrderTrackingController extends Controller
 {
+    use HasVendorContext;
+
     protected $orderTrackingService;
 
     public function __construct(OrderTrackingService $orderTrackingService)
@@ -63,7 +67,7 @@ class OrderTrackingController extends Controller
             abort(403, 'Vendor access required');
         }
 
-        $orderTrackings = OrderTracking::where('vendor_id', $vendor->id) ->with(['auction', 'user'])
+        $orderTrackings = OrderTracking::where('vendor_id', $vendor->id) ->with(['auction.transaksi', 'user'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -176,6 +180,60 @@ class OrderTrackingController extends Controller
             'is_mediation_requested' => $orderTracking->is_mediation_requested,
             'mediation_status' => $orderTracking->mediation_status,
             'updated_at' => $orderTracking->updated_at
+        ]);
+    }
+
+    /**
+     * Save shipping data for an order (vendor)
+     */
+    public function saveShippingData(Request $request, OrderTracking $orderTracking)
+    {
+        $vendor = $this->requireVendor();
+        if (!$vendor || $orderTracking->vendor_id !== $vendor->id) {
+            abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
+        }
+
+        $validated = $request->validate([
+            'kurir' => 'required|string|in:jne,tiki,pos,jnt,sicepat,ninja,lion',
+            'ongkir' => 'required|numeric|min:0',
+            'alamat_pengiriman' => 'required|string|max:500',
+            'is_cod' => 'sometimes|boolean',
+        ]);
+
+        // Get related transaksi via auction relationship
+        $transaksi = $orderTracking->auction->transaksi ?? null;
+        if (!$transaksi) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaksi tidak ditemukan untuk pesanan ini.'
+            ], 404);
+        }
+
+        $transaksi->update([
+            'kurir' => $validated['kurir'],
+            'ongkir' => $validated['ongkir'],
+            'alamat_pengiriman' => $validated['alamat_pengiriman'],
+            'is_cod' => $validated['is_cod'] ?? false,
+        ]);
+
+        Log::info('Shipping data saved from order tracking', [
+            'order_tracking_id' => $orderTracking->id,
+            'transaksi_id' => $transaksi->id,
+            'vendor_id' => $vendor->id,
+            'kurir' => $validated['kurir'],
+            'ongkir' => $validated['ongkir'],
+            'is_cod' => $validated['is_cod'] ?? false,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data pengiriman berhasil disimpan.',
+            'data' => [
+                'kurir' => $transaksi->kurir,
+                'ongkir' => $transaksi->ongkir,
+                'alamat_pengiriman' => $transaksi->alamat_pengiriman,
+                'is_cod' => $transaksi->is_cod,
+            ]
         ]);
     }
 }

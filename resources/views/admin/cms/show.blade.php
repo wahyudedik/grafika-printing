@@ -10,18 +10,19 @@
                 {{ $categoryName }} Settings
             </h1>
             <div class="flex gap-2">
-                <x-ui.button variant="outline" :href="route('admin.cms.index')">
+                <a href="{{ route('admin.cms.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-arrow-left mr-2"></i>Back to CMS
-                </x-ui.button>
-                <x-ui.button variant="primary" @click="showAddModal = true">
+                </a>
+                <button @click="showAddModal = true" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-plus mr-2"></i>Add Setting
-                </x-ui.button>
+                </button>
             </div>
         </div>
 
         @if ($settings->count() > 0)
             <form action="{{ route('admin.cms.update') }}" method="POST" id="cmsForm">
                 @csrf
+                @method('PUT')
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach ($settings as $setting)
                         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -84,9 +85,9 @@
                     @endforeach
                 </div>
                 <div class="text-center mt-6">
-                    <x-ui.button variant="success" type="submit">
+                    <button type="submit" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-save mr-2"></i>Save All Changes
-                    </x-ui.button>
+                    </button>
                 </div>
             </form>
         @else
@@ -96,9 +97,9 @@
                 </div>
                 <h4 class="text-gray-500 mb-2">No settings configured</h4>
                 <p class="text-gray-400 text-sm mb-4">Start by adding your first setting for this category.</p>
-                <x-ui.button variant="primary" @click="showAddModal = true">
+                <button @click="showAddModal = true" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-plus mr-2"></i>Add First Setting
-                </x-ui.button>
+                </button>
             </div>
         @endif
     </div>
@@ -168,8 +169,8 @@
                         <input type="hidden" name="category" value="{{ $category }}">
                     </div>
                     <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                        <x-ui.button variant="outline" @click="showAddModal = false">Cancel</x-ui.button>
-                        <x-ui.button variant="primary" type="submit">Create Setting</x-ui.button>
+                        <button @click="showAddModal = false" type="button" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">Cancel</button>
+                        <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Create Setting</button>
                     </div>
                 </form>
             </div>
@@ -177,7 +178,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
         // Auto-generate key from label
         document.getElementById('label').addEventListener('input', function() {
@@ -267,4 +268,4 @@
             }
         }
     </script>
-@endsection
+@endpush

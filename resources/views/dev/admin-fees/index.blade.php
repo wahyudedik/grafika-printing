@@ -6,7 +6,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h1 class="text-2xl font-bold text-gray-900">Pengaturan Biaya Admin</h1>
         <div class="flex flex-wrap gap-2">
-            <x.ui.button href="{{ route('admin.admin-fees.preview') }}" variant="outline-primary">
+            <x.ui.button href="{{ route('admin.admin-fees.preview-page') }}" variant="outline-primary">
                 <i class="fas fa-eye mr-1"></i>Preview Biaya
             </x.ui.button>
             <x.ui.button href="{{ route('admin.admin-fees.transactions') }}" variant="outline-info">

@@ -128,7 +128,7 @@
                 @elseif($payment->status === 'paid')
                     <div class="text-center">
                         <div class="text-green-600 text-lg font-semibold mb-4">
-                            ✅ Pembayaran Berhasil!
+                            <i class="fas fa-check-circle text-green-500"></i> Pembayaran Berhasil!
                         </div>
                         <p class="text-gray-600 mb-4">
                             Pembayaran Anda berhasil diproses. Anda akan menerima email konfirmasi segera.
@@ -147,7 +147,7 @@
                 @elseif($payment->status === 'expired')
                     <div class="text-center">
                         <div class="text-red-600 text-lg font-semibold mb-4">
-                            ❌ Pembayaran Kedaluwarsa
+                            <i class="fas fa-times-circle text-red-500"></i> Pembayaran Kedaluwarsa
                         </div>
                         <p class="text-gray-600 mb-4">
                             Tautan pembayaran ini sudah kedaluwarsa. Silakan buat pembayaran baru untuk melanjutkan.

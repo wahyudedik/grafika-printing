@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Vendor;
 
+use App\Facades\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\Linktree;
 use App\Models\Vendor\LinktreeLink;
 use App\Models\Vendor\LinktreeSocial;
+use App\Models\Vendor\LinktreeOrder;
 use App\Models\Vendor\LinktreeProduct;
 use App\Models\Vendor\Produk;
 use App\Http\Requests\StoreLinktreeRequest;
@@ -827,6 +829,29 @@ class LinktreeController extends Controller
     // =========================================================================
 
     /**
+     * Authorize that the current vendor owns this linktree.
+     * Aborts with 403 if the linktree does not belong to the current vendor.
+     */
+    /**
+     * Get the current vendor's first linktree.
+     */
+    private function getLinktree()
+    {
+        $vendor = $this->getVendor();
+
+        return Linktree::where('vendor_id', $vendor->id)->first();
+    }
+
+    private function authorizeLinktree(Linktree $linktree = null): void
+    {
+        $linktree = $linktree ?? $this->getLinktree();
+
+        if (!$linktree || !$this->isOwnedByCurrentVendor($linktree)) {
+            abort(403, 'Akses ditolak: linktree ini bukan milik vendor Anda.');
+        }
+    }
+
+    /**
      * Authorize that the link belongs to the linktree.
      */
     private function authorizeLinkOwned(LinktreeLink $link, Linktree $linktree): void
@@ -889,5 +914,91 @@ class LinktreeController extends Controller
         ];
 
         return $colors[$template][$type] ?? $colors['minimal'][$type];
+    }
+
+    // =========================================================================
+    // ORDER MANAGEMENT
+    // =========================================================================
+
+    /**
+     * List all orders for the vendor's linktree.
+     */
+    public function orders()
+    {
+        $this->authorizeLinktree();
+
+        $orders = LinktreeOrder::where('vendor_id', Tenant::getVendorId())
+            ->with(['produk', 'user'])
+            ->latest()
+            ->paginate(20);
+
+        return view('vendor.linktree.orders', [
+            'linktree' => $this->getLinktree(),
+            'orders' => $orders,
+        ]);
+    }
+
+    /**
+     * Show detail of a specific order.
+     */
+    public function showOrder(string $uuid)
+    {
+        $this->authorizeLinktree();
+
+        $order = LinktreeOrder::where('uuid', $uuid)
+            ->where('vendor_id', Tenant::getVendorId())
+            ->with(['produk', 'user', 'linktreeProduct'])
+            ->firstOrFail();
+
+        return view('vendor.linktree.order-detail', [
+            'linktree' => $this->getLinktree(),
+            'order' => $order,
+        ]);
+    }
+
+    /**
+     * Update order status.
+     */
+    public function updateOrderStatus(Request $request, string $uuid)
+    {
+        $this->authorizeLinktree();
+
+        $request->validate([
+            'status' => 'required|in:confirmed,processing,shipped,completed,cancelled',
+            'vendor_notes' => 'nullable|string|max:1000',
+        ]);
+
+        $order = LinktreeOrder::where('uuid', $uuid)
+            ->where('vendor_id', Tenant::getVendorId())
+            ->firstOrFail();
+
+        $order->update([
+            'status' => $request->status,
+            'vendor_notes' => $request->vendor_notes ?? $order->vendor_notes,
+        ]);
+
+        return back()->with('success', 'Status pesanan diperbarui.');
+    }
+
+    /**
+     * Update payment status.
+     */
+    public function updatePaymentStatus(Request $request, string $uuid)
+    {
+        $this->authorizeLinktree();
+
+        $request->validate([
+            'payment_status' => 'required|in:unpaid,proof_sent,confirmed,rejected',
+        ]);
+
+        $order = LinktreeOrder::where('uuid', $uuid)
+            ->where('vendor_id', Tenant::getVendorId())
+            ->firstOrFail();
+
+        $order->update([
+            'payment_status' => $request->payment_status,
+        ]);
+
+        return back()->with('success', 'Status pembayaran diperbarui.');
     }
 }

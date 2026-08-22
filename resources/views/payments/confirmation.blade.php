@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('title', 'Konfirmasi Pembayaran')
 
@@ -97,7 +97,7 @@
                             <input type="radio" name="payment_method" value="bank_transfer" class="sr-only" checked>
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
-                                <div class="text-2xl mb-2">🏦</div>
+                                <div class="text-2xl mb-2"><i class="fas fa-university text-blue-500"></i></div>
                                 <div class="font-medium">Transfer Bank</div>
                                 <div class="text-sm text-gray-500">1.5% fee</div>
                             </div>
@@ -108,7 +108,7 @@
                             <input type="radio" name="payment_method" value="credit_card" class="sr-only">
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
-                                <div class="text-2xl mb-2">💳</div>
+                                <div class="text-2xl mb-2"><i class="fas fa-credit-card text-purple-500"></i></div>
                                 <div class="font-medium">Kartu Kredit</div>
                                 <div class="text-sm text-gray-500">2.9% fee</div>
                             </div>
@@ -119,7 +119,7 @@
                             <input type="radio" name="payment_method" value="ewallet" class="sr-only">
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
-                                <div class="text-2xl mb-2">📱</div>
+                                <div class="text-2xl mb-2"><i class="fas fa-mobile-alt text-green-500"></i></div>
                                 <div class="font-medium">E-Wallet</div>
                                 <div class="text-sm text-gray-500">2.0% fee</div>
                             </div>
@@ -130,7 +130,7 @@
                             <input type="radio" name="payment_method" value="retail_outlet" class="sr-only">
                             <div
                                 class="payment-method-card cursor-pointer border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
-                                <div class="text-2xl mb-2">🏪</div>
+                                <div class="text-2xl mb-2"><i class="fas fa-store text-indigo-500"></i></div>
                                 <div class="font-medium">Toko Retail</div>
                                 <div class="text-sm text-gray-500">1.0% fee</div>
                             </div>

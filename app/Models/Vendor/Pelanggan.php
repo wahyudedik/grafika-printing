@@ -6,10 +6,11 @@ use App\Models\Vendor;
 use App\Models\Vendor\Transaksi;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class Pelanggan extends TenantModel
 {
-    use SoftDeletes;
+    use SoftDeletes, Notifiable;
 
     protected $table = 'pelanggans';
 

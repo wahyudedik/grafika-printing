@@ -9,9 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Admin Panel</p>
             <h1 class="text-2xl font-bold text-gray-900">Manajemen Mediasi</h1>
         </div>
-        <x-ui.button variant="outline-info" :href="route('admin.mediation.statistics')">
+        <a href="{{ route('admin.mediation.statistics') }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-chart-bar mr-2"></i> Statistik
-        </x-ui.button>
+        </a>
     </div>
 </div>
 
@@ -38,9 +38,9 @@
                 <input type="date" name="date_to" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" value="{{ request('date_to') }}">
             </div>
             <div>
-                <x-ui.button type="submit" variant="primary" class="w-full">
+                <button type="submit" class="w-full inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-filter mr-2"></i> Filter
-                </x-ui.button>
+                </button>
             </div>
         </div>
     </form>
@@ -125,9 +125,9 @@
                         <span class="text-sm text-gray-500">{{ $request->created_at->format('d M Y') }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <x-ui.button variant="ghost" :href="route('admin.mediation.show', $request)" size="icon-sm">
+                        <a href="{{ route('admin.mediation.show', $request) }}" class="inline-flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 py-1 px-2 rounded-lg transition" title="Lihat">
                             <i class="fas fa-eye text-sm"></i>
-                        </x-ui.button>
+                        </a>
                     </td>
                 </tr>
                 @empty

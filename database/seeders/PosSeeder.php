@@ -511,6 +511,16 @@ class PosSeeder extends Seeder
     {
         $this->command->info('  👥 Creating customers...');
 
+        // Skip jika kode pelanggan sudah ada di database (global unique constraint on kode)
+        // Gunakan DB::table() karena Pelanggan model punya global scope filter by vendor_id
+        $existingKodes = DB::table('pelanggans')
+            ->whereIn('kode', ['PLG-001','PLG-002','PLG-003','PLG-004','PLG-005','PLG-006','PLG-007','PLG-008'])
+            ->pluck('kode');
+        if ($existingKodes->isNotEmpty()) {
+            $this->command->info("    ⚠️  Pelanggan.kode sudah ada ({$existingKodes->implode(', ')}), skipping...");
+            return;
+        }
+
         $data = [
             ['kode' => 'PLG-001', 'nama' => 'Budi Santoso',       'alamat' => 'Jl. Merdeka No. 10, Jakarta Pusat',  'no_telp' => '081234567890', 'email' => 'budi.santoso@gmail.com'],
             ['kode' => 'PLG-002', 'nama' => 'Siti Rahayu',         'alamat' => 'Jl. Sudirman Kav. 52, Jakarta Selatan', 'no_telp' => '082345678901', 'email' => 'siti.rahayu@gmail.com'],

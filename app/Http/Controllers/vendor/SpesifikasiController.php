@@ -75,7 +75,7 @@ class SpesifikasiController extends Controller
     {
         $this->requireVendor();
 
-        $spesifikasi = Spesifikasi::findOrFail($id);
+        $spesifikasi = Spesifikasi::with('spesifikasiProduk')->findOrFail($id);
         return view('spesifikasi.show', compact('spesifikasi'));
     }
 

@@ -21,6 +21,7 @@ use App\Http\Requests\StoreTransaksiRequest;
 use App\Http\Requests\UpdateTransaksiRequest;
 use App\Http\Responses\FlashMessage;
 use App\Services\AuditLogService;
+use App\Services\VoidTransactionService;
 use App\Actions\Transaksi\CreateTransaksi;
 
 
@@ -357,6 +358,9 @@ class TransaksiController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
+     * DEPRECATED: Menggunakan void approach alih-alih hard delete.
+     * Redirect ke void action jika transaksi masih bisa di-void.
      */
     public function destroy(string $id)
     {
@@ -370,32 +374,111 @@ class TransaksiController extends Controller
 
         $this->authorize('delete', $transaksi);
 
-        // Begin transaction
-        DB::beginTransaction();
-
-        try {
-            // Delete related records
-            // First delete specifications
-            TransaksiItemSpecifications::whereIn(
-                'transaksi_item_id',
-                $transaksi->transaksiItem->pluck('id')->toArray()
-            )->delete();
-
-            // Delete transaction items
-            TransaksiItem::where('transaksi_id', $transaksi->id)->delete();
-
-            // Delete the transaction
-            $transaksi->delete();
-
-            DB::commit();
-
-            AuditLogService::logDeleted($transaksi, 'Transaksi dihapus: ' . $transaksi->kode);
-
-            return FlashMessage::success(redirect()->route('transaksi.index'), 'Transaksi berhasil dihapus.');
-        } catch (\Exception $e) {
-            DB::rollback();
-            return FlashMessage::backError('Terjadi kesalahan: ' . $e->getMessage());
+        // Jika transaksi masih bisa di-void, redirect ke void action
+        if ($transaksi->canBeVoided()) {
+            return redirect()->route('vendor.transactions.void', $transaksi->id)
+                ->with('warning', 'Disarankan menggunakan fitur Void untuk membatalkan transaksi agar stok dapat dikembalikan.');
         }
+
+        // Jika sudah selesai atau sudah di-void, tidak bisa dihapus
+        return FlashMessage::error(redirect()->route('vendor.transactions.show', $transaksi->id),
+            'Transaksi ini tidak dapat dihapus. Status: ' . ucfirst($transaksi->status));
+    }
+
+    /**
+     * Show void confirmation form for a transaction.
+     */
+    public function void(string $id)
+    {
+        $vendor = $this->requireVendor();
+
+        if (!$vendor) {
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+        }
+
+        $transaksi = Transaksi::where('vendor_id', $vendor->id)
+            ->with([
+                'pelanggan',
+                'transaksiItem.produk',
+                'transaksiItem.transaksiItemSpecifications.bahan',
+            ])
+            ->findOrFail($id);
+
+        // Cek apakah bisa di-void
+        $voidService = app(VoidTransactionService::class);
+        $voidCheck = $voidService->canBeVoided($transaksi);
+
+        if (!$voidCheck['can_void']) {
+            return FlashMessage::error(
+                redirect()->route('vendor.transactions.show', $transaksi->id),
+                $voidCheck['message']
+            );
+        }
+
+        // Hitung jumlah yang akan di-refund (jika pembayaran online)
+        $refundInfo = null;
+        if ($transaksi->terbayar > 0 && in_array(strtolower($transaksi->payment_method ?? ''), ['xendit', 'online', 'qris', 'ewallet', 'bank_transfer'])) {
+            $refundInfo = [
+                'amount' => $transaksi->terbayar,
+                'payment_method' => $transaksi->payment_method,
+            ];
+        }
+
+        return view('transaksi.void', compact('transaksi', 'refundInfo'));
+    }
+
+    /**
+     * Process void for a transaction.
+     */
+    public function confirmVoid(Request $request, string $id)
+    {
+        $vendor = $this->requireVendor();
+
+        if (!$vendor) {
+            return FlashMessage::error(redirect()->route('vendor.dashboard'), 'Vendor tidak ditemukan. Silakan pilih vendor terlebih dahulu.');
+        }
+
+        $transaksi = Transaksi::where('vendor_id', $vendor->id)->findOrFail($id);
+
+        // Validasi input
+        $request->validate([
+            'void_reason' => 'required|string|min:5|max:500',
+            'reason_type' => 'required|in:customer_request,stock_issue,pricing_error,quality_issue,system_error,other',
+        ], [
+            'void_reason.required' => 'Alasan void wajib diisi.',
+            'void_reason.min' => 'Alasan void minimal 5 karakter.',
+            'void_reason.max' => 'Alasan void maksimal 500 karakter.',
+            'reason_type.required' => 'Jenis alasan wajib dipilih.',
+            'reason_type.in' => 'Jenis alasan tidak valid.',
+        ]);
+
+        // Gabungkan jenis alasan dengan teks
+        $reasonLabels = [
+            'customer_request' => 'Permintaan Pelanggan',
+            'stock_issue' => 'Masalah Stok',
+            'pricing_error' => 'Kesalahan Harga',
+            'quality_issue' => 'Masalah Kualitas',
+            'system_error' => 'Kesalahan Sistem',
+            'other' => 'Lainnya',
+        ];
+        $fullReason = '[' . $reasonLabels[$request->reason_type] . '] ' . $request->void_reason;
+
+        // Proses void
+        $voidService = app(VoidTransactionService::class);
+        $result = $voidService->voidTransaction($transaksi, $fullReason, Auth::user());
+
+        if ($result['success']) {
+            $message = 'Transaksi ' . $transaksi->kode . ' berhasil di-void.';
+            if ($result['refund_status'] === 'refund_pending') {
+                $message .= ' Refund sedang diproses via Xendit.';
+            } elseif ($result['refund_status'] === 'refund_failed') {
+                $message .= ' Catatan: Refund gagal diproses, silakan refund manual jika diperlukan.';
+            }
+
+            return FlashMessage::success(redirect()->route('vendor.transactions.show', $transaksi->id), $message);
+        }
+
+        return FlashMessage::backError(redirect()->route('vendor.transactions.void', $transaksi->id), $result['message']);
     }
 
     /**

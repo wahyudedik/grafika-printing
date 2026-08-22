@@ -3,47 +3,24 @@
 @section('title', 'User Dashboard')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 py-6 space-y-6" x-data="{ loading: false }" x-init="loading = false">
+<div class="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
-    {{-- Loading Skeleton (tampilkan jika $loading dari controller) --}}
-    @if($loading ?? false)
-        {{-- Welcome Skeleton --}}
-        <div class="bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl p-6 sm:p-8 animate-pulse">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <div class="h-8 w-64 bg-white/30 rounded mb-2"></div>
-                    <div class="h-4 w-48 bg-white/20 rounded"></div>
-                </div>
-                <div class="h-10 w-40 bg-white/30 rounded-xl"></div>
-            </div>
-        </div>
-
-        {{-- Stats Skeleton --}}
-        <x-skeleton type="stats" :count="4" />
-
-        {{-- Lists Skeleton --}}
-        <div class="grid lg:grid-cols-2 gap-6">
-            <x-skeleton type="list" :count="3" />
-            <x-skeleton type="list" :count="3" />
-        </div>
-
-    @else
     {{-- Welcome Card --}}
     <div class="bg-gradient-to-r from-primary-600 to-primary-700 rounded-2xl p-6 sm:p-8 text-white">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold">Selamat Datang, {{ auth()->user()->name }}! 👋</h1>
+                <h1 class="text-2xl sm:text-3xl font-bold">Selamat Datang, {{ auth()->user()->name }}! <i class="fas fa-hand-sparkles text-yellow-300"></i></h1>
                 <p class="text-primary-100 mt-1">Kelola lelang, pesanan, dan aktivitas Anda di Grafika Printing.</p>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0">
-                <x-ui.button :href="route('user.lelang-dashboard')" variant="outline" size="md" class="!bg-white/20 !text-white !border-white/30 !font-semibold !shadow-sm">
+                <a href="{{ route('user.lelang-dashboard') }}" class="inline-flex items-center justify-center bg-white/20 text-white border border-white/30 font-semibold shadow-sm hover:bg-white/30 py-2 px-4 rounded-lg transition">
                     <i class="fas fa-chart-line text-sm"></i>
                     Dashboard Lelang
-                </x-ui.button>
-                <x-ui.button :href="route('user.auctions.create')" variant="outline" size="md" class="!bg-white !text-primary-700 !font-semibold !shadow-sm">
+                </a>
+                <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center justify-center bg-white text-primary-700 font-semibold shadow-sm border border-gray-300 hover:bg-gray-50 py-2 px-4 rounded-lg transition">
                     <i class="fas fa-plus text-sm"></i>
                     Buat Lelang
-                </x-ui.button>
+                </a>
             </div>
         </div>
     </div>
@@ -144,7 +121,7 @@
                             </a>
                             <p class="text-xs text-gray-400 mt-0.5">{{ $order->created_at->diffForHumans() }}</p>
                         </div>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $order->status_color ?? 'bg-gray-100 text-gray-800' }} flex-shrink-0">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-{{ $order->status_color ?? 'gray' }}-100 text-{{ $order->status_color ?? 'gray' }}-800 flex-shrink-0">
                             {{ $order->status_label ?? ucfirst($order->status) }}
                         </span>
                     </div>
@@ -157,19 +134,19 @@
     {{-- Quick Actions --}}
     <div class="grid sm:grid-cols-3 gap-4">
         <a href="{{ route('user.auctions.my') }}" class="bg-white rounded-xl border border-gray-200 p-5 hover:border-primary-300 hover:shadow-md transition-all group">
-            <div class="text-3xl mb-3">🏆</div>
+            <div class="text-3xl mb-3"><i class="fas fa-trophy text-yellow-500"></i></div>
             <h3 class="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Lelang Saya</h3>
             <p class="text-xs text-gray-500 mt-1">Lihat semua lelang yang telah Anda buat</p>
         </a>
 
         <a href="{{ route('user.orders.index') }}" class="bg-white rounded-xl border border-gray-200 p-5 hover:border-primary-300 hover:shadow-md transition-all group">
-            <div class="text-3xl mb-3">📦</div>
+            <div class="text-3xl mb-3"><i class="fas fa-box text-blue-500"></i></div>
             <h3 class="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Tracking Pesanan</h3>
             <p class="text-xs text-gray-500 mt-1">Lacak status pesanan dari lelang yang Anda menangkan</p>
         </a>
 
         <a href="{{ route('user.profile.edit') }}" class="bg-white rounded-xl border border-gray-200 p-5 hover:border-primary-300 hover:shadow-md transition-all group">
-            <div class="text-3xl mb-3">👤</div>
+            <div class="text-3xl mb-3"><i class="fas fa-user text-purple-500"></i></div>
             <h3 class="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">Profil Saya</h3>
             <p class="text-xs text-gray-500 mt-1">Kelola informasi profil dan akun Anda</p>
         </a>
@@ -225,7 +202,7 @@
             <div class="grid sm:grid-cols-3 gap-4">
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
-                        <span class="text-lg">🏆</span>
+                        <i class="fas fa-trophy text-yellow-500 text-lg"></i>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900">Sistem Lelang</h4>
@@ -235,7 +212,7 @@
 
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <span class="text-lg">💳</span>
+                        <i class="fas fa-credit-card text-green-500 text-lg"></i>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900">Pembayaran Xendit</h4>
@@ -245,7 +222,7 @@
 
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                        <span class="text-lg">⭐</span>
+                        <i class="fas fa-star text-yellow-500 text-lg"></i>
                     </div>
                     <div>
                         <h4 class="text-sm font-semibold text-gray-900">Rating Vendor</h4>
@@ -255,6 +232,5 @@
             </div>
         </div>
     </div>
-    @endif {{-- End loading check --}}
 </div>
 @endsection

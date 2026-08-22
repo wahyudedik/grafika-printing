@@ -115,6 +115,9 @@ class DeliveryConfirmationController extends Controller
      */
     public function show(DeliveryConfirmation $confirmation)
     {
+        // Eager load relationships to avoid N+1 queries
+        $confirmation->load(['vendor', 'auction', 'transaction']);
+
         // Check if user has access
         if ($confirmation->user_id !== Auth::id() && $confirmation->vendor_id !== Auth::user()->vendor_id) {
             abort(403, 'Unauthorized');

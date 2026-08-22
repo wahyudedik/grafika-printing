@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\HasVendorContext;
 use App\Http\Responses\FlashMessage;
 
 use App\Models\VendorWithdrawal;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 class VendorWithdrawalController extends Controller
 {
+    use HasVendorContext;
     /**
      * Display withdrawal requests for vendor
      */

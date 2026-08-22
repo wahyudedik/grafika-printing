@@ -29,7 +29,7 @@ class ShippingInvoiceController extends Controller
     public function generateShippingInvoice(Request $request, Auction $auction)
     {
         // Debug logging
-        \Log::info('Shipping invoice request', [
+        Log::info('Shipping invoice request', [
             'auction_id' => $auction->id,
             'request_data' => $request->all(),
             'user_id' => auth()->id()
@@ -211,6 +211,31 @@ class ShippingInvoiceController extends Controller
      */
     public function handleCODPayment(Request $request, Transaksi $transaksi)
     {
+        // === SECURITY FIX: Ownership verification ===
+        // Pastikan hanya vendor pemilik transaksi atau user pemilik transaksi yang bisa akses
+        $user = Auth::user();
+        $isOwner = false;
+
+        if ($user->usertype === 'vendor' && $user->vendor) {
+            $isOwner = ($transaksi->vendor_id === $user->vendor->id);
+        } elseif ($user->usertype === 'user') {
+            $isOwner = ($transaksi->user_id === $user->id);
+        } elseif (in_array($user->usertype, ['dev', 'admin'])) {
+            $isOwner = true; // Admin/Dev akses semua transaksi
+        }
+
+        if (!$isOwner) {
+            Log::warning('Unauthorized COD payment attempt', [
+                'user_id' => $user->id,
+                'user_type' => $user->usertype,
+                'transaction_id' => $transaksi->id,
+                'transaction_vendor_id' => $transaksi->vendor_id,
+                'transaction_user_id' => $transaksi->user_id,
+            ]);
+            abort(403, 'Anda tidak memiliki akses ke transaksi ini.');
+        }
+        // === END SECURITY FIX ===
+
         $request->validate([
             'payment_method' => 'required|in:cash,app',
             'amount_paid' => 'required|numeric|min:0',

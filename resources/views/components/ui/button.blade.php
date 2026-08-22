@@ -1,14 +1,13 @@
-@props([
-    'variant' => 'primary',
-    'size' => 'md',
-    'icon' => null,
-    'href' => null,
-    'type' => 'button',
-    'disabled' => false,
-    'loading' => false,
-])
-
 @php
+    // Explicitly extract all props from attributes bag to avoid conflicts
+    $href = $attributes->pull('href', $href ?? null);
+    $variant = $attributes->pull('variant', $variant ?? 'primary');
+    $size = $attributes->pull('size', $size ?? 'md');
+    $icon = $attributes->pull('icon', $icon ?? null);
+    $type = $attributes->pull('type', $type ?? 'button');
+    $disabled = $attributes->pull('disabled', $disabled ?? false);
+    $loading = $attributes->pull('loading', $loading ?? false);
+
     $baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
     $variants = [
@@ -23,6 +22,7 @@
         'outline-primary' => 'border border-blue-300 text-blue-700 hover:bg-blue-50 focus:ring-blue-500',
         'outline-danger' => 'border border-red-300 text-red-700 hover:bg-red-50 focus:ring-red-500',
         'outline-success' => 'border border-green-300 text-green-700 hover:bg-green-50 focus:ring-green-500',
+        'outline-warning' => 'border border-yellow-300 text-yellow-700 hover:bg-yellow-50 focus:ring-yellow-500',
         'outline-info' => 'border border-cyan-300 text-cyan-700 hover:bg-cyan-50 focus:ring-cyan-500',
     ];
 
@@ -37,11 +37,11 @@
 
     $variantClass = $variants[$variant] ?? $variants['primary'];
     $sizeClass = $sizes[$size] ?? $sizes['md'];
-    $finalClasses = $baseClasses . ' ' . $variantClass . ' ' . $sizeClass;
+    $finalClasses = trim($baseClasses . ' ' . $variantClass . ' ' . $sizeClass);
 @endphp
 
 @if($href)
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => $finalClasses]) }}>
+    <a href="{{ $href }}" {!! $attributes->merge(['class' => $finalClasses]) !!}>
         @if($loading)
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -53,7 +53,7 @@
         {{ $slot }}
     </a>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => $finalClasses, 'disabled' => $disabled]) }}>
+    <button type="{{ $type }}" {!! $attributes->merge(['class' => $finalClasses]) !!} @if($disabled) disabled @endif>
         @if($loading)
             <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

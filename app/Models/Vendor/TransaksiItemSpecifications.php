@@ -18,11 +18,13 @@ class TransaksiItemSpecifications extends TenantModel
         'bahan_id',
         'value',
         'input_type',
-        'price'
+        'price',
+        'hpp_price',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2', 
+        'price' => 'decimal:2',
+        'hpp_price' => 'decimal:2',
         'vendor_id' => 'integer',
         'transaksi_item_id' => 'integer',
         'spesifikasi_produk_id' => 'integer',

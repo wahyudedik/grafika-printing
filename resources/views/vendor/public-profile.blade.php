@@ -168,8 +168,8 @@
 
             {{-- Actions --}}
             <div class="px-6 py-4 border-t border-gray-100 space-y-3">
-                @if($vendor->activeLinktree())
-                <a href="{{ url('/l/' . $vendor->activeLinktree()->custom_url) }}"
+                @if($vendor->getActiveLinktreeCached())
+                <a href="{{ url('/l/' . $vendor->getActiveLinktreeCached()->custom_url) }}"
                    class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>

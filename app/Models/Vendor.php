@@ -18,16 +18,18 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Notifications\Notifiable;
 use App\Models\Vendor\TransaksiItemSpecifications;
 use App\Models\AuctionBid;
 use App\Models\Auction;
 use App\Models\VendorRating;
 use App\Models\VendorWithdrawal;
 use App\Models\Vendor\Linktree;
+use App\Models\Vendor\LinktreeOrder;
 
 class Vendor extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $table = 'vendors';
 
@@ -285,11 +287,41 @@ class Vendor extends Model
     }
 
     /**
-     * Get active linktree
+     * Get active linktree (uncached, returns model instance or null)
      */
     public function activeLinktree()
     {
         return $this->linktrees()->where('is_active', true)->first();
+    }
+
+    /**
+     * Get active linktree with caching (1 hour TTL).
+     * Use this in views/repeated code to avoid extra queries per request.
+     */
+    public function getActiveLinktreeCached()
+    {
+        return cache()->remember(
+            "vendor_{$this->id}_active_linktree",
+            3600,
+            fn () => $this->linktrees()->where('is_active', true)->first()
+        );
+    }
+
+    /**
+     * Get linktree orders for this vendor
+     */
+    public function linktreeOrders()
+    {
+        return $this->hasMany(LinktreeOrder::class);
+    }
+
+    /**
+     * Flush the cached active linktree for this vendor.
+     * Called automatically when a Linktree is created/updated/deleted.
+     */
+    public function flushActiveLinktreeCache(): void
+    {
+        cache()->forget("vendor_{$this->id}_active_linktree");
     }
 
     /**

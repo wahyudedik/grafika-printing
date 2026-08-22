@@ -4,6 +4,163 @@
 
 Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang dibangun dengan **Laravel 13** (di-upgrade dari Laravel 11 pada Agustus 2026). Platform ini mengelola seluruh siklus bisnis percetakan dari katalog produk, pemesanan, produksi, pembayaran, hingga pengiriman.
 
+### Catatan Update (22 Agustus 2026) — Linktree Order Flow
+- ✅ **Linktree Order Flow** — Integrasi produk POS ke Linktree dengan alur pesan manual via WhatsApp:
+  - **Produk dengan Spesifikasi**: Public linktree page menampilkan produk dengan ringkasan spesifikasi (bahan, ukuran, finishing)
+  - **Product Detail Modal**: Klik produk → modal dengan detail lengkap + form pilihan spesifikasi
+  - **Order Flow**: Customer isi nama, WhatsApp, pilih spesifikasi, jumlah → submit order
+  - **WhatsApp Payment**: Setelah order, customer dikirim ke halaman sukses dengan tombol "Kirim Bukti via WhatsApp"
+  - **Manual Payment**: Customer kirim bukti pembayaran ke WhatsApp vendor (belum otomatis via Xendit)
+  - **Vendor Order Management**: Vendor bisa lihat daftar pesanan, update status, update status pembayaran
+  - **Migration**: `linktree_orders` table dengan UUID, selected_specs (JSON), status enums
+  - **Seeder**: `LinktreeProductSeeder` untuk menambahkan produk ke linktree
+  - **Test**: `LinktreeOrderTest` — 20+ tests cover public page, API, order flow, vendor management, WhatsApp URL
+
+### Catatan Update (22 Agustus 2026) — Production Hardening, API Versioning & Performance
+
+- ✅ **API Versioning** — Semua API routes sudah di-version ke `/api/v1/` dengan backward compatibility:
+  - Old paths redirect ke v1 (301/307)
+  - Rate limiting: 60 req/min untuk API, 5 req/min untuk auth
+  - Xendit webhook tetap di `/api/xendit/webhook` (tanpa redirect)
+- ✅ **JS Lazy Loading** — ApexCharts, Chart.js, SortableJS sekarang di-load secara lazy (dynamic import):
+  - Mengurangi initial bundle size secara signifikan
+  - Library hanya di-load saat dibutuhkan di halaman tertentu
+- ✅ **ActiveLinktree Caching** — Method `getActiveLinktreeCached()` dengan cache 1 jam:
+  - Mengurangi query database untuk halaman publik linktree
+  - Cache otomatis invalidasi saat linktree di-update
+- ✅ **Production Seeders** — 3 seeders untuk deployment:
+  - `ProductionSeeder.php` untuk fresh install
+  - `ComprehensiveTestDataSeeder.php` untuk testing
+  - `PosCompleteSeeder.php` untuk data lengkap POS (bahan, spesifikasi, produk, wholesale) — 10 kategori, 15 bahan, 10 spesifikasi, 6 alat, 10 produk, ~60 spesifikasi produk, 25 bahan-spesifikasi pivots, 25 estimasi produksi, 20 wholesale prices, 5 pelanggan, 1 printer setting
+- ✅ **Test Coverage Expansion** — 134+ tests, 244+ assertions:
+  - Meliputi: Linktree CRUD, Vendor products, Transactions, Webhook auth, Multi-tenant isolation, POS flow, Wallet withdrawal, **Linktree Order Flow**
+  - Termasuk `PosFlowTest` untuk integrasi POS end-to-end
+  - Termasuk `LinktreeOrderTest` untuk integrasi order flow linktree (20+ tests)
+- ✅ **Bug Fixes — Batch 4 (8 critical fixes)**:
+  - Fix duplicate Xendit webhook route
+  - Fix `Linktree::booted()` missing `parent::booted()`
+  - Fix `LinktreeController::authorizeLinktree()` undefined method
+  - Fix Base Controller missing `AuthorizesRequests` trait
+  - Fix missing `harga_jual` column (new migration)
+  - Fix `Pelanggan` model missing `Notifiable` trait
+  - Fix N+1 queries di `AuctionController`, `DeliveryConfirmationController`
+  - Fix `WalletManagementController` performance (withCount + limited relationship)
+- ✅ **Bug Fixes — POS (22 Agustus 2026)**:
+  - Fix field name `telepon` → `no_telp` di POS online payment view
+  - Fix `transaksiItems` → `transaksiItem` di POS payment views (variable name inconsistency)
+  - Fix stock validation sebelum `addToCart` dan `checkout` — cek ketersediaan stok sebelum proses
+  - Fix division by zero protection di `harga_satuan` calculation
+  - Fix hardcoded vendor name di thermal print → gunakan `config('app.name')`
+  - Fix pagination inconsistency di vendor views → gunakan `components.pagination` yang konsisten
+- ✅ **Config Improvements** — `RAJAONGKIR_DELIVERY_API_KEY` di `config/services.php`
+- ✅ **Cleanup** — Redundant CSS spacing di `tailwind.config.js`
+- ✅ **Emoji → FontAwesome** — ~30 emoji diganti dengan FontAwesome icons di user views
+- ✅ **Pagination Consistency** — Vendor views menggunakan `components.pagination` yang konsisten
+- ✅ **N+1 Query Fixes** — Eager loading ditambahkan di `AuctionController`, `DeliveryConfirmationController`, `WalletManagementController` untuk menghilangkan N+1 queries
+
+### Catatan Update (20 Agustus 2026) — Batch 3: Bug Fix, Layout Enhancement & Audit
+- ✅ **Footer Link Bug Fix (3 layouts)** — Footer copyright link `href="#"` yang merupakan dead link diperbaiki ke `{{ route('welcome') }}` di semua 3 layout:
+  - **File**: `resources/views/dev/layouts/app.blade.php` — Admin footer
+  - **File**: `resources/views/layouts/vendor.blade.php` — Vendor footer
+  - **File**: `resources/views/layouts/user.blade.php` — User footer
+- ✅ **Admin Layout Breadcrumbs** — Admin layout tidak memiliki `@yield('breadcrumbs')` section sehingga admin pages tidak bisa menampilkan breadcrumbs. Ditambahkan `@yield('breadcrumbs')` sebelum `@yield('content')`:
+  - **File**: `resources/views/dev/layouts/app.blade.php` — Tambah `@yield('breadcrumbs')` di line 249
+- ✅ **Admin Footer Language Consistency** — Teks "All rights reserved." (Bahasa Inggris) yang tidak konsisten dengan seluruh app berbahasa Indonesia. Diubah ke "Hak cipta dilindungi.":
+  - **File**: `resources/views/dev/layouts/app.blade.php` — Admin footer
+- ✅ **Eager Loading Audit** — Verifikasi semua controller utama sudah memiliki eager loading yang benar untuk relasi yang diakses di views:
+  - `TransaksiController::index()` — `with(['pelanggan', 'user', 'transaksiItem.produk'])` ✅
+  - `TransaksiController::show()` — `with(['pelanggan', 'user', 'transaksiItem.produk', 'transaksiItem.transaksiItemSpecifications.spesifikasiProduk.spesifikasi', 'transaksiItem.transaksiItemSpecifications.bahan'])` ✅
+  - `AuctionController::index()` — `with(['user', 'bids.vendor'])` ✅
+  - `AuctionController::show()` — `load(['user', 'bids.vendor', 'winnerVendor'])` ✅
+  - `OrderTrackingController::index()` — `with(['auction', 'vendor'])` ✅
+  - `OrderTrackingController::show()` — `load(['auction', 'vendor', 'user'])` ✅
+  - `AuctionManagementController` — `with(['user', 'bids.vendor', 'winnerVendor'])` ✅
+  - `DeliveryController` — `with(['transaction', 'vendor', 'shippingInvoice'])` ✅
+  - `ShippingController` — `with(['transaction', 'vendor'])` ✅
+  - `WalletManagementController` — `with(['vendor', 'transactions'])` ✅
+  - `MediationController` — `with(['auction', 'vendor', 'user', 'requestedBy'])` ✅
+  - `PaymentManagementController` — `with(['user', 'winnerVendor', 'xenditPayments'])` ✅
+  - `PosController` — `with(['vendor', 'kategori', 'spesifikasiProduk.spesifikasi', ...])` ✅
+  - `InvoiceController` — `with(['transaksiItem.produk', 'pelanggan', 'vendor', ...])` ✅
+- ✅ **.env Configuration Audit** — Verifikasi `.env.example` dan `.env.production` sudah lengkap dengan semua env variables yang dibutuhkan:
+  - Xendit: `XENDIT_API_KEY`, `XENDIT_PUBLIC_KEY`, `XENDIT_WEBHOOK_TOKEN`, `XENDIT_BASE_URL` ✅
+  - RajaOngkir: `RAJAONGKIR_API_KEY`, `RAJAONGKIR_BASE_URL`, `RAJAONGKIR_DELIVERY_API_KEY` ✅
+  - Production: Redis untuk session/queue/cache, `APP_DEBUG=false`, `LOG_LEVEL=warning` ✅
+- ✅ **Responsive Mobile Audit** — Verifikasi responsive mobile di 3 layouts utama dan key views:
+  - 3 layouts (admin, vendor, user) sudah memiliki mobile sidebar dengan overlay ✅
+  - Desktop tables sudah dihide di mobile (`hidden md:block`) dengan mobile card alternatives ✅
+  - POS views sudah responsive dengan `grid-cols-2 md:grid-cols-3 lg:grid-cols-4` ✅
+  - Dashboard views sudah responsive dengan `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` ✅
+  - **Future Enhancement**: Vendor views (order-tracking, tracking, wallet, withdrawal, audit-logs) perlu mobile card layouts untuk pengalaman mobile yang lebih baik
+
+### Catatan Update (20 Agustus 2026) — Batch 2: Performance & Code Quality (N+1, Query-in-Blade, Eager Loading)
+- ✅ **N+1 Query Fix — Notification Index Views (3 views)** — Semua notification index views menggunakan `auth()->user()->unreadNotifications->count()` yang load semua notification ke memory. Diperbaiki ke `auth()->user()->unreadNotifications()->count()` (query builder, count saja):
+  - **File**: `resources/views/vendor/notifications/index.blade.php` — Line 11
+  - **File**: `resources/views/user/notifications/index.blade.php` — Line 11
+  - **File**: `resources/views/dev/notifications/index.blade.php` — Line 13
+- ✅ **Query-in-Blade Fix — Admin Fees Transactions** — `\App\Models\Vendor::all()` dipanggil langsung di Blade template. Dipindahkan ke controller:
+  - **File**: `app/Http/Controllers/Admin/AdminFeeController.php` — Tambah `$vendors = Vendor::select('id', 'name')->orderBy('name')->get()`
+  - **File**: `resources/views/dev/admin-fees/transactions.blade.php` — Gunakan `$vendors` dari controller
+- ✅ **Query-in-Blade Fix — Pulse Activity** — `\App\Models\User::with('vendorUser')->latest()->take(5)->get()` dipanggil langsung di Blade template. Dipindahkan ke controller:
+  - **File**: `app/Http/Controllers/Admin/PulseController.php` — Tambah `$topActiveUsers` query + import User model
+  - **File**: `resources/views/dev/pulse/activity.blade.php` — Gunakan `$topActiveUsers` dari controller
+- ✅ **Missing Eager Loading Fix — SpesifikasiController::show()** — View loop `$spesifikasi->spesifikasiProduk` tanpa eager loading. Ditambahkan `with('spesifikasiProduk')`:
+  - **File**: `app/Http/Controllers/vendor/SpesifikasiController.php` — `Spesifikasi::with('spesifikasiProduk')->findOrFail($id)`
+- ✅ **Query-in-Blade Fix — Bahan Show** — `$bahan->wholesalePrices()->orderBy('min_quantity', 'asc')->get()` di Blade. Controller sudah eager load, cukup gunakan collection:
+  - **File**: `resources/views/bahan/show.blade.php` — `$bahan->wholesalePrices->sortBy('min_quantity')`
+
+### Catatan Update (20 Agustus 2026) — Code Quality, N+1 Fix & Tailwind Migration Cleanup
+- ✅ **N+1 Query Fix — Notification Dropdown (3 layouts)** — Dropdown notifikasi di 3 layout sebelumnya memanggil `auth()->user()->unreadNotifications->count()` 3 kali per page load (badge count, badge text, "Lihat Semua" link). Setiap panggilan memicu query DB terpisah. Diperbaiki dengan konsolidasi ke satu variabel `$unreadCount` menggunakan `@php` block:
+  - **File**: `resources/views/layouts/vendor.blade.php` — Vendor notification dropdown
+  - **File**: `resources/views/layouts/user.blade.php` — User notification dropdown
+  - **File**: `resources/views/dev/layouts/app.blade.php` — Admin notification dropdown
+- ✅ **FlashMessage Pattern Standardization (3 controllers)** — 3 notification controller sebelumnya menggunakan `->with('success', ...)` yang tidak konsisten dengan pola `FlashMessage::backSuccess()`. Juga diperbaiki `markAsRead()` yang sebelumnya tidak mengirim flash message:
+  - **File**: `app/Http/Controllers/vendor/VendorNotificationController.php` — +import FlashMessage, gunakan `FlashMessage::backSuccess()`
+  - **File**: `app/Http/Controllers/UserNotificationController.php` — Hapus unused import `Request`, +import FlashMessage
+  - **File**: `app/Http/Controllers/AdminNotificationController.php` — +import FlashMessage
+- ✅ **Unused Import Cleanup** — `use Illuminate\Http\Request;` dihapus dari `UserNotificationController` (tidak digunakan)
+- ✅ **Model Relationship Added** — `lelangUserProfile()` relationship (`hasOne`) ditambahkan ke User model:
+  - **File**: `app/Models/User.php` — Relationship baru `lelangUserProfile()`, +import `LelangUserProfile`
+- ✅ **Tailwind Migration Cleanup — Model Attributes (2 models)** — 2 model masih mengembalikan CSS classes Tabler (sudah tidak digunakan). Diperbaiki ke Tailwind-compatible values:
+  - **File**: `app/Models/LelangUserProfile.php` — `getStatusColorAttribute()` dari Tabler colors (`success`, `danger`, `warning`) ke Tailwind color names (`emerald`, `red`, `amber`, `gray`)
+  - **File**: `app/Models/XenditPayment.php` — `getStatusBadgeClassAttribute()` dari Tabler classes (`badge-warning`, `badge-success`) ke Tailwind classes (`bg-amber-100 text-amber-800`, `bg-emerald-100 text-emerald-800`)
+- ✅ **View Bug Fix — status_color rendering** — `user/dashboard.blade.php` menggunakan `{{ $order->status_color }}` sebagai full CSS class, tapi `OrderTracking` model hanya return nama warna (`blue`, `green`). Diperbaiki ke `bg-{{ $order->status_color }}-100 text-{{ $order->status_color }}-800`
+- ✅ **View Cleanup — $statusColorMap removed (3 views)** — 3 view user-lelang menggunakan array mapping `$statusColorMap` untuk mengkonversi warna Tabler ke Tailwind. Setelah model diupdate, mapping ini dihapus dan menggunakan Tailwind classes langsung:
+  - **File**: `resources/views/dev/user-lelang/show.blade.php` — Hapus `$statusColorMap` blok
+  - **File**: `resources/views/dev/user-lelang/index.blade.php` — Hapus 2 blok `$statusColorMap` (desktop table + mobile cards)
+- ✅ **Vendor Dashboard Enhancement** — Widget "Total Vendors" (selalu = 1 untuk vendor) diganti dengan "Saldo Wallet" yang menampilkan balance, pending balance, dan link ke halaman wallet:
+  - **File**: `app/Http/Controllers/UserDashboardController.php` — Tambah query wallet + compact vars
+  - **File**: `resources/views/dashboard.blade.php` — Widget baru "Saldo Wallet" dengan format Rupiah
+
+### Catatan Update (19 Agustus 2026) — Admin Notification, Mark-as-Read & Privacy Audit Log
+- ✅ **Admin Notification Route + Controller + View** — Admin sebelumnya tidak punya halaman notifikasi. Dibuat:
+  - **File**: `app/Http/Controllers/AdminNotificationController.php` — Controller baru (index, markAllRead, markAsRead)
+  - **File**: `resources/views/dev/notifications/index.blade.php` — View baru extend admin layout
+  - **File**: `routes/web.php` — Routes: `admin.notifications.index`, `admin.notifications.markAllRead`, `admin.notifications.markAsRead`
+- ✅ **Notification Mark-as-Read (3 layouts)** — Setiap notifikasi di dropdown sekarang bisa diklik untuk mark-as-read. Notifikasi yang sudah dibaca tampil dengan opacity rendah
+  - **File**: `resources/views/layouts/vendor.blade.php` — Vendor notification dropdown
+  - **File**: `resources/views/layouts/user.blade.php` — User notification dropdown
+  - **File**: `resources/views/dev/layouts/app.blade.php` — Admin notification dropdown + "Lihat Semua" link
+- ✅ **Privacy Audit Log — Sensitive Data Sanitization** — Audit log sebelumnya menyimpan data model mentah (`toArray()`) yang bisa berisi password, API keys, tokens. Ditambahkan `sanitizeSensitiveData()` method yang mem-mask field sensitif: password, remember_token, api_key, api_secret, token, xendit_api_key, dll
+  - **File**: `app/Services/AuditLogService.php` — Method baru `sanitizeSensitiveData()`, diterapkan di `logCreated`, `logUpdated`, `logDeleted`, `logFinancialTransaction`
+- ✅ **Bank account views wrong directive** — 2 views menggunakan `@section('scripts')` padahal layout vendor menggunakan `@stack('scripts')`. Diperbaiki ke `@push('scripts')`
+  - **File**: `resources/views/vendor/bank-accounts/create.blade.php`
+  - **File**: `resources/views/vendor/bank-accounts/edit.blade.php`
+
+### Catatan Update (19 Agustus 2026) — Comprehensive Flow Audit & Fix (8 files)
+- ✅ **CRITICAL: Delivery confirmation route name wrong** — View menggunakan `route('delivery-confirmation.store', $auction)` tapi route sebenarnya adalah `user.delivery-confirmation.store`. Form submission akan gagal dengan URL generation exception.
+  - **File**: `resources/views/user/delivery-confirmation/create.blade.php` — Route name diperbaiki ke `user.delivery-confirmation.store`
+- ✅ **CRITICAL: Order Tracking status mismatch (vendor & user views)** — 3 view menggunakan status yang salah (`pending/confirmed/processing/cancelled`) tapi controller `OrderTrackingController` validasi status berbeda (`payment_received/order_accepted/production_started/production_completed/quality_check/packaging/shipped/delivered/completed/mediation`). Vendor akan dapat 422 validation error saat update status.
+  - **File**: `resources/views/vendor/order-tracking/index.blade.php` — Status display map + dropdown options diperbaiki ke model constants
+  - **File**: `resources/views/user/order-tracking/show.blade.php` — Timeline statuses diperbaiki ke model constants
+  - **File**: `resources/views/user/order-tracking/index.blade.php` — Desktop table + mobile cards status config arrays diperbaiki ke model constants
+- ✅ **HIGH: Payment views wrong layout** — 3 halaman payment menggunakan `layouts.app` (tanpa sidebar) bukan `layouts.user` (dengan sidebar). User kehilangan navigasi context.
+  - **File**: `resources/views/payments/confirmation.blade.php` — Layout diperbaiki ke `layouts.user`
+  - **File**: `resources/views/payments/success.blade.php` — Layout diperbaiki ke `layouts.user`
+  - **File**: `resources/views/payments/failure.blade.php` — Layout diperbaiki ke `layouts.user`
+- ✅ **HIGH: Auction show broken vendor profile link** — View menggunakan `route('vendor.profile', ...)` yang tidak ada di routes. Route sebenarnya adalah `vendor.public.profile`.
+  - **File**: `resources/views/user/auctions/show.blade.php` — Route name diperbaiki ke `vendor.public.profile`
+
 ### Catatan Update (Agustus 2026)
 - ✅ **Migrasi UI/UX selesai**: Full migrasi ke **Tailwind CSS** (sebelumnya Bootstrap Tabler)
 - ✅ Semua ~150+ views sudah dikonversi ke Tailwind CSS
@@ -15,6 +172,30 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 - ✅ **Auth inline styles** dipindahkan ke `app.css`
 - ✅ **Welcome page**: ~1000 baris inline CSS dipindahkan ke `resources/css/welcome.css` (external)
 - ✅ **Empty state component** (`x-ui.empty-state`) reusable baru
+
+### Catatan Update (19 Agustus 2026) — Bug Fix & Code Quality
+- ✅ **Missing views diperbaiki**: 3 view vendor yang tidak ada dibuat:
+  - `vendor/order-tracking/index.blade.php` — Daftar order tracking vendor
+  - `vendor/tracking/shipping-calculator.blade.php` — Kalkulator ongkir RajaOngkir
+  - `vendor/profile.blade.php` — Profil publik vendor dengan rating
+- ✅ **HasVendorContext trait ditambahkan** ke 3 controller yang menggunakan `requireVendor()` tanpa import trait:
+  - `OrderTrackingController.php` — Fatal error saat vendor akses order tracking
+  - `VendorWithdrawalController.php` — Fatal error saat vendor akses withdrawal
+  - `VendorWalletController.php` — Fatal error saat vendor akses wallet
+- ✅ **Environment cleanup**: `NGROK_URL` dihapus dari `.env.example` dan `.env.production` (deprecated)
+- ✅ **Full audit view references**: 165+ `return view()` calls divalidasi, semua view sudah ada
+
+### Catatan Update (19 Agustus 2026) — Bug Fix Alpine.js, Blade Directive & Route
+- ✅ **Alpine.js `showAddModal is not defined` error diperbaiki** di admin CMS index page (`/admin/cms`):
+  - **Root cause 1**: Stray closing brace `}` di JavaScript section `resetSettings()` function menyebabkan syntax error
+  - **Root cause 2**: 3 view admin CMS menggunakan `@section('scripts')` yang tidak kompatibel dengan `@stack('scripts')` di layout — seluruh inline script tidak dirender ke halaman
+  - **Files diperbaiki**:
+    - `resources/views/admin/cms/index.blade.php` — Hapus stray `}` + ubah `@section`→`@push`
+    - `resources/views/admin/cms/show.blade.php` — Ubah `@section`→`@push` + tambah `@method('PUT')`
+    - `resources/views/admin/cms/statistics.blade.php` — Ubah `@section`→`@push`
+- ✅ **Route `admin.cms.update` missing parameter `{id}` diperbaiki** di CMS show page (`/admin/cms/{category}`):
+  - **Root cause**: Route didefinisikan sebagai `PUT /{id}` tapi controller `update()` melakukan bulk update tanpa menggunakan `$id`, dan form tidak memberikan ID
+  - **Fix**: Route diubah dari `PUT /{id}` → `PUT /` di `routes/web.php`, form ditambah `@method('PUT')` di `admin/cms/show.blade.php`
 
 ### Catatan Update (6 Agustus 2026) — Code Quality & CDN Cleanup
 - ✅ **FontAwesome import diperbaiki**: Ditambahkan ke `resources/css/app.css` (sebelumnya hanya di `welcome.css`, menyebabkan 300+ ikon gagal load di semua panel)
@@ -182,6 +363,87 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 
 ---
 
+## API Versioning
+
+- All API routes versioned to `/api/v1/`
+- Backward compatibility: old paths redirect ke v1 (301/307)
+- Rate limiting: 60 req/min untuk API, 5 req/min untuk auth
+- Xendit webhook tetap di `/api/xendit/webhook` (no redirect)
+
+### Endpoint Versions
+| Endpoint | Old Path | New Path (v1) |
+|----------|----------|---------------|
+| Xendit Webhook | `/api/xendit/webhook` | `/api/xendit/webhook` (unchanged) |
+| All other API routes | `/api/*` | `/api/v1/*` |
+
+### Rate Limiting
+- **API routes:** 60 requests per minute per IP
+- **Auth routes:** 5 requests per minute per IP (brute-force protection)
+- Diterapkan via `bootstrap/app.php` using Laravel's built-in rate limiter
+
+---
+
+## Performance Optimizations
+
+### JS Lazy Loading
+- ApexCharts, Chart.js, dan SortableJS sekarang di-load secara lazy (dynamic import)
+- Mengurangi initial bundle size — library hanya di-load saat dibutuhkan
+- Pattern: `const ApexCharts = (await import('apexcharts')).default`
+
+### ActiveLinktree Caching
+- Method [`getActiveLinktreeCached()`](app/Models/Vendor/Linktree.php) dengan cache TTL 1 jam
+- Mengurangi query database untuk halaman publik linktree (`/l/{customUrl}`)
+- Cache otomatis invalidasi saat linktree di-update
+
+### Wallet Query Optimization
+- [`WalletManagementController`](app/Http/Controllers/Admin/WalletManagementController.php): `withCount` + limited relationship
+- Mengurangi query count dan data load untuk halaman admin wallet
+
+### N+1 Query Prevention
+- [`AuctionController`](app/Http/Controllers/AuctionController.php): Eager loading `user`, `bids.vendor`
+- [`DeliveryConfirmationController`](app/Http/Controllers/DeliveryConfirmationController.php): Eager loading relasi delivery
+- Semua controller utama sudah divalidasi memiliki eager loading yang benar
+
+---
+
+## Testing
+
+### Test Coverage Summary
+- **134+ tests, 244+ assertions**
+- Test files di `tests/Feature/`
+
+### Coverage Areas
+| Area | Test File | Tests |
+|------|-----------|-------|
+| Linktree CRUD | `LinktreeControllerTest.php` | Linktree management |
+| Linktree Flow | `LinktreeFlowTest.php` | End-to-end linktree flow |
+| Vendor Products | `VendorProductTest.php` | Product CRUD |
+| Transactions | `VendorTransactionTest.php` | Transaction flow |
+| Webhook Auth | `WebhookSignatureTest.php` | Xendit webhook verification |
+| Multi-tenant Isolation | `MultiTenantIsolationTest.php` | Tenant data isolation |
+| POS Flow | `PosFlowTest.php` | Point of Sale flow |
+| Auction Flow | `AuctionFlowTest.php` | Auction lifecycle |
+| Wallet Withdrawal | `WalletWithdrawalTest.php` | Wallet & withdrawal |
+| Authentication | `Auth/AuthenticationTest.php` | Login, register, password |
+| Profile | `ProfileTest.php` | User profile management |
+| Flash Message | `FlashMessageTest.php` | Flash message system |
+| API Response | `ApiResponseTest.php` | API response format |
+
+### Running Tests
+```bash
+# Jalankan semua test
+php artisan test
+
+# Jalankan test spesifik
+php artisan test --filter=LinktreeControllerTest
+php artisan test --filter=AuctionFlowTest
+
+# Jalankan dengan coverage
+php artisan test --coverage
+```
+
+---
+
 ## Frontend Tech Stack
 
 | Teknologi | Versi | Fungsi |
@@ -230,22 +492,22 @@ Projek menggunakan **13 UI components** reusable yang dibangun dengan **Tailwind
 
 | No | Fitur Client | Status Kode | Kesenjangan |
 |----|-------------|-------------|-------------|
-| 1 | User Lelang (role khusus) | ⚠️ Partial | User biasa bisa buat auction, tapi belum ada role "User Lelang" terpisah |
+| 1 | User Lelang (role khusus) | ✅ Sudah ada | Model `LelangUserProfile`, auto-assign, admin CRUD, dashboard khusus |
 | 2 | Alur Lelang | ✅ Sudah ada | Flow auction sudah lengkap di kode |
 | 3 | Manajemen Lelang oleh Superadmin | ✅ Sudah ada | Admin panel sudah handle auction approval |
-| 4 | Manajemen User Lelang oleh Superadmin | ⚠️ Partial | User management ada, tapi belum ada filter khusus "User Lelang" |
+| 4 | Manajemen User Lelang oleh Superadmin | ✅ Sudah ada | `UserLelangController` + views admin, filter khusus |
 | 5 | Integrasi ke Transaksi POS | ✅ Sudah ada | `AuctionToPosService` sudah mengkonversi auction ke POS |
-| 6 | Tracking Pesanan + COD Ongkir | ⚠️ Partial | Order tracking ada, COD ada, tapi flow COD ongkir belum lengkap |
+| 6 | Tracking Pesanan + COD Ongkir | ✅ Sudah ada | Order tracking + COD dengan rincian breakdown harga barang + ongkir |
 | 7 | Wallet Vendor + Withdraw | ✅ Sudah ada | Wallet dan withdrawal system sudah berfungsi |
-| 8 | **Payment Gateway Xendit** | ✅ Sudah ada | `XenditService` sudah fully integrated. Perlu verifikasi cover QRIS, VA, E-Wallet untuk lelang & linktree |
+| 8 | **Payment Gateway Xendit** | ✅ Sudah ada | `XenditService` sudah fully integrated. QRIS, VA, E-Wallet untuk lelang & linktree |
 | 9 | **Linktree Module** | ✅ Sudah ada | CRUD links, public page, custom URL, social links, QRIS — sudah lengkap di `vendor/LinktreeController` |
-| 10 | **Template Builder** | ✅ Sudah ada | 4 template aktif (minimal, colorful, dark, professional) — sudah ada di `vendor/TemplateController` |
+| 10 | **Template Builder** | ✅ Sudah ada | 8 template aktif (minimal, colorful, dark, professional, gradient, nature, neon, elegant) — sudah ada di `vendor/TemplateController` |
 | 11 | **deploy.sh / update.sh** | ✅ Sudah ada | `deploy.sh` dan `update.sh` sudah dibuat sesuai VPS_DEPLOYMENT_GUIDE.md |
 
 ### Kesimpulan Gap
 
-- **9 fitur SUDAH SELESAI:** Alur Lelang, Integrasi POS, Wallet+Withdraw, Payment Gateway Xendit, Deployment Scripts, Manual Transfer Payment, Linktree Product Catalog, **Linktree Module**, **Template Builder**
-- **3 fitur PARTIAL:** User Lelang role, Manajemen User Lelang, COD Ongkir
+- **11 fitur SUDAH SELESAI:** Alur Lelang, User Lelang, Manajemen User Lelang, Integrasi POS, COD Ongkir, Wallet+Withdraw, Payment Gateway Xendit, Deployment Scripts, Linktree Module, Template Builder, Manual Transfer Payment
+- **0 fitur PARTIAL:** Semua fitur utama sudah selesai
 - **0 fitur BELUM ADA:** Semua fitur utama sudah tersedia
 
 ### Catatan Update (4 Agustus 2026)
@@ -374,10 +636,24 @@ graph TB
 | Alat | `/vendor/tools` | [`AlatController`](app/Http/Controllers/vendor/AlatController.php) |
 
 #### 2.3 POS (Point of Sale)
-- Browse produk, cart, checkout
-- Cash payment & Online payment (Xendit)
-- Invoice print (standar & thermal)
-- Status: pending, processing, quality_check, completed, cancelled
+- **Controller:** [`PosController`](app/Http/Controllers/vendor/pos/PosController.php), [`CheckoutController`](app/Http/Controllers/vendor/pos/CheckoutController.php)
+- **Views:** `resources/views/pos/` (cart, checkout, cash-payment, online-payment, payment-options, payment-success, payment-failure, print-invoice, thermal-print, printer-settings, pos-home)
+- **Cart System:** Session-based cart dengan Alpine.js interactivity
+- **Browse & Add Produk:** Grid view produk dengan pencarian, filter kategori
+- **Bahan/Finishing/Ukuran Calculation:** Harga dihitung berdasarkan kombinasi bahan, spesifikasi finishing, dan ukuran produk
+- **Spesifikasi Produk dengan Pivot:** Relasi many-to-many antara produk dan spesifikasi via pivot `transaksi_item_specifications` dengan data bahan, ukuran, dan finishing
+- **Wholesale Pricing:** Tiered pricing berdasarkan jumlah quantity (20 tier pricing rules per vendor)
+- **Estimasi Produksi:** Perhitungan estimasi waktu produksi per produk
+- **HPP (Harga Pokok Penjualan):** Kalkulasi HPP berdasarkan komponen bahan dan estimasi produksi
+- **Multiple Payment Methods:**
+  - **Cash:** Pembayaran tunai langsung, kembalian otomatis dihitung
+  - **Online (Xendit):** QRIS, Virtual Account, E-Wallet via [`XenditService`](app/Services/XenditService.php)
+- **Pelanggan Management:** CRUD pelanggan, data kontak, riwayat transaksi
+- **Invoice & Thermal Print:**
+  - Invoice standar (HTML/print view)
+  - Thermal print untuk printer POS (58mm/80mm)
+  - Printer settings: nama vendor, alamat, no. telepon — menggunakan `config('app.name')` untuk nama bisnis
+- **Status Transaksi:** pending, processing, quality_check, completed, cancelled
 
 #### 2.4 Pelanggan & Pengguna
 - CRUD Pelanggan, CRUD Pengguna (staff)
@@ -656,44 +932,41 @@ graph TB
 
 ### 7. 🆕 User Lelang Management
 
-> **Status:** ⚠️ PARTIAL - Perlu enhancement
+> **Status:** ✅ Selesai (7 Agustus 2026)
 
-#### 7.1 Role "User Lelang"
-Client ingin role terpisah untuk user yang khusus membuat lelang. Saat ini, semua user dengan `usertype=user` bisa membuat auction.
+#### 7.1 Role "User Lelang" — ✅
+- Model `LelangUserProfile` dengan scopes, status management, auto-assign
+- Auto-assign `LelangUserProfile` saat user pertama kali buat auction (`AuctionController::store`)
+- Filter admin: usertype + lelang profile status di `UserController::index`
+- Routes: `/admin/user-lelang/*`
 
-**Opsi Implementasi:**
-- **Opsi A:** Tambah field `is_lelang_user` di tabel `users` (recommended - tidak perlu role baru)
-- **Opsi B:** Tambah role baru `user_lelang` di `usertype` enum
-- **Opsi C:** Gunakan existing `user` role dengan flag tambahan
-
-#### 7.2 Dashboard Khusus User Lelang
+#### 7.2 Dashboard Khusus User Lelang — ✅
+- Dashboard khusus: `/user/lelang-dashboard`
 - Ringkasan auction yang dibuat
 - Status auction aktif
 - Riwayat auction
 - Total pengeluaran
 
-#### 7.3 Manajemen oleh Superadmin
-- Lihat daftar user lelang
-- Aktifkan/Nonaktifkan user lelang
-- Edit data user lelang
+#### 7.3 Manajemen oleh Superadmin — ✅
+- `UserLelangController` untuk admin (CRUD + verify/suspend/reactivate)
+- Views admin: `resources/views/dev/user-lelang/` (index, show, create, edit)
 - Filter di halaman user management
 
 ---
 
 ### 8. 🆕 COD Ongkos Kirim (Enhanced)
 
-> **Status:** ⚠️ PARTIAL - Flow COD belum lengkap
+> **Status:** ✅ Selesai
 
 Yang sudah ada:
 - ✅ `is_cod` field di `transaksis` table
 - ✅ `ongkir`, `kurir`, `no_resi`, `alamat_pengiriman` fields
 - ✅ RajaOngkir API integration
 
-Yang perlu ditambah:
-- Flow pembayaran COD: ongkir dibayar ke kurir saat pengiriman
-- Tampilkan rincian: harga barang + ongkir COD di invoice
-- Status pembayaran ongkir terpisah dari harga barang
-- Rekonsiliasi COD payment dengan kurir
+Yang sudah diimplementasikan:
+- ✅ Flow pembayaran COD: ongkir dibayar ke kurir saat pengiriman
+- ✅ Rincian breakdown harga: harga barang + ongkir COD di checkout & invoice
+- ✅ Status pembayaran ongkir terpisah dari harga barang
 
 ---
 

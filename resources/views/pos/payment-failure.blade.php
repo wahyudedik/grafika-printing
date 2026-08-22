@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Pembayaran Gagal - ' . $transaksi->kode)
 

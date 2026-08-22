@@ -61,7 +61,7 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @foreach ($bahan->wholesalePrices()->orderBy('min_quantity', 'asc')->get() as $price)
+                                            @foreach ($bahan->wholesalePrices->sortBy('min_quantity') as $price)
                                                 <tr>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $price->min_quantity }}</td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $price->max_quantity ?? 'Unlimited' }}</td>

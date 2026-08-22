@@ -17,12 +17,16 @@ class Bahan extends TenantModel
         'nama_bahan',
         'hpp',
         'satuan',
-        'stok'
+        'stok',
+        'minimum_stok',
+        'maksimum_stok',
     ];
 
     protected $casts = [
         'hpp' => 'decimal:2',
-        'stok' => 'integer'
+        'stok' => 'integer',
+        'minimum_stok' => 'integer',
+        'maksimum_stok' => 'integer',
     ];
 
     /**
@@ -38,10 +42,14 @@ class Bahan extends TenantModel
         return $this->hasMany(WholesalePrice::class, 'bahan_id');
     }
 
-    // In app/Models/Vendor/Bahan.php
     public function wholesalePrice()
     {
         return $this->wholesalePrices();
+    }
+
+    public function stockAlerts()
+    {
+        return $this->hasMany(StockAlert::class, 'bahan_id');
     }
 
     /**
@@ -83,25 +91,25 @@ class Bahan extends TenantModel
     /**
      * Helper methods
      */
+
+    /**
+     * Get price for a given quantity, considering wholesale pricing tiers.
+     *
+     * @deprecated Gunakan PriceCalculationService::getPriceForQuantity() sebagai gantinya
+     */
     public function getPriceForQuantity(int $quantity): float
     {
-        $wholesalePrice = $this->wholesalePrices()
-            ->where('min_quantity', '<=', $quantity)
-            ->where(function ($query) use ($quantity) {
-                $query->where('max_quantity', '>=', $quantity)
-                    ->orWhereNull('max_quantity');
-            })
-            ->orderBy('min_quantity', 'desc')
-            ->first();
-
-        return $wholesalePrice ? (float) $wholesalePrice->harga : (float) $this->hpp;
+        $priceCalcService = app(\App\Services\PriceCalculationService::class);
+        return $priceCalcService->getPriceForQuantity($this, $quantity);
     }
 
     public function getStockStatusAttribute(): string
     {
+        $minimumStock = $this->minimum_stok ?? 5;
+
         if ($this->stok == 0) {
             return 'out';
-        } elseif ($this->stok < 10) {
+        } elseif ($this->stok <= $minimumStock) {
             return 'low';
         } else {
             return 'available';
@@ -118,25 +126,17 @@ class Bahan extends TenantModel
     }
 
     /**
-     * Check if the stock level is low and update status accordingly
+     * Check if the stock level is low and update status accordingly.
+     * Uses the configurable minimum_stok field from the database.
      *
      * @return void
      */
     public function checkStockLevel()
     {
-        // Assuming you have a 'stok' column in your bahans table
-        // If you have a minimum_stok field, use that, otherwise use a default value
-        $minimumStock = $this->minimum_stok ?? 5; // Default minimum stock level is 5
+        $minimumStock = $this->minimum_stok ?? 5;
 
         if ($this->stok <= $minimumStock) {
-            // If you have a status field, update it
-            if (isset($this->attributes['status'])) {
-                $this->status = 'low_stock';
-                $this->save();
-            }
-
-            // You could log low stock situations
-            Log::warning("Low stock alert: {$this->nama_bahan} (ID: {$this->id}) - Current stock: {$this->stok}");
+            Log::warning("Low stock alert: {$this->nama_bahan} (ID: {$this->id}) - Current stock: {$this->stok}, Minimum: {$minimumStock}");
         }
     }
 }

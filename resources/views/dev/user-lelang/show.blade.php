@@ -15,18 +15,7 @@
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ $profile->user->name ?? '-' }}</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400">{{ $profile->user->email ?? '-' }}</p>
                     <div class="flex justify-center gap-2 mt-3">
-                        @php
-                            $statusColorMap = [
-                                'success' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-                                'warning' => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-                                'danger' => 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-                                'info' => 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
-                                'primary' => 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400',
-                                'secondary' => 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-                            ];
-                            $badgeClass = $statusColorMap[$profile->status_color] ?? $statusColorMap['secondary'];
-                        @endphp
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badgeClass }}">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ $profile->status_color }}-100 text-{{ $profile->status_color }}-800">
                             {{ $profile->status_label }}
                         </span>
                         @if($profile->is_verified)

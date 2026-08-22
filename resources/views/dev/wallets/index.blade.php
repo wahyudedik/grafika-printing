@@ -122,7 +122,7 @@
                                     @endif
                                 </td>
                                 <td class="px-5 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    @if ($wallet->transactions->count() > 0)
+                                    @if ($wallet->transactions_count > 0)
                                         {{ $wallet->transactions->first()->created_at->diffForHumans() }}
                                     @else
                                         No transactions

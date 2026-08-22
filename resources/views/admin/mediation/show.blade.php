@@ -9,9 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Admin Panel</p>
             <h1 class="text-2xl font-bold text-gray-900">Detail Mediasi #{{ $mediationRequest->id }}</h1>
         </div>
-        <x-ui.button variant="outline" :href="route('admin.mediation.index')">
+        <a href="{{ route('admin.mediation.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
-        </x-ui.button>
+        </a>
     </div>
 </div>
 
@@ -66,9 +66,9 @@
                     <label class="block text-sm font-semibold text-gray-900 mb-2">Bukti</label>
                     <div class="flex flex-wrap gap-2">
                         @foreach($mediationRequest->evidence_files as $file)
-                        <x-ui.button variant="outline-info" :href="Storage::url($file)" size="sm">
+                        <a href="{{ Storage::url($file) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                             <i class="fas fa-file mr-1"></i> Bukti {{ $loop->iteration }}
-                        </x-ui.button>
+                        </a>
                         @endforeach
                     </div>
                 </div>
@@ -213,15 +213,15 @@
         <div class="flex gap-3">
             <form action="{{ route('admin.mediation.start-review', $mediationRequest) }}" method="POST">
                 @csrf
-                <x-ui.button variant="primary" type="submit">
+                <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-eye mr-2"></i> Mulai Review
-                </x-ui.button>
+                </button>
             </form>
             <form id="close-mediation-form" action="{{ route('admin.mediation.close', $mediationRequest) }}" method="POST">
                 @csrf
-                <x-ui.button variant="outline-danger" type="submit" onclick="event.preventDefault(); confirmAction({ title: 'Tutup Mediasi', text: 'Tutup mediasi ini?', icon: 'warning', confirmText: 'Ya, Tutup', onConfirm: () => document.getElementById('close-mediation-form').submit() })">
+                <button type="submit" onclick="event.preventDefault(); confirmAction({ title: 'Tutup Mediasi', text: 'Tutup mediasi ini?', icon: 'warning', confirmText: 'Ya, Tutup', onConfirm: () => document.getElementById('close-mediation-form').submit() })" class="inline-flex items-center justify-center border border-red-300 text-red-700 hover:bg-red-50 font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-times mr-2"></i> Tutup
-                </x-ui.button>
+                </button>
             </form>
         </div>
     </div>
@@ -266,12 +266,12 @@
                     <textarea name="admin_notes" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500" rows="2" placeholder="Catatan internal..."></textarea>
                 </div>
                 <div class="md:col-span-2">
-                    <x-ui.button type="submit" variant="success" onclick="event.preventDefault(); confirmAction({ title: 'Selesaikan Mediasi', text: 'Selesaikan mediasi dengan keputusan ini?', icon: 'question', confirmText: 'Ya, Selesaikan', onConfirm: () => this.closest('form').submit() })">
+                    <button type="submit" onclick="event.preventDefault(); confirmAction({ title: 'Selesaikan Mediasi', text: 'Selesaikan mediasi dengan keputusan ini?', icon: 'question', confirmText: 'Ya, Selesaikan', onConfirm: () => this.closest('form').submit() })" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-check mr-2"></i> Selesaikan Mediasi
-                    </x-ui.button>
-                    <x-ui.button type="button" variant="outline-danger" class="ml-2" onclick="document.querySelector('[name=admin_decision]').value=''; this.closest('form').action='{{ route('admin.mediation.close', $mediationRequest) }}'; this.closest('form').submit();">
+                    </button>
+                    <button type="button" onclick="document.querySelector('[name=admin_decision]').value=''; this.closest('form').action='{{ route('admin.mediation.close', $mediationRequest) }}'; this.closest('form').submit();" class="inline-flex items-center justify-center border border-red-300 text-red-700 hover:bg-red-50 font-semibold py-2 px-4 rounded-lg transition ml-2">
                         <i class="fas fa-times mr-2"></i> Tutup
-                    </x-ui.button>
+                    </button>
                 </div>
             </div>
         </form>

@@ -71,16 +71,10 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('xendit.example.show-payment', $payment->external_id) }}"
+                    <a href="{{ route('user.dashboard') }}"
                         class="block w-full bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition duration-200">
-                        <i class="fas fa-receipt mr-2"></i>
-                        Lihat Detail Pembayaran
-                    </a>
-
-                    <a href="{{ route('xendit.example.index') }}"
-                        class="block w-full bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 transition duration-200">
-                        <i class="fas fa-plus mr-2"></i>
-                        Buat Pembayaran Baru
+                        <i class="fas fa-home mr-2"></i>
+                        Kembali ke Dashboard
                     </a>
                 </div>
             </div>

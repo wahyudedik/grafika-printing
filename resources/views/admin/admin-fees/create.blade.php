@@ -9,9 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Pengaturan</p>
             <h1 class="text-2xl font-bold text-gray-900">Tambah Pengaturan Biaya Admin</h1>
         </div>
-        <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
+        <a href="{{ route('admin.admin-fees.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
-        </x-ui.button>
+        </a>
     </div>
 
     {{-- Form --}}
@@ -122,10 +122,10 @@
             </div>
 
             <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">Batal</x-ui.button>
-                <x-ui.button variant="primary" type="submit">
+                <a href="{{ route('admin.admin-fees.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">Batal</a>
+                <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fa-solid fa-check mr-2"></i> Simpan Pengaturan
-                </x-ui.button>
+                </button>
             </div>
         </div>
     </form>

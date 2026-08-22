@@ -68,10 +68,10 @@ class LelangUserProfile extends Model
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {
-            'active' => 'success',
-            'suspended' => 'danger',
-            'pending' => 'warning',
-            default => 'secondary',
+            'active' => 'emerald',
+            'suspended' => 'red',
+            'pending' => 'amber',
+            default => 'gray',
         };
     }
 

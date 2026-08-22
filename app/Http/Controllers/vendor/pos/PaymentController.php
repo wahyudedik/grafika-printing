@@ -139,6 +139,18 @@ class PaymentController extends Controller
             $response = $this->xenditService->createPaymentLink($paymentData);
 
             if ($response && isset($response['invoice_url'])) {
+                // Create XenditPayment record with transaksi_id
+                \App\Models\XenditPayment::create([
+                    'external_id' => $externalId,
+                    'xendit_id' => $response['id'] ?? null,
+                    'amount' => $totalAmount,
+                    'status' => 'pending',
+                    'checkout_url' => $response['checkout_url'] ?? null,
+                    'payment_method' => $request->payment_type,
+                    'user_id' => auth()->id(),
+                    'transaksi_id' => $transaksi->id,
+                ]);
+
                 // Update transaction with Xendit payment info
                 $transaksi->update([
                     'payment_method' => 'xendit',

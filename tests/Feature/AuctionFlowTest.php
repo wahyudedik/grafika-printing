@@ -357,13 +357,13 @@ class AuctionFlowTest extends TestCase
         $payment = new XenditPayment();
 
         $payment->status = 'pending';
-        $this->assertEquals('badge-warning', $payment->status_badge_class);
+        $this->assertEquals('bg-amber-100 text-amber-800', $payment->status_badge_class);
 
         $payment->status = 'paid';
-        $this->assertEquals('badge-success', $payment->status_badge_class);
+        $this->assertEquals('bg-emerald-100 text-emerald-800', $payment->status_badge_class);
 
         $payment->status = 'expired';
-        $this->assertEquals('badge-danger', $payment->status_badge_class);
+        $this->assertEquals('bg-red-100 text-red-800', $payment->status_badge_class);
     }
 
     public function test_xendit_payment_is_paid_method(): void

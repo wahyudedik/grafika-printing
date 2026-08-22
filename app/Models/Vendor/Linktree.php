@@ -7,6 +7,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Linktree extends TenantModel
 {
+    /**
+     * Auto-flush vendor active linktree cache when this model is saved or deleted.
+     */
+    protected static function booted(): void
+    {
+        parent::booted();
+
+        static::saved(function (Linktree $linktree) {
+            if ($linktree->vendor) {
+                $linktree->vendor->flushActiveLinktreeCache();
+            }
+        });
+
+        static::deleted(function (Linktree $linktree) {
+            if ($linktree->vendor) {
+                $linktree->vendor->flushActiveLinktreeCache();
+            }
+        });
+    }
+
     protected $fillable = [
         'title',
         'custom_url',
@@ -97,6 +117,14 @@ class Linktree extends TenantModel
     public function activeLinktreeProducts(): HasMany
     {
         return $this->linktreeProducts()->where('is_active', true)->orderBy('sort_order');
+    }
+
+    /**
+     * Get the orders for this linktree.
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(LinktreeOrder::class);
     }
 
     /**

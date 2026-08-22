@@ -17,15 +17,21 @@ class TransaksiItem extends TenantModel
         'transaksi_id',
         'produk_id',
         'kuantitas',
-        'harga_satuan'
+        'harga_satuan',
+        'hpp_satuan',
+        'hpp_total',
+        'laba',
     ];
 
     protected $casts = [
         'kuantitas' => 'integer',
-        'harga_satuan' => 'decimal:2', 
+        'harga_satuan' => 'decimal:2',
+        'hpp_satuan' => 'decimal:2',
+        'hpp_total' => 'decimal:2',
+        'laba' => 'decimal:2',
         'vendor_id' => 'integer',
         'transaksi_id' => 'integer',
-        'produk_id' => 'integer'
+        'produk_id' => 'integer',
     ];
 
     public function vendor()
@@ -53,10 +59,18 @@ class TransaksiItem extends TenantModel
         return $this->kuantitas * $this->harga_satuan;
     }
 
+    /**
+     * Hitung laba bersih untuk item ini.
+     */
+    public function getLabaItemAttribute(): float
+    {
+        return ($this->kuantitas * $this->harga_satuan) - $this->hpp_total;
+    }
+
     protected static function booted()
     {
         parent::booted();
-        
+
         static::deleting(function ($transaksiItem) {
             // Delete related specifications when item is deleted
             $transaksiItem->transaksiItemSpecifications()->delete();

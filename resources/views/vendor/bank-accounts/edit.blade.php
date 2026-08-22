@@ -191,7 +191,7 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
     function bankForm() {
         return {

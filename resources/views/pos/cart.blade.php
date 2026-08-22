@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Keranjang Belanja')
 

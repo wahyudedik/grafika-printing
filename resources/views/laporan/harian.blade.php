@@ -46,7 +46,7 @@
                     <h3 class="text-lg font-semibold text-gray-900">Ringkasan Penjualan {{ $selectedDate->format('d F Y') }}</h3>
                 </div>
                 <div class="p-6">
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
                         <div class="bg-gray-50 rounded-lg p-4 text-center">
                             <div class="text-3xl font-bold text-gray-900">{{ $totalTransaksi }}</div>
                             <div class="text-sm text-gray-500 mt-1">Total Transaksi</div>
@@ -54,6 +54,16 @@
                         <div class="bg-gray-50 rounded-lg p-4 text-center">
                             <div class="text-3xl font-bold text-gray-900">Rp {{ number_format($totalPenjualan, 0, ',', '.') }}</div>
                             <div class="text-sm text-gray-500 mt-1">Total Penjualan</div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-900">Rp {{ number_format($totalHpp ?? 0, 0, ',', '.') }}</div>
+                            <div class="text-sm text-blue-600 mt-1">Total HPP</div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold {{ ($totalLaba ?? 0) >= 0 ? 'text-green-900' : 'text-red-900' }}">Rp {{ number_format($totalLaba ?? 0, 0, ',', '.') }}</div>
+                            <div class="text-sm {{ ($totalLaba ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }} mt-1">Total Laba</div>
                         </div>
                     </div>
                 </div>
@@ -78,16 +88,18 @@
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Transaksi</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode Pembayaran</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                        </tr>
-                    </thead>
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode Transaksi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metode Pembayaran</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">HPP</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Laba</th>
+                    </tr>
+                </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($transaksis as $index => $transaksi)
                             <tr class="hover:bg-gray-50 transition-colors">
@@ -110,10 +122,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ ucfirst($transaksi->payment_method ?? '-') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">Rp {{ number_format($transaksi->hpp_total ?? 0, 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium {{ ($transaksi->laba_total ?? 0) >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    Rp {{ number_format($transaksi->laba_total ?? 0, 0, ',', '.') }}
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center">
+                                <td colspan="9" class="px-6 py-12 text-center">
                                     <div class="flex flex-col items-center">
                                         <i class="fas fa-receipt text-3xl text-gray-300 mb-3"></i>
                                         <p class="text-sm text-gray-500">Tidak ada transaksi pada tanggal ini</p>
@@ -130,7 +146,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", async function() {
             const penjualanPerJamData = {
                 labels: [
                     @foreach (range(0, 23) as $hour)
@@ -183,6 +199,7 @@
                 }
             };
 
+            const ApexCharts = await window.loadApexCharts();
             const chart = new ApexCharts(document.querySelector("#chart-penjualan-per-jam"), options);
             chart.render();
         });

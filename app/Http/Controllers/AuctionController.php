@@ -96,6 +96,7 @@ class AuctionController extends Controller
         $this->authorize('view', $auction);
 
         $auction->load(['user', 'bids.vendor', 'winnerVendor']);
+        $auction->loadCount('bids');
 
         return view('user.auctions.show', compact('auction'));
     }
@@ -182,7 +183,9 @@ class AuctionController extends Controller
      */
     public function myAuctions()
     {
-        $auctions = Auction::where('user_id', Auth::id()) ->with(['bids.vendor', 'winnerVendor'])
+        $auctions = Auction::where('user_id', Auth::id())
+            ->with(['bids.vendor', 'winnerVendor'])
+            ->withCount('bids')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

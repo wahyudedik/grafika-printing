@@ -37,7 +37,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
                 <select name="vendor_id" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500">
                     <option value="">Semua Vendor</option>
-                    @foreach (\App\Models\Vendor::all() as $vendor)
+                    @foreach ($vendors as $vendor)
                         <option value="{{ $vendor->id }}" {{ request('vendor_id') == $vendor->id ? 'selected' : '' }}>
                             {{ $vendor->name }}
                         </option>

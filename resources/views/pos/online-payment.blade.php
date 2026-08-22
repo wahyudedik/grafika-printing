@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Pembayaran Online - ' . $transaksi->kode)
 
@@ -25,7 +25,7 @@
                         </div>
                         <div>
                             <p><span class="text-gray-600">Total:</span> <span class="font-bold text-primary">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</span></p>
-                            <p><span class="text-gray-600">Item:</span> <span class="font-medium">{{ $transaksi->transaksiItems->count() }} item</span></p>
+                            <p><span class="text-gray-600">Item:</span> <span class="font-medium">{{ $transaksi->transaksiItem->count() }} item</span></p>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                                 <input type="tel"
                                     class="w-full px-4 py-3 border {{ $errors->has('customer_phone') ? 'border-danger focus:ring-danger' : 'border-gray-300 focus:ring-primary' }} rounded-lg focus:ring-2 focus:border-transparent outline-none transition @error('customer_phone') border-danger @enderror"
                                     id="customer_phone" name="customer_phone"
-                                    value="{{ $transaksi->pelanggan->telepon ?? '' }}" required>
+                                    value="{{ $transaksi->pelanggan->no_telp ?? '' }}" required>
                                 @error('customer_phone')
                                     <p class="text-xs text-danger mt-1">{{ $message }}</p>
                                 @enderror

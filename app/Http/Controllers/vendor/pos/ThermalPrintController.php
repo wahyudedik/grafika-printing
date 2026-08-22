@@ -42,7 +42,7 @@ class ThermalPrintController extends Controller
             // Get printer settings for this vendor
             $printerSettings = PrinterSetting::forVendor($vendor->id);
 
-            return view('pos.thermal-print', compact('transaksi', 'printerSettings'));
+            return view('pos.thermal-print', compact('transaksi', 'printerSettings') + ['method' => 'html']);
         } catch (\Exception $e) {
             Log::error('Thermal print error: ' . $e->getMessage());
             return FlashMessage::backError('Gagal mencetak: ' . $e->getMessage());
@@ -73,7 +73,7 @@ class ThermalPrintController extends Controller
             // Get printer settings for this vendor
             $printerSettings = PrinterSetting::forVendor($vendor->id);
 
-            return view('pos.thermal-print-js', compact('transaksi', 'printerSettings'));
+            return view('pos.thermal-print', compact('transaksi', 'printerSettings') + ['method' => 'js']);
         } catch (\Exception $e) {
             Log::error('Thermal print JS error: ' . $e->getMessage());
             return FlashMessage::backError('Gagal mencetak: ' . $e->getMessage());

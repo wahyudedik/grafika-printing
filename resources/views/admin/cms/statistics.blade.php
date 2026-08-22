@@ -7,9 +7,9 @@
         <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <i class="fas fa-chart-bar text-gray-400"></i>CMS Statistics
         </h1>
-        <x-ui.button variant="outline" :href="route('admin.cms.index')">
+        <a href="{{ route('admin.cms.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-arrow-left mr-2"></i>Back to CMS
-        </x-ui.button>
+        </a>
     </div>
 
     @php
@@ -111,11 +111,15 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
-        // Category Chart
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        const categoryChart = new Chart(categoryCtx, {
+        (async function() {
+            // Lazy load Chart.js
+            const Chart = await window.loadChart();
+
+            // Category Chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const categoryChart = new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
                 labels: {!! json_encode(array_keys($stats['by_category'])) !!},
@@ -167,5 +171,7 @@
                 }
             }
         });
+
+        })();
     </script>
-@endsection
+@endpush

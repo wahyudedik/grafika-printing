@@ -17,7 +17,11 @@ class WalletManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = VendorWallet::with(['vendor', 'transactions']);
+        $query = VendorWallet::with(['vendor'])
+            ->withCount('transactions')
+            ->with(['transactions' => function ($q) {
+                $q->latest()->limit(1);
+            }]);
 
         // Filter by vendor
         if ($request->has('vendor_id') && $request->vendor_id !== '') {

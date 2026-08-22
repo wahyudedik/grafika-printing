@@ -30,12 +30,16 @@
                         @foreach($orderTrackings as $tracking)
                             @php
                                 $statusConfig = [
-                                    'pending' => ['label' => 'Menunggu', 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'],
-                                    'confirmed' => ['label' => 'Dikonfirmasi', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
-                                    'processing' => ['label' => 'Diproses', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                                    'payment_received' => ['label' => 'Pembayaran Diterima', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
+                                    'order_accepted' => ['label' => 'Pesanan Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                                    'production_started' => ['label' => 'Proses Cetak', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                                    'production_completed' => ['label' => 'Cetak Selesai', 'bg' => 'bg-orange-100', 'text' => 'text-orange-700'],
+                                    'quality_check' => ['label' => 'Quality Check', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700'],
+                                    'packaging' => ['label' => 'Dikemas', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-700'],
                                     'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
-                                    'delivered' => ['label' => 'Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                                    'delivered' => ['label' => 'Diterima', 'bg' => 'bg-teal-100', 'text' => 'text-teal-700'],
                                     'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                                    'mediation' => ['label' => 'Mediasi', 'bg' => 'bg-red-100', 'text' => 'text-red-700'],
                                 ];
                                 $status = $statusConfig[$tracking->status] ?? $statusConfig['pending'];
                             @endphp
@@ -59,9 +63,9 @@
                                     {{ $tracking->created_at->format('d M Y') }}
                                 </td>
                                 <td class="px-5 py-4 text-right">
-                                    <x-ui.button :href="route('user.orders.show', $tracking)" variant="outline-info" size="sm">
+                                    <a href="{{ route('user.orders.show', $tracking) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                         <i class="fas fa-eye mr-1"></i> Detail
-                                    </x-ui.button>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -74,12 +78,16 @@
                 @foreach($orderTrackings as $tracking)
                     @php
                         $statusConfig = [
-                            'pending' => ['label' => 'Menunggu', 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'],
-                            'confirmed' => ['label' => 'Dikonfirmasi', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
-                            'processing' => ['label' => 'Diproses', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                            'payment_received' => ['label' => 'Pembayaran Diterima', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
+                            'order_accepted' => ['label' => 'Pesanan Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                            'production_started' => ['label' => 'Proses Cetak', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+                            'production_completed' => ['label' => 'Cetak Selesai', 'bg' => 'bg-orange-100', 'text' => 'text-orange-700'],
+                            'quality_check' => ['label' => 'Quality Check', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700'],
+                            'packaging' => ['label' => 'Dikemas', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-700'],
                             'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
-                            'delivered' => ['label' => 'Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                            'delivered' => ['label' => 'Diterima', 'bg' => 'bg-teal-100', 'text' => 'text-teal-700'],
                             'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+                            'mediation' => ['label' => 'Mediasi', 'bg' => 'bg-red-100', 'text' => 'text-red-700'],
                         ];
                         $status = $statusConfig[$tracking->status] ?? $statusConfig['pending'];
                     @endphp
@@ -103,9 +111,9 @@
                             </div>
                         @endif
                         <div class="flex items-center justify-end pt-1">
-                            <x-ui.button :href="route('user.orders.show', $tracking)" variant="outline-info" size="sm">
+                            <a href="{{ route('user.orders.show', $tracking) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                 <i class="fas fa-eye mr-1"></i> Detail
-                            </x-ui.button>
+                            </a>
                         </div>
                     </div>
                 @endforeach
@@ -127,9 +135,9 @@
                 <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
                     Order tracking akan muncul di sini setelah lelang Anda dimenangkan oleh vendor.
                 </p>
-                <x-ui.button :href="route('user.auctions.index')" variant="primary">
+                <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fas fa-gavel mr-2"></i> Lihat Lelang
-                </x-ui.button>
+                </a>
             </div>
         @endif
     </div>

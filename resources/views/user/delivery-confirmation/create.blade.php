@@ -14,7 +14,7 @@
     <div class="max-w-3xl mx-auto">
         <div class="bg-white rounded-xl border border-gray-200">
             <div class="px-6 py-5">
-                <form action="{{ route('delivery-confirmation.store', $auction) }}" method="POST" enctype="multipart/form-data" x-data="deliveryConfirm()">
+                <form action="{{ route('user.delivery-confirmation.store', $auction) }}" method="POST" enctype="multipart/form-data" x-data="deliveryConfirm()">
                     @csrf
 
                     {{-- Auction Info --}}
@@ -69,7 +69,7 @@
                                 :class="deliveryStatus === 'delivered' ? 'border-green-500 bg-green-50 ring-2 ring-green-200' : 'border-gray-200 hover:border-gray-300'">
                                 <input type="radio" name="delivery_status" value="delivered" x-model="deliveryStatus" required class="mt-0.5 text-green-600 focus:ring-green-500">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-900">✅ Barang Sudah Diterima dengan Baik</p>
+                                    <p class="text-sm font-semibold text-gray-900"><i class="fas fa-check-circle text-green-500"></i> Barang Sudah Diterima dengan Baik</p>
                                     <p class="text-xs text-gray-500 mt-0.5">Barang sudah sampai dan sesuai dengan pesanan</p>
                                 </div>
                             </label>
@@ -77,7 +77,7 @@
                                 :class="deliveryStatus === 'disputed' ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-gray-200 hover:border-gray-300'">
                                 <input type="radio" name="delivery_status" value="disputed" x-model="deliveryStatus" required class="mt-0.5 text-red-600 focus:ring-red-500">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-900">❌ Ada Masalah dengan Barang</p>
+                                    <p class="text-sm font-semibold text-gray-900"><i class="fas fa-times-circle text-red-500"></i> Ada Masalah dengan Barang</p>
                                     <p class="text-xs text-gray-500 mt-0.5">Barang rusak, tidak sesuai, atau ada masalah lainnya</p>
                                 </div>
                             </label>
@@ -129,12 +129,12 @@
 
                     {{-- Actions --}}
                     <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                        <x-ui.button :href="route('user.auctions.show', $auction)" variant="outline">
+                        <a href="{{ route('user.auctions.show', $auction) }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                             <i class="fas fa-arrow-left mr-2"></i> Kembali
-                        </x-ui.button>
-                        <x-ui.button type="submit" variant="primary">
+                        </a>
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                             <i class="fas fa-check mr-2"></i> Konfirmasi
-                        </x-ui.button>
+                        </button>
                     </div>
                 </form>
             </div>

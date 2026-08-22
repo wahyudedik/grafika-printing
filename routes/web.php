@@ -23,6 +23,9 @@ use App\Http\Controllers\Vendor\LinktreeController;
 use App\Http\Controllers\LinktreePublicController;
 use App\Http\Controllers\LinktreePaymentController;
 use App\Http\Controllers\vendor\TemplateController;
+use App\Http\Controllers\TransactionReviewController;
+use App\Http\Controllers\vendor\StockAlertController;
+use App\Http\Controllers\vendor\CouponController;
 
 // ============================================================================
 // PUBLIC ROUTES
@@ -44,7 +47,10 @@ Route::get('/vendor/{vendor}/profile', function (\App\Models\Vendor $vendor) {
     return view('vendor.public-profile', compact('vendor'));
 })->name('vendor.public.profile');
 
-// Public Linktree route (with rate limiting to prevent abuse)
+// Public Linktree routes (with rate limiting to prevent abuse)
+Route::get('/l/{customUrl}/product/{linktreeProduct}', [LinktreePublicController::class, 'showProduct'])->middleware('throttle:public-page')->name('linktree.product.show');
+Route::post('/l/{customUrl}/order/{linktreeProduct}', [LinktreePublicController::class, 'storeOrder'])->middleware('throttle:public-page')->name('linktree.order.store');
+Route::get('/l/{customUrl}/order/{uuid}/success', [LinktreePublicController::class, 'orderSuccess'])->middleware('throttle:public-page')->name('linktree.order.success');
 Route::get('/l/{customUrl}', [LinktreePublicController::class, 'show'])->middleware('throttle:public-page')->name('linktree.public');
 Route::get('/l/{customUrl}/click/{linkId}', [LinktreePublicController::class, 'trackClick'])->middleware('throttle:public-page')->name('linktree.click');
 Route::post('/l/{customUrl}/pay/qris', [LinktreePaymentController::class, 'generateQris'])->middleware('throttle:public-page')->name('linktree.pay.qris');
@@ -137,6 +143,13 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
         Route::get('/{id}', [\App\Http\Controllers\Admin\AuditLogController::class, 'show'])->name('show');
     });
 
+    // Admin Notification Routes
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AdminNotificationController::class, 'index'])->name('index');
+        Route::post('/mark-all-read', [\App\Http\Controllers\AdminNotificationController::class, 'markAllRead'])->name('markAllRead');
+        Route::post('/{notificationId}/read', [\App\Http\Controllers\AdminNotificationController::class, 'markAsRead'])->name('markAsRead');
+    });
+
     // Withdrawal Management
     Route::prefix('withdrawals')->name('withdrawals.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\WithdrawalManagementController::class, 'index'])->name('index');
@@ -199,7 +212,7 @@ Route::middleware(['auth', 'verified', 'dev'])->prefix('admin')->name('admin.')-
             return view('admin.cms.statistics');
         })->name('statistics');
         Route::post('/', [\App\Http\Controllers\Admin\CmsController::class, 'store'])->name('store');
-        Route::put('/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'update'])->name('update');
+        Route::put('/', [\App\Http\Controllers\Admin\CmsController::class, 'update'])->name('update');
         Route::delete('/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'destroy'])->name('destroy');
         Route::post('/toggle/{id}', [\App\Http\Controllers\Admin\CmsController::class, 'toggle'])->name('toggle');
         Route::post('/reset', [\App\Http\Controllers\Admin\CmsController::class, 'reset'])->name('reset');
@@ -265,8 +278,11 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::post('/remove-item/{index}', [PosController::class, 'removeItem'])->name('removeItem');
         Route::post('/clear-cart', [PosController::class, 'clearCart'])->name('clearCart');
         Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout');
+        Route::post('/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('apply-coupon');
+        Route::post('/remove-coupon', [CheckoutController::class, 'removeCoupon'])->name('remove-coupon');
         Route::get('/invoice/{transaksi}', [InvoiceController::class, 'show'])->name('invoice');
-        Route::get('/invoice/{transaksi}/print', [InvoiceController::class, 'print'])->name('invoice.print');
+        Route::get('/invoice/{transaksi}/download', [InvoiceController::class, 'download'])->name('invoice.download');
+        Route::get('/invoice/{transaksi}/print', [InvoiceController::class, 'show'])->name('invoice.print');
 
         // Payment System
         Route::prefix('payment')->name('payment.')->group(function () {
@@ -285,6 +301,15 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::get('/printer-settings', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'showSettings'])->name('printer.settings');
         Route::post('/printer-settings', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'saveSettings'])->name('printer.settings.save');
         Route::get('/printer-settings/json', [\App\Http\Controllers\vendor\pos\ThermalPrintController::class, 'getPrinterSettings'])->name('printer.settings.json');
+
+        // Stock Alerts
+        Route::prefix('stock')->name('stock.')->group(function () {
+            Route::get('/alerts', [StockAlertController::class, 'index'])->name('alerts');
+            Route::post('/alerts/mark-all-read', [StockAlertController::class, 'markAllRead'])->name('alerts.mark-all-read');
+            Route::get('/alerts/unread-count', [StockAlertController::class, 'getUnreadCount'])->name('alerts.unread-count');
+            Route::post('/alerts/{id}/read', [StockAlertController::class, 'markAsRead'])->name('alerts.read');
+            Route::put('/materials/{bahan}/minimum-stok', [StockAlertController::class, 'updateMinimumStok'])->name('materials.minimum-stok');
+        });
     });
 
     // Product Management
@@ -301,10 +326,18 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
     Route::resource('customers', PelangganController::class);
     Route::resource('users', PenggunaController::class);
 
+    // Coupon Management
+    Route::resource('coupons', CouponController::class)->except('show');
+    Route::post('coupons/{coupon}/toggle-active', [CouponController::class, 'toggleActive'])->name('coupons.toggle-active');
+
     // Transaction Management
     Route::resource('transactions', TransaksiController::class);
     Route::get('/transactions/{transaksi}/invoice', [InvoiceController::class, 'show'])->name('transactions.invoice');
     Route::get('/transactions/{transaksi}/print', [InvoiceController::class, 'print'])->name('transactions.print');
+
+    // Void Transaction
+    Route::get('/transactions/{transaksi}/void', [TransaksiController::class, 'void'])->name('transactions.void');
+    Route::post('/transactions/{transaksi}/confirm-void', [TransaksiController::class, 'confirmVoid'])->name('transactions.confirm-void');
 
     // Auction System
     Route::prefix('auctions')->name('auctions.')->group(function () {
@@ -322,6 +355,7 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
     Route::prefix('tracking')->name('tracking.')->group(function () {
         Route::get('/', [\App\Http\Controllers\OrderTrackingController::class, 'vendorIndex'])->name('index');
         Route::put('/{transaksi}', [\App\Http\Controllers\OrderTrackingController::class, 'updateStatus'])->name('update');
+        Route::post('/{orderTracking}/shipping-data', [\App\Http\Controllers\OrderTrackingController::class, 'saveShippingData'])->name('shipping-data');
         Route::post('/{auction}/shipping-invoice', [\App\Http\Controllers\ShippingInvoiceController::class, 'generateShippingInvoice'])->name('shipping-invoice');
         Route::put('/{auction}/shipping-status', [\App\Http\Controllers\ShippingInvoiceController::class, 'updateShippingStatus'])->name('shipping-status');
         Route::get('/{auction}/track', [\App\Http\Controllers\ShippingInvoiceController::class, 'trackShipment'])->name('track');
@@ -379,6 +413,13 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::get('/', [LinktreeController::class, 'index'])->name('index');
         Route::get('/create', [LinktreeController::class, 'create'])->name('create');
         Route::post('/', [LinktreeController::class, 'store'])->name('store');
+
+        // Order Management — HARUS sebelum /{linktree} agar tidak tertangkap sebagai parameter
+        Route::get('/orders', [LinktreeController::class, 'orders'])->name('orders');
+        Route::get('/orders/{uuid}', [LinktreeController::class, 'showOrder'])->name('orders.show');
+        Route::put('/orders/{uuid}/status', [LinktreeController::class, 'updateOrderStatus'])->name('orders.status');
+        Route::put('/orders/{uuid}/payment', [LinktreeController::class, 'updatePaymentStatus'])->name('orders.payment');
+
         Route::get('/{linktree}', [LinktreeController::class, 'show'])->name('show');
         Route::get('/{linktree}/analytics', [LinktreeController::class, 'analytics'])->name('analytics');
         Route::get('/{linktree}/edit', [LinktreeController::class, 'edit'])->name('edit');
@@ -441,6 +482,13 @@ Route::middleware(['auth', 'verified', 'vendor', 'tenants'])->prefix('vendor')->
         Route::post('/{order}/reject', [\App\Http\Controllers\vendor\VendorManualTransferController::class, 'reject'])->name('reject');
     });
 
+    // Vendor Notification Routes
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\vendor\VendorNotificationController::class, 'index'])->name('index');
+        Route::post('/mark-all-read', [\App\Http\Controllers\vendor\VendorNotificationController::class, 'markAllRead'])->name('markAllRead');
+        Route::post('/{notificationId}/read', [\App\Http\Controllers\vendor\VendorNotificationController::class, 'markAsRead'])->name('markAsRead');
+    });
+
     // Vendor Audit Logs
     Route::prefix('audit-logs')->name('audit-logs.')->group(function () {
         Route::get('/', [\App\Http\Controllers\VendorAuditLogController::class, 'index'])->name('index');
@@ -498,6 +546,27 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->name('user.')->
         Route::post('/{orderTracking}/confirm-delivery', [\App\Http\Controllers\OrderTrackingController::class, 'confirmDelivery'])->name('confirm-delivery');
         Route::get('/{orderTracking}/status', [\App\Http\Controllers\OrderTrackingController::class, 'getTrackingStatus'])->name('status');
     });
+
+    // Notification Routes
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UserNotificationController::class, 'index'])->name('index');
+        Route::post('/mark-all-read', [\App\Http\Controllers\UserNotificationController::class, 'markAllRead'])->name('markAllRead');
+        Route::post('/{notificationId}/read', [\App\Http\Controllers\UserNotificationController::class, 'markAsRead'])->name('markAsRead');
+    });
+
+    // Transaction History Routes (POS orders)
+    Route::prefix('transactions')->name('transactions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\UserTransactionController::class, 'index'])->name('index');
+        Route::get('/{transaksi}', [\App\Http\Controllers\UserTransactionController::class, 'show'])->name('show');
+        Route::get('/{transaksi}/invoice', [\App\Http\Controllers\UserTransactionController::class, 'invoice'])->name('invoice');
+
+        // Review routes (Fitur 5 — Rating/Review setelah order selesai)
+        Route::get('/{transaksi}/review', [TransactionReviewController::class, 'create'])->name('review.create');
+        Route::post('/{transaksi}/review', [TransactionReviewController::class, 'store'])->name('review.store');
+    });
+
+    // Review delete route (outside transactions prefix)
+    Route::delete('/reviews/{review}', [TransactionReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 
 // Shipping Management (authenticated)
@@ -508,39 +577,39 @@ Route::middleware(['auth', 'verified'])->prefix('shipping')->name('shipping.')->
 });
 
 // ============================================================================
-// API ROUTES
+// API ROUTES (DEPRECATED — redirect ke /api/v1/* di routes/api.php)
+// Route-route ini di-deprecate. Gunakan /api/v1/* sebagai canonical path.
 // ============================================================================
 
 Route::prefix('api')->name('api.')->group(function () {
 
-    // Shipping API
+    // Shipping API — tetap di sini (belum di-version)
     Route::post('/calculate-shipping', [\App\Http\Controllers\OrderTrackingController::class, 'calculateShipping'])->name('calculate-shipping');
     Route::post('/track-shipment', [\App\Http\Controllers\OrderTrackingController::class, 'trackShipment'])->name('track-shipment');
     Route::post('/shipping/calculate', [\App\Http\Controllers\ShippingCalculatorController::class, 'calculate'])->name('shipping.calculate');
     Route::get('/shipping/couriers', [\App\Http\Controllers\ShippingCalculatorController::class, 'getCouriers'])->name('shipping.couriers');
     Route::post('/shipping/service-types', [\App\Http\Controllers\ShippingCalculatorController::class, 'getServiceTypes'])->name('shipping.service-types');
 
-    // Xendit Payment API
+    // Xendit Payment API — redirect ke /api/v1/xendit/*
+    // Webhook route sudah dipindah ke routes/api.php (api/xendit/webhook)
     Route::prefix('xendit')->name('xendit.')->group(function () {
-        Route::get('/payment-methods', [\App\Http\Controllers\XenditPaymentController::class, 'getPaymentMethods'])->name('payment.methods');
-        Route::get('/payments/{payment}', [\App\Http\Controllers\XenditPaymentController::class, 'show'])->name('payment.show');
-        Route::get('/payments/{payment}/status', [\App\Http\Controllers\XenditPaymentController::class, 'getStatus'])->name('payment.status');
-        Route::post('/payments/{payment}/expire', [\App\Http\Controllers\XenditPaymentController::class, 'expire'])->name('payment.expire');
-        Route::post('/webhook', [\App\Http\Controllers\XenditWebhookController::class, 'handleWebhook'])->name('webhook');
+        Route::get('/payment-methods', fn() => redirect()->route('api.v1.xendit.payment.methods', [], 301))->name('payment.methods');
+        Route::get('/payments/{payment}', fn($payment) => redirect()->route('api.v1.xendit.payment.show', $payment, 301))->name('payment.show');
+        Route::get('/payments/{payment}/status', fn($payment) => redirect()->route('api.v1.xendit.payment.status', $payment, 301))->name('payment.status');
+        Route::post('/payments/{payment}/expire', fn($payment) => redirect()->route('api.v1.xendit.payment.expire', $payment, 307))->name('payment.expire');
     });
 
-    // Vendor API
+    // Vendor API — tetap di sini (belum di-version)
     Route::prefix('vendor')->middleware(['auth', 'vendor'])->name('vendor.')->group(function () {
         Route::get('/banks', [\App\Http\Controllers\VendorBankAccountController::class, 'getBanks'])->name('banks');
         Route::get('/ewallet-providers', [\App\Http\Controllers\VendorBankAccountController::class, 'getEwalletProviders'])->name('ewallet-providers');
         Route::get('/account-details', [\App\Http\Controllers\VendorBankAccountController::class, 'getAccountDetails'])->name('account-details');
         Route::post('/withdrawal/calculate-fee', [\App\Http\Controllers\VendorWithdrawalController::class, 'calculateFee'])->name('withdrawal.calculate-fee');
-
     });
 
-    // Mobile API
+    // Mobile API — redirect ke /api/v1/mobile/*
     Route::prefix('mobile')->middleware(['auth'])->name('mobile.')->group(function () {
-        Route::get('/user', [\App\Http\Controllers\Api\AuthController::class, 'user'])->name('user');
+        Route::get('/user', fn() => redirect()->route('api.v1.mobile.user', [], 301))->name('user');
     });
 });
 

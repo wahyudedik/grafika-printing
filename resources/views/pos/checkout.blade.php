@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Pembayaran')
 
@@ -6,8 +6,75 @@
     {{-- Add CSRF token meta tag --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- Alpine.js x-data for modal --}}
-    <div x-data="{ showModal: false, isSubmitting: false }">
+    {{-- Alpine.js x-data for modal + coupon --}}
+    <div x-data="{
+        showModal: false,
+        isSubmitting: false,
+        couponCode: '',
+        applyingCoupon: false,
+        couponError: '',
+        couponSuccess: '',
+        appliedCoupon: {{ session('applied_coupon') ? json_encode(session('applied_coupon')) : 'null' }},
+        discountAmount: {{ session('applied_coupon') ? session('applied_coupon')['discount_amount'] : '0' }},
+        get totalAfterDiscount() {
+            return Math.max(0, {{ $totalAmount }} - this.discountAmount);
+        },
+        async applyCoupon() {
+            if (!this.couponCode.trim()) return;
+            this.applyingCoupon = true;
+            this.couponError = '';
+            this.couponSuccess = '';
+            try {
+                const response = await fetch('{{ route('vendor.pos.apply-coupon') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ coupon_code: this.couponCode })
+                });
+                const data = await response.json();
+                if (data.valid) {
+                    this.appliedCoupon = data.coupon ? { code: data.coupon.code, name: data.coupon.name, type: data.coupon.type, value: data.coupon.value } : null;
+                    this.discountAmount = data.discount_amount;
+                    this.couponSuccess = data.message;
+                    this.couponError = '';
+                    // Update payment shortcuts
+                    document.querySelectorAll('.payment-shortcut').forEach(btn => {
+                        const baseAmount = this.totalAfterDiscount;
+                        const extra = parseInt(btn.dataset.extra || '0');
+                        btn.dataset.amount = baseAmount + extra;
+                    });
+                } else {
+                    this.couponError = data.message;
+                    this.couponSuccess = '';
+                    this.appliedCoupon = null;
+                    this.discountAmount = 0;
+                }
+            } catch (e) {
+                this.couponError = 'Gagal memproses kupon. Silakan coba lagi.';
+            } finally {
+                this.applyingCoupon = false;
+            }
+        },
+        async removeCoupon() {
+            try {
+                await fetch('{{ route('vendor.pos.remove-coupon') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    }
+                });
+            } catch (e) {}
+            this.appliedCoupon = null;
+            this.discountAmount = 0;
+            this.couponCode = '';
+            this.couponError = '';
+            this.couponSuccess = '';
+        }
+    }">
 
         {{-- Header --}}
         <div class="px-4 pt-4">
@@ -202,6 +269,50 @@
                                     @endforeach
                                 @endforeach
 
+                                {{-- Coupon Input --}}
+                                <div class="bg-white border border-gray-200 rounded-xl p-4 mb-3">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">
+                                        <i class="fas fa-ticket-alt mr-2 text-primary"></i>Kode Kupon
+                                    </h4>
+                                    <template x-if="!appliedCoupon">
+                                        <div class="flex gap-2">
+                                            <input type="text" x-model="couponCode"
+                                                class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-sm uppercase"
+                                                placeholder="Masukkan kode kupon"
+                                                @keydown.enter.prevent="applyCoupon()">
+                                            <button type="button" @click="applyCoupon()" :disabled="applyingCoupon || !couponCode.trim()"
+                                                class="inline-flex items-center px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <i class="fas" :class="applyingCoupon ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="appliedCoupon">
+                                        <div class="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-4 py-2.5">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-check-circle text-green-600"></i>
+                                                <div>
+                                                    <span class="font-mono font-bold text-green-800" x-text="appliedCoupon.code"></span>
+                                                    <span class="text-sm text-green-700 ml-2" x-text="appliedCoupon.type === 'percentage' ? appliedCoupon.value + '%' : 'Rp ' + Number(appliedCoupon.value).toLocaleString('id-ID')"></span>
+                                                </div>
+                                            </div>
+                                            <button type="button" @click="removeCoupon()" class="text-red-500 hover:text-red-700 transition-colors ml-2">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="couponError">
+                                        <div class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span x-text="couponError"></span>
+                                        </div>
+                                    </template>
+                                    <template x-if="couponSuccess && !appliedCoupon">
+                                        <div class="mt-2 text-sm text-green-600" x-text="couponSuccess"></div>
+                                    </template>
+                                </div>
+
+                                <input type="hidden" name="coupon_code" :value="appliedCoupon ? appliedCoupon.code : ''">
+
                                 {{-- Order Totals --}}
                                 <div class="bg-white border border-gray-200 rounded-xl p-4">
                                     <div class="flex justify-between items-center border-b border-gray-100 py-2">
@@ -216,10 +327,28 @@
                                         <span class="text-sm text-gray-500">Total Waktu Produksi</span>
                                         <span class="text-sm font-medium text-gray-700">{{ $totalTime }} menit</span>
                                     </div>
+                                    <template x-if="discountAmount > 0">
+                                        <div class="flex justify-between items-center border-b border-gray-100 py-2">
+                                            <span class="text-sm text-gray-500">Subtotal</span>
+                                            <span class="text-sm font-medium text-gray-700">
+                                                Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <template x-if="discountAmount > 0">
+                                        <div class="flex justify-between items-center border-b border-green-100 py-2">
+                                            <span class="text-sm text-green-600 font-medium">
+                                                <i class="fas fa-tag mr-1"></i>Diskon Kupon
+                                            </span>
+                                            <span class="text-sm font-bold text-green-600">
+                                                - Rp <span x-text="Number(discountAmount).toLocaleString('id-ID')"></span>
+                                            </span>
+                                        </div>
+                                    </template>
                                     <div class="flex justify-between items-center pt-3">
                                         <h4 class="font-bold text-gray-800">Total Akhir</h4>
                                         <h4 class="font-bold text-primary">
-                                            Rp {{ number_format($totalAmount, 0, ',', '.') }}
+                                            Rp <span x-text="Number(totalAfterDiscount).toLocaleString('id-ID')"></span>
                                         </h4>
                                     </div>
                                 </div>

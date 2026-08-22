@@ -13,7 +13,7 @@
 
 <body class="bg-gray-50 font-sans text-gray-900 antialiased"
     x-data
-    x-init="$store.sidebar = { collapsed: localStorage.getItem('user-sidebar-collapsed') === 'true', mobileOpen: false }; $watch('$store.sidebar.collapsed', v => localStorage.setItem('user-sidebar-collapsed', v))">
+    x-init="$store.sidebar.collapsed = localStorage.getItem('user-sidebar-collapsed') === 'true'; $watch('$store.sidebar.collapsed', v => localStorage.setItem('user-sidebar-collapsed', v))">
 
     {{-- ========== SIDEBAR (MOBILE OVERLAY) ========== --}}
     <div x-show="$store.sidebar.mobileOpen" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="$store.sidebar.mobileOpen = false" class="fixed inset-0 z-40 bg-gray-900/80 lg:hidden" x-cloak></div>
@@ -26,6 +26,7 @@
         $iconClock = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
         $iconTracking = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>';
         $iconConfirm = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+        $iconOrderHistory = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>';
         $iconProfile = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>';
 
         $userMenus = [
@@ -33,10 +34,11 @@
                 'items' => [
                     ['label' => 'Beranda',            'url' => route('welcome'),                               'route' => 'welcome',                      'icon' => $iconHome],
                     ['label' => 'Dasbor',              'url' => route('user.dashboard'),                        'route' => 'user.dashboard',               'icon' => $iconDashboard],
-                    ['label' => 'Lelang',              'url' => route('user.auctions.index'),                   'route' => 'user.auctions.*',              'icon' => $iconAuction],
+                    ['label' => 'Lelang',              'url' => route('user.auctions.index'),                   'route' => 'user.auctions.index',          'icon' => $iconAuction],
                     ['label' => 'Lelang Saya',         'url' => route('user.auctions.my'),                      'route' => 'user.auctions.my',             'icon' => $iconClock],
                     ['label' => 'Tracking Pesanan',    'url' => route('user.orders.index'),                     'route' => 'user.orders.*',                'icon' => $iconTracking],
                     ['label' => 'Konfirmasi Pengiriman','url' => route('user.delivery-confirmation.index'),     'route' => 'user.delivery-confirmation.*', 'icon' => $iconConfirm],
+                    ['label' => 'Riwayat Pesanan',      'url' => route('user.transactions.index'),               'route' => 'user.transactions.*',          'icon' => $iconOrderHistory],
                     ['label' => 'Profil',              'url' => route('user.profile.edit'),                     'route' => 'user.profile.*',               'icon' => $iconProfile],
                 ]
             ],
@@ -61,20 +63,46 @@
             <div class="flex items-center gap-2 ml-auto">
                 {{-- Notifications --}}
                 <div class="relative" x-data="{ notifDropdown: false }" @click.away="notifDropdown = false">
+                    @php
+                        $unreadCount = auth()->user()->unreadNotifications()->count();
+                        $dropdownNotifications = auth()->user()->notifications()->latest()->take(5)->get();
+                    @endphp
                     <button @click="notifDropdown = !notifDropdown" class="relative p-2 text-gray-500 rounded-lg hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H6a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v1a3 3 0 0 0 6 0v-1"/>
                         </svg>
-                        @if(auth()->user()->unreadNotifications->count() > 0)
+                        @if($unreadCount > 0)
                             <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
-                                {{ auth()->user()->unreadNotifications->count() > 9 ? '9+' : auth()->user()->unreadNotifications->count() }}
+                                {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                             </span>
                         @endif
                     </button>
                     <div x-show="notifDropdown" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50" x-cloak>
                         <div class="px-4 py-2 text-sm font-semibold text-gray-900 border-b border-gray-100">Notifikasi</div>
-                        <div class="px-4 py-6 text-center text-sm text-gray-500">Belum ada notifikasi baru</div>
+                        @forelse($dropdownNotifications as $notification)
+                            @if(!$notification->read_at)
+                                <form action="{{ route('user.notifications.markAsRead', $notification->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                                        <p class="text-sm text-gray-700">{{ $notification->data['message'] ?? 'Notifikasi baru' }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                    </button>
+                                </form>
+                            @else
+                                <div class="px-4 py-3 opacity-60 border-b border-gray-50 last:border-0">
+                                    <p class="text-sm text-gray-700">{{ $notification->data['message'] ?? 'Notifikasi baru' }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                </div>
+                            @endif
+                        @empty
+                            <div class="px-4 py-6 text-center text-sm text-gray-500">Belum ada notifikasi baru</div>
+                        @endforelse
+                        @if($unreadCount > 0)
+                            <a href="{{ route('user.notifications.index') }}" class="block px-4 py-2.5 text-sm text-center text-primary-600 hover:bg-gray-50 font-medium border-t border-gray-100">
+                                Lihat Semua Notifikasi
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -137,7 +165,7 @@
                         <a href="{{ route('user.dashboard') }}" class="hover:text-gray-700 transition-colors">Dasbor</a>
                     </div>
                     <div class="text-sm text-gray-500">
-                        &copy; {{ date('Y') }} <a href="#" class="hover:text-gray-700">Grafika Printing</a>. Hak cipta dilindungi.
+                        &copy; {{ date('Y') }} <a href="{{ route('welcome') }}" class="hover:text-gray-700">Grafika Printing</a>. Hak cipta dilindungi.
                     </div>
                 </div>
             </div>

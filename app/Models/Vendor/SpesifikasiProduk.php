@@ -23,7 +23,7 @@ class SpesifikasiProduk extends TenantModel
         'wajib_diisi' => 'boolean',
         'use_bahan' => 'boolean',
     ];
-    
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
@@ -66,16 +66,18 @@ class SpesifikasiProduk extends TenantModel
 
     /**
      * Calculate price based on selected bahan and quantity
+     *
+     * @deprecated Gunakan PriceCalculationService::calculateSpecificationPrice() sebagai gantinya
      */
     public function calculatePrice($value, $bahanId, $quantity)
     {
         $bahan = Bahan::find($bahanId);
         if (!$bahan) return 0;
 
-        $basePrice = $bahan->hpp * $value;
+        $priceCalcService = app(\App\Services\PriceCalculationService::class);
+        $result = $priceCalcService->calculateSpecificationPrice($bahan, (float) $value, (int) $quantity);
 
-        // Apply wholesale pricing if applicable
-        return (new WholesalePrice)->calculateFinalPrice($basePrice, $quantity, $bahanId);
+        return $result['total_price'];
     }
 
     /**

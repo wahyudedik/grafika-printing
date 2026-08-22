@@ -13,7 +13,7 @@
 
 <body class="bg-gray-50 font-sans text-gray-900 antialiased"
     x-data
-    x-init="$store.sidebar = { collapsed: localStorage.getItem('sidebarCollapsed') === 'true', mobileOpen: false }; $watch('$store.sidebar.collapsed', v => localStorage.setItem('sidebarCollapsed', v))">
+    x-init="$store.sidebar.collapsed = localStorage.getItem('sidebarCollapsed') === 'true'; $watch('$store.sidebar.collapsed', v => localStorage.setItem('sidebarCollapsed', v))">
 
     @php
         // Icon SVGs
@@ -160,21 +160,47 @@
 
             <div class="flex items-center gap-2 ml-auto">
                 {{-- Notifications --}}
+                @php
+                    $unreadCount = auth()->user()->unreadNotifications()->count();
+                    $dropdownNotifications = auth()->user()->notifications()->latest()->take(5)->get();
+                @endphp
                 <div class="relative" x-data="{ notifDropdown: false }" @click.away="notifDropdown = false">
                     <button @click="notifDropdown = !notifDropdown" class="relative p-2 text-gray-500 rounded-lg hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-red-500">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3H6a4 4 0 0 0 2-3v-3a7 7 0 0 1 4-6"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v1a3 3 0 0 0 6 0v-1"/>
                         </svg>
-                        @if(auth()->user()->unreadNotifications->count() > 0)
+                        @if($unreadCount > 0)
                             <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
-                                {{ auth()->user()->unreadNotifications->count() > 9 ? '9+' : auth()->user()->unreadNotifications->count() }}
+                                {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                             </span>
                         @endif
                     </button>
                     <div x-show="notifDropdown" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50" x-cloak>
                         <div class="px-4 py-2 text-sm font-semibold text-gray-900 border-b border-gray-100">Notifikasi</div>
-                        <div class="px-4 py-6 text-center text-sm text-gray-500">Belum ada notifikasi baru</div>
+                        @forelse($dropdownNotifications as $notification)
+                            @if(!$notification->read_at)
+                                <form action="{{ route('admin.notifications.markAsRead', $notification->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                                        <p class="text-sm text-gray-700">{{ $notification->data['message'] ?? 'Notifikasi baru' }}</p>
+                                        <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                    </button>
+                                </form>
+                            @else
+                                <div class="px-4 py-3 opacity-60 border-b border-gray-50 last:border-0">
+                                    <p class="text-sm text-gray-700">{{ $notification->data['message'] ?? 'Notifikasi baru' }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                </div>
+                            @endif
+                        @empty
+                            <div class="px-4 py-6 text-center text-sm text-gray-500">Belum ada notifikasi baru</div>
+                        @endforelse
+                        @if($unreadCount > 0)
+                            <a href="{{ route('admin.notifications.index') }}" class="block px-4 py-2.5 text-sm text-center text-red-600 hover:bg-gray-50 font-medium border-t border-gray-100">
+                                Lihat Semua Notifikasi
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -220,6 +246,9 @@
                     </h1>
                 </div>
 
+                {{-- Breadcrumbs --}}
+                @yield('breadcrumbs')
+
                 {{-- Page Content --}}
                 @yield('content')
             </div>
@@ -235,7 +264,7 @@
                         <a href="{{ config('app.url') }}" class="hover:text-gray-700 transition-colors" target="_blank">Website</a>
                     </div>
                     <div class="text-sm text-gray-500">
-                        &copy; {{ date('Y') }} <a href="#" class="hover:text-gray-700">Grafika Printing</a>. All rights reserved.
+                        &copy; {{ date('Y') }} <a href="{{ route('welcome') }}" class="hover:text-gray-700">Grafika Printing</a>. Hak cipta dilindungi.
                     </div>
                 </div>
             </div>

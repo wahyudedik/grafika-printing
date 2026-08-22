@@ -10,12 +10,12 @@
             <h1 class="text-2xl font-bold text-gray-900">Detail Pengaturan Biaya Admin</h1>
         </div>
         <div class="flex gap-2">
-            <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
+            <a href="{{ route('admin.admin-fees.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                 <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
-            </x-ui.button>
-            <x-ui.button variant="warning" :href="route('admin.admin-fees.edit', $adminFee)">
+            </a>
+            <a href="{{ route('admin.admin-fees.edit', $adminFee) }}" class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition">
                 <i class="fa-solid fa-pen mr-2"></i> Edit
-            </x-ui.button>
+            </a>
         </div>
     </div>
 
@@ -142,18 +142,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <form id="toggle-admin-fee-form" action="{{ route('admin.admin-fees.toggle', $adminFee) }}" method="POST">
                         @csrf @method('PATCH')
-                        <x-ui.button type="submit" :variant="$adminFee->is_active ? 'danger' : 'success'" class="w-full"
+                        <button type="submit" class="w-full inline-flex items-center justify-center {{ $adminFee->is_active ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }} text-white font-semibold py-2 px-4 rounded-lg transition"
                             onclick="event.preventDefault(); confirmAction({ title: '{{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }} Pengaturan', text: '{{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }} pengaturan ini?', icon: 'warning', confirmText: 'Ya', onConfirm: () => document.getElementById('toggle-admin-fee-form').submit() })">
                             <i class="fa-solid fa-toggle-{{ $adminFee->is_active ? 'on' : 'off' }} mr-2"></i>
                             {{ $adminFee->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                        </x-ui.button>
+                        </button>
                     </form>
                     <form id="delete-admin-fee-form" action="{{ route('admin.admin-fees.destroy', $adminFee) }}" method="POST">
                         @csrf @method('DELETE')
-                        <x-ui.button type="submit" variant="danger" class="w-full"
+                        <button type="submit" class="w-full inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition"
                             onclick="event.preventDefault(); confirmDelete('delete-admin-fee-form')">
                             <i class="fa-solid fa-trash mr-2"></i> Hapus Pengaturan
-                        </x-ui.button>
+                        </button>
                     </form>
                 </div>
             </div>

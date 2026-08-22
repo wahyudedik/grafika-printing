@@ -7,9 +7,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Models\XenditPayment;
 use App\Services\XenditService;
+use App\Services\StockService;
 use App\Models\Auction;
 use App\Models\VendorWallet;
 use App\Models\VendorWalletTransaction;
+use App\Notifications\VendorNewOrderNotification;
+use App\Services\AuditLogService;
 
 class XenditWebhookController extends Controller
 {
@@ -119,26 +122,14 @@ class XenditWebhookController extends Controller
                 'webhook_data' => $data
             ]);
 
-            // Process auction payment
-            $this->processAuctionPayment($payment);
-        }
-    }
-
-    /**
-     * Handle payment link expired event
-     */
-    protected function handlePaymentLinkExpired(array $data): void
-    {
-        $paymentData = $data['data'];
-        $externalId = $paymentData['external_id'];
-
-        $payment = XenditPayment::where('external_id', $externalId)->first();
-
-        if ($payment) {
-            $payment->update([
-                'status' => 'expired',
-                'webhook_data' => $data
-            ]);
+            // Route based on external_id prefix
+            if (preg_match('/^pos[_-]/', $externalId)) {
+                $this->processPosPayment($payment, $data);
+            } elseif (preg_match('/^auction[_-]/', $externalId)) {
+                $this->processAuctionPayment($payment);
+            } else {
+                Log::info('Unhandled payment prefix in payment_link.paid', ['external_id' => $externalId]);
+            }
         }
     }
 
@@ -160,8 +151,14 @@ class XenditWebhookController extends Controller
                 'webhook_data' => $data
             ]);
 
-            // Process auction payment
-            $this->processAuctionPayment($payment);
+            // Route based on external_id prefix
+            if (preg_match('/^pos[_-]/', $externalId)) {
+                $this->processPosPayment($payment, $data);
+            } elseif (preg_match('/^auction[_-]/', $externalId)) {
+                $this->processAuctionPayment($payment);
+            } else {
+                Log::info('Unhandled payment prefix in xenpayment.paid', ['external_id' => $externalId]);
+            }
         }
     }
 
@@ -180,6 +177,34 @@ class XenditWebhookController extends Controller
                 'status' => 'expired',
                 'webhook_data' => $data
             ]);
+
+            // Restore stock for POS payment on expiry
+            if (preg_match('/^pos[_-]/', $externalId)) {
+                $this->restorePosStock($payment);
+            }
+        }
+    }
+
+    /**
+     * Handle payment link expired event — also restore stock for POS
+     */
+    protected function handlePaymentLinkExpired(array $data): void
+    {
+        $paymentData = $data['data'];
+        $externalId = $paymentData['external_id'];
+
+        $payment = XenditPayment::where('external_id', $externalId)->first();
+
+        if ($payment) {
+            $payment->update([
+                'status' => 'expired',
+                'webhook_data' => $data
+            ]);
+
+            // Restore stock for POS payment on expiry
+            if (preg_match('/^pos[_-]/', $externalId)) {
+                $this->restorePosStock($payment);
+            }
         }
     }
 
@@ -228,6 +253,108 @@ class XenditWebhookController extends Controller
                 'payment_id' => $payment->id,
                 'external_id' => $payment->external_id,
                 'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Process POS payment after successful payment
+     */
+    protected function processPosPayment(XenditPayment $payment, array $data): void
+    {
+        try {
+            // Extract transaksi ID from external_id: pos_{id}_{timestamp}
+            if (preg_match('/^pos[_-](\d+)[_-]/', $payment->external_id, $matches)) {
+                $transaksiId = $matches[1];
+                $transaksi = \App\Models\Vendor\Transaksi::find($transaksiId);
+
+                if ($transaksi) {
+                    // Update transaksi status
+                    $transaksi->update([
+                        'payment_status' => 'paid',
+                        'status' => 'processing',
+                        'paid_at' => now(),
+                        'diproses_at' => now(),
+                    ]);
+
+                    // Update XenditPayment transaksi_id if not set
+                    if (!$payment->transaksi_id) {
+                        $payment->update(['transaksi_id' => $transaksi->id]);
+                    }
+
+                    // Decrement stock
+                    $stockService = app(StockService::class);
+                    $stockService->decrementStock($transaksi);
+
+                    // Send notification to vendor
+                    $vendor = $transaksi->vendor;
+                    if ($vendor) {
+                        $vendor->notify(new VendorNewOrderNotification($transaksi));
+                    }
+
+                    // Audit log
+                    AuditLogService::logFinancialTransaction([
+                        'vendor_id' => $transaksi->vendor_id,
+                        'action_type' => 'payment_completed',
+                        'entity_type' => 'Transaksi',
+                        'entity_id' => $transaksi->id,
+                        'amount' => $payment->amount,
+                        'status' => 'completed',
+                        'transaction_reference' => $payment->external_id,
+                        'notes' => "POS payment completed via webhook - #{$transaksi->kode}",
+                    ]);
+
+                    Log::info('POS payment processed successfully', [
+                        'transaksi_id' => $transaksi->id,
+                        'payment_id' => $payment->id,
+                        'amount' => $payment->amount,
+                    ]);
+                } else {
+                    Log::warning('POS payment: Transaksi not found', [
+                        'transaksi_id' => $transaksiId,
+                        'external_id' => $payment->external_id,
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error processing POS payment', [
+                'payment_id' => $payment->id,
+                'external_id' => $payment->external_id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Restore stock for expired/failed POS payment
+     */
+    protected function restorePosStock(XenditPayment $payment): void
+    {
+        try {
+            if (preg_match('/^pos[_-](\d+)[_-]/', $payment->external_id, $matches)) {
+                $transaksiId = $matches[1];
+                $transaksi = \App\Models\Vendor\Transaksi::find($transaksiId);
+
+                if ($transaksi && $transaksi->status === 'payment_pending') {
+                    // Only restore if stock was already decremented (status was processing)
+                    // If status is still payment_pending, stock was not yet decremented
+                    Log::info('POS payment expired, no stock to restore (payment was still pending)', [
+                        'transaksi_id' => $transaksi->id,
+                    ]);
+                } elseif ($transaksi) {
+                    $stockService = app(StockService::class);
+                    $stockService->restoreStock($transaksi);
+
+                    Log::info('Stock restored for expired POS payment', [
+                        'transaksi_id' => $transaksi->id,
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error restoring stock for expired POS payment', [
+                'payment_id' => $payment->id,
+                'external_id' => $payment->external_id,
+                'error' => $e->getMessage(),
             ]);
         }
     }

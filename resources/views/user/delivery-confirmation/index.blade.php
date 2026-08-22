@@ -79,9 +79,9 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <x-ui.button :href="route('user.delivery-confirmation.show', $confirmation)" variant="outline-info" size="sm">
+                                    <a href="{{ route('user.delivery-confirmation.show', $confirmation) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                         <i class="fas fa-eye text-xs"></i> Detail
-                                    </x-ui.button>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -116,9 +116,9 @@
                             <span class="text-xs text-gray-400">
                                 {{ $confirmation->delivery_date ? $confirmation->delivery_date->format('d M Y H:i') : '-' }}
                             </span>
-                            <x-ui.button :href="route('user.delivery-confirmation.show', $confirmation)" variant="outline-info" size="sm">
+                            <a href="{{ route('user.delivery-confirmation.show', $confirmation) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                 <i class="fas fa-eye text-xs"></i> Detail
-                            </x-ui.button>
+                            </a>
                         </div>
                     </div>
                 @endforeach
@@ -134,9 +134,9 @@
             <i class="fas fa-box text-gray-300 text-5xl mb-4"></i>
             <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada konfirmasi pengiriman</h3>
             <p class="text-sm text-gray-500 mb-4 max-w-md mx-auto">Konfirmasi pengiriman akan muncul di sini setelah Anda menerima barang dari lelang yang sudah dibayar.</p>
-            <x-ui.button :href="route('user.auctions.index')" variant="primary">
+            <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                 <i class="fas fa-list text-xs"></i> Lihat Lelang Saya
-            </x-ui.button>
+            </a>
         </div>
     @endif
 </div>

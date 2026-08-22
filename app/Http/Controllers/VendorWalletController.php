@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Concerns\HasVendorContext;
 use App\Models\VendorWallet;
 use App\Models\VendorWalletTransaction;
 use App\Models\VendorWithdrawal;
@@ -13,6 +14,8 @@ use App\Http\Responses\FlashMessage;
 
 class VendorWalletController extends Controller
 {
+    use HasVendorContext;
+
     /**
      * Display vendor wallet dashboard
      */

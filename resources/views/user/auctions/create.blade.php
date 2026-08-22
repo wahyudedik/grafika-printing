@@ -167,12 +167,12 @@
 
                         {{-- Action Buttons --}}
                         <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                            <x-ui.button :href="route('user.auctions.index')" variant="outline">
+                            <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                                 Batal
-                            </x-ui.button>
-                            <x-ui.button type="submit" variant="primary">
+                            </a>
+                            <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                                 <i class="fas fa-paper-plane mr-2"></i> Buat Permintaan
-                            </x-ui.button>
+                            </button>
                         </div>
                     </div>
                 </div>

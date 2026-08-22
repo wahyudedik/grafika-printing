@@ -2,9 +2,8 @@
 
 <aside
     x-data
-    x-init="if (!$store.sidebar) { $store.sidebar = { collapsed: false, mobileOpen: false } }"
-    @toggle-sidebar.window="if ($store.sidebar) $store.sidebar.collapsed = !$store.sidebar.collapsed"
-    @close-mobile-sidebar.window="if ($store.sidebar) $store.sidebar.mobileOpen = false"
+    @toggle-sidebar.window="$store.sidebar.collapsed = !$store.sidebar.collapsed"
+    @close-mobile-sidebar.window="$store.sidebar.mobileOpen = false"
     class="fixed inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 sidebar-responsive"
     :class="[
         $store.sidebar?.collapsed ? 'w-[72px]' : 'w-64',
@@ -39,10 +38,20 @@
             @foreach(($group['items'] ?? []) as $item)
                 @if(isset($item['children']) && count($item['children']) > 0)
                     {{-- Accordion Sub-Menu --}}
-                    <div x-data="{ open: {{ request()->routeIs($item['route'] ?? '__none__') ? 'true' : 'false' }} }">
+                    @php
+                        // Parent accordion: open jika ada child yang aktif, tapi JANGAN beri class active
+                        $hasActiveChild = false;
+                        foreach ($item['children'] as $child) {
+                            if (request()->routeIs($child['route'] ?? '__none__')) {
+                                $hasActiveChild = true;
+                                break;
+                            }
+                        }
+                    @endphp
+                    <div x-data="{ open: {{ $hasActiveChild ? 'true' : 'false' }} }">
                         <button @click="open = !open"
                             class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors
-                            {{ request()->routeIs($item['route'] ?? '__none__') ? 'sidebar-link-active' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}"
+                            {{ $hasActiveChild ? 'text-gray-900 bg-gray-100' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}"
                             :title="$store.sidebar?.collapsed ? '{{ $item['label'] }}' : ''">
                             <span class="shrink-0 w-5 h-5 flex items-center justify-center">{!! $item['icon'] ?? '' !!}</span>
                             <span x-show="!$store.sidebar?.collapsed" x-cloak class="flex-1 text-left truncate">{{ $item['label'] }}</span>
@@ -66,11 +75,18 @@
                 @else
                     {{-- Single Menu Item --}}
                     <a href="{{ $item['url'] ?? '#' }}"
+                        @if(!empty($item['target'])) target="{{ $item['target'] }}" rel="noopener noreferrer" @endif
                         class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors
                         {{ request()->routeIs($item['route'] ?? '__none__') ? 'sidebar-link-active' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}"
                         :title="$store.sidebar?.collapsed ? '{{ $item['label'] }}' : ''">
                         <span class="shrink-0 w-5 h-5 flex items-center justify-center">{!! $item['icon'] ?? '' !!}</span>
                         <span x-show="!$store.sidebar?.collapsed" x-cloak class="truncate">{{ $item['label'] }}</span>
+                        @if(!empty($item['badge']) && $item['badge'] > 0)
+                            <span x-show="!$store.sidebar?.collapsed" x-cloak
+                                class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-red-500 rounded-full shrink-0">
+                                {{ $item['badge'] > 9 ? '9+' : $item['badge'] }}
+                            </span>
+                        @endif
                     </a>
                 @endif
             @endforeach

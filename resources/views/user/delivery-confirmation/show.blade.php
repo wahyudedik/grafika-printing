@@ -10,9 +10,9 @@
             <h1 class="text-2xl font-bold text-gray-900">Konfirmasi Pengiriman</h1>
             <p class="text-sm text-gray-500">Detail status pengiriman pesanan Anda</p>
         </div>
-        <x-ui.button :href="url()->previous()" variant="outline">
+        <a href="{{ url()->previous() }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-arrow-left text-xs"></i> Kembali
-        </x-ui.button>
+        </a>
     </div>
 
     {{-- Status Badge --}}
@@ -160,9 +160,9 @@
         </div>
         <div class="p-4">
             <p class="text-sm text-gray-500 mb-3">Jika barang yang diterima tidak sesuai atau ada masalah lainnya, Anda bisa mengajukan sengketa.</p>
-            <x-ui.button type="button" @click="openModal()" variant="outline-danger">
+            <button type="button" @click="openModal()" class="inline-flex items-center justify-center border border-red-300 text-red-700 hover:bg-red-50 font-semibold py-2 px-4 rounded-lg transition">
                 <i class="fas fa-exclamation-triangle text-xs"></i> Ajukan Sengketa
-            </x-ui.button>
+            </button>
         </div>
     </div>
     @endif
@@ -211,12 +211,12 @@
 
                     {{-- Modal Footer --}}
                     <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                        <x-ui.button type="button" @click="closeModal()" variant="outline">
+                        <button type="button" @click="closeModal()" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                             Batal
-                        </x-ui.button>
-                        <x-ui.button type="submit" variant="danger">
+                        </button>
+                        <button type="submit" class="inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                             Kirim Sengketa
-                        </x-ui.button>
+                        </button>
                     </div>
                 </form>
             </div>

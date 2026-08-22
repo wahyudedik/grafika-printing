@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Invoice ' . $transaksi->kode)
 
@@ -8,7 +8,12 @@
             <div class="w-full max-w-3xl">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-semibold text-gray-900">Invoice #{{ $transaksi->kode }}</h3>
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            Invoice #{{ $transaksi->kode }}
+                            @if ($transaksi->is_voided)
+                                <span class="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">VOIDED</span>
+                            @endif
+                        </h3>
                         <div class="flex flex-wrap gap-2">
                             <a href="{{ route('vendor.pos.invoice.print', $transaksi->id) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
                                 <i class="fas fa-download"></i>Download PDF
@@ -28,6 +33,11 @@
                             <a href="{{ route('vendor.pos.printer.settings') }}" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                                 <i class="fas fa-cog"></i>Printer Settings
                             </a>
+                            @if ($transaksi->canBeVoided())
+                                <a href="{{ route('vendor.transactions.void', $transaksi->id) }}" class="inline-flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-ban"></i>Void
+                                </a>
+                            @endif
                         </div>
                     </div>
                     <div class="p-6">
@@ -191,6 +201,14 @@
                                             Rp {{ number_format($transaksi->kembali, 0, ',', '.') }}
                                         </td>
                                     </tr>
+                                    @if(($transaksi->laba_total ?? 0) != 0)
+                                    <tr>
+                                        <td style="width: 60%; text-align: left; padding-bottom: 5px; color: #6c757d;">Laba</td>
+                                        <td style="width: 40%; text-align: right; padding-bottom: 5px; color: {{ ($transaksi->laba_total ?? 0) >= 0 ? '#198754' : '#dc3545' }}; font-weight: bold;">
+                                            Rp {{ number_format($transaksi->laba_total ?? 0, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    @endif
                                 </table>
                             </div>
 

@@ -9,9 +9,9 @@
             <p class="text-sm font-medium text-gray-500">Pengaturan</p>
             <h1 class="text-2xl font-bold text-gray-900">Statistik Biaya Admin</h1>
         </div>
-        <x-ui.button variant="outline" :href="route('admin.admin-fees.index')">
+        <a href="{{ route('admin.admin-fees.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
-        </x-ui.button>
+        </a>
     </div>
 
     {{-- Stats Cards --}}
@@ -67,9 +67,9 @@
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h3 class="text-lg font-semibold text-gray-900">Grafik Pendapatan Biaya Admin</h3>
             <div class="relative" x-data="{ openPeriod: false }" @click.away="openPeriod = false">
-                <x-ui.button variant="outline-info" size="sm" @click="openPeriod = !openPeriod">
+                <button @click="openPeriod = !openPeriod" type="button" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                     <i class="fa-solid fa-clock mr-1"></i> Periode <i class="fa-solid fa-chevron-down ml-1 text-xs"></i>
-                </x-ui.button>
+                </button>
                 <div x-show="openPeriod" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                     <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ request()->fullUrlWithQuery(['period' => '7days']) }}">7 Hari Terakhir</a>
                     <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" href="{{ request()->fullUrlWithQuery(['period' => '30days']) }}">30 Hari Terakhir</a>
@@ -161,12 +161,12 @@
         </div>
         <div class="p-6">
             <div class="flex flex-wrap gap-3">
-                <x-ui.button variant="outline-success" :href="route('admin.admin-fees.transactions') . '?export=excel'">
+                <a href="{{ route('admin.admin-fees.transactions') . '?export=excel' }}" class="inline-flex items-center justify-center border border-green-300 text-green-700 hover:bg-green-50 font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fa-solid fa-file-excel mr-2"></i> Export ke Excel
-                </x-ui.button>
-                <x-ui.button variant="outline-danger" :href="route('admin.admin-fees.transactions') . '?export=pdf'">
+                </a>
+                <a href="{{ route('admin.admin-fees.transactions') . '?export=pdf' }}" class="inline-flex items-center justify-center border border-red-300 text-red-700 hover:bg-red-50 font-semibold py-2 px-4 rounded-lg transition">
                     <i class="fa-solid fa-file-pdf mr-2"></i> Export ke PDF
-                </x-ui.button>
+                </a>
             </div>
         </div>
     </div>

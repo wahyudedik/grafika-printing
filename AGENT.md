@@ -41,8 +41,8 @@ grafika-printing/
 │   │   └── *.php                    # Model global (Auction, Vendor, dll)
 │   ├── Notifications/            # Notification classes
 │   ├── Providers/                # Service providers
-│   ├── Services/                 # Business logic services (12 files)
-│   ├── Traits/                   # HasUuid trait
+│   ├── Services/                 # Business logic services (14 files)
+│   ├── Traits/                   # HasUuid, HasVendorContext traits
 │   └── View/Components/          # Blade components
 ├── config/
 │   ├── multitenancy.php          # Spatie multitenancy config
@@ -70,7 +70,7 @@ grafika-printing/
 │       ├── layouts/              # Layout templates
 │       └── components/           # Shared Blade components
 ├── routes/
-│   ├── web.php                   # Web routes (~487 baris)
+│   ├── web.php                   # Web routes (~621 baris)
 │   ├── api.php                   # API routes
 │   ├── auth.php                  # Auth routes (Breeze)
 │   └── console.php               # Console routes
@@ -178,6 +178,21 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 | `SecurityService` | [`SecurityService`](app/Services/SecurityService.php) | Input validation | ✅ Ada |
 | `EncryptionService` | [`EncryptionService`](app/Services/EncryptionService.php) | Enkripsi data sensitif | ✅ Ada |
 | `AuditLogService` | [`AuditLogService`](app/Services/AuditLogService.php) | Audit logging | ✅ Ada |
+| `AuthorizationService` | [`AuthorizationService`](app/Services/AuthorizationService.php) | Role & permission checking | ✅ Ada |
+| `FileUploadService` | [`FileUploadService`](app/Services/FileUploadService.php) | File upload management | ✅ Ada |
+| `ServiceConfigOverride` | [`ServiceConfigOverride`](app/Services/ServiceConfigOverride.php) | Service config override | ✅ Ada |
+
+### API Versioning
+- Semua API routes sudah di-version ke `/api/v1/`
+- Backward compatibility: old paths redirect ke v1 (301/307)
+- Rate limiting: 60 req/min untuk API, 5 req/min untuk auth
+- Xendit webhook tetap di `/api/xendit/webhook` (no redirect)
+- Configured di [`bootstrap/app.php`](bootstrap/app.php)
+
+### Performance
+- JS Lazy Loading: ApexCharts, Chart.js, SortableJS via dynamic import
+- ActiveLinktree Caching: 1 jam TTL via `getActiveLinktreeCached()`
+- Wallet query optimization: `withCount` + limited relationship
 
 ---
 
@@ -190,11 +205,18 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 - Support: QRIS, VA, E-Wallet, Convenience Store
 - Webhook handling sudah robust
 
+#### API Versioning
+- Semua API routes sudah di-version ke `/api/v1/`
+- Backward compatibility: old paths redirect ke v1 (301/307)
+- Rate limiting: 60 req/min API, 5 req/min auth
+- Xendit webhook tetap di `/api/xendit/webhook`
+
 #### Linktree Module
 - Models: [`Linktree`](app/Models/Vendor/Linktree.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php), [`LinktreeProduct`](app/Models/Vendor/LinktreeProduct.php)
 - Controllers: [`LinktreeController`](app/Http/Controllers/vendor/LinktreeController.php), [`LinktreePublicController`](app/Http/Controllers/LinktreePublicController.php)
 - Views: `resources/views/vendor/linktree/`, `resources/views/linktree/public/`
 - Routes: `/vendor/linktree/*` (vendor), `/l/{customUrl}` (public)
+- Caching: `getActiveLinktreeCached()` — 1 jam TTL
 
 #### Template Builder
 - Pilihan template: minimal, colorful, dark, professional, gradient, nature, neon, elegant
@@ -206,18 +228,48 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 - [`update.sh`](update.sh) (update deployment)
 - Berdasarkan panduan di [`VPS_DEPLOYMENT_GUIDE.md`](VPS_DEPLOYMENT_GUIDE.md)
 
-### ⚠️ Perlu Enhancement
+#### Production Seeders
+- [`ProductionSeeder`](database/seeders/ProductionSeeder.php) — fresh install seeder
+- [`ComprehensiveTestDataSeeder`](database/seeders/ComprehensiveTestDataSeeder.php) — testing data seeder
+- [`PosCompleteSeeder`](database/seeders/PosCompleteSeeder.php) — Data lengkap POS (bahan, spesifikasi, produk, wholesale) — 10 kategori, 15 bahan, 10 spesifikasi, 6 alat, 10 produk, ~60 spesifikasi produk, 25 bahan-spesifikasi pivots, 25 estimasi produksi, 20 wholesale prices, 5 pelanggan, 1 printer setting
+
+#### POS System
+- **Controller:** [`PosController`](app/Http/Controllers/vendor/pos/PosController.php), [`CheckoutController`](app/Http/Controllers/vendor/pos/CheckoutController.php)
+- **Views:** `resources/views/pos/` (cart, checkout, cash-payment, online-payment, payment-options, payment-success, payment-failure, print-invoice, thermal-print, printer-settings, pos-home)
+- **Cart System:** Session-based cart dengan Alpine.js interactivity
+- **Bahan/Finishing/Ukuran Calculation:** Harga dihitung berdasarkan kombinasi bahan, spesifikasi finishing, dan ukuran
+- **Wholesale Pricing:** Tiered pricing berdasarkan quantity (20 tier rules per vendor)
+- **Thermal Print Support:** Printer settings (nama, alamat, no. telepon), thermal print template 58mm/80mm
+- **Multiple Payment:** Cash (tunai + kembalian otomatis) dan Online (Xendit QRIS, VA, E-Wallet)
+- **HPP Calculation:** Kalkulasi Harga Pokok Penjualan berdasarkan komponen bahan dan estimasi produksi
+- **Pelanggan Management:** CRUD pelanggan, data kontak, riwayat transaksi
 
 #### User Lelang Management
-- Client ingin role "User Lelang" yang bisa dikelola admin
-- Tambah field `is_lelang_user` ke `users` table
-- Buat `UserLelangController` untuk admin
-- Dashboard khusus user lelang
+- Model `LelangUserProfile` dengan scopes, status management, auto-assign
+- `UserLelangController` untuk admin (CRUD + verify/suspend/reactivate)
+- Dashboard khusus user lelang: `/user/lelang-dashboard`
+- Views admin: [`resources/views/dev/user-lelang/`](resources/views/dev/user-lelang/) (index, show, create, edit)
 - Routes: `/admin/user-lelang/*`
 
 #### COD Ongkos Kirim
-- Flow COD belum lengkap
-- Perlu pisahkan rincian: harga barang + ongkir COD
+- Flow COD sudah lengkap dengan rincian: harga barang + ongkir
+- UI enhancement: rincian breakdown harga di checkout
+
+#### Admin Notification System
+- Controller: [`AdminNotificationController`](app/Http/Controllers/AdminNotificationController.php) (index, markAllRead, markAsRead)
+- View: [`resources/views/dev/notifications/index.blade.php`](resources/views/dev/notifications/index.blade.php) — extend admin layout
+- Routes: `admin.notifications.index`, `admin.notifications.markAllRead`, `admin.notifications.markAsRead`
+- Dropdown notification di admin layout sudah dynamic + mark-as-read + link "Lihat Semua"
+
+#### Privacy — Audit Log Sanitization
+- [`AuditLogService::sanitizeSensitiveData()`](app/Services/AuditLogService.php) mem-mask field sensitif sebelum logging
+- Field yang di-mask: password, remember_token, api_key, api_secret, token, xendit_api_key, xendit_webhook_token, rajaongkir_api_key, app_key
+- Diterapkan di: `logCreated`, `logUpdated`, `logDeleted`, `logFinancialTransaction`
+
+#### Test Coverage
+- 134+ tests, 244+ assertions
+- Coverage: Linktree CRUD, Vendor products, Transactions, Webhook auth, Multi-tenant isolation, POS, Wallet, Auction
+- Termasuk `PosFlowTest` untuk integrasi POS end-to-end
 
 ---
 
@@ -233,9 +285,13 @@ User buat Auction → Admin Approve → Vendor Bid → User Pilih Winner
 
 ### Flow POS
 ```
-Vendor Browse Produk → Add to Cart → Checkout
-→ Pilih Payment (Cash/Online) → Process Payment
-→ Invoice Dibuat → Status Updated
+Vendor Browse Produk → Add to Cart (session-based)
+→ Bahan/Finishing/Ukuran Selection → Harga Dihitung
+→ Wholesale Pricing (tiered) → Checkout
+→ Pilih Payment:
+  → Cash: Tunai + Kembalian Otomatis → Invoice
+  → Online: Xendit (QRIS/VA/E-Wallet) → Webhook Confirm → Invoice
+→ Invoice Dibuat (standar/thermal) → Status Updated
 ```
 
 ### Flow Linktree
@@ -322,7 +378,7 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 - Layout vendor: [`resources/views/layouts/vendor.blade.php`](resources/views/layouts/vendor.blade.php)
 - Layout user: [`resources/views/layouts/user.blade.php`](resources/views/layouts/user.blade.php)
 - Guest: [`resources/views/layouts/guest.blade.php`](resources/views/layouts/guest.blade.php)
-- Linktree public: `resources/views/linktree/public/show.blade.php` (belum ada)
+- Linktree public: [`resources/views/linktree/public.blade.php`](resources/views/linktree/public.blade.php)
 
 ### 7. Frontend — Tailwind CSS
 - **Tailwind CSS** digunakan untuk seluruh styling (migrasi dari Bootstrap Tabler — Agustus 2026)
@@ -367,8 +423,22 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 
 ### 8. Testing
 - Test files di `tests/Feature/`
+- **134+ tests, 244+ assertions** — coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant, POS, Wallet, Auction
 - Jalankan: `php artisan test`
 - Untuk test spesifik: `php artisan test --filter=NamaTest`
+- Jalankan dengan coverage: `php artisan test --coverage`
+
+### 9. API Versioning
+- Semua API routes sudah di-version ke `/api/v1/`
+- Old paths redirect ke v1 (301/307) — jangan buat route baru di old path
+- Xendit webhook tetap di `/api/xendit/webhook` (no versioning)
+- Rate limiting: 60 req/min API, 5 req/min auth — configured di `bootstrap/app.php`
+
+### 10. JS Lazy Loading
+- ApexCharts, Chart.js, SortableJS di-load via dynamic import (bukan static import)
+- Pattern: `const ApexCharts = (await import('apexcharts')).default`
+- Hanya gunakan di halaman yang membutuhkan chart/sortable
+- Jangan tambahkan CDN script tag — semua sudah via npm/Vite build
 
 ---
 
@@ -381,8 +451,11 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 | Tenant Base | `app/Models/Vendor/TenantModel.php` |
 | Tenant Manager | `app/Services/TenantManager.php` |
 | Middleware | `app/Http/Middleware/SetTenantContext.php` |
+| POS Controller | `app/Http/Controllers/vendor/pos/PosController.php`, `app/Http/Controllers/vendor/pos/CheckoutController.php` |
+| POS Views | `resources/views/pos/` (cart, checkout, cash-payment, online-payment, thermal-print, printer-settings) |
 | Tailwind Config | `tailwind.config.js` |
 | UI Components | `resources/views/components/ui/` |
+| Layouts | `resources/views/layouts/vendor.blade.php`, `resources/views/layouts/user.blade.php`, `resources/views/dev/layouts/app.blade.php` |
 | Laravel Bootstrap | `bootstrap/app.php` |
 | Env | `.env` (jangan commit!) |
 
@@ -429,6 +502,37 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
    - Pastikan import ada di `resources/js/app.js` (global window objects)
    - Jalankan `npm run build` ulang
    - Jangan tambahkan CDN script tag — semua sudah via npm
+
+9. **Notifikasi tidak muncul di dropdown**
+  - Pastikan model user memiliki `Notifiable` trait (biasanya sudah ada di model User bawaan Laravel)
+  - Cek apakah tabel `notifications` ada di database (`php artisan migrate:status`)
+  - Cek route notification: `vendor.notifications.index` (vendor), `user.notifications.index` (user), `admin.notifications.index` (admin)
+  - Jalankan `php artisan notifications:table` jika tabel belum ada, lalu `php artisan migrate`
+
+10. **Blade directive @section vs @push**
+   - Layout vendor, user, admin menggunakan `@stack('scripts')` → child views harus pakai `@push('scripts')`
+   - Layout auth menggunakan `@yield('scripts')` → child views harus pakai `@section('scripts')`
+   - Jika salah pakai, script tidak akan di-render
+
+11. **POS — Field name mismatch**
+   - Pastikan field name konsisten antara model, migration, dan view (e.g., `telepon` vs `no_telp`)
+   - Cek `$fillable` di model `Pelanggan` dan `Transaksi` untuk memastikan semua field yang dibutuhkan ada
+
+12. **POS — Variable name inconsistency di payment views**
+   - Pastikan variabel `transaksiItem` (bukan `transaksiItems`) konsisten di semua POS payment views
+   - Cek `cash-payment.blade.php`, `online-payment.blade.php`, dan `payment-success.blade.php`
+
+13. **POS — Stock validation**
+   - Pastikan validasi stok dilakukan di dua tempat: saat `addToCart` dan saat `checkout`
+   - Stok bisa berubah antara saat cart diisi dan saat checkout diproses
+
+14. **POS — Thermal print vendor name**
+   - Gunakan `config('app.name')` untuk nama bisnis di thermal print, bukan hardcoded vendor name
+   - Pastikan `printer_settings` table memiliki data yang benar
+
+15. **POS — Division by zero**
+   - Hati-hati dengan `harga_satuan` calculation — pastikan quantity tidak nol sebelum membagi
+   - Gunakan protective check: `$quantity > 0 ? $total / $quantity : 0`
 
 ### Log Location
 ```

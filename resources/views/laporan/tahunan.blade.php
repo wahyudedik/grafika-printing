@@ -130,7 +130,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", async function() {
             // Monthly sales chart
             const penjualanBulananData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
@@ -187,6 +187,7 @@
                 }
             };
 
+            const ApexCharts = await window.loadApexCharts();
             const chartMonthly = new ApexCharts(document.querySelector("#chart-penjualan-bulanan"), optionsMonthly);
             chartMonthly.render();
 

@@ -22,7 +22,8 @@ class XenditPayment extends UserTenantModel
         'paid_at',
         'payment_method',
         'failure_reason',
-        'auction_id'
+        'auction_id',
+        'transaksi_id',
     ];
 
     protected $casts = [
@@ -34,14 +35,14 @@ class XenditPayment extends UserTenantModel
     /**
      * Get the status badge class
      */
-    public function getStatusBadgeClassAttribute()
+    public function getStatusBadgeClassAttribute(): string
     {
         return match ($this->status) {
-            'pending' => 'badge-warning',
-            'paid' => 'badge-success',
-            'expired' => 'badge-danger',
-            'failed' => 'badge-danger',
-            default => 'badge-secondary'
+            'pending' => 'bg-amber-100 text-amber-800',
+            'paid' => 'bg-emerald-100 text-emerald-800',
+            'expired' => 'bg-red-100 text-red-800',
+            'failed' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800',
         };
     }
 
@@ -89,5 +90,13 @@ class XenditPayment extends UserTenantModel
     public function auction()
     {
         return $this->belongsTo(Auction::class);
+    }
+
+    /**
+     * Get the transaction that owns the payment
+     */
+    public function transaksi()
+    {
+        return $this->belongsTo(\App\Models\Vendor\Transaksi::class, 'transaksi_id');
     }
 }

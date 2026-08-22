@@ -24,15 +24,15 @@
                         <i class="fas fa-lock mr-2"></i> Edit (Dikunci)
                     </span>
                 @else
-                    <x-ui.button :href="route('user.auctions.edit', $auction)" variant="outline">
+                    <a href="{{ route('user.auctions.edit', $auction) }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-edit mr-2"></i> Edit
-                    </x-ui.button>
+                    </a>
                 @endif
 
                 @if ($auction->status === 'paid' && !$auction->hasDeliveryConfirmation())
-                    <x-ui.button :href="route('user.delivery-confirmation.create', $auction)" variant="success">
+                    <a href="{{ route('user.delivery-confirmation.create', $auction) }}" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-check-circle mr-2"></i> Konfirmasi Barang
-                    </x-ui.button>
+                    </a>
                 @elseif ($auction->hasDeliveryConfirmation())
                     @php $confirmation = $auction->deliveryConfirmation; @endphp
                     @php
@@ -48,9 +48,9 @@
                     </span>
                 @endif
             @endif
-            <x-ui.button :href="route('user.auctions.index')" variant="outline">
+            <a href="{{ route('user.auctions.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                 Kembali
-            </x-ui.button>
+            </a>
         </div>
     </div>
 
@@ -120,9 +120,9 @@
                     @if ($auction->file_path)
                         <div>
                             <h4 class="text-sm font-semibold text-gray-900 mb-1">File Desain/Referensi</h4>
-                            <x-ui.button :href="asset('storage/auction_files/' . $auction->file_path)" variant="outline-info" size="sm" target="_blank">
+                            <a href="{{ asset('storage/auction_files/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                 <i class="fas fa-download mr-1"></i> Download File
-                            </x-ui.button>
+                            </a>
                         </div>
                     @endif
                 </div>
@@ -144,7 +144,7 @@
                                         @click="selectedBid = {{ $bid->id }}">
                                         <div class="flex items-start justify-between mb-2">
                                             <div>
-                                                <a href="{{ route('vendor.profile', $bid->vendor->id) }}" target="_blank" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
+                                                <a href="{{ route('vendor.public.profile', $bid->vendor->id) }}" target="_blank" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
                                                     {{ $bid->vendor->name }} <i class="fas fa-external-link-alt text-[10px] ml-0.5"></i>
                                                 </a>
                                                 <p class="text-xs text-gray-500">{{ $bid->vendor->email }}</p>
@@ -180,9 +180,9 @@
 
                             @if ($auction->bids->where('status', 'pending')->count() > 0)
                                 <div class="flex justify-end">
-                                    <x-ui.button type="submit" variant="success">
+                                    <button type="submit" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                                         <i class="fas fa-trophy mr-2"></i> Tutup Lelang & Pilih Pemenang
-                                    </x-ui.button>
+                                    </button>
                                 </div>
                             @endif
                         </form>
@@ -195,9 +195,9 @@
                 <div class="bg-white rounded-xl border border-gray-200 px-6 py-5">
                     <form action="{{ route('user.auctions.payment', $auction) }}" method="POST" class="flex justify-end">
                         @csrf
-                        <x-ui.button type="submit" variant="primary" size="lg">
+                        <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg py-3 px-6 rounded-lg transition">
                             <i class="fas fa-credit-card mr-2"></i> Bayar Sekarang
-                        </x-ui.button>
+                        </button>
                     </form>
                 </div>
             @endif
@@ -210,7 +210,7 @@
                     </div>
                     <div class="px-6 py-5">
                         <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <h4 class="text-sm font-semibold text-green-800 mb-2">🏆 Lelang telah ditutup!</h4>
+                            <h4 class="text-sm font-semibold text-green-800 mb-2"><i class="fas fa-trophy text-yellow-500"></i> Lelang telah ditutup!</h4>
                             <p class="text-sm text-green-700"><strong>Pemenang:</strong> {{ $auction->winnerVendor->name }}</p>
                             <p class="text-sm text-green-700"><strong>Harga Menang:</strong> Rp {{ number_format($auction->winning_bid) }}</p>
                         </div>

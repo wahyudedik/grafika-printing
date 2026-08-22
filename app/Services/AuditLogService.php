@@ -22,8 +22,8 @@ class AuditLogService
                 'action_type' => $data['action_type'],
                 'entity_type' => $data['entity_type'],
                 'entity_id' => $data['entity_id'],
-                'old_data' => $data['old_data'] ?? null,
-                'new_data' => $data['new_data'] ?? null,
+                'old_data' => is_array($data['old_data'] ?? null) ? self::sanitizeSensitiveData($data['old_data']) : $data['old_data'] ?? null,
+                'new_data' => is_array($data['new_data'] ?? null) ? self::sanitizeSensitiveData($data['new_data']) : $data['new_data'] ?? null,
                 'transaction_reference' => $data['transaction_reference'] ?? null,
                 'amount' => $data['amount'] ?? null,
                 'status' => $data['status'] ?? 'pending',
@@ -289,7 +289,7 @@ class AuditLogService
             'vendor_id' => $vendorId,
             'entity_type' => class_basename($model),
             'entity_id' => $model->id,
-            'new_values' => $model->toArray(),
+            'new_values' => self::sanitizeSensitiveData($model->toArray()),
         ]);
     }
 
@@ -304,8 +304,8 @@ class AuditLogService
             'vendor_id' => $vendorId,
             'entity_type' => class_basename($model),
             'entity_id' => $model->id,
-            'old_values' => $oldValues,
-            'new_values' => $model->toArray(),
+            'old_values' => self::sanitizeSensitiveData($oldValues),
+            'new_values' => self::sanitizeSensitiveData($model->toArray()),
         ]);
     }
 
@@ -320,7 +320,7 @@ class AuditLogService
             'vendor_id' => $vendorId,
             'entity_type' => class_basename($model),
             'entity_id' => $model->id,
-            'old_values' => $model->toArray(),
+            'old_values' => self::sanitizeSensitiveData($model->toArray()),
             'risk_level' => FinancialAuditLog::RISK_HIGH,
         ]);
     }
@@ -339,5 +339,28 @@ class AuditLogService
             'old_values' => ['status' => $oldStatus],
             'new_values' => ['status' => $newStatus],
         ]);
+    }
+
+    /**
+     * Sanitize sensitive data before logging
+     * Mask password, tokens, API keys, and other sensitive fields
+     */
+    public static function sanitizeSensitiveData(array $data): array
+    {
+        $sensitiveFields = [
+            'password', 'password_confirmation', 'old_password', 'new_password',
+            'remember_token', 'api_key', 'api_secret', 'secret',
+            'access_token', 'refresh_token', 'token',
+            'xendit_api_key', 'xendit_webhook_token',
+            'rajaongkir_api_key', 'app_key',
+        ];
+
+        foreach ($sensitiveFields as $field) {
+            if (array_key_exists($field, $data) && !is_null($data[$field])) {
+                $data[$field] = '[REDACTED]';
+            }
+        }
+
+        return $data;
     }
 }

@@ -14,14 +14,19 @@
             </div>
         </div>
 
-        {{-- Total Vendors --}}
+        {{-- Wallet Balance --}}
         <div class="bg-white rounded-xl shadow-sm p-5">
-            <div class="text-sm font-medium text-gray-500 mb-1">Total Vendors</div>
-            <div class="text-3xl font-bold text-gray-900">{{ $vendorCount }}</div>
+            <div class="text-sm font-medium text-gray-500 mb-1">Saldo Wallet</div>
+            <div class="text-3xl font-bold text-emerald-600">Rp {{ number_format($walletBalance, 0, ',', '.') }}</div>
             <div class="mt-3 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                <a href="#" class="text-sm text-primary-600 hover:underline">Manage Vendors</a>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <a href="{{ route('vendor.wallet.index') }}" class="text-sm text-primary-600 hover:underline">Lihat Detail</a>
             </div>
+            @if($walletPending > 0)
+                <div class="mt-2 text-xs text-amber-600">
+                    <i class="fas fa-clock mr-1"></i>Rp {{ number_format($walletPending, 0, ',', '.') }} pending
+                </div>
+            @endif
         </div>
 
         {{-- Total Products --}}

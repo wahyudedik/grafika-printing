@@ -11,6 +11,7 @@ use App\Models\Vendor\TransaksiItem;
 use Illuminate\Database\Eloquent\Builder;
 use App\Notifications\OrderStatusChanged;
 use App\Models\Vendor\TransaksiItemSpecifications;
+use App\Models\Vendor\TransactionVoidLog;
 
 class Transaksi extends TenantModel
 {
@@ -24,6 +25,10 @@ class Transaksi extends TenantModel
         'user_id',
         'pelanggan_id',
         'total_harga',
+        'diskon_total',
+        'total_sebelum_diskon',
+        'hpp_total',
+        'laba_total',
         'terbayar',
         'kembali',
         'status',
@@ -54,11 +59,23 @@ class Transaksi extends TenantModel
         'diproses_at',
         'dicetak_at',
         'dikirim_at',
-        'selesai_at'
+        'selesai_at',
+        // Void fields
+        'is_voided',
+        'void_status',
+        'void_reason',
+        'voided_by',
+        'voided_at',
+        'refund_amount',
+        'refund_id',
     ];
 
     protected $casts = [
         'total_harga' => 'decimal:2',
+        'diskon_total' => 'decimal:2',
+        'total_sebelum_diskon' => 'decimal:2',
+        'hpp_total' => 'decimal:2',
+        'laba_total' => 'decimal:2',
         'terbayar' => 'decimal:2',
         'kembali' => 'decimal:2',
         'payment_amount' => 'decimal:2',
@@ -75,7 +92,11 @@ class Transaksi extends TenantModel
         'diproses_at' => 'datetime',
         'dicetak_at' => 'datetime',
         'dikirim_at' => 'datetime',
-        'selesai_at' => 'datetime'
+        'selesai_at' => 'datetime',
+        // Void fields
+        'is_voided' => 'boolean',
+        'voided_at' => 'datetime',
+        'refund_amount' => 'decimal:2',
     ];
 
     public function vendor()
@@ -114,6 +135,72 @@ class Transaksi extends TenantModel
     public function auction()
     {
         return $this->belongsTo(\App\Models\Auction::class, 'auction_id');
+    }
+
+    /**
+     * Relationship: Void logs for this transaction.
+     */
+    public function voidLogs()
+    {
+        return $this->hasMany(TransactionVoidLog::class, 'transaksi_id');
+    }
+
+    /**
+     * Relationship: Discounts applied to this transaction.
+     */
+    public function discounts()
+    {
+        return $this->hasMany(TransaksiDiscount::class, 'transaksi_id');
+    }
+
+    /**
+     * Relationship: User who voided this transaction.
+     */
+    public function voidedBy()
+    {
+        return $this->belongsTo(User::class, 'voided_by');
+    }
+
+    /**
+     * Check if this transaction has been voided.
+     */
+    public function isVoided(): bool
+    {
+        return $this->is_voided === true;
+    }
+
+    /**
+     * Check if this transaction can be voided.
+     */
+    public function canBeVoided(): bool
+    {
+        if ($this->is_voided) {
+            return false;
+        }
+
+        $voidableStatuses = ['pending', 'processing', 'quality_check'];
+        return in_array($this->status, $voidableStatuses);
+    }
+
+    /**
+     * Get void status label for display.
+     */
+    public function getVoidStatusLabelAttribute(): string
+    {
+        return match ($this->void_status ?? 'none') {
+            'voided' => 'Di-Void',
+            'refund_pending' => 'Refund Pending',
+            'refunded' => 'Sudah Refund',
+            default => '-',
+        };
+    }
+
+    /**
+     * Get the review for this transaction.
+     */
+    public function transactionReview()
+    {
+        return $this->hasOne(TransactionReview::class, 'transaksi_id');
     }
 
     /**

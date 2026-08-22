@@ -33,6 +33,8 @@ class LaporanController extends Controller
             ->get();
 
         $totalPenjualan = $transaksis->sum('total_harga');
+        $totalHpp = $transaksis->sum('hpp_total');
+        $totalLaba = $transaksis->sum('laba_total');
         $totalTransaksi = $transaksis->count();
 
         // Group by hour for detailed view
@@ -48,6 +50,8 @@ class LaporanController extends Controller
         return view('laporan.harian', compact(
             'transaksis',
             'totalPenjualan',
+            'totalHpp',
+            'totalLaba',
             'totalTransaksi',
             'selectedDate',
             'penjualanPerJam'

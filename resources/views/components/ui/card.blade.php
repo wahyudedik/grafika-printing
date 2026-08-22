@@ -1,6 +1,7 @@
 @props([
     'title' => null,
     'subtitle' => null,
+    'header' => null,
     'headerActions' => false,
     'padding' => true,
     'bordered' => true,

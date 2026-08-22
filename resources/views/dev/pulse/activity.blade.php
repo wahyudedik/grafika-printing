@@ -183,7 +183,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Top Active Users</h3>
             </div>
             <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                @foreach(\App\Models\User::with('vendorUser')->latest()->take(5)->get() as $user)
+                @foreach($topActiveUsers as $user)
                 <div class="px-6 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">

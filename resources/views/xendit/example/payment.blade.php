@@ -122,10 +122,10 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('xendit.example.index') }}"
+                    <a href="{{ route('user.dashboard') }}"
                         class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition duration-200 text-center">
                         <i class="fas fa-arrow-left mr-2"></i>
-                        Kembali ke Halaman Utama
+                        Kembali ke Dashboard
                     </a>
                 </div>
             </div>

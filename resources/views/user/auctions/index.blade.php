@@ -16,9 +16,9 @@
             <h1 class="text-2xl font-bold text-gray-900">Lelang Saya</h1>
             <p class="text-sm text-gray-500 mt-1">Daftar semua lelang yang telah Anda buat</p>
         </div>
-        <x-ui.button :href="route('user.auctions.create')" variant="primary">
+        <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-plus mr-2"></i> Buat Lelang Baru
-        </x-ui.button>
+        </a>
     </div>
 
     @if ($auctions->count() > 0)
@@ -63,13 +63,13 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <x-ui.button :href="route('user.auctions.show', $auction)" variant="outline-info" size="sm" class="flex-1 justify-center">
+                            <a href="{{ route('user.auctions.show', $auction) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition flex-1">
                                 <i class="fas fa-eye mr-1"></i> Detail
-                            </x-ui.button>
+                            </a>
                             @if(in_array($auction->status, ['pending', 'approved', 'bidding']))
-                                <x-ui.button :href="route('user.auctions.edit', $auction)" variant="outline" size="sm" class="flex-1 justify-center">
+                                <a href="{{ route('user.auctions.edit', $auction) }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-sm py-1 px-3 rounded-lg transition flex-1">
                                     <i class="fas fa-edit mr-1"></i> Edit
-                                </x-ui.button>
+                                </a>
                             @endif
                         </div>
                     </div>
@@ -93,9 +93,9 @@
             <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
                 Mulai membuat lelang pertama Anda untuk mendapatkan penawaran terbaik dari vendor percetakan.
             </p>
-            <x-ui.button :href="route('user.auctions.create')" variant="primary">
+            <a href="{{ route('user.auctions.create') }}" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                 <i class="fas fa-plus mr-2"></i> Buat Lelang Baru
-            </x-ui.button>
+            </a>
         </div>
     @endif
 @endsection

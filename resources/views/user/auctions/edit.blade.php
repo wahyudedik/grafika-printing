@@ -142,9 +142,9 @@
                             <label for="file" class="block text-sm font-medium text-gray-700 mb-1">File Desain/Referensi</label>
                             @if ($auction->file_path)
                                 <div class="mb-2">
-                                    <x-ui.button :href="asset('storage/auction_files/' . $auction->file_path)" variant="outline-info" size="sm" target="_blank">
+                                    <a href="{{ asset('storage/auction_files/' . $auction->file_path) }}" target="_blank" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                         <i class="fas fa-file mr-1"></i> Lihat File Saat Ini
-                                    </x-ui.button>
+                                    </a>
                                 </div>
                             @endif
                             <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
@@ -157,12 +157,12 @@
 
                         {{-- Action Buttons --}}
                         <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                            <x-ui.button :href="route('user.auctions.show', $auction)" variant="outline">
+                            <a href="{{ route('user.auctions.show', $auction) }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                                 Batal
-                            </x-ui.button>
-                            <x-ui.button type="submit" variant="primary">
+                            </a>
+                            <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                                 <i class="fas fa-save mr-2"></i> Simpan Perubahan
-                            </x-ui.button>
+                            </button>
                         </div>
                     </div>
                 </div>

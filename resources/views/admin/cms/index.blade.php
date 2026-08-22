@@ -14,24 +14,24 @@
                     <h2 class="text-2xl font-bold text-gray-900">CMS Management</h2>
                 </div>
                 <div class="flex items-center gap-2 flex-wrap">
-                    <x-ui.button variant="primary" @click="showAddModal = true">
+                    <button @click="showAddModal = true" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Setting
-                    </x-ui.button>
-                    <x-ui.button variant="info" :href="route('admin.cms.preview')">
+                    </button>
+                    <a href="{{ route('admin.cms.preview') }}" class="inline-flex items-center justify-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-eye mr-2"></i>
                         Preview Landing
-                    </x-ui.button>
-                    <x-ui.button variant="success" :href="route('admin.cms.statistics')">
+                    </a>
+                    <a href="{{ route('admin.cms.statistics') }}" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         <i class="fas fa-chart-bar mr-2"></i>
                         Statistics
-                    </x-ui.button>
+                    </a>
                     <div class="relative" @click.away="showToolsDropdown = false">
-                        <x-ui.button variant="outline" @click="showToolsDropdown = !showToolsDropdown">
+                        <button @click="showToolsDropdown = !showToolsDropdown" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
                             <i class="fas fa-cog mr-2"></i>
                             Tools
                             <i class="fas fa-chevron-down text-xs"></i>
-                        </x-ui.button>
+                        </button>
                         <div x-show="showToolsDropdown" x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-10">
                             <a class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" href="{{ route('admin.cms.export') }}">
                                 <i class="fas fa-download text-xs text-gray-400"></i>Export Settings
@@ -62,18 +62,18 @@
                             @if (isset($settings[$categoryKey]) && $settings[$categoryKey]->count() > 0)
                                 <p class="text-sm text-gray-500 mb-4">{{ $settings[$categoryKey]->count() }} settings configured</p>
                                 <div class="flex items-center gap-2">
-                                    <x-ui.button variant="outline-primary" :href="route('admin.cms.show', $categoryKey)" size="sm">
+                                    <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center justify-center border border-blue-300 text-blue-700 hover:bg-blue-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                         <i class="fas fa-edit text-xs mr-1"></i>Edit
-                                    </x-ui.button>
-                                    <x-ui.button variant="outline-info" :href="route('admin.cms.show', $categoryKey)" size="sm">
+                                    </a>
+                                    <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center justify-center border border-cyan-300 text-cyan-700 hover:bg-cyan-50 font-semibold text-sm py-1 px-3 rounded-lg transition">
                                         <i class="fas fa-eye text-xs mr-1"></i>View
-                                    </x-ui.button>
+                                    </a>
                                 </div>
                             @else
                                 <p class="text-sm text-gray-500 mb-4">No settings configured</p>
-                                <x-ui.button variant="primary" :href="route('admin.cms.show', $categoryKey)" size="sm">
+                                <a href="{{ route('admin.cms.show', $categoryKey) }}" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-1 px-3 rounded-lg transition">
                                     <i class="fas fa-plus text-xs mr-1"></i>Configure
-                                </x-ui.button>
+                                </a>
                             @endif
                         </div>
                     </div>
@@ -143,8 +143,8 @@
                             </div>
                         </div>
                         <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                            <x-ui.button variant="outline" @click="showAddModal = false">Cancel</x-ui.button>
-                            <x-ui.button variant="primary" type="submit">Create Setting</x-ui.button>
+                            <button @click="showAddModal = false" type="button" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">Cancel</button>
+                            <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Create Setting</button>
                         </div>
                     </form>
                 </div>
@@ -175,8 +175,8 @@
                             </div>
                         </div>
                         <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                            <x-ui.button variant="outline" @click="showImportModal = false">Cancel</x-ui.button>
-                            <x-ui.button variant="primary" type="submit">Import Settings</x-ui.button>
+                            <button @click="showImportModal = false" type="button" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">Cancel</button>
+                            <button type="submit" class="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Import Settings</button>
                         </div>
                     </form>
                 </div>
@@ -185,7 +185,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script>
         document.getElementById('label').addEventListener('input', function() {
             const label = this.value;
@@ -222,7 +222,6 @@
                     });
                 }
             });
-            }
         }
 
         function previewSetting(key, value) {
@@ -254,4 +253,4 @@
             });
         });
     </script>
-@endsection
+@endpush

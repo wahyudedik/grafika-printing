@@ -1,4 +1,4 @@
-@extends('layouts.vendor')
+@extends('layouts.pos')
 
 @section('title', 'Point of Sale')
 
@@ -20,6 +20,76 @@
                 </div>
             </div>
         </div>
+
+        {{-- Stock Alerts Banner --}}
+        @if(!empty($criticalBahan) && count($criticalBahan) > 0)
+            <div class="px-4 mt-3" x-data="{ showBanner: true }" x-show="showBanner" x-transition x-cloak>
+                <div class="bg-red-50 border border-red-200 rounded-xl overflow-hidden">
+                    <div class="px-6 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-red-100 rounded-full">
+                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-red-800">
+                                    {{ count($criticalBahan) }} bahan stok habis!
+                                </p>
+                                <p class="text-xs text-red-600">
+                                    @foreach($criticalBahan->take(3) as $alert)
+                                        {{ $alert->bahan->nama_bahan ?? 'Bahan #' . $alert->bahan_id }}{{ $loop->last ? '' : ', ' }}
+                                    @endforeach
+                                    @if(count($criticalBahan) > 3) dan {{ count($criticalBahan) - 3 }} lainnya @endif
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('vendor.pos.stock.alerts') }}"
+                                class="text-xs font-medium text-red-700 hover:text-red-800 underline whitespace-nowrap">
+                                Lihat Detail
+                            </a>
+                            <button @click="showBanner = false" class="p-1 text-red-400 hover:text-red-600 rounded">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @elseif(!empty($stockAlerts) && count($stockAlerts) > 0)
+            <div class="px-4 mt-3" x-data="{ showBanner: true }" x-show="showBanner" x-transition x-cloak>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl overflow-hidden">
+                    <div class="px-6 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-yellow-100 rounded-full">
+                                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-yellow-800">
+                                    {{ count($stockAlerts) }} bahan perlu perhatian
+                                </p>
+                                <p class="text-xs text-yellow-600">Beberapa bahan sudah mencapai batas minimum stok</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('vendor.pos.stock.alerts') }}"
+                                class="text-xs font-medium text-yellow-700 hover:text-yellow-800 underline whitespace-nowrap">
+                                Lihat Detail
+                            </a>
+                            <button @click="showBanner = false" class="p-1 text-yellow-400 hover:text-yellow-600 rounded">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Navigation Kategori --}}
         <div class="px-4 mt-3">

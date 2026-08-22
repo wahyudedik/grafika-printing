@@ -249,7 +249,7 @@
             @endforelse
         </div>
         <div class="px-6 py-4 border-t border-gray-200">
-            {{ $produks->links('dev.components.pagination') }}
+            {{ $produks->links('components.pagination') }}
         </div>
     </div>
 

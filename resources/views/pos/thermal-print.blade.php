@@ -137,6 +137,22 @@
             margin: 2px 0;
         }
 
+        .barcode-area {
+            text-align: center;
+            margin: 8px 0;
+            font-size: 8px;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 6px 0;
+        }
+
+        .qr-section img {
+            width: 25mm;
+            height: 25mm;
+        }
+
         /* Print specific styles */
         @media print {
             body {
@@ -185,11 +201,11 @@
             Paper: {{ $printerSettings->paper_width }} | Font: {{ $printerSettings->font_size }}px
         </p>
         <div>
-            <button onclick="window.print()"
+            <button onclick="printReceipt()"
                 style="padding: 12px 30px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold;">
                 🖨️ Print Sekarang
             </button>
-            <button onclick="selectPrinter()"
+            <button onclick="selectAndPrint()"
                 style="padding: 12px 30px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; margin-left: 10px;">
                 📋 Pilih Printer
             </button>
@@ -198,6 +214,9 @@
                 ✕ Tutup
             </button>
         </div>
+        <p style="color: #999; font-size: 12px; margin-top: 10px;">
+            💡 Tips: Gunakan "Pilih Printer" untuk memilih printer thermal yang spesifik
+        </p>
     </div>
 
     <!-- THERMAL RECEIPT CONTENT -->
@@ -206,10 +225,10 @@
         <div class="header">
             @php
                 $vendor = $transaksi->vendor;
-                $vendorName = $vendor->name ?? ($vendor->nama_vendor ?? 'Bamboo Digital Printing');
-                $vendorAddress = $vendor->address ?? ($vendor->alamat ?? 'Pesantren Peterongan Jombang');
-                $vendorPhone = $vendor->phone ?? ($vendor->telepon ?? '081-515-876-755');
-                $vendorEmail = $vendor->email ?? 'infografikaprint@gmail.com';
+                $vendorName = $vendor->name ?? ($vendor->nama_vendor ?? config('app.name', 'Grafika Printing'));
+                $vendorAddress = $vendor->address ?? ($vendor->alamat ?? '');
+                $vendorPhone = $vendor->phone ?? ($vendor->telepon ?? '');
+                $vendorEmail = $vendor->email ?? '';
             @endphp
 
             @if($vendor && $vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo)))
@@ -355,7 +374,7 @@
         <hr class="divider">
 
         <!-- BARCODE AREA -->
-        <div style="text-align: center; margin: 8px 0;">
+        <div class="barcode-area">
             <p style="font-size: 7px; letter-spacing: 2px;">{{ $transaksi->kode }}</p>
         </div>
 
@@ -373,87 +392,75 @@
 
     <script>
         /**
-         * Select printer using WebUSB API (for direct thermal printer connection)
+         * Print using default browser print dialog
          */
-        async function selectPrinter() {
+        function printReceipt() {
+            window.print();
+        }
+
+        /**
+         * Print using WebUSB (for direct thermal printer connection)
+         * Falls back to browser print if WebUSB is unavailable or user cancels
+         */
+        async function selectAndPrint() {
             if ('usb' in navigator) {
                 try {
                     const device = await navigator.usb.requestDevice({ filters: [] });
-                    showToast('Printer dipilih: ' + device.productName, 'success');
+                    await device.open();
 
-                    // Store selected device for printing
-                    window.selectedPrinter = device;
+                    if (device.configuration === null) {
+                        await device.selectConfiguration(1);
+                    }
 
-                    // Now print
-                    await printToUsbPrinter(device);
+                    await device.claimInterface(0);
+
+                    const receiptText = generateReceiptText();
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(receiptText);
+
+                    await device.transferOut(1, data);
+
+                    // Send cut command (ESC/POS: GS V 0 - full cut)
+                    const cutCommand = new Uint8Array([0x1D, 0x56, 0x00]);
+                    await device.transferOut(1, cutCommand);
+
+                    await device.close();
+
+                    showToast('Berhasil dikirim ke printer!', 'success');
+
+                    @if($printerSettings->auto_close_window)
+                        setTimeout(() => window.close(), 2000);
+                    @endif
+
                 } catch (error) {
                     console.error('WebUSB Error:', error);
+
                     if (error.name === 'NotFoundError') {
-                        // User cancelled, fallback to browser print
-                        window.print();
+                        // User cancelled device selection, fall back to browser print
+                        printReceipt();
                     } else {
-                        showToast('Gagal: ' + error.message + '. Menggunakan browser print...', 'error');
-                        window.print();
+                        showToast('Gagal koneksi printer: ' + error.message + '. Menggunakan browser print...', 'error');
+                        printReceipt();
                     }
                 }
             } else {
-                // WebUSB not supported, use browser print
                 showToast('WebUSB tidak tersedia. Menggunakan browser print...', 'info');
-                window.print();
+                printReceipt();
             }
         }
 
         /**
-         * Print to USB printer using ESC/POS commands
-         */
-        async function printToUsbPrinter(device) {
-            try {
-                await device.open();
-
-                if (device.configuration === null) {
-                    await device.selectConfiguration(1);
-                }
-
-                await device.claimInterface(0);
-
-                const receiptText = generateReceiptText();
-                const encoder = new TextEncoder();
-                const data = encoder.encode(receiptText);
-
-                await device.transferOut(1, data);
-
-                // Send cut command
-                const cutCommand = new Uint8Array([0x1D, 0x56, 0x00]);
-                await device.transferOut(1, cutCommand);
-
-                await device.close();
-
-                showToast('Berhasil dikirim ke printer!', 'success');
-
-                @if($printerSettings->auto_close_window)
-                    setTimeout(() => window.close(), 2000);
-                @endif
-
-            } catch (error) {
-                console.error('Print Error:', error);
-                showToast('Gagal print ke USB: ' + error.message, 'error');
-                // Fallback
-                window.print();
-            }
-        }
-
-        /**
-         * Generate ESC/POS receipt text
+         * Generate receipt text using ESC/POS commands for thermal printer
          */
         function generateReceiptText() {
             const ESC = '\x1B';
             const GS = '\x1D';
             let text = '';
 
-            // Initialize
+            // Initialize printer
             text += ESC + '@';
 
-            // Center + Bold
+            // Center align + Bold on
             text += ESC + 'a' + '\x01';
             text += ESC + 'E' + '\x01';
             text += '{{ addslashes($vendorName) }}\n';
@@ -467,7 +474,7 @@
             text += ESC + 'a' + '\x00';
             text += '================================\n';
 
-            // Info
+            // Invoice info
             text += 'No: {{ $transaksi->kode }}\n';
             text += 'Tgl: {{ $transaksi->tanggal_dibuat->format("d/m/Y H:i") }}\n';
             text += 'Cust: {{ addslashes($transaksi->pelanggan->nama ?? "-") }}\n';
@@ -489,7 +496,7 @@
                 text += 'ONGKIR:    Rp {{ number_format($ongkir, 0, ",", ".") }}\n';
             @endif
 
-            // Bold total
+            // Bold for grand total
             text += ESC + 'E' + '\x01';
             text += 'TOTAL:     Rp {{ number_format($transaksi->total_harga, 0, ",", ".") }}\n';
             text += ESC + 'E' + '\x00';
@@ -501,7 +508,7 @@
 
             text += '================================\n';
 
-            // Footer
+            // Footer (centered)
             text += ESC + 'a' + '\x01';
             text += '\nTerima kasih telah berbelanja!\n';
             @if($transaksi->estimasi_selesai)
@@ -517,7 +524,7 @@
         }
 
         /**
-         * Toast notification
+         * Show toast notification
          */
         function showToast(message, type) {
             const toast = document.createElement('div');
@@ -532,14 +539,23 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Auto close after printing
-        window.addEventListener('afterprint', function() {
-            @if($printerSettings->auto_close_window)
+        // Auto print on page load (only in JS/WebUSB mode)
+        @if($method === 'js' && $printerSettings->auto_print)
+            window.addEventListener('load', function() {
+                setTimeout(function() {
+                    printReceipt();
+                }, {{ $printerSettings->print_delay }});
+            });
+        @endif
+
+        // Auto close after printing (if enabled)
+        @if($printerSettings->auto_close_window)
+            window.addEventListener('afterprint', function() {
                 setTimeout(function() {
                     window.close();
                 }, 1500);
-            @endif
-        });
+            });
+        @endif
     </script>
 </body>
 

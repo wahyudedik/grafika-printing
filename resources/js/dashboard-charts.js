@@ -1,7 +1,9 @@
 // Dashboard charts functionality
-document.addEventListener("DOMContentLoaded", function () {
+// Uses lazy-loaded ApexCharts via window.loadApexCharts()
+document.addEventListener("DOMContentLoaded", async function () {
     // Popular Products Chart
     if (document.querySelector("#popular-products-chart")) {
+        const ApexCharts = await window.loadApexCharts();
         const popularProductsData = window.popularProductsData || { data: [], labels: [] };
         const popularProductsOptions = {
             series: [{
@@ -38,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Monthly Revenue Chart
     if (document.querySelector("#monthly-revenue-chart")) {
+        const ApexCharts = await window.loadApexCharts();
         const revenueData = window.revenueData || { data: [], labels: [] };
         const monthlyRevenueOptions = {
             series: [{

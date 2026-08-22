@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PulseController extends Controller
@@ -36,6 +37,8 @@ class PulseController extends Controller
      */
     public function activity()
     {
-        return view('dev.pulse.activity');
+        $topActiveUsers = User::with('vendorUser')->latest()->take(5)->get();
+
+        return view('dev.pulse.activity', compact('topActiveUsers'));
     }
 }

@@ -160,6 +160,12 @@ class UserDashboardController extends Controller
             $outOfStockCount = Bahan::where('vendor_id', $vendorId)
                 ->where('stok', '=', 0)->count();
 
+            // Get wallet balance
+            $wallet = $vendor->wallet;
+            $walletBalance = $wallet ? $wallet->balance : 0;
+            $walletPending = $wallet ? $wallet->pending_balance : 0;
+            $walletTotalEarned = $wallet ? $wallet->total_earned : 0;
+
             // Get pending orders count — TransaksiModel auto-scopes by vendor_id via TenantModel
             $pendingOrdersCount = Transaksi::where('status', 'pending')->count();
 
@@ -193,7 +199,10 @@ class UserDashboardController extends Controller
                 'outOfStockCount',
                 'pendingOrdersCount',
                 'processingOrdersCount',
-                'completedOrdersCount'
+                'completedOrdersCount',
+                'walletBalance',
+                'walletPending',
+                'walletTotalEarned'
             ));
         } catch (\Exception $e) {
             return FlashMessage::backError('Error loading dashboard: ' . $e->getMessage());

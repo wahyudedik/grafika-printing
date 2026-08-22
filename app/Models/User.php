@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\LelangUserProfile;
 use App\Traits\HasUuid;
 
 class User extends Authenticatable
@@ -60,6 +61,14 @@ class User extends Authenticatable
     public function vendorUser()
     {
         return $this->belongsToMany(Vendor::class, 'vendor_user');
+    }
+
+    /**
+     * Get the lelang user profile for this user.
+     */
+    public function lelangUserProfile()
+    {
+        return $this->hasOne(LelangUserProfile::class);
     }
 
     public function auctions()

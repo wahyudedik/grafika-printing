@@ -6,9 +6,9 @@
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Detail Tracking Pesanan</h1>
-        <x-ui.button :href="route('user.orders.index')" variant="outline">
+        <a href="{{ route('user.orders.index') }}" class="inline-flex items-center justify-center border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2 px-4 rounded-lg transition">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
-        </x-ui.button>
+        </a>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -24,9 +24,12 @@
                         <h3 class="text-sm font-semibold text-gray-900 mb-4">Status Pesanan</h3>
                         @php
                             $statuses = [
-                                'pending' => 'Menunggu Konfirmasi',
-                                'confirmed' => 'Dikonfirmasi Vendor',
-                                'processing' => 'Sedang Diproses',
+                                'payment_received' => 'Pembayaran Diterima',
+                                'order_accepted' => 'Pesanan Diterima Vendor',
+                                'production_started' => 'Sedang Diproses',
+                                'production_completed' => 'Cetak Selesai',
+                                'quality_check' => 'Quality Check',
+                                'packaging' => 'Dikemas',
                                 'shipped' => 'Dikirim',
                                 'delivered' => 'Diterima',
                                 'completed' => 'Selesai'
@@ -133,9 +136,9 @@
                                 <textarea name="feedback" rows="3" placeholder="Berikan feedback tentang pesanan Anda"
                                     class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"></textarea>
                             </div>
-                            <x-ui.button type="submit" variant="success" class="w-full justify-center">
+                            <button type="submit" class="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition w-full">
                                 <i class="fas fa-check-circle mr-2"></i> Konfirmasi Penerimaan
-                            </x-ui.button>
+                            </button>
                         </form>
                     @else
                         <div class="text-center py-4">
@@ -172,9 +175,9 @@
                             <input type="file" name="evidence_files[]" multiple accept="image/*,.pdf"
                                 class="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100 file:cursor-pointer">
                         </div>
-                        <x-ui.button type="submit" variant="warning" class="w-full justify-center">
+                        <button type="submit" class="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition w-full">
                             <i class="fas fa-exclamation-triangle mr-2"></i> Ajukan Mediasi
-                        </x-ui.button>
+                        </button>
                     </form>
                 </div>
             </div>

@@ -27,7 +27,7 @@ class SimpleTestSeeder extends Seeder
             ['email' => 'dev@gmail.com'],
             [
                 'name' => 'Developer Admin',
-                'password' => Hash::make('password'), 
+                'password' => Hash::make('password'),
                 'usertype' => 'dev',
                 'email_verified_at' => now(),
                 'uuid' => Str::uuid(),
@@ -69,7 +69,7 @@ class SimpleTestSeeder extends Seeder
             ['email' => 'vendor@example.com'],
             [
                 'name' => 'Grafika Printing Vendor',
-                'phone' => '081234567890',
+                'phone' => '089876543210',
                 'address' => 'Jl. Vendor No. 123, Jakarta',
                 'is_active' => true,
                 'bank_verified' => true,
