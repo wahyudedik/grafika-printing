@@ -14,6 +14,10 @@
 
 set -e
 
+# ⚠️ PERINGATAN: Script ini untuk FRESH INSTALL di server BERSIH
+# JANGAN jalankan di server yang sudah menggunakan aaPanel/CyberPanel/Plesk
+# Gunakan update.sh untuk deployment ke server existing
+
 # ============================================
 # KONFIGURASI
 # ============================================
@@ -76,6 +80,19 @@ preflight_checks() {
         exit 1
     fi
     print_success "Running as root"
+
+    # Check if aaPanel is installed
+    if [ -d "/www/server/panel" ] || [ -f "/etc/init.d/bt" ] || command -v bt &> /dev/null; then
+        print_error "Server ini menggunakan aaPanel!"
+        echo "  deploy.sh TIDAK boleh dijalankan di server aaPanel."
+        echo "  aaPanel sudah mengelola PHP, Nginx, MySQL, dan Redis secara mandiri."
+        echo ""
+        echo "  Untuk deployment ke server aaPanel, gunakan:"
+        echo "    sudo bash update.sh"
+        echo ""
+        echo "  Atau ikuti panduan deployment manual di VPS_DEPLOYMENT_GUIDE.md"
+        exit 1
+    fi
 
     # Check OS
     if ! grep -q "Ubuntu\|Debian" /etc/os-release 2>/dev/null; then
@@ -530,6 +547,9 @@ main() {
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo "Script ini akan:"
+    echo "  ⚠️  PERINGATAN: Script ini untuk server BERSIH (tanpa panel)"
+    echo "  ⚠️  JANGAN jalankan di server aaPanel/CyberPanel/Plesk!"
+    echo ""
     echo "  1. Install system dependencies (PHP, Nginx, MySQL, Redis, etc.)"
     echo "  2. Setup database"
     echo "  3. Clone & configure application"

@@ -6,6 +6,7 @@
 # ╚══════════════════════════════════════════════════════════════╝
 #
 # Script ini digunakan untuk update aplikasi yang sudah ter-deploy.
+# Mendukung server vanilla (Ubuntu/Debian) dan server aaPanel.
 # Untuk fresh install pertama kali, gunakan deploy.sh
 #
 # Usage: sudo bash update.sh
@@ -16,12 +17,8 @@ set -e
 # ============================================
 # KONFIGURASI
 # ============================================
-APP_DIR="/var/www/grafika-printing"
-APP_USER="www-data"
-APP_GROUP="www-data"
-PHP_VERSION="8.2"
+DOMAIN="grafika.noteds.com"
 BRANCH="main"
-BACKUP_DIR="/var/backups/grafika-printing"
 MAX_BACKUPS=5
 
 # Colors
@@ -30,6 +27,145 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
+
+# ============================================
+# DETEKSI PANEL (aaPanel vs Vanilla)
+# ============================================
+detect_panel() {
+    print_header "DETEKSI SERVER ENVIRONMENT"
+
+    # === Step 1: Prioritas — cek apakah script dijalankan dari direktori project ===
+    if [ -f "$(pwd)/artisan" ] && [ -f "$(pwd)/.env" ]; then
+        APP_DIR="$(pwd)"
+        print_info "Laravel project ditemukan di direktori saat ini: $APP_DIR"
+    fi
+
+    # === Step 2: Deteksi tipe panel (aaPanel vs Vanilla) ===
+    if [ -d "/www/server/panel" ] || [ -f "/etc/init.d/bt" ] || command -v bt &> /dev/null; then
+        PANEL_TYPE="aapanel"
+        print_info "Server menggunakan aaPanel"
+
+        # --- aaPanel paths ---
+        APP_DIR="/www/wwwroot/${DOMAIN}"
+
+        # PHP binary: cari versi terbaru yang terinstall di aaPanel
+        PHP_BIN=$(ls /www/server/php/*/bin/php 2>/dev/null | sort -V | tail -1)
+        if [ -z "$PHP_BIN" ]; then
+            PHP_BIN="php"
+            print_warning "PHP aaPanel tidak ditemukan, menggunakan php dari PATH"
+        else
+            print_success "PHP binary: $PHP_BIN"
+        fi
+
+        # PHP-FPM socket path
+        PHP_FPM_SOCKET=$(ls /www/server/php/*/tmp/php-fpm.sock 2>/dev/null | sort -V | tail -1)
+        if [ -z "$PHP_FPM_SOCKET" ]; then
+            PHP_FPM_SOCKET="/tmp/php-fpm.sock"
+            print_warning "PHP-FPM socket tidak ditemukan, menggunakan default: $PHP_FPM_SOCKET"
+        else
+            print_success "PHP-FPM socket: $PHP_FPM_SOCKET"
+        fi
+
+        # Nginx binary & config
+        NGINX_BIN="/www/server/nginx/sbin/nginx"
+        if [ ! -f "$NGINX_BIN" ]; then
+            NGINX_BIN="nginx"
+        fi
+        NGINX_CONF_DIR="/www/server/panel/vhost/nginx"
+
+        # aaPanel uses 'www' as the web user
+        APP_USER="www"
+        APP_GROUP="www"
+
+        # aaPanel backup directory
+        BACKUP_DIR="/www/backup/grafika-printing"
+
+        print_success "Panel type: aaPanel"
+        print_info "App directory: $APP_DIR"
+        print_info "Nginx config: $NGINX_CONF_DIR"
+
+    else
+        PANEL_TYPE="vanilla"
+        print_info "Server menggunakan vanilla Ubuntu/Debian (tanpa panel)"
+
+        # --- Vanilla paths ---
+        APP_DIR="/var/www/grafika-printing"
+        PHP_BIN="php"
+        PHP_FPM_SOCKET=""
+        NGINX_BIN="nginx"
+        NGINX_CONF_DIR="/etc/nginx/sites-available"
+
+        APP_USER="www-data"
+        APP_GROUP="www-data"
+
+        BACKUP_DIR="/var/backups/grafika-printing"
+
+        # Detect PHP version for vanilla
+        PHP_VERSION="8.2"
+        if command -v php &> /dev/null; then
+            PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+        fi
+
+        print_success "Panel type: Vanilla"
+        print_info "App directory: $APP_DIR"
+        print_info "PHP version: $PHP_VERSION"
+    fi
+
+    # === Step 3: Fallback — jika APP_DIR yang terdeteksi tidak ada, coba path alternatif ===
+    if [ ! -d "$APP_DIR" ]; then
+        print_warning "Directory $APP_DIR tidak ditemukan, mencari path alternatif..."
+
+        # Coba path aaPanel (meskipun panel marker tidak terdeteksi)
+        if [ -d "/www/wwwroot/${DOMAIN}" ]; then
+            APP_DIR="/www/wwwroot/${DOMAIN}"
+            PANEL_TYPE="aapanel"
+            print_success "Ditemukan: $APP_DIR (aaPanel webroot path)"
+
+            # Re-detect aaPanel tools jika belum di-set
+            if [ -z "$PHP_BIN" ] || [ "$PHP_BIN" = "php" ]; then
+                PHP_BIN=$(ls /www/server/php/*/bin/php 2>/dev/null | sort -V | tail -1)
+                [ -z "$PHP_BIN" ] && PHP_BIN="php"
+            fi
+            if [ -z "$PHP_FPM_SOCKET" ]; then
+                PHP_FPM_SOCKET=$(ls /www/server/php/*/tmp/php-fpm.sock 2>/dev/null | sort -V | tail -1)
+                [ -z "$PHP_FPM_SOCKET" ] && PHP_FPM_SOCKET="/tmp/php-fpm.sock"
+            fi
+            if [ -z "$APP_USER" ] || [ "$APP_USER" = "www-data" ]; then
+                APP_USER="www"
+                APP_GROUP="www"
+            fi
+            BACKUP_DIR="/www/backup/grafika-printing"
+            NGINX_CONF_DIR="/www/server/panel/vhost/nginx"
+
+        # Coba path vanilla
+        elif [ -d "/var/www/grafika-printing" ]; then
+            APP_DIR="/var/www/grafika-printing"
+            PANEL_TYPE="vanilla"
+            print_success "Ditemukan: $APP_DIR (vanilla path)"
+
+        # Coba current directory (script dijalankan dari project dir)
+        elif [ -f "$(pwd)/artisan" ]; then
+            APP_DIR="$(pwd)"
+            PANEL_TYPE="auto"
+            print_success "Ditemukan: $APP_DIR (current directory)"
+
+        else
+            print_error "Tidak bisa menentukan direktori aplikasi."
+            print_info "Path yang dicoba:"
+            print_info "  1. /www/wwwroot/${DOMAIN} (aaPanel webroot)"
+            print_info "  2. /var/www/grafika-printing (vanilla default)"
+            print_info "  3. $(pwd) (current directory)"
+            echo ""
+            print_info "Solusi:"
+            print_info "  - Jalankan script dari directory project: cd /www/wwwroot/${DOMAIN} && bash update.sh"
+            print_info "  - Atau pastikan website sudah dibuat di aaPanel Panel > Website"
+            exit 1
+        fi
+    fi
+
+    print_info "App user: $APP_USER"
+    print_info "Backup dir: $BACKUP_DIR"
+}
 
 # ============================================
 # HELPER FUNCTIONS
@@ -58,6 +194,12 @@ print_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
+# Run PHP with the correct binary
+run_php() {
+    cd "$APP_DIR"
+    $PHP_BIN "$@"
+}
+
 # ============================================
 # PRE-FLIGHT CHECKS
 # ============================================
@@ -69,9 +211,17 @@ preflight_checks() {
         exit 1
     fi
 
+    # Detect panel environment
+    detect_panel
+
     if [ ! -d "$APP_DIR" ]; then
         print_error "Directory $APP_DIR tidak ditemukan."
-        print_info "Untuk fresh install, jalankan: sudo bash deploy.sh"
+        if [ "$PANEL_TYPE" = "aapanel" ]; then
+            print_info "Pastikan website sudah dibuat di aaPanel Panel > Website."
+            print_info "Domain harus: $DOMAIN"
+        else
+            print_info "Untuk fresh install, jalankan: sudo bash deploy.sh"
+        fi
         exit 1
     fi
 
@@ -87,7 +237,24 @@ preflight_checks() {
         exit 1
     fi
 
+    # Check composer
+    if ! command -v composer &> /dev/null && [ ! -f "/usr/local/bin/composer" ]; then
+        print_warning "Composer tidak ditemukan. Installing..."
+        curl -sS https://getcomposer.org/installer | $PHP_BIN
+        mv composer.phar /usr/local/bin/composer
+        print_success "Composer installed"
+    fi
+
+    # Check node/npm
+    if ! command -v node &> /dev/null; then
+        print_warning "Node.js tidak ditemukan. npm build akan di-skip."
+        SKIP_NPM=true
+    else
+        SKIP_NPM=false
+    fi
+
     print_success "Pre-flight checks passed"
+    print_info "Environment: $PANEL_TYPE | PHP: $PHP_BIN | User: $APP_USER"
 }
 
 # ============================================
@@ -96,14 +263,14 @@ preflight_checks() {
 enable_maintenance() {
     print_info "Enabling maintenance mode..."
     cd "$APP_DIR"
-    php artisan down --render="errors::503" --retry=60
+    run_php artisan down --render="errors::503" --retry=60
     print_success "Maintenance mode enabled"
 }
 
 disable_maintenance() {
     print_info "Disabling maintenance mode..."
     cd "$APP_DIR"
-    php artisan up
+    run_php artisan up
     print_success "Maintenance mode disabled"
 }
 
@@ -115,33 +282,53 @@ create_backup() {
 
     mkdir -p "$BACKUP_DIR"
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-    BACKUP_FILE="$BACKUP_DIR/backup_${TIMESTAMP}.tar.gz"
 
-    # Backup database
+    # --- Backup aplikasi (file) ---
+    print_info "Backing up application files..."
+    BACKUP_APP_FILE="$BACKUP_DIR/app_backup_${TIMESTAMP}.tar.gz"
+    BACKUP_PARENT="$(dirname "$APP_DIR")"
+    BACKUP_DIRNAME="$(basename "$APP_DIR")"
+    tar -czf "$BACKUP_APP_FILE" -C "$BACKUP_PARENT" "$BACKUP_DIRNAME" 2>/dev/null || true
+    print_success "Application files backed up"
+
+    # --- Backup database ---
     print_info "Backing up database..."
-    DB_NAME=$(grep "DB_DATABASE=" .env | cut -d '=' -f2)
-    DB_USER=$(grep "DB_USERNAME=" .env | cut -d '=' -f2)
-    DB_PASS=$(grep "DB_PASSWORD=" .env | cut -d '=' -f2)
+    DB_NAME=$(grep "DB_DATABASE=" .env | cut -d '=' -f2 | tr -d '[:space:]')
+    DB_USER=$(grep "DB_USERNAME=" .env | cut -d '=' -f2 | tr -d '[:space:]')
+    DB_PASS=$(grep "DB_PASSWORD=" .env | cut -d '=' -f2 | tr -d '[:space:]')
 
     if [ -n "$DB_NAME" ] && [ -n "$DB_USER" ]; then
-        mysqldump -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$BACKUP_DIR/db_backup_${TIMESTAMP}.sql" 2>/dev/null
+        DB_BACKUP_FILE="$BACKUP_DIR/db_backup_${TIMESTAMP}.sql"
+        if [ "$PANEL_TYPE" = "aapanel" ]; then
+            # aaPanel MySQL path
+            AA_PANEL_MYSQL="/www/server/mysql/bin/mysql"
+            AA_PANEL_MYSQLDUMP="/www/server/mysql/bin/mysqldump"
+            if [ -f "$AA_PANEL_MYSQLDUMP" ]; then
+                $AA_PANEL_MYSQLDUMP -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$DB_BACKUP_FILE" 2>/dev/null
+            else
+                mysqldump -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$DB_BACKUP_FILE" 2>/dev/null
+            fi
+        else
+            mysqldump -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$DB_BACKUP_FILE" 2>/dev/null
+        fi
         print_success "Database backed up to db_backup_${TIMESTAMP}.sql"
     else
         print_warning "Could not read database config from .env"
     fi
 
-    # Backup .env
+    # --- Backup .env ---
     cp .env "$BACKUP_DIR/env_backup_${TIMESTAMP}"
     print_success ".env backed up"
 
-    # Cleanup old backups (keep last MAX_BACKUPS)
+    # --- Cleanup old backups (keep last MAX_BACKUPS) ---
     print_info "Cleaning old backups (keeping last $MAX_BACKUPS)..."
     cd "$BACKUP_DIR"
-    ls -t backup_*.tar.gz 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
+    ls -t app_backup_*.tar.gz 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
     ls -t db_backup_*.sql 2>/dev/null | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
     ls -t env_backup_* 2>/dev/null | grep -v "\.sql$\|\.tar\.gz$" | tail -n +$((MAX_BACKUPS + 1)) | xargs -r rm
 
     print_success "Backups cleaned (keeping last $MAX_BACKUPS)"
+    print_info "Backup location: $BACKUP_DIR"
 }
 
 # ============================================
@@ -186,11 +373,16 @@ update_dependencies() {
     composer install --optimize-autoloader --no-dev --no-interaction
     print_success "Composer dependencies updated"
 
-    # NPM
-    print_info "Updating NPM dependencies and rebuilding assets..."
-    npm ci --no-audit --no-fund --include=dev
-    npm run build
-    print_success "NPM dependencies updated and assets built"
+    # NPM (skip if node not available)
+    if [ "$SKIP_NPM" = true ]; then
+        print_warning "Node.js tidak tersedia, skip npm build."
+        print_warning "Pastikan asset sudah built sebelumnya atau install Node.js."
+    else
+        print_info "Updating NPM dependencies and rebuilding assets..."
+        npm ci --no-audit --no-fund --include=dev
+        npm run build
+        print_success "NPM dependencies updated and assets built"
+    fi
 }
 
 # ============================================
@@ -203,12 +395,12 @@ run_migrations() {
 
     # Run landlord migrations (multi-tenant)
     print_info "Running landlord migrations..."
-    php artisan tenants:migrate --force 2>/dev/null || php artisan migrate --force
+    run_php artisan tenants:migrate --force 2>/dev/null || run_php artisan migrate --force
     print_success "Landlord migrations completed"
 
     # Run tenant migrations
     print_info "Running tenant migrations..."
-    php artisan tenants:migrate --tenant=* --force 2>/dev/null || true
+    run_php artisan tenants:migrate --tenant=* --force 2>/dev/null || true
     print_success "Tenant migrations completed"
 }
 
@@ -221,18 +413,21 @@ optimize_application() {
     cd "$APP_DIR"
 
     print_info "Clearing old caches..."
-    php artisan cache:clear
-    php artisan config:clear
-    php artisan route:clear
-    php artisan view:clear
-    php artisan event:clear
+    run_php artisan cache:clear
+    run_php artisan config:clear
+    run_php artisan route:clear
+    run_php artisan view:clear
+    run_php artisan event:clear
 
     print_info "Building new caches..."
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
-    php artisan event:cache
-    php artisan icons:cache 2>/dev/null || true
+    run_php artisan config:cache
+    run_php artisan route:cache
+    run_php artisan view:cache
+    run_php artisan event:cache
+    run_php artisan icons:cache 2>/dev/null || true
+
+    # Ensure storage link exists
+    run_php artisan storage:link --force 2>/dev/null || true
 
     print_success "Application optimized"
 }
@@ -254,7 +449,10 @@ fix_permissions() {
     # Ensure storage/logs is writable
     chmod -R 775 storage/logs 2>/dev/null || true
 
-    print_success "Permissions fixed"
+    # Ensure public directories are readable
+    chmod -R 755 public 2>/dev/null || true
+
+    print_success "Permissions fixed (owner: ${APP_USER}:${APP_GROUP})"
 }
 
 # ============================================
@@ -263,28 +461,162 @@ fix_permissions() {
 restart_services() {
     print_header "RESTARTING SERVICES"
 
-    # Nginx
-    if systemctl is-active --quiet nginx; then
-        nginx -t 2>/dev/null && systemctl reload nginx
-        print_success "Nginx reloaded"
-    fi
+    if [ "$PANEL_TYPE" = "aapanel" ]; then
+        # --- aaPanel: gunakan service management aaPanel ---
+        print_info "Menggunakan aaPanel service management..."
 
-    # PHP-FPM
-    if systemctl is-active --quiet php${PHP_VERSION}-fpm; then
-        systemctl restart php${PHP_VERSION}-fpm
-        print_success "PHP-FPM restarted"
-    fi
+        # Reload Nginx via aaPanel
+        if [ -f "/www/server/nginx/sbin/nginx" ]; then
+            /www/server/nginx/sbin/nginx -t 2>/dev/null && /www/server/nginx/sbin/nginx -s reload 2>/dev/null
+            if [ $? -eq 0 ]; then
+                print_success "Nginx reloaded (aaPanel)"
+            else
+                # Fallback: try systemctl
+                systemctl reload nginx 2>/dev/null || true
+                print_success "Nginx reloaded (systemctl fallback)"
+            fi
+        fi
 
-    # Queue worker
-    if systemctl is-active --quiet grafika-queue; then
-        systemctl restart grafika-queue
-        print_success "Queue worker restarted"
-    fi
+        # Restart PHP-FPM via aaPanel
+        AA_PHP_VERSION=$(ls /www/server/php/ 2>/dev/null | sort -V | tail -1)
+        if [ -n "$AA_PHP_VERSION" ] && [ -f "/etc/init.d/php-fpm-${AA_PHP_VERSION}" ]; then
+            /etc/init.d/php-fpm-${AA_PHP_VERSION} restart
+            print_success "PHP-FPM ${AA_PHP_VERSION} restarted (aaPanel)"
+        elif [ -f "/etc/init.d/php-fpm" ]; then
+            /etc/init.d/php-fpm restart
+            print_success "PHP-FPM restarted (aaPanel)"
+        else
+            # Fallback: systemctl
+            systemctl restart php*-fpm 2>/dev/null || true
+            print_success "PHP-FPM restarted (systemctl fallback)"
+        fi
 
-    # Redis
-    if systemctl is-active --quiet redis-server; then
-        systemctl restart redis-server
-        print_success "Redis restarted"
+        # Restart Redis via aaPanel (if exists)
+        if [ -f "/etc/init.d/redis" ]; then
+            /etc/init.d/redis restart
+            print_success "Redis restarted (aaPanel)"
+        elif systemctl is-active --quiet redis-server 2>/dev/null; then
+            systemctl restart redis-server
+            print_success "Redis restarted (systemctl)"
+        fi
+
+    else
+        # --- Vanilla: systemctl ---
+        print_info "Menggunakan systemctl..."
+
+        # Nginx
+        if systemctl is-active --quiet nginx; then
+            nginx -t 2>/dev/null && systemctl reload nginx
+            print_success "Nginx reloaded"
+        fi
+
+        # PHP-FPM
+        if systemctl is-active --quiet php${PHP_VERSION}-fpm; then
+            systemctl restart php${PHP_VERSION}-fpm
+            print_success "PHP-FPM restarted"
+        fi
+
+        # Queue worker
+        if systemctl is-active --quiet grafika-queue; then
+            systemctl restart grafika-queue
+            print_success "Queue worker restarted"
+        fi
+
+        # Redis
+        if systemctl is-active --quiet redis-server; then
+            systemctl restart redis-server
+            print_success "Redis restarted"
+        fi
+    fi
+}
+
+# ============================================
+# UPDATE NGINX CONFIG (Optional)
+# ============================================
+update_nginx_config() {
+    print_header "NGINX CONFIGURATION"
+
+    if [ "$PANEL_TYPE" = "aapanel" ]; then
+        NGINX_CONF="${NGINX_CONF_DIR}/${DOMAIN}.conf"
+
+        if [ ! -f "$NGINX_CONF" ]; then
+            print_warning "Nginx config tidak ditemukan di $NGINX_CONF"
+            print_info "Membuat nginx config untuk aaPanel..."
+
+            cat > "$NGINX_CONF" <<NGINX_EOF
+server {
+    listen 80;
+    server_name ${DOMAIN} www.${DOMAIN};
+    root ${APP_DIR}/public;
+    index index.php;
+
+    # Redirect HTTP to HTTPS (uncomment setelah SSL dipasang)
+    # return 301 https://\$server_name\$request_uri;
+
+    # Laravel Configuration
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    # PHP-FPM Configuration (aaPanel)
+    location ~ \.php\$ {
+        fastcgi_pass unix:${PHP_FPM_SOCKET};
+        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Static files caching
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Deny access to sensitive files
+    location ~ /\.(ht|env) {
+        deny all;
+    }
+
+    # Deny access to hidden files
+    location ~ /\. {
+        deny all;
+    }
+}
+NGINX_EOF
+
+            print_success "Nginx config created: $NGINX_CONF"
+        else
+            print_success "Nginx config sudah ada: $NGINX_CONF"
+
+            # Verify PHP-FPM socket path is correct in config
+            if grep -q "fastcgi_pass" "$NGINX_CONF"; then
+                CURRENT_SOCKET=$(grep "fastcgi_pass" "$NGINX_CONF" | head -1 | sed 's/.*unix:\([^;]*\).*/\1/')
+                if [ -n "$CURRENT_SOCKET" ] && [ "$CURRENT_SOCKET" != "$PHP_FPM_SOCKET" ]; then
+                    print_warning "PHP-FPM socket path berbeda: $CURRENT_SOCKET vs $PHP_FPM_SOCKET"
+                    read -p "  Update socket path ke $PHP_FPM_SOCKET? (y/N): " socket_confirm
+                    if [[ $socket_confirm == [yY] ]]; then
+                        sed -i "s|$CURRENT_SOCKET|$PHP_FPM_SOCKET|g" "$NGINX_CONF"
+                        print_success "Socket path updated in nginx config"
+                    fi
+                fi
+            fi
+        fi
+
+        # Test nginx config
+        if [ -f "/www/server/nginx/sbin/nginx" ]; then
+            /www/server/nginx/sbin/nginx -t 2>&1
+        else
+            nginx -t 2>&1
+        fi
+
+    else
+        # Vanilla: just verify existing config
+        NGINX_CONF="${NGINX_CONF_DIR}/${DOMAIN}"
+        if [ -f "$NGINX_CONF" ]; then
+            print_success "Nginx config found: $NGINX_CONF"
+        else
+            print_warning "Nginx config tidak ditemukan di $NGINX_CONF"
+            print_info "Jalankan deploy.sh untuk membuat nginx config, atau buat manual."
+        fi
     fi
 }
 
@@ -297,9 +629,10 @@ verify_update() {
     cd "$APP_DIR"
 
     # Test artisan
-    php artisan --version > /dev/null 2>&1
+    run_php artisan --version > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-        print_success "Laravel artisan working"
+        LARAVEL_VERSION=$(run_php artisan --version)
+        print_success "Laravel artisan working ($LARAVEL_VERSION)"
     else
         print_error "Laravel artisan has issues"
     fi
@@ -316,6 +649,11 @@ verify_update() {
     print_info "Current git status:"
     git log --oneline -3
     echo ""
+
+    # Panel info
+    if [ "$PANEL_TYPE" = "aapanel" ]; then
+        print_info "aaPanel: Pastikan website '$DOMAIN' active di Panel > Website"
+    fi
 }
 
 # ============================================
@@ -324,9 +662,9 @@ verify_update() {
 rollback() {
     print_header "EMERGENCY ROLLBACK"
 
-    LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/backup_*.tar.gz 2>/dev/null | head -1)
+    LATEST_BACKUP=$(ls -t "$BACKUP_DIR"/app_backup_*.tar.gz 2>/dev/null | head -1)
     LATEST_DB_BACKUP=$(ls -t "$BACKUP_DIR"/db_backup_*.sql 2>/dev/null | head -1)
-    LATEST_ENV_BACKUP=$(ls -t "$BACKUP_DIR"/env_backup_* 2>/dev/null | grep -v "db_backup\|backup_" | head -1)
+    LATEST_ENV_BACKUP=$(ls -t "$BACKUP_DIR"/env_backup_* 2>/dev/null | grep -v "db_backup\|app_backup" | head -1)
 
     if [ -z "$LATEST_BACKUP" ]; then
         print_error "No backup found in $BACKUP_DIR"
@@ -348,10 +686,21 @@ rollback() {
     # Restore database
     if [ -n "$LATEST_DB_BACKUP" ] && [ -f "$LATEST_DB_BACKUP" ]; then
         print_info "Restoring database..."
+        cd "$APP_DIR"
         DB_USER=$(grep "DB_USERNAME=" .env | cut -d '=' -f2)
         DB_PASS=$(grep "DB_PASSWORD=" .env | cut -d '=' -f2)
         DB_NAME=$(grep "DB_DATABASE=" .env | cut -d '=' -f2)
-        mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$LATEST_DB_BACKUP" 2>/dev/null
+
+        if [ "$PANEL_TYPE" = "aapanel" ]; then
+            AA_PANEL_MYSQL="/www/server/mysql/bin/mysql"
+            if [ -f "$AA_PANEL_MYSQL" ]; then
+                $AA_PANEL_MYSQL -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$LATEST_DB_BACKUP" 2>/dev/null
+            else
+                mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$LATEST_DB_BACKUP" 2>/dev/null
+            fi
+        else
+            mysql -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" < "$LATEST_DB_BACKUP" 2>/dev/null
+        fi
         print_success "Database restored"
     fi
 
@@ -364,7 +713,7 @@ rollback() {
 
     # Restore application files
     print_info "Restoring application files..."
-    tar -xzf "$LATEST_BACKUP" -C "$APP_DIR" 2>/dev/null || true
+    tar -xzf "$LATEST_BACKUP" -C / 2>/dev/null || true
     cd "$APP_DIR"
 
     # Re-optimize
@@ -378,34 +727,115 @@ rollback() {
 }
 
 # ============================================
+# UPDATE NGINX CONFIG UNTUK aaPanel
+# ============================================
+update_nginx_aapanel() {
+    if [ "$PANEL_TYPE" != "aapanel" ]; then
+        return
+    fi
+
+    print_header "UPDATE NGINX CONFIG UNTUK aaPanel"
+
+    NGINX_CONF="${NGINX_CONF_DIR}/${DOMAIN}.conf"
+
+    # Ensure nginx config directory exists
+    mkdir -p "$NGINX_CONF_DIR"
+
+    # Backup current nginx config if exists
+    if [ -f "$NGINX_CONF" ]; then
+        cp "$NGINX_CONF" "${NGINX_CONF}.bak.$(date +%Y%m%d_%H%M%S)"
+        print_info "Nginx config backed up"
+    fi
+
+    # Create/update nginx config
+    print_info "Creating nginx config for aaPanel..."
+
+    cat > "$NGINX_CONF" <<NGINX_EOF
+server {
+    listen 80;
+    server_name ${DOMAIN} www.${DOMAIN};
+    root ${APP_DIR}/public;
+    index index.php;
+
+    # Redirect HTTP to HTTPS (uncomment setelah SSL dipasang via aaPanel)
+    # return 301 https://\$server_name\$request_uri;
+
+    # Laravel Configuration
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    # PHP-FPM Configuration (aaPanel socket)
+    location ~ \.php\$ {
+        fastcgi_pass unix:${PHP_FPM_SOCKET};
+        fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    # Static files caching
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Deny access to sensitive files
+    location ~ /\.(ht|env) {
+        deny all;
+    }
+
+    # Deny access to hidden files
+    location ~ /\. {
+        deny all;
+    }
+}
+NGINX_EOF
+
+    print_success "Nginx config created: $NGINX_CONF"
+
+    # Test nginx config
+    if [ -f "/www/server/nginx/sbin/nginx" ]; then
+        /www/server/nginx/sbin/nginx -t 2>&1
+        if [ $? -eq 0 ]; then
+            print_success "Nginx config test passed"
+        else
+            print_error "Nginx config test failed! Check the config file."
+            print_info "Config file: $NGINX_CONF"
+        fi
+    fi
+}
+
+# ============================================
 # MAIN EXECUTION
 # ============================================
 main() {
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${GREEN}║     GRAFIKA PRINTING - UPDATE SCRIPT                        ║${NC}"
+    echo -e "${GREEN}║     Mendukung: aaPanel / Vanilla Ubuntu                     ║${NC}"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo "Pilihan:"
     echo "  1) Update Aplikasi (pull, migrate, optimize)"
-    echo "  2) Rollback (emergency restore from backup)"
-    echo "  3) Exit"
+    echo "  2) Update Nginx Config (aaPanel only)"
+    echo "  3) Rollback (emergency restore from backup)"
+    echo "  4) Exit"
     echo ""
-    read -p "Pilih opsi [1/2/3]: " choice
+    read -p "Pilih opsi [1/2/3/4]: " choice
 
     case $choice in
         1)
             echo ""
             echo "Update akan:"
-            echo "  1. Enable maintenance mode"
-            echo "  2. Create backup (database + .env)"
-            echo "  3. Pull latest changes from git"
-            echo "  4. Update dependencies"
-            echo "  5. Run migrations (landlord + tenant)"
-            echo "  6. Optimize application"
-            echo "  7. Fix permissions"
-            echo "  8. Restart services"
-            echo "  9. Disable maintenance mode"
+            echo "  1. Deteksi server environment"
+            echo "  2. Create backup (app + database + .env)"
+            echo "  3. Enable maintenance mode"
+            echo "  4. Pull latest changes from git"
+            echo "  5. Update dependencies"
+            echo "  6. Run migrations (landlord + tenant)"
+            echo "  7. Optimize application"
+            echo "  8. Fix permissions"
+            echo "  9. Restart services"
+            echo "  10. Disable maintenance mode"
             echo ""
             read -p "Lanjutkan update? (y/N): " confirm
             if [[ $confirm != [yY] ]]; then
@@ -414,8 +844,8 @@ main() {
             fi
 
             preflight_checks
-            enable_maintenance
             create_backup
+            enable_maintenance
             pull_updates
             update_dependencies
             run_migrations
@@ -432,9 +862,16 @@ main() {
             ;;
         2)
             preflight_checks
-            rollback
+            update_nginx_config
+            update_nginx_aapanel
+            restart_services
+            print_success "Nginx config update selesai"
             ;;
         3)
+            preflight_checks
+            rollback
+            ;;
+        4)
             echo "Exiting."
             exit 0
             ;;
