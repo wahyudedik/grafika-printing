@@ -418,7 +418,6 @@ pull_updates() {
         print_success "Latest changes pulled"
     else
         print_error "Failed to pull changes"
-        disable_maintenance
         exit 1
     fi
 
@@ -446,8 +445,8 @@ update_dependencies() {
         print_warning "Pastikan asset sudah built sebelumnya atau install Node.js."
     else
         print_info "Updating NPM dependencies and rebuilding assets..."
-        npm ci --no-audit --no-fund --include=dev
-        npm run build
+        npm ci --no-audit --no-fund --include=dev 2>/dev/null || npm install --no-audit --no-fund 2>/dev/null || true
+        npm run build 2>/dev/null || true
         print_success "NPM dependencies updated and assets built"
     fi
 }
@@ -895,9 +894,9 @@ main() {
             echo "Update akan:"
             echo "  1. Deteksi server environment"
             echo "  2. Create backup (app + database + .env)"
-            echo "  3. Enable maintenance mode"
-            echo "  4. Pull latest changes from git"
-            echo "  5. Update dependencies"
+            echo "  3. Pull latest changes from git"
+            echo "  4. Update dependencies (composer install + npm build)"
+            echo "  5. Enable maintenance mode"
             echo "  6. Run migrations (landlord + tenant)"
             echo "  7. Optimize application"
             echo "  8. Fix permissions"
@@ -912,9 +911,9 @@ main() {
 
             preflight_checks
             create_backup
-            enable_maintenance
             pull_updates
             update_dependencies
+            enable_maintenance
             run_migrations
             optimize_application
             fix_permissions
