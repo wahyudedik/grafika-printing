@@ -330,15 +330,21 @@ preflight_checks() {
 enable_maintenance() {
     print_info "Enabling maintenance mode..."
     cd "$APP_DIR"
-    run_php artisan down --render="errors::503" --retry=60
+    run_php artisan down --render="errors::503" --retry=60 2>/dev/null || print_warning "Could not enable maintenance mode (non-fatal)"
     print_success "Maintenance mode enabled"
 }
 
 disable_maintenance() {
     print_info "Disabling maintenance mode..."
     cd "$APP_DIR"
-    run_php artisan up
+    run_php artisan up 2>/dev/null || true
     print_success "Maintenance mode disabled"
+}
+
+# Wrapper: always run disable_maintenance on script exit during update
+_force_disable_maintenance() {
+    cd "$APP_DIR" 2>/dev/null || true
+    run_php artisan up 2>/dev/null || true
 }
 
 # ============================================
@@ -586,17 +592,22 @@ fix_permissions() {
 
     cd "$APP_DIR"
 
-    chown -R ${APP_USER}:${APP_GROUP} .
-    find . -type f -exec chmod 644 {} \;
-    find . -type d -exec chmod 755 {} \;
-    chmod -R 775 storage
-    chmod -R 775 bootstrap/cache
+    # chown with error handling — some files (e.g. .user.ini) may be locked by aaPanel
+    chown -R ${APP_USER}:${APP_GROUP} . 2>/dev/null || true
+
+    find . -type f -exec chmod 644 {} \; 2>/dev/null || true
+    find . -type d -exec chmod 755 {} \; 2>/dev/null || true
+    chmod -R 775 storage 2>/dev/null || true
+    chmod -R 775 bootstrap/cache 2>/dev/null || true
 
     # Ensure storage/logs is writable
     chmod -R 775 storage/logs 2>/dev/null || true
 
     # Ensure public directories are readable
     chmod -R 755 public 2>/dev/null || true
+
+    # Handle .user.ini specifically (aaPanel locks this file)
+    chown ${APP_USER}:${APP_GROUP} "$APP_DIR/public/.user.ini" 2>/dev/null || true
 
     print_success "Permissions fixed (owner: ${APP_USER}:${APP_GROUP})"
 }
@@ -863,11 +874,12 @@ rollback() {
     cd "$APP_DIR"
 
     # Re-optimize
-    optimize_application
-    fix_permissions
-    restart_services
+    optimize_application || true
+    fix_permissions || true
+    restart_services || true
 
-    disable_maintenance
+    # ALWAYS disable maintenance mode
+    disable_maintenance 2>/dev/null || run_php artisan up 2>/dev/null || true
 
     print_success "Rollback completed"
 }
@@ -990,23 +1002,48 @@ main() {
                 exit 0
             fi
 
+            # Track update status for final reporting
+            UPDATE_SUCCESS=true
+
+            # Step 1-4: Pre-maintenance steps (can exit on failure)
             preflight_checks
             create_backup
             pull_updates
             update_dependencies
+
+            # Step 5: Enable maintenance mode
             enable_maintenance
-            run_migrations
-            configure_redis
-            optimize_application
-            fix_permissions
-            restart_services
-            disable_maintenance
-            verify_update
+
+            # SAFETY NET: trap ensures disable_maintenance runs even on unexpected exit
+            trap '_force_disable_maintenance' EXIT
+
+            # Step 6-10: Post-maintenance steps (use || true to ensure we reach disable_maintenance)
+            run_migrations || { print_error "Migrations failed!"; UPDATE_SUCCESS=false; }
+            configure_redis || { print_error "Redis config failed!"; UPDATE_SUCCESS=false; }
+            optimize_application || { print_error "Optimization failed!"; UPDATE_SUCCESS=false; }
+            fix_permissions || { print_error "Permission fix failed!"; UPDATE_SUCCESS=false; }
+            restart_services || { print_error "Service restart failed!"; UPDATE_SUCCESS=false; }
+
+            # ALWAYS disable maintenance mode (even if steps above failed)
+            disable_maintenance || true
+
+            # ALWAYS verify update status
+            verify_update || true
+
+            # Remove trap — maintenance is already disabled
+            trap - EXIT
 
             echo ""
-            echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${GREEN}║     ✅ UPDATE SELESAI!                                      ║${NC}"
-            echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
+            if [ "$UPDATE_SUCCESS" = true ]; then
+                echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
+                echo -e "${GREEN}║     ✅ UPDATE SELESAI!                                      ║${NC}"
+                echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
+            else
+                echo -e "${YELLOW}╔══════════════════════════════════════════════════════════════╗${NC}"
+                echo -e "${YELLOW}║     ⚠️  UPDATE SELESAI DENGAN BEBERAPA ERROR!               ║${NC}"
+                echo -e "${YELLOW}║     Cek log di atas untuk detail.                           ║${NC}"
+                echo -e "${YELLOW}╚══════════════════════════════════════════════════════════════╝${NC}"
+            fi
             ;;
         2)
             preflight_checks
