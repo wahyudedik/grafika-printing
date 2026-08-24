@@ -459,15 +459,95 @@ run_migrations() {
 
     cd "$APP_DIR"
 
-    # Run landlord migrations (multi-tenant)
+    # Run landlord migrations
     print_info "Running landlord migrations..."
-    run_php artisan tenants:migrate --force 2>/dev/null || run_php artisan migrate --force
-    print_success "Landlord migrations completed"
 
-    # Run tenant migrations
-    print_info "Running tenant migrations..."
-    run_php artisan tenants:migrate --tenant=* --force 2>/dev/null || true
-    print_success "Tenant migrations completed"
+    # Try spatie tenants:migrate first (handles landlord + tenant in one go)
+    # Suppress interactive prompts by piping 'no' to stdin
+    if echo "no" | run_php artisan tenants:migrate --force 2>/dev/null; then
+        print_success "Tenant migrations completed via tenants:migrate"
+    else
+        # Fallback: run regular migrate (non-interactive)
+        print_warning "tenants:migrate not available, running regular migrate..."
+        run_php artisan migrate --force --no-interaction
+        print_success "Migrations completed via migrate"
+    fi
+}
+
+# ============================================
+# CONFIGURE REDIS (handle NOAUTH)
+# ============================================
+configure_redis() {
+    print_header "CONFIGURING REDIS"
+
+    cd "$APP_DIR"
+
+    # Check if Redis is available and requires authentication
+    if ! command -v redis-cli &> /dev/null; then
+        print_info "redis-cli not found, skipping Redis config check"
+        return
+    fi
+
+    # Test Redis connection without auth
+    REDIS_AUTH_TEST=$(redis-cli ping 2>&1)
+    if [[ "$REDIS_AUTH_TEST" == *"NOAUTH"* ]]; then
+        print_warning "Redis requires authentication (NOAUTH error detected)"
+
+        # Try to get Redis password from aaPanel config
+        REDIS_PASSWORD=""
+        AA_REDIS_CONF="/www/server/redis/redis.conf"
+        if [ -f "$AA_REDIS_CONF" ]; then
+            REDIS_PASSWORD=$(grep -oP '(?<=requirepass\s).*' "$AA_REDIS_CONF" 2>/dev/null | tr -d '[:space:]' || true)
+        fi
+
+        # Also check default Redis config path
+        if [ -z "$REDIS_PASSWORD" ] && [ -f "/etc/redis/redis.conf" ]; then
+            REDIS_PASSWORD=$(grep -oP '(?<=requirepass\s).*' "/etc/redis/redis.conf" 2>/dev/null | tr -d '[:space:]' || true)
+        fi
+
+        if [ -n "$REDIS_PASSWORD" ]; then
+            # Update .env with Redis password
+            if grep -q "^REDIS_PASSWORD=" "$APP_DIR/.env"; then
+                sed -i "s/^REDIS_PASSWORD=.*/REDIS_PASSWORD=${REDIS_PASSWORD}/" "$APP_DIR/.env"
+            else
+                echo "REDIS_PASSWORD=${REDIS_PASSWORD}" >> "$APP_DIR/.env"
+            fi
+            print_success "Redis password configured in .env"
+
+            # Verify Redis works with password
+            REDIS_AUTH_VERIFY=$(redis-cli -a "$REDIS_PASSWORD" ping 2>/dev/null)
+            if [[ "$REDIS_AUTH_VERIFY" == "PONG" ]]; then
+                print_success "Redis authentication verified (PONG)"
+            else
+                print_warning "Redis password set but verification failed. Switching to file cache..."
+                sed -i 's/^CACHE_STORE=redis/CACHE_STORE=file/' "$APP_DIR/.env"
+                sed -i 's/^SESSION_DRIVER=redis/SESSION_DRIVER=file/' "$APP_DIR/.env"
+                sed -i 's/^QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' "$APP_DIR/.env"
+            fi
+        else
+            # Fallback: disable Redis, use file-based drivers
+            print_warning "Redis password not found in config. Switching to file-based drivers..."
+
+            if grep -q "^CACHE_STORE=redis" "$APP_DIR/.env"; then
+                sed -i 's/^CACHE_STORE=redis/CACHE_STORE=file/' "$APP_DIR/.env"
+                print_info "CACHE_DRIVER → file"
+            fi
+            if grep -q "^SESSION_DRIVER=redis" "$APP_DIR/.env"; then
+                sed -i 's/^SESSION_DRIVER=redis/SESSION_DRIVER=file/' "$APP_DIR/.env"
+                print_info "SESSION_DRIVER → file"
+            fi
+            if grep -q "^QUEUE_CONNECTION=redis" "$APP_DIR/.env"; then
+                sed -i 's/^QUEUE_CONNECTION=redis/QUEUE_CONNECTION=sync/' "$APP_DIR/.env"
+                print_info "QUEUE_CONNECTION → sync"
+            fi
+            print_success "Switched to file-based drivers (cache, session, queue)"
+        fi
+    elif [[ "$REDIS_AUTH_TEST" == "PONG" ]]; then
+        print_success "Redis connection OK (no auth required)"
+    else
+        print_warning "Redis connection test returned: $REDIS_AUTH_TEST"
+        print_info "Continuing with current .env configuration..."
+    fi
 }
 
 # ============================================
@@ -898,10 +978,11 @@ main() {
             echo "  4. Update dependencies (composer install + npm build)"
             echo "  5. Enable maintenance mode"
             echo "  6. Run migrations (landlord + tenant)"
-            echo "  7. Optimize application"
-            echo "  8. Fix permissions"
-            echo "  9. Restart services"
-            echo "  10. Disable maintenance mode"
+            echo "  7. Configure Redis (handle NOAUTH)"
+            echo "  8. Optimize application"
+            echo "  9. Fix permissions"
+            echo "  10. Restart services"
+            echo "  11. Disable maintenance mode"
             echo ""
             read -p "Lanjutkan update? (y/N): " confirm
             if [[ $confirm != [yY] ]]; then
@@ -915,6 +996,7 @@ main() {
             update_dependencies
             enable_maintenance
             run_migrations
+            configure_redis
             optimize_application
             fix_permissions
             restart_services
