@@ -292,6 +292,15 @@ class LinktreePublicController extends Controller
             return back()->withErrors(['error' => 'Produk tidak tersedia.']);
         }
 
+        // Validasi harga: pastikan harga yang dikirim customer sesuai dengan harga aktual produk
+        if ($request->has('unit_price') && $request->unit_price !== null) {
+            $product->load('produk');
+            $expectedPrice = $product->produk->harga ?? $product->harga ?? 0;
+            if ($expectedPrice > 0 && abs((float) $request->unit_price - (float) $expectedPrice) > 1) {
+                return back()->withErrors(['price' => 'Harga tidak sesuai dengan harga produk saat ini.']);
+            }
+        }
+
         $order = new LinktreeOrder();
         $order->vendor_id = $linktree->vendor_id;
         $order->fill([

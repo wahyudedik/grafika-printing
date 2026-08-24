@@ -183,9 +183,14 @@ class LinktreeController extends Controller
         $this->authorize('delete', $linktree);
 
         try {
-            // Delete related links and socials
+            // Delete related data — cascade hapus relasi yang bisa dihapus
             $linktree->links()->delete();
             $linktree->socials()->delete();
+            $linktree->linktreeProducts()->delete();
+            $linktree->abTests()->delete();
+
+            // Orders tidak dihapus (audit trail) — cukup set linktree_id = null
+            $linktree->orders()->update(['linktree_id' => null]);
 
             AuditLogService::logDeleted($linktree, 'Linktree dihapus: ' . $linktree->name);
 
@@ -977,7 +982,7 @@ class LinktreeController extends Controller
             'vendor_notes' => $request->vendor_notes ?? $order->vendor_notes,
         ]);
 
-        return back()->with('success', 'Status pesanan diperbarui.');
+        return FlashMessage::backSuccess('Status pesanan diperbarui.');
     }
 
     /**
@@ -999,6 +1004,6 @@ class LinktreeController extends Controller
             'payment_status' => $request->payment_status,
         ]);
 
-        return back()->with('success', 'Status pembayaran diperbarui.');
+        return FlashMessage::backSuccess('Status pembayaran diperbarui.');
     }
 }

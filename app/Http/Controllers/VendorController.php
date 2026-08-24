@@ -8,6 +8,7 @@ use App\Services\AuthorizationService;
 use App\Models\User;
 use App\Models\Vendor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VendorController extends Controller
 {
@@ -189,11 +190,16 @@ class VendorController extends Controller
         try {
             $vendor = Vendor::findOrFail($id);
             if ($vendor->logo && file_exists(public_path('vendors_logo/' . $vendor->logo))) {
-                unlink(public_path('vendors_logo/' . $vendor->logo));
+                @unlink(public_path('vendors_logo/' . $vendor->logo));
             }
             $vendor->delete();
+            Log::info('Vendor deleted', ['id' => $id, 'name' => $vendor->name]);
             return FlashMessage::success(redirect()->route('admin.vendors.index'), 'Vendor deleted successfully');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::warning('Vendor not found for deletion', ['id' => $id]);
+            return FlashMessage::backError('Vendor not found');
         } catch (\Throwable $th) {
+            Log::error('Vendor delete failed', ['id' => $id, 'error' => $th->getMessage()]);
             return FlashMessage::backError('Something went wrong');
         }
     }

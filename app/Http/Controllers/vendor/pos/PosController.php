@@ -10,6 +10,7 @@ use App\Models\Vendor\Produk;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor\EstimasiProduk;
 use App\Models\Vendor\WholesalePrice;
+use App\Models\Vendor\KategoriProduk;
 use App\Models\Vendor\SpesifikasiProduk;
 use Illuminate\Support\Facades\Log;
 use App\Http\Concerns\HasVendorContext;
@@ -77,11 +78,8 @@ class PosController extends Controller
             ])->where('vendor_id', $vendor->id)
                 ->get();
 
-            $categories = Produk::with('kategori')
-                ->where('vendor_id', $vendor->id)
-                ->get()
-                ->pluck('kategori')
-                ->unique();
+            // Query kategori langsung dari tabel kategori_produks (tanpa fetch semua produk)
+            $categories = KategoriProduk::where('vendor_id', $vendor->id)->get();
 
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
@@ -110,11 +108,8 @@ class PosController extends Controller
                     'estimasiProduk'
                 ])->get();
 
-            $categories = Produk::with('kategori')
-                ->where('vendor_id', $vendor->id)
-                ->get()
-                ->pluck('kategori')
-                ->unique();
+            // Query kategori langsung dari tabel kategori_produks (tanpa fetch semua produk)
+            $categories = KategoriProduk::where('vendor_id', $vendor->id)->get();
 
             return view('pos.pos-home', compact('products', 'categories'));
         } catch (\Exception $e) {
@@ -155,16 +150,22 @@ class PosController extends Controller
             }
 
             // Bug 5 Fix: Validasi stok bahan sebelum menghitung harga
+            // Batch load to avoid N+1 queries
+            $specIds = array_keys($specifications);
+            $spesifikasiProduks = SpesifikasiProduk::with(['spesifikasi', 'bahans'])
+                ->whereIn('id', $specIds)->keyBy('id');
+            $bahanIds = collect($specifications)->pluck('bahan_id')->filter()->unique()->values()->toArray();
+            $bahans = Bahan::whereIn('id', $bahanIds)->keyBy('id');
+
             foreach ($specifications as $specId => $value) {
-                $spesifikasiProduk = SpesifikasiProduk::with(['spesifikasi', 'bahans'])
-                    ->find($specId);
+                $spesifikasiProduk = $spesifikasiProduks->get($specId);
 
                 if (!$spesifikasiProduk) {
                     continue;
                 }
 
                 if ($spesifikasiProduk->spesifikasi->tipe_input === 'select') {
-                    $bahan = Bahan::find($value);
+                    $bahan = $bahans->get($value);
                     if ($bahan && $bahan->stok !== null && $bahan->stok < $quantity) {
                         return FlashMessage::backError("Stok bahan \"{$bahan->nama_bahan}\" tidak mencukupi (tersedia: {$bahan->stok}, dibutuhkan: {$quantity})");
                     }
@@ -288,16 +289,23 @@ class PosController extends Controller
             $result = $this->priceCalcService->calculateItemTotal($specifications, $quantity);
 
             // Format specification details untuk response JSON
+            // Eager load all spesifikasiProduk and bahan to avoid N+1
+            $allSpecIds = array_keys($result['specifications']);
+            $allBahanIds = array_filter(array_column($result['specifications'], 'bahan_id'));
+            $spesifikasiProduks = SpesifikasiProduk::with('spesifikasi')
+                ->whereIn('id', $allSpecIds)->get()->keyBy('id');
+            $bahans = Bahan::whereIn('id', $allBahanIds)->get()->keyBy('id');
+
             $specificationDetails = [];
             foreach ($result['specifications'] as $specId => $specData) {
-                $spesifikasiProduk = SpesifikasiProduk::with('spesifikasi')->find($specId);
+                $spesifikasiProduk = $spesifikasiProduks->get($specId);
                 $namaSpesifikasi = $spesifikasiProduk->spesifikasi->nama_spesifikasi ?? 'Unknown';
 
                 $valueLabel = $specData['value'];
                 if ($specData['input_type'] === 'number' && $spesifikasiProduk) {
                     $valueLabel = $specData['value'] . ' ' . ($spesifikasiProduk->spesifikasi->satuan ?? '');
                 } elseif ($specData['input_type'] === 'select') {
-                    $bahan = Bahan::find($specData['bahan_id']);
+                    $bahan = $bahans->get($specData['bahan_id']);
                     $valueLabel = $bahan->nama_bahan ?? $specData['value'];
                 }
 
@@ -316,7 +324,8 @@ class PosController extends Controller
         } catch (\Exception $e) {
             Log::error('Error checking price: ' . $e->getMessage());
             return response()->json([
-                'error' => 'Failed to calculate price: ' . $e->getMessage()
+                'success' => false,
+                'message' => 'Failed to calculate price: ' . $e->getMessage()
             ], 500);
         }
     }

@@ -3,6 +3,20 @@
 @section('title', 'Order Tracking')
 
 @section('content')
+    @php
+        $trackingStatusConfig = [
+            'payment_received' => ['label' => 'Pembayaran Diterima', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
+            'order_accepted' => ['label' => 'Pesanan Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+            'production_started' => ['label' => 'Proses Cetak', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
+            'production_completed' => ['label' => 'Cetak Selesai', 'bg' => 'bg-orange-100', 'text' => 'text-orange-700'],
+            'quality_check' => ['label' => 'Quality Check', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700'],
+            'packaging' => ['label' => 'Dikemas', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-700'],
+            'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
+            'delivered' => ['label' => 'Diterima', 'bg' => 'bg-teal-100', 'text' => 'text-teal-700'],
+            'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
+            'mediation' => ['label' => 'Mediasi', 'bg' => 'bg-red-100', 'text' => 'text-red-700'],
+        ];
+    @endphp
     {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -29,19 +43,7 @@
                     <tbody class="divide-y divide-gray-100">
                         @foreach($orderTrackings as $tracking)
                             @php
-                                $statusConfig = [
-                                    'payment_received' => ['label' => 'Pembayaran Diterima', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
-                                    'order_accepted' => ['label' => 'Pesanan Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
-                                    'production_started' => ['label' => 'Proses Cetak', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
-                                    'production_completed' => ['label' => 'Cetak Selesai', 'bg' => 'bg-orange-100', 'text' => 'text-orange-700'],
-                                    'quality_check' => ['label' => 'Quality Check', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700'],
-                                    'packaging' => ['label' => 'Dikemas', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-700'],
-                                    'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
-                                    'delivered' => ['label' => 'Diterima', 'bg' => 'bg-teal-100', 'text' => 'text-teal-700'],
-                                    'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
-                                    'mediation' => ['label' => 'Mediasi', 'bg' => 'bg-red-100', 'text' => 'text-red-700'],
-                                ];
-                                $status = $statusConfig[$tracking->status] ?? $statusConfig['pending'];
+                                $status = $trackingStatusConfig[$tracking->status] ?? ['label' => $tracking->status, 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'];
                             @endphp
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-5 py-4">
@@ -77,19 +79,7 @@
             <div class="md:hidden divide-y divide-gray-100">
                 @foreach($orderTrackings as $tracking)
                     @php
-                        $statusConfig = [
-                            'payment_received' => ['label' => 'Pembayaran Diterima', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700'],
-                            'order_accepted' => ['label' => 'Pesanan Diterima', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
-                            'production_started' => ['label' => 'Proses Cetak', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-700'],
-                            'production_completed' => ['label' => 'Cetak Selesai', 'bg' => 'bg-orange-100', 'text' => 'text-orange-700'],
-                            'quality_check' => ['label' => 'Quality Check', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700'],
-                            'packaging' => ['label' => 'Dikemas', 'bg' => 'bg-indigo-100', 'text' => 'text-indigo-700'],
-                            'shipped' => ['label' => 'Dikirim', 'bg' => 'bg-primary-100', 'text' => 'text-primary-700'],
-                            'delivered' => ['label' => 'Diterima', 'bg' => 'bg-teal-100', 'text' => 'text-teal-700'],
-                            'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-700'],
-                            'mediation' => ['label' => 'Mediasi', 'bg' => 'bg-red-100', 'text' => 'text-red-700'],
-                        ];
-                        $status = $statusConfig[$tracking->status] ?? $statusConfig['pending'];
+                        $status = $trackingStatusConfig[$tracking->status] ?? ['label' => $tracking->status, 'bg' => 'bg-gray-100', 'text' => 'text-gray-700'];
                     @endphp
                     <div class="p-4 space-y-2">
                         <div class="flex items-start justify-between">

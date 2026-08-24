@@ -46,14 +46,13 @@
                     </button>
 
                     {{-- Dropdown Menu --}}
-                    <div x-show="userDropdown" x-transition:enter="transition ease-out duration-100"
+                    <div x-show="userDropdown" x-cloak x-transition:enter="transition ease-out duration-100"
                          x-transition:enter-start="transform opacity-0 scale-95"
                          x-transition:enter-end="transform opacity-100 scale-100"
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="transform opacity-100 scale-100"
                          x-transition:leave-end="transform opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50"
-                         style="display: none;">
+                         class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
                         <a href="{{ route('vendor.dashboard') }}" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                             <i class="fas fa-tachometer-alt w-4 text-center"></i> Dashboard
                         </a>

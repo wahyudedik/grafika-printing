@@ -2,6 +2,15 @@
 
 @section('title', 'Manajemen Transaksi')
 @section('content')
+    @php
+        $statusConfig = [
+            'pending' => ['label' => 'Pending', 'bg' => 'bg-yellow-100', 'text' => 'text-yellow-800'],
+            'processing' => ['label' => 'Diproses', 'bg' => 'bg-blue-100', 'text' => 'text-blue-800'],
+            'quality_check' => ['label' => 'QC', 'bg' => 'bg-purple-100', 'text' => 'text-purple-800'],
+            'completed' => ['label' => 'Selesai', 'bg' => 'bg-green-100', 'text' => 'text-green-800'],
+            'cancelled' => ['label' => 'Dibatalkan', 'bg' => 'bg-red-100', 'text' => 'text-red-800'],
+        ];
+    @endphp
     <div class="bg-white rounded-xl shadow-sm">
         <div class="border-b border-gray-200 px-6 py-4">
             <div class="flex flex-col gap-4">
@@ -14,13 +23,13 @@
                                     <i class="fas fa-search text-gray-400"></i>
                                 </div>
                                 <input type="text" name="search" value="{{ request('search') }}"
-                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                     placeholder="Cari kode/pelanggan...">
                             </div>
                         </div>
                         <div class="md:col-span-3">
                             <select name="status"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                 onchange="document.getElementById('filter-form').submit()">
                                 <option value="">Semua Status</option>
                                 @foreach ($statusOptions as $value => $label)
@@ -32,11 +41,11 @@
                             </select>
                         </div>
                         <div class="md:col-span-2">
-                            <input type="date" name="start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            <input type="date" name="start_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                 value="{{ request('start_date') }}" placeholder="Tanggal Mulai">
                         </div>
                         <div class="md:col-span-2">
-                            <input type="date" name="end_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            <input type="date" name="end_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                                 value="{{ request('end_date') }}" placeholder="Tanggal Akhir">
                         </div>
                         <div class="md:col-span-1 flex gap-2">
@@ -72,20 +81,7 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($transaksis as $transaksi)
                         @php
-                            $statusColors = [
-                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                'processing' => 'bg-blue-100 text-blue-800',
-                                'quality_check' => 'bg-purple-100 text-purple-800',
-                                'completed' => 'bg-green-100 text-green-800',
-                                'cancelled' => 'bg-red-100 text-red-800',
-                            ];
-                            $statusLabels = [
-                                'pending' => 'Pending',
-                                'processing' => 'Diproses',
-                                'quality_check' => 'QC',
-                                'completed' => 'Selesai',
-                                'cancelled' => 'Dibatalkan',
-                            ];
+                            $sc = $statusConfig[$transaksi->status] ?? ['label' => $transaksi->status, 'bg' => 'bg-gray-100', 'text' => 'text-gray-800'];
                         @endphp
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -97,8 +93,8 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaksi->tanggal_dibuat->format('d/m/Y H:i') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $statusColors[$transaksi->status] }}">
-                                    {{ $statusLabels[$transaksi->status] }}
+                                <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $sc['bg'] }} {{ $sc['text'] }}">
+                                    {{ $sc['label'] }}
                                 </span>
                                 @if ($transaksi->is_voided)
                                     <span class="ml-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800">VOIDED</span>
@@ -157,22 +153,6 @@
 
         {{-- Mobile Cards --}}
         <div class="md:hidden divide-y divide-gray-100">
-            @php
-                $statusColors = [
-                    'pending' => 'bg-yellow-100 text-yellow-800',
-                    'processing' => 'bg-blue-100 text-blue-800',
-                    'quality_check' => 'bg-purple-100 text-purple-800',
-                    'completed' => 'bg-green-100 text-green-800',
-                    'cancelled' => 'bg-red-100 text-red-800',
-                ];
-                $statusLabels = [
-                    'pending' => 'Pending',
-                    'processing' => 'Diproses',
-                    'quality_check' => 'QC',
-                    'completed' => 'Selesai',
-                    'cancelled' => 'Dibatalkan',
-                ];
-            @endphp
             @forelse ($transaksis as $transaksi)
                 <div class="p-4 space-y-2">
                     <div class="flex items-start justify-between">
@@ -182,8 +162,11 @@
                             </a>
                             <p class="text-sm text-gray-500 mt-0.5">{{ $transaksi->pelanggan->nama ?? 'N/A' }}</p>
                         </div>
-                        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $statusColors[$transaksi->status] }} ml-2 flex-shrink-0">
-                            {{ $statusLabels[$transaksi->status] }}
+                        @php
+                            $scMobile = $statusConfig[$transaksi->status] ?? ['label' => $transaksi->status, 'bg' => 'bg-gray-100', 'text' => 'text-gray-800'];
+                        @endphp
+                        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full {{ $scMobile['bg'] }} {{ $scMobile['text'] }} ml-2 flex-shrink-0">
+                                {{ $scMobile['label'] }}
                             @if ($transaksi->is_voided)
                                 <span class="ml-1 px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-red-100 text-red-800">VOIDED</span>
                             @endif

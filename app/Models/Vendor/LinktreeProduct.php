@@ -2,14 +2,15 @@
 
 namespace App\Models\Vendor;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Vendor\TenantModel;
 
-class LinktreeProduct extends Model
+class LinktreeProduct extends TenantModel
 {
     protected $table = 'linktree_products';
 
     protected $fillable = [
+        'vendor_id',
         'linktree_id',
         'produk_id',
         'sort_order',
@@ -22,6 +23,14 @@ class LinktreeProduct extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    /**
+     * Relationship: Vendor yang memiliki linktree produk ini
+     */
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Vendor::class, 'vendor_id');
+    }
 
     /**
      * Relationship: Linktree yang memiliki produk ini

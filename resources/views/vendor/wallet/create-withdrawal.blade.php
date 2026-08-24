@@ -38,7 +38,22 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('vendor.wallet.store-withdrawal') }}" data-loading>
+            <form method="POST" action="{{ route('vendor.wallet.store-withdrawal') }}" data-loading
+                  x-data="{
+                      method: '{{ old('method', '') }}',
+                      amount: '{{ old('amount', '') }}',
+                      get showBankName() { return this.method === 'bank_transfer'; },
+                      get showPreview() { return (parseFloat(this.amount) || 0) > 0 && this.method !== ''; },
+                      get fee() {
+                          const a = parseFloat(this.amount) || 0;
+                          switch(this.method) {
+                              case 'bank_transfer': return Math.min(5000, a * 0.01);
+                              case 'e_wallet': return Math.min(3000, a * 0.005);
+                              default: return 0;
+                          }
+                      },
+                      get netAmount() { return (parseFloat(this.amount) || 0) - this.fee; }
+                  }">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -47,7 +62,7 @@
                             <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Penarikan <span class="text-red-500">*</span></label>
                             <div class="flex">
                                 <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">Rp</span>
-                                <input type="number" class="flex-1 rounded-r-lg border {{ $errors->has('amount') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" id="amount" name="amount" value="{{ old('amount') }}" min="10000" max="{{ $wallet->available_balance }}" step="1000" required>
+                                <input type="number" class="flex-1 rounded-r-lg border {{ $errors->has('amount') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" id="amount" name="amount" x-model="amount" value="{{ old('amount') }}" min="10000" max="{{ $wallet->available_balance }}" step="1000" required>
                             </div>
                             @error('amount')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                             <p class="text-xs text-gray-500 mt-1">Minimum: Rp 10,000 | Maksimum: Rp {{ number_format($wallet->available_balance) }}</p>
@@ -55,7 +70,7 @@
 
                         <div>
                             <label for="method" class="block text-sm font-medium text-gray-700 mb-1">Metode Penarikan <span class="text-red-500">*</span></label>
-                            <select class="w-full rounded-lg border {{ $errors->has('method') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" id="method" name="method" required>
+                            <select class="w-full rounded-lg border {{ $errors->has('method') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" id="method" name="method" x-model="method" required>
                                 <option value="">Pilih Metode</option>
                                 <option value="bank_transfer" {{ old('method') === 'bank_transfer' ? 'selected' : '' }}>Transfer Bank</option>
                                 <option value="e_wallet" {{ old('method') === 'e_wallet' ? 'selected' : '' }}>E-Wallet</option>
@@ -76,7 +91,7 @@
                             @error('account_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
 
-                        <div id="bank_name_field" style="display: none;">
+                        <div id="bank_name_field" x-show="showBankName" x-cloak>
                             <label for="bank_name" class="block text-sm font-medium text-gray-700 mb-1">Nama Bank</label>
                             <input type="text" class="w-full rounded-lg border {{ $errors->has('bank_name') ? 'border-red-500' : 'border-gray-300' }} px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500" id="bank_name" name="bank_name" value="{{ old('bank_name') }}" placeholder="Nama bank">
                             @error('bank_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
@@ -101,13 +116,13 @@
                         </div>
 
                         {{-- Preview --}}
-                        <div class="bg-white border border-gray-200 rounded-xl p-4" id="preview_card" style="display: none;">
+                        <div class="bg-white border border-gray-200 rounded-xl p-4" id="preview_card" x-show="showPreview" x-cloak>
                             <h6 class="text-sm font-semibold text-gray-700 mb-2">Preview Penarikan</h6>
                             <div class="text-sm space-y-1">
-                                <div class="flex justify-between"><span class="text-gray-600">Jumlah:</span><span id="preview_amount">Rp 0</span></div>
-                                <div class="flex justify-between"><span class="text-gray-600">Biaya:</span><span id="preview_fee">Rp 0</span></div>
+                                <div class="flex justify-between"><span class="text-gray-600">Jumlah:</span><span id="preview_amount" x-text="'Rp ' + (parseFloat(amount) || 0).toLocaleString('id-ID')">Rp 0</span></div>
+                                <div class="flex justify-between"><span class="text-gray-600">Biaya:</span><span id="preview_fee" x-text="'Rp ' + fee.toLocaleString('id-ID')">Rp 0</span></div>
                                 <hr class="my-2 border-gray-200">
-                                <div class="flex justify-between font-bold"><span>Diterima:</span><span id="preview_net">Rp 0</span></div>
+                                <div class="flex justify-between font-bold"><span>Diterima:</span><span id="preview_net" x-text="'Rp ' + netAmount.toLocaleString('id-ID')">Rp 0</span></div>
                             </div>
                         </div>
                     </div>
@@ -122,40 +137,5 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const methodSelect = document.getElementById('method');
-        const bankNameField = document.getElementById('bank_name_field');
-        const previewCard = document.getElementById('preview_card');
-        const amountInput = document.getElementById('amount');
-
-        methodSelect.addEventListener('change', function() {
-            bankNameField.style.display = this.value === 'bank_transfer' ? 'block' : 'none';
-            updatePreview();
-        });
-
-        amountInput.addEventListener('input', updatePreview);
-
-        function updatePreview() {
-            const amount = parseFloat(amountInput.value) || 0;
-            const method = methodSelect.value;
-
-            if (amount > 0 && method) {
-                let fee = 0;
-                switch (method) {
-                    case 'bank_transfer': fee = Math.min(5000, amount * 0.01); break;
-                    case 'e_wallet': fee = Math.min(3000, amount * 0.005); break;
-                    case 'cash': fee = 0; break;
-                }
-                const netAmount = amount - fee;
-                document.getElementById('preview_amount').textContent = 'Rp ' + amount.toLocaleString();
-                document.getElementById('preview_fee').textContent = 'Rp ' + fee.toLocaleString();
-                document.getElementById('preview_net').textContent = 'Rp ' + netAmount.toLocaleString();
-                previewCard.style.display = 'block';
-            } else {
-                previewCard.style.display = 'none';
-            }
-        }
-    });
-</script>
+{{-- Vanilla JS removed — logic now handled by Alpine.js x-data on form element --}}
 @endsection

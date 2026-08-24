@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Dashboard') - Admin Grafika Printing</title>
+    <title>@yield('title', 'Dasbor') - Admin Grafika Printing</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -36,8 +36,8 @@
         $adminMenus = [
             [
                 'items' => [
-                    ['label' => 'Beranda',   'url' => route('welcome'), 'route' => 'welcome', 'icon' => $iconHome],
-                    ['label' => 'Dashboard', 'url' => route('admin.dashboard'), 'route' => 'admin.dashboard', 'icon' => $iconGrid],
+                    ['label' => 'Beranda',  'url' => route('welcome'), 'route' => 'welcome', 'icon' => $iconHome],
+                    ['label' => 'Dasbor',   'url' => route('admin.dashboard'), 'route' => 'admin.dashboard', 'icon' => $iconGrid],
                 ]
             ],
             [
@@ -82,9 +82,9 @@
                         'route' => 'admin.withdrawals.*|admin.payments.*|admin.wallets.*',
                         'icon' => $iconWallet,
                         'children' => [
-                            ['label' => 'Withdrawals', 'url' => route('admin.withdrawals.index'), 'route' => 'admin.withdrawals.*'],
-                            ['label' => 'Payments',    'url' => route('admin.payments.index'), 'route' => 'admin.payments.*'],
-                            ['label' => 'Wallets',     'url' => route('admin.wallets.index'), 'route' => 'admin.wallets.*'],
+                            ['label' => 'Penarikan',  'url' => route('admin.withdrawals.index'), 'route' => 'admin.withdrawals.*'],
+                            ['label' => 'Pembayaran', 'url' => route('admin.payments.index'), 'route' => 'admin.payments.*'],
+                            ['label' => 'Dompet',     'url' => route('admin.wallets.index'), 'route' => 'admin.wallets.*'],
                         ]
                     ],
                 ]
@@ -97,9 +97,9 @@
                         'route' => 'admin.shipping.*|admin.delivery.*',
                         'icon' => $iconTruck,
                         'children' => [
-                            ['label' => 'Shipping Tracking',      'url' => route('admin.shipping.index'), 'route' => 'admin.shipping.index'],
-                            ['label' => 'Delivery Confirmations', 'url' => route('admin.delivery.index'), 'route' => 'admin.delivery.index'],
-                            ['label' => 'Shipping Invoices',      'url' => route('admin.shipping.invoices'), 'route' => 'admin.shipping.invoices'],
+                            ['label' => 'Pelacakan Pengiriman',     'url' => route('admin.shipping.index'), 'route' => 'admin.shipping.index'],
+                            ['label' => 'Konfirmasi Pengiriman',    'url' => route('admin.delivery.index'), 'route' => 'admin.delivery.index'],
+                            ['label' => 'Invoice Pengiriman',       'url' => route('admin.shipping.invoices'), 'route' => 'admin.shipping.invoices'],
                         ]
                     ],
                     [
@@ -107,9 +107,9 @@
                         'route' => 'admin.audit-logs.*',
                         'icon' => $iconShield,
                         'children' => [
-                            ['label' => 'Audit Logs',  'url' => route('admin.audit-logs.index'), 'route' => 'admin.audit-logs.index'],
-                            ['label' => 'High Risk',   'url' => route('admin.audit-logs.high-risk'), 'route' => 'admin.audit-logs.high-risk'],
-                            ['label' => 'Financial',   'url' => route('admin.audit-logs.financial'), 'route' => 'admin.audit-logs.financial'],
+                            ['label' => 'Log Audit',      'url' => route('admin.audit-logs.index'), 'route' => 'admin.audit-logs.index'],
+                            ['label' => 'Risiko Tinggi',   'url' => route('admin.audit-logs.high-risk'), 'route' => 'admin.audit-logs.high-risk'],
+                            ['label' => 'Keuangan',        'url' => route('admin.audit-logs.financial'), 'route' => 'admin.audit-logs.financial'],
                         ]
                     ],
                     [
@@ -117,14 +117,14 @@
                         'route' => 'admin.analytics.*',
                         'icon' => $iconChart,
                         'children' => [
-                            ['label' => 'Dashboard',        'url' => route('admin.analytics.pulse'), 'route' => 'admin.analytics.pulse'],
-                            ['label' => 'Server Stats',     'url' => route('admin.analytics.pulse.statistics'), 'route' => 'admin.analytics.pulse.statistics'],
-                            ['label' => 'Performance',      'url' => route('admin.analytics.pulse.performance'), 'route' => 'admin.analytics.pulse.performance'],
-                            ['label' => 'User Activity',    'url' => route('admin.analytics.pulse.activity'), 'route' => 'admin.analytics.pulse.activity'],
-                            ['label' => 'Data Pendapatan',  'url' => route('admin.analytics.vendor-revenue'), 'route' => 'admin.analytics.vendor-revenue'],
+                            ['label' => 'Dasbor',              'url' => route('admin.analytics.pulse'), 'route' => 'admin.analytics.pulse'],
+                            ['label' => 'Statistik Server',    'url' => route('admin.analytics.pulse.statistics'), 'route' => 'admin.analytics.pulse.statistics'],
+                            ['label' => 'Performa',            'url' => route('admin.analytics.pulse.performance'), 'route' => 'admin.analytics.pulse.performance'],
+                            ['label' => 'Aktivitas Pengguna',  'url' => route('admin.analytics.pulse.activity'), 'route' => 'admin.analytics.pulse.activity'],
+                            ['label' => 'Pendapatan Vendor',   'url' => route('admin.analytics.vendor-revenue'), 'route' => 'admin.analytics.vendor-revenue'],
                         ]
                     ],
-                    ['label' => 'Konfigurasi', 'url' => route('admin.service-configs.index'), 'route' => 'admin.service-configs.*', 'icon' => $iconCog],
+                    ['label' => 'Konfigurasi Service', 'url' => route('admin.service-configs.index'), 'route' => 'admin.service-configs.*', 'icon' => $iconCog],
                 ]
             ],
         ];
@@ -219,7 +219,7 @@
                         </svg>
                     </button>
                     <div x-show="userDropdown" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50" x-cloak>
-                        <a href="{{ url('/admin/profile') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                        <a href="{{ route('admin.profile') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             Profil
                         </a>
@@ -228,7 +228,7 @@
                             @csrf
                             <button type="submit" class="flex items-center w-full gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                                Logout
+                                Keluar
                             </button>
                         </form>
                     </div>
@@ -242,7 +242,7 @@
                 {{-- Page Header --}}
                 <div class="mb-6 print:hidden">
                     <h1 class="text-2xl font-bold text-gray-900">
-                        @yield('title', 'Dashboard')
+                        @yield('title', 'Dasbor')
                     </h1>
                 </div>
 
@@ -259,8 +259,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-4 text-sm text-gray-500">
-                        <a href="{{ route('admin.dashboard') }}" class="hover:text-gray-700 transition-colors">Dashboard</a>
-                        <a href="{{ route('admin.audit-logs.index') }}" class="hover:text-gray-700 transition-colors">Audit Logs</a>
+                        <a href="{{ route('admin.dashboard') }}" class="hover:text-gray-700 transition-colors">Dasbor</a>
+                        <a href="{{ route('admin.audit-logs.index') }}" class="hover:text-gray-700 transition-colors">Log Audit</a>
                         <a href="{{ config('app.url') }}" class="hover:text-gray-700 transition-colors" target="_blank">Website</a>
                     </div>
                     <div class="text-sm text-gray-500">

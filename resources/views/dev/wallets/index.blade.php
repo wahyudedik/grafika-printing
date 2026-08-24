@@ -227,7 +227,7 @@
                         </button>
                     </div>
                 </div>
-                <form :action="'/admin/wallets/' + freezeWalletId + '/freeze'" method="POST">
+                <form :action="'{{ url('/admin/wallets') }}/' + freezeWalletId + '/freeze'" method="POST">
                     @csrf
                     <div class="p-6 space-y-4">
                         <div>
@@ -257,7 +257,7 @@
                         </button>
                     </div>
                 </div>
-                <form :action="'/admin/wallets/' + unfreezeWalletId + '/unfreeze'" method="POST">
+                <form :action="'{{ url('/admin/wallets') }}/' + unfreezeWalletId + '/unfreeze'" method="POST">
                     @csrf
                     <div class="p-6 space-y-4">
                         <div>

@@ -212,11 +212,12 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 - Xendit webhook tetap di `/api/xendit/webhook`
 
 #### Linktree Module
-- Models: [`Linktree`](app/Models/Vendor/Linktree.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php), [`LinktreeProduct`](app/Models/Vendor/LinktreeProduct.php)
+- Models: [`Linktree`](app/Models/Vendor/Linktree.php), [`LinktreeLink`](app/Models/Vendor/LinktreeLink.php), [`LinktreeSocial`](app/Models/Vendor/LinktreeSocial.php), [`LinktreeProduct`](app/Models/Vendor/LinktreeProduct.php) (extend TenantModel)
 - Controllers: [`LinktreeController`](app/Http/Controllers/vendor/LinktreeController.php), [`LinktreePublicController`](app/Http/Controllers/LinktreePublicController.php)
 - Views: `resources/views/vendor/linktree/`, `resources/views/linktree/public/`
 - Routes: `/vendor/linktree/*` (vendor), `/l/{customUrl}` (public)
 - Caching: `getActiveLinktreeCached()` — 1 jam TTL
+- Migration: `2026_08_23_000001_add_vendor_id_to_linktree_products_table.php` — tambah `vendor_id` ke `linktree_products`
 
 #### Template Builder
 - Pilihan template: minimal, colorful, dark, professional, gradient, nature, neon, elegant
@@ -241,8 +242,9 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 - **Wholesale Pricing:** Tiered pricing berdasarkan quantity (20 tier rules per vendor)
 - **Thermal Print Support:** Printer settings (nama, alamat, no. telepon), thermal print template 58mm/80mm
 - **Multiple Payment:** Cash (tunai + kembalian otomatis) dan Online (Xendit QRIS, VA, E-Wallet)
-- **HPP Calculation:** Kalkulasi Harga Pokok Penjualan berdasarkan komponen bahan dan estimasi produksi
+- **HPP Calculation:** Kalkulasi Harga Pokok Penjualan berdasarkan komponen bahan dan estimasi produksi (menggunakan `ceil()` untuk pembulatan yang benar)
 - **Pelanggan Management:** CRUD pelanggan, data kontak, riwayat transaksi
+- **Optimized Checkout:** Triple price calculation sudah dieliminasi (dari 50+ queries ke ~10 queries)
 
 #### User Lelang Management
 - Model `LelangUserProfile` dengan scopes, status management, auto-assign
@@ -266,9 +268,48 @@ Route::middleware(['auth', 'verified', 'user'])->prefix('user')->...
 - Field yang di-mask: password, remember_token, api_key, api_secret, token, xendit_api_key, xendit_webhook_token, rajaongkir_api_key, app_key
 - Diterapkan di: `logCreated`, `logUpdated`, `logDeleted`, `logFinancialTransaction`
 
+#### Bug Fixes & Improvements (23 Agustus 2026)
+- **`LinktreeProduct` → TenantModel**: Model diubah dari `extends Model` ke `extends TenantModel` + tambah `vendor()` relation
+- **Migration**: `2026_08_23_000001_add_vendor_id_to_linktree_products_table.php`
+- **`CheckoutController`**: Triple price calculation dieliminasi (50+ queries → ~10 queries)
+- **`PosController`**: Duplicate category query dihapus
+- **`SecurityService`**: `openssl_encrypt/decrypt` → `Crypt::encryptString()/decryptString()`
+- **Transaction code**: `rand(1000,9999)` → sequence-based (`TRX-{Ymd}-{vendor_id}-{sequence}`)
+- **`AuctionController::closeAuction()`**: Bid ownership validation ditambahkan
+- **`CheckoutController`**: `payment_amount` required untuk cash payment
+- **`PriceCalculationService`**: `(int)` → `ceil()` untuk float-to-int truncation fix
+- **`LinktreeController::destroy()`**: Cascade delete untuk `linktreeProducts()` dan `abTests()`
+- **`TransaksiController::update()`**: Kalkulasi ulang `hpp_total` dan `laba_total` setelah edit
+- **Navigation**: User sidebar "Dasbor Lelang", vendor sidebar Linktree sub-menu, admin sidebar bahasa Indonesia
+- **View fixes**: `style="display: none;"` → `x-show` + `x-cloak` (4 POS views), Bootstrap → Tailwind classes
+
+#### Clean Code & Performance — Batch 2 & 3 (23 Agustus 2026)
+- **DRY status config**: Array `$statusConfig` diekstrak dari duplikasi status colors/labels di `transaksi/index` dan `order-tracking/index` views
+- **Linktree order price validation**: `LinktreePublicController` menambahkan validasi `unit_price` vs actual product price (toleransi 1 rupiah) untuk mencegah price manipulation
+- **TransaksiController items validation**: Validasi items array saat update (is_array, non-empty, produk_id required, kuantitas min 1)
+- **PosController N+1 fix**: Loop `SpesifikasiProduk::find()` + `Bahan::find()` diganti eager load batch `whereIn()` + `keyBy()`
+- **TransaksiController eager loading**: HPP recalculation menggunakan `TransaksiItem::with('transaksiItemSpecifications')` eager load
+- **Error response standardization**: `LinktreeController::updateOrderStatus()` dan `updatePaymentStatus()` diubah ke `FlashMessage::backSuccess()`
+- **Focus ring consistency**: `focus:ring-blue-500` → `focus:ring-primary` di `transaksi/index` (4 tempat)
+
+#### Batch 4 — Performance & UI Fixes (23 Agustus 2026)
+- **Tailwind custom colors `danger`/`success`**: Ditambahkan ke `theme.extend.colors` di [`tailwind.config.js`](tailwind.config.js) — class seperti `bg-danger`, `text-success` sekarang di-generate oleh Tailwind
+- **N+1 fix CheckoutController (3 locations)**: Batch load `Produk` dan `EstimasiProduk` sebelum loop di `processCheckout()`, `show()`, dan `calculateEstimatedCompletion()`
+- **N+1 fix PosController::addToCart()**: Batch load `SpesifikasiProduk` dan `Bahan` sebelum loop validasi stok
+- **Linktree public page — Alpine.js conversion**: QRIS loading/result/error sections dikonversi dari vanilla JS `display:none` ke Alpine.js `x-show` + `x-cloak` dengan `qrisState` state management
+- **Admin views — Hardcoded URLs fix**: Hardcoded URL strings diganti ke `{{ url() }}` helper di `dev/wallets/index.blade.php` dan `dev/delivery/index.blade.php`
+- **VendorControllerTest — Flaky test fix**: Tambah explicit `actingAs()` dan `vendorUser()->attach()` untuk test isolation
+
+#### Batch 5 — Critical Bug Fixes (23 Agustus 2026)
+- **POS Printer Settings:** Fix `resetDefaults()` crash — checkbox `id` attributes ditambahkan ke [`printer-settings.blade.php`](resources/views/pos/printer-settings.blade.php) agar `getElementById()` berfungsi (autoPrint, autoClose, autoCut)
+- **Linktree Public:** Product modal dipindahkan ke dalam Alpine.js `x-data` scope di [`linktree/public.blade.php`](resources/views/linktree/public.blade.php) — sebelumnya di luar scope, Alpine.js tidak bisa mengontrol modal
+- **POS Checkout:** Hapus Alpine.js v2 internal API (`__x`) di [`checkout.blade.php`](resources/views/pos/checkout.blade.php) — gunakan CustomEvent `close-modal` sebagai pengganti yang kompatibel dengan Alpine.js v3
+- **VendorControllerTest:** Fix flaky test — eksplisit `'is_active' => true` di factory untuk menghindari global scope filter
+- **VendorController::destroy():** Tambah logging dan better error handling di [`VendorController.php`](app/Http/Controllers/VendorController.php)
+
 #### Test Coverage
-- 134+ tests, 244+ assertions
-- Coverage: Linktree CRUD, Vendor products, Transactions, Webhook auth, Multi-tenant isolation, POS, Wallet, Auction
+- **546/546 passed (0 failed, 4 skipped), 1482 assertions** — coverage: Linktree CRUD, Vendor products, Transactions, Webhook auth, Multi-tenant isolation, POS, Wallet, Auction, Unit tests
+- Coverage: Linktree CRUD, Vendor products, Transactions, Webhook auth, Multi-tenant isolation, POS, Wallet, Auction, Unit tests
 - Termasuk `PosFlowTest` untuk integrasi POS end-to-end
 
 ---
@@ -394,7 +435,8 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 
 ### 7.1 Tailwind CSS Guidelines
 - Gunakan **utility classes** Tailwind, hindari custom CSS kecuali sangat perlu
-- Config: [`tailwind.config.js`](tailwind.config.js) — custom primary colors, Inter font, `@tailwindcss/forms` plugin
+- Config: [`tailwind.config.js`](tailwind.config.js) — custom primary colors (blue palette), danger (red shades), success (green shades), Inter font, `@tailwindcss/forms` plugin
+- **Custom colors tersedia**: `bg-danger`, `text-danger`, `bg-success`, `text-success` — digunakan di POS views untuk status styling
 - **UI Components** (`resources/views/components/ui/`): gunakan `<x-ui.button>`, `<x-ui.card>`, `<x-ui.modal>`, `<x-ui.empty-state>`, `<x-ui.badge>`, `<x-ui.dropdown>`, dll
 - **x-cloak**: Selalu gunakan `x-cloak` pada Alpine.js elements (bukan `style="display: none"`)
 - **Alpine.js** untuk interaktivitas: `x-data`, `x-on:click`, `x-show`, `x-transition`, `x-model`
@@ -422,11 +464,12 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
   ```
 
 ### 8. Testing
-- Test files di `tests/Feature/`
-- **134+ tests, 244+ assertions** — coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant, POS, Wallet, Auction
+- Test files di `tests/Feature/` dan `tests/Unit/`
+- **546/546 passed (0 failed, 4 skipped), 1482 assertions** — coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant, POS, Wallet, Auction, Unit tests
 - Jalankan: `php artisan test`
 - Untuk test spesifik: `php artisan test --filter=NamaTest`
 - Jalankan dengan coverage: `php artisan test --coverage`
+- **Tip**: Untuk menghindari flaky tests, gunakan explicit `actingAs()` dan setup vendor relationship di setiap test method
 
 ### 9. API Versioning
 - Semua API routes sudah di-version ke `/api/v1/`
@@ -439,6 +482,17 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 - Pattern: `const ApexCharts = (await import('apexcharts')).default`
 - Hanya gunakan di halaman yang membutuhkan chart/sortable
 - Jangan tambahkan CDN script tag — semua sudah via npm/Vite build
+
+### 11. DRY Status Config Pattern
+- Untuk views yang menampilkan status dengan colors/labels (transaksi, order-tracking), gunakan array `$statusConfig` PHP di bagian atas file
+- Pattern: `$statusConfig = ['status_name' => ['color' => 'tailwind-class', 'label' => 'Label']]`
+- Hindari duplikasi array status di desktop table dan mobile cards — gunakan satu `$statusConfig` untuk keduanya
+- Contoh: `resources/views/transaksi/index.blade.php`, `resources/views/user/order-tracking/index.blade.php`
+
+### 12. Eager Loading di Loop
+- Hindari query di dalam loop (N+1 problem). Gunakan batch fetch dengan `whereIn()` + `keyBy()`
+- Contoh: `PosController::checkPrice()` — `SpesifikasiProduk::whereIn('id', $ids)->keyBy('id')` menggantikan loop `SpesifikasiProduk::find($id)`
+- Untuk HPP recalculation: gunakan `TransaksiItem::with('transaksiItemSpecifications')` eager load
 
 ---
 
@@ -453,9 +507,16 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
 | Middleware | `app/Http/Middleware/SetTenantContext.php` |
 | POS Controller | `app/Http/Controllers/vendor/pos/PosController.php`, `app/Http/Controllers/vendor/pos/CheckoutController.php` |
 | POS Views | `resources/views/pos/` (cart, checkout, cash-payment, online-payment, thermal-print, printer-settings) |
+| Security | `app/Services/SecurityService.php`, `app/Services/PriceCalculationService.php` |
+| Auction | `app/Http/Controllers/AuctionController.php` |
+| Transaction | `app/Http/Controllers/vendor/TransaksiController.php` |
+| Transaction Views | `resources/views/transaksi/index.blade.php`, `resources/views/user/order-tracking/index.blade.php` |
+| Linktree | `app/Http/Controllers/vendor/LinktreeController.php`, `app/Http/Controllers/LinktreePublicController.php`, `app/Models/Vendor/LinktreeProduct.php` |
+| Linktree Public | `resources/views/linktree/public.blade.php` |
 | Tailwind Config | `tailwind.config.js` |
 | UI Components | `resources/views/components/ui/` |
 | Layouts | `resources/views/layouts/vendor.blade.php`, `resources/views/layouts/user.blade.php`, `resources/views/dev/layouts/app.blade.php` |
+| Admin Views | `resources/views/dev/wallets/index.blade.php`, `resources/views/dev/delivery/index.blade.php` |
 | Laravel Bootstrap | `bootstrap/app.php` |
 | Env | `.env` (jangan commit!) |
 
@@ -531,8 +592,52 @@ Jika menambah query di controller vendor, pastikan model menggunakan `TenantMode
    - Pastikan `printer_settings` table memiliki data yang benar
 
 15. **POS — Division by zero**
-   - Hati-hati dengan `harga_satuan` calculation — pastikan quantity tidak nol sebelum membagi
-   - Gunakan protective check: `$quantity > 0 ? $total / $quantity : 0`
+    - Hati-hati dengan `harga_satuan` calculation — pastikan quantity tidak nol sebelum membagi
+    - Gunakan protective check: `$quantity > 0 ? $total / $quantity : 0`
+
+16. **LinktreeProduct — vendor_id tidak terisi**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): LinktreeProduct sudah extend TenantModel
+    - Migration: `2026_08_23_000001_add_vendor_id_to_linktree_products_table.php`
+    - Jika masih error, jalankan `php artisan migrate`
+
+17. **Checkout lambat (50+ queries)**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Triple price calculation dieliminasi di CheckoutController
+    - Sekarang hanya ~10 queries per checkout
+
+18. **Transaction code collision**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Sequence-based: `TRX-{Ymd}-{vendor_id}-{sequence}`
+    - Tidak lagi menggunakan `rand()` yang bisa collid
+
+19. **Harga terpotong ke bawah (float-to-int)**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): `PriceCalculationService` menggunakan `ceil()` bukan `(int)`
+    - Pastikan menggunakan `ceil()` untuk pembulatan harga
+
+20. **Tailwind class `bg-danger`/`text-success` tidak ada styling**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Custom colors `danger` (red shades) dan `success` (green shades) ditambahkan ke `tailwind.config.js`
+    - Jalankan `npm run build` ulang setelah perubahan config
+
+21. **N+1 queries di CheckoutController loop**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Batch load `Produk` dan `EstimasiProduk` sebelum loop di `processCheckout()`, `show()`, dan `calculateEstimatedCompletion()`
+
+22. **Hardcoded URLs di admin views**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Diganti ke `{{ url() }}` helper di `dev/wallets/index.blade.php` dan `dev/delivery/index.blade.php`
+    - Gunakan `{{ url() }}` atau `route()` helper, jangan hardcode URL
+
+23. **Flaky tests (VendorControllerTest)**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Tambah explicit `actingAs()` dan `vendorUser()->attach()` untuk test isolation
+    - Tip: Selalu gunakan explicit auth setup di test method, jangan bergantung pada global state
+
+24. **POS printer settings resetDefaults() crash**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Checkbox `id` attributes ditambahkan ke `printer-settings.blade.php` (autoPrint, autoClose, autoCut)
+    - Root cause: `getElementById()` gagal karena checkbox tidak punya `id` attribute
+
+25. **Linktree product modal tidak berfungsi**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Modal dipindahkan ke dalam `x-data="productModal()"` scope
+    - Root cause: Modal berada di luar Alpine.js `x-data` scope, sehingga Alpine.js tidak bisa mengontrol visibility
+
+26. **POS checkout — Alpine.js v2 API deprecated**
+    - ✅ **SUDAH DIPERBAIKI** (23 Agustus 2026): Hapus `__x` internal API, gunakan CustomEvent `close-modal`
+    - Root cause: `__x` adalah internal API Alpine.js v2 yang tidak tersedia di v3
 
 ### Log Location
 ```

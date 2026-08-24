@@ -267,7 +267,7 @@
                     </div>
                     <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl flex justify-end gap-3">
                         <x.ui.button type="button" variant="outline" size="sm" @click="approveId = null">Cancel</x.ui.button>
-                        <form x-show="approveId" :action="`/admin/delivery/${approveId}/approve`" method="POST">
+                        <form x-show="approveId" :action="`{{ url('/admin/delivery') }}/${approveId}/approve`" method="POST">
                             @csrf
                             @method('PATCH')
                             <x.ui.button type="submit" variant="success" size="sm">Yes, Approve</x.ui.button>
@@ -293,7 +293,7 @@
                     </div>
                     <div class="px-6 py-4 bg-gray-50 dark:bg-gray-750 rounded-b-xl flex justify-end gap-3">
                         <x.ui.button type="button" variant="outline" size="sm" @click="rejectId = null">Cancel</x.ui.button>
-                        <form x-show="rejectId && rejectNotes" :action="`/admin/delivery/${rejectId}/reject`" method="POST">
+                        <form x-show="rejectId && rejectNotes" :action="`{{ url('/admin/delivery') }}/${rejectId}/reject`" method="POST">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="admin_notes" :value="rejectNotes">

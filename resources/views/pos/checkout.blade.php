@@ -10,6 +10,8 @@
     <div x-data="{
         showModal: false,
         isSubmitting: false,
+        paymentMethod: '{{ old("payment_method", "cash") }}',
+        paymentAmountValue: '',
         couponCode: '',
         applyingCoupon: false,
         couponError: '',
@@ -74,7 +76,7 @@
             this.couponError = '';
             this.couponSuccess = '';
         }
-    }">
+    }" @close-modal.window="showModal = false">
 
         {{-- Header --}}
         <div class="px-4 pt-4">
@@ -119,7 +121,7 @@
 
                                 <div class="mb-4">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Metode Pembayaran</label>
-                                    <select name="payment_method" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                                    <select name="payment_method" x-model="paymentMethod" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                                         required id="paymentMethodSelect">
                                         <option value="cash">Cash</option>
                                         <option value="transfer">Bank Transfer</option>
@@ -128,38 +130,38 @@
                                 </div>
 
                                 {{-- Payment Amount (Cash only) --}}
-                                <div class="mb-4" id="paymentAmountContainer" style="display: none;">
+                                <div class="mb-4" id="paymentAmountContainer" x-show="paymentMethod === 'cash'" x-cloak>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Pembayaran</label>
                                     <div class="relative">
                                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-medium">Rp</span>
-                                        <input type="number" name="payment_amount" id="paymentAmount"
+                                        <input type="number" name="payment_amount" id="paymentAmount" x-model="paymentAmountValue"
                                             class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                                             placeholder="Masukkan jumlah pembayaran">
                                     </div>
                                     <div class="mt-2 text-sm text-gray-500">
                                         Total: Rp <span id="totalAmountDisplay">{{ number_format($totalAmount, 0, ',', '.') }}</span>
                                     </div>
-                                    <div class="mt-2" id="changeContainer" style="display: none;">
-                                        <span class="font-bold text-success">Kembalian: Rp <span id="changeAmount">0</span></span>
+                                    <div class="mt-2" id="changeContainer" x-show="(parseFloat(paymentAmountValue) || 0) >= {{ $totalAmount }}" x-cloak>
+                                        <span class="font-bold text-green-600">Kembalian: Rp <span x-text="Math.max(0, (parseFloat(paymentAmountValue || 0) - {{ $totalAmount }})).toLocaleString('id-ID')">0</span></span>
                                     </div>
                                 </div>
 
                                 {{-- Payment Shortcuts (Cash only) --}}
-                                <div class="mb-4" id="paymentShortcutsContainer" style="display: none;">
+                                <div class="mb-4" id="paymentShortcutsContainer" x-show="paymentMethod === 'cash'" x-cloak>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Shortcut Pembayaran</label>
                                     <div class="flex flex-wrap gap-2">
-                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors payment-shortcut"
-                                            data-amount="{{ $totalAmount }}">Uang Pas</button>
-                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors payment-shortcut"
-                                            data-amount="{{ $totalAmount + 10000 }}">+10rb</button>
-                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors payment-shortcut"
-                                            data-amount="{{ $totalAmount + 50000 }}">+50rb</button>
-                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors payment-shortcut"
-                                            data-amount="100000">100rb</button>
-                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors payment-shortcut"
-                                            data-amount="200000">200rb</button>
-                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors payment-shortcut"
-                                            data-amount="500000">500rb</button>
+                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            @click="paymentAmountValue = '{{ $totalAmount }}'">Uang Pas</button>
+                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            @click="paymentAmountValue = '{{ $totalAmount + 10000 }}'">+10rb</button>
+                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            @click="paymentAmountValue = '{{ $totalAmount + 50000 }}'">+50rb</button>
+                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            @click="paymentAmountValue = '100000'">100rb</button>
+                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            @click="paymentAmountValue = '200000'">200rb</button>
+                                        <button type="button" class="px-3 py-1.5 border border-primary text-primary rounded-lg text-sm font-medium hover:bg-primary/5 transition-colors"
+                                            @click="paymentAmountValue = '500000'">500rb</button>
                                     </div>
                                 </div>
 
@@ -447,47 +449,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Payment method toggle
-            const paymentMethodSelect = document.getElementById('paymentMethodSelect');
-            const paymentAmountContainer = document.getElementById('paymentAmountContainer');
-            const paymentShortcutsContainer = document.getElementById('paymentShortcutsContainer');
-            const paymentAmount = document.getElementById('paymentAmount');
-            const changeContainer = document.getElementById('changeContainer');
-            const changeAmount = document.getElementById('changeAmount');
-            const totalAmount = {{ $totalAmount }};
-
-            function calculateChange() {
-                const amount = parseFloat(paymentAmount.value) || 0;
-                const change = amount - totalAmount;
-
-                if (change >= 0) {
-                    changeAmount.textContent = change.toLocaleString('id-ID');
-                    changeContainer.style.display = 'block';
-                } else {
-                    changeContainer.style.display = 'none';
-                }
-            }
-
-            paymentMethodSelect.addEventListener('change', function() {
-                if (this.value === 'cash') {
-                    paymentAmountContainer.style.display = 'block';
-                    paymentShortcutsContainer.style.display = 'block';
-                } else {
-                    paymentAmountContainer.style.display = 'none';
-                    paymentShortcutsContainer.style.display = 'none';
-                }
-            });
-
-            paymentAmount.addEventListener('input', calculateChange);
-
-            document.querySelectorAll('.payment-shortcut').forEach(button => {
-                button.addEventListener('click', function() {
-                    paymentAmount.value = this.dataset.amount;
-                    calculateChange();
-                });
-            });
-
-            paymentMethodSelect.dispatchEvent(new Event('change'));
 
             // Handle new customer form submission via AJAX
             const newCustomerForm = document.getElementById('newCustomerForm');
@@ -522,14 +483,8 @@
                             option.selected = true;
                             customerSelect.appendChild(option);
 
-                            // Close modal via Alpine.js
-                            const alpineRoot = document.querySelector('[x-data="{ showModal: false, isSubmitting: false }"]');
-                            if (alpineRoot && alpineRoot.__x) {
-                                alpineRoot.__x.$data.showModal = false;
-                            } else {
-                                // Fallback: dispatch custom event
-                                document.dispatchEvent(new CustomEvent('close-modal'));
-                            }
+                            // Close modal via custom event (Alpine.js v3 compatible)
+                            document.dispatchEvent(new CustomEvent('close-modal'));
 
                             Swal.fire({
                                 icon: 'success',

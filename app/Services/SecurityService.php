@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -222,25 +223,24 @@ class SecurityService
     }
 
     /**
-     * Encrypt sensitive data
+     * Encrypt sensitive data using Laravel Crypt facade.
+     *
+     * @deprecated Gunakan EncryptionService untuk enkripsi baru. Method ini dipertahankan
+     * untuk backward compatibility dengan data yang sudah ada.
      */
     public static function encrypt(string $data, string $key = null): string
     {
-        $key = $key ?? config('app.key');
-        $iv = random_bytes(16);
-        $encrypted = openssl_encrypt($data, 'AES-256-CBC', $key, 0, $iv);
-        return base64_encode($iv . $encrypted);
+        return Crypt::encryptString($data);
     }
 
     /**
-     * Decrypt sensitive data
+     * Decrypt sensitive data using Laravel Crypt facade.
+     *
+     * @deprecated Gunakan EncryptionService untuk dekripsi baru. Method ini dipertahankan
+     * untuk backward compatibility dengan data yang sudah ada.
      */
     public static function decrypt(string $data, string $key = null): string
     {
-        $key = $key ?? config('app.key');
-        $data = base64_decode($data);
-        $iv = substr($data, 0, 16);
-        $encrypted = substr($data, 16);
-        return openssl_decrypt($encrypted, 'AES-256-CBC', $key, 0, $iv);
+        return Crypt::decryptString($data);
     }
 }

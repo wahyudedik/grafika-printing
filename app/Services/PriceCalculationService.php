@@ -43,7 +43,8 @@ class PriceCalculationService
      */
     public function calculateSpecificationPrice(Bahan $bahan, float $value, int $quantity): array
     {
-        $pricePerUnit = $this->getPriceForQuantity($bahan, (int) $value);
+        // Gunakan ceil() agar tier lookup tidak truncates ke bawah
+        $pricePerUnit = $this->getPriceForQuantity($bahan, max(1, (int) ceil($value)));
 
         // Cek apakah ada wholesale pricing yang berlaku
         $wholesaleApplied = $bahan->wholesalePrices()
@@ -108,7 +109,8 @@ class PriceCalculationService
                 $inputValue = (float) $value;
                 $bahan = $spesifikasiProduk->bahans->first();
                 if ($bahan) {
-                    $pricePerUnit = $this->getPriceForQuantity($bahan, (int) $inputValue);
+                    // Gunakan ceil() agar tier lookup tidak truncates ke bawah
+                    $pricePerUnit = $this->getPriceForQuantity($bahan, max(1, (int) ceil($inputValue)));
                     $specPrice = $pricePerUnit * $inputValue * $quantity;
 
                     $specDetails[$specId] = [

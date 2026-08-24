@@ -87,6 +87,7 @@ class LinktreeProductSeeder extends Seeder
                         'produk_id' => $produk->id,
                     ],
                     [
+                        'vendor_id' => $vendor->id,
                         'sort_order' => $sortOrder++,
                         'is_active' => true,
                         'custom_price' => $customPrice,

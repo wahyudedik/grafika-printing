@@ -117,6 +117,7 @@ class LinktreeOrderTest extends TestCase
         $this->linktreeProductId = DB::table('linktree_products')->insertGetId([
             'linktree_id' => $this->linktreeId,
             'produk_id' => $this->produkId,
+            'vendor_id' => $this->vendorId,
             'sort_order' => 1,
             'is_active' => true,
             'custom_price' => 'Rp 55.000',

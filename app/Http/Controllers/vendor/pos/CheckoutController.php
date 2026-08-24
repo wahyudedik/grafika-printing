@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use App\Models\Vendor\EstimasiProduk;
 use App\Http\Concerns\HasVendorContext;
 use App\Services\StockService;
@@ -47,7 +48,7 @@ class CheckoutController extends Controller
         $validatedData = $request->validate([
             'pelanggan_id' => 'required|exists:pelanggans,id',
             'payment_method' => 'required|in:cash,transfer,qris',
-            'payment_amount' => 'nullable|numeric', // Tambahkan validasi untuk jumlah pembayaran
+            'payment_amount' => 'required_if:payment_method,cash|nullable|numeric|min:0',
             'catatan' => 'nullable|string',
             'coupon_code' => 'nullable|string|max:50',
         ]);
@@ -74,8 +75,13 @@ class CheckoutController extends Controller
                 ], 400);
             }
 
-            $totalTime = collect($cartItems)->sum(function ($item) {
-                $product = Produk::with('estimasiProduk.alat')->find($item['product_id']);
+            // Batch load all products to avoid N+1 queries
+            $productIds = collect($cartItems)->pluck('product_id')->unique();
+            $products = Produk::with('estimasiProduk.alat')
+                ->whereIn('id', $productIds)->keyBy('id');
+
+            $totalTime = collect($cartItems)->sum(function ($item) use ($products) {
+                $product = $products->get($item['product_id']);
                 return $product ? $product->getEstimatedProductionTime($item['quantity']) : 0;
             });
 
@@ -113,9 +119,16 @@ class CheckoutController extends Controller
 
             $changeAmount = max(0, $paymentAmount - $totalAfterDiscount);
 
+            // Generate unique transaction code: TRX-{Ymd}-{vendor_id}-{sequence}
+            $todayCount = Transaksi::where('vendor_id', $vendor->id)
+                ->whereDate('created_at', today())
+                ->count();
+            $sequence = str_pad($todayCount + 1, 4, '0', STR_PAD_LEFT);
+            $transactionCode = 'TRX-' . date('Ymd') . '-' . $vendor->id . '-' . $sequence;
+
             $transaksi = Transaksi::create([
                 'vendor_id' => $vendor->id,
-                'kode' => 'TRX-' . date('Ymd') . '-' . rand(1000, 9999),
+                'kode' => $transactionCode,
                 'user_id' => Auth::id(),
                 'pelanggan_id' => $validatedData['pelanggan_id'],
                 'total_harga' => $totalAfterDiscount,
@@ -152,13 +165,24 @@ class CheckoutController extends Controller
                     ], 400);
                 }
 
-                // Hitung HPP per item menggunakan PriceCalculationService
-                $itemHpp = $this->priceCalcService->calculateHppTotal(
-                    $item['specifications'] ?? [],
-                    $item['quantity']
-                );
-                $hppTotalItem = $itemHpp['total_hpp'];
-                $hargaSatuan = $item['total_price'] / $item['quantity'];
+                // Hitung HPP per item dari cart specs (single Bahan lookup per unique bahan)
+                // Menggunakan data yang sama dengan calculateCartTotal() untuk menghindari duplikasi
+                $hppTotalItem = 0;
+                $bahanCache = [];
+                foreach ($item['specifications'] as $spec) {
+                    $bahanId = $spec['bahan_id'] ?? null;
+                    if ($bahanId && !isset($bahanCache[$bahanId])) {
+                        $bahanCache[$bahanId] = \App\Models\Vendor\Bahan::find($bahanId);
+                    }
+                    $bahan = $bahanCache[$bahanId] ?? null;
+                    if ($bahan) {
+                        $hppTotalItem += ($spec['input_type'] ?? '') === 'number'
+                            ? (float) $bahan->hpp * (float) ($spec['value'] ?? 0) * $item['quantity']
+                            : (float) $bahan->hpp * $item['quantity'];
+                    }
+                }
+
+                $hargaSatuan = $item['quantity'] > 0 ? $item['total_price'] / $item['quantity'] : 0;
                 $labaItem = ($item['total_price']) - $hppTotalItem;
 
                 $transaksiItem = $transaksi->transaksiItem()->create([
@@ -171,9 +195,10 @@ class CheckoutController extends Controller
                     'laba' => $labaItem,
                 ]);
 
+                // Buat spesifikasi item menggunakan bahan yang sudah di-cache (tanpa query ulang)
                 foreach ($item['specifications'] as $specId => $spec) {
-                    // Hitung HPP per spesifikasi
-                    $bahan = \App\Models\Vendor\Bahan::find($spec['bahan_id'] ?? null);
+                    $bahanId = $spec['bahan_id'] ?? null;
+                    $bahan = $bahanCache[$bahanId] ?? null;
                     $hppPrice = 0;
                     if ($bahan) {
                         $hppPrice = ($spec['input_type'] ?? '') === 'number'
@@ -257,8 +282,13 @@ class CheckoutController extends Controller
             }
 
             $totalAmount = collect($cartItems)->sum('total_price');
-            $totalTime = collect($cartItems)->sum(function ($item) {
-                $product = Produk::with('estimasiProduk.alat')->find($item['product_id']);
+            // Batch load all products to avoid N+1 queries
+            $productIds = collect($cartItems)->pluck('product_id')->unique();
+            $products = Produk::with('estimasiProduk.alat')
+                ->whereIn('id', $productIds)->keyBy('id');
+
+            $totalTime = collect($cartItems)->sum(function ($item) use ($products) {
+                $product = $products->get($item['product_id']);
                 return $product ? $product->getEstimatedProductionTime($item['quantity']) : 0;
             });
 
@@ -374,8 +404,12 @@ class CheckoutController extends Controller
         $equipmentSchedule = [];
         $maxCompletionTime = now(); // Start with current time as Carbon instance
 
+        // Batch load all estimasi to avoid N+1 queries
+        $estimasiMap = EstimasiProduk::whereIn('produk_id', collect($cartItems)->pluck('product_id')->unique())
+            ->get()->keyBy('produk_id');
+
         foreach ($cartItems as $item) {
-            $estimasiProduk = EstimasiProduk::where('produk_id', $item['product_id'])->first();
+            $estimasiProduk = $estimasiMap->get($item['product_id']);
             if (!$estimasiProduk) continue;
 
             $alat = $estimasiProduk->alat;

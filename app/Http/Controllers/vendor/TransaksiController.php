@@ -253,9 +253,27 @@ class TransaksiController extends Controller
         DB::beginTransaction();
 
         try {
+            // Validasi items sebelum diproses
+            $items = $request->items ?? [];
+            if (!is_array($items) || empty($items)) {
+                DB::rollback();
+                return back()->withErrors(['items' => 'Format items tidak valid atau kosong.'])->withInput();
+            }
+
+            foreach ($items as $index => $item) {
+                if (!isset($item['produk_id']) || !isset($item['kuantitas'])) {
+                    DB::rollback();
+                    return back()->withErrors(["items.{$index}" => 'Item harus memiliki produk_id dan kuantitas.'])->withInput();
+                }
+                if (!is_numeric($item['kuantitas']) || $item['kuantitas'] < 1) {
+                    DB::rollback();
+                    return back()->withErrors(["items.{$index}.kuantitas" => 'Kuantitas harus minimal 1.'])->withInput();
+                }
+            }
+
             // Calculate total price
             $totalPrice = 0;
-            foreach ($request->items as $item) {
+            foreach ($items as $item) {
                 $totalPrice += $item['kuantitas'] * $item['harga_satuan'];
             }
 
@@ -292,7 +310,7 @@ class TransaksiController extends Controller
             $updatedItemIds = [];
 
             // Process transaction items
-            foreach ($request->items as $itemData) {
+            foreach ($items as $itemData) {
                 if (isset($itemData['id']) && !empty($itemData['id'])) {
                     // Update existing item
                     $item = TransaksiItem::findOrFail($itemData['id']);
@@ -344,6 +362,28 @@ class TransaksiController extends Controller
             if (!empty($itemsToDelete)) {
                 TransaksiItem::whereIn('id', $itemsToDelete)->delete();
             }
+
+            // Recalculate HPP total from item specifications
+            $hppTotal = 0;
+            $allItems = TransaksiItem::with('transaksiItemSpecifications')
+                ->where('transaksi_id', $transaksi->id)->get();
+            foreach ($allItems as $item) {
+                $itemSpecs = $item->transaksiItemSpecifications;
+                foreach ($itemSpecs as $spec) {
+                    if ($spec->hpp_price && $spec->hpp_price > 0) {
+                        $hppTotal += $spec->hpp_price * $item->kuantitas;
+                    }
+                }
+            }
+
+            $labaTotal = $totalPrice - $hppTotal;
+
+            // Update transaction with recalculated HPP and profit
+            $transaksi->update([
+                'total_harga' => $totalPrice,
+                'hpp_total' => $hppTotal,
+                'laba_total' => $labaTotal,
+            ]);
 
             DB::commit();
 

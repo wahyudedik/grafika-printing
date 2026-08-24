@@ -392,6 +392,123 @@
                 </div>
                 @endforeach
             </div>
+
+            <!-- ==================== Product Detail Modal ==================== -->
+            <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                 x-cloak
+                 style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); padding: 16px;">
+                <div @click.outside="open = false"
+                     x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
+                     style="background: white; border-radius: 16px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+                    <div style="padding: 24px;">
+                        <!-- Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                            <h3 style="font-size: 18px; font-weight: 700; color: #111827; flex: 1; margin-right: 12px;" x-text="product?.name"></h3>
+                            <button @click="open = false" style="color: #9ca3af; font-size: 20px; cursor: pointer; background: none; border: none; padding: 4px; line-height: 1;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Product Image -->
+                        <div style="margin-bottom: 16px;" x-show="product?.image">
+                            <img :src="product?.image" style="width: 100%; height: 192px; object-fit: cover; border-radius: 12px;">
+                        </div>
+
+                        <!-- Price -->
+                        <div style="margin-bottom: 16px;" x-show="product?.price">
+                            <span style="font-size: 22px; font-weight: 700; color: #16a34a;" x-text="product?.price"></span>
+                        </div>
+
+                        <!-- Description -->
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 16px;" x-text="product?.description" x-show="product?.description"></p>
+
+                        <!-- Spesifikasi -->
+                        <template x-if="specs && specs.length > 0">
+                            <div style="margin-bottom: 16px;">
+                                <h4 style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 12px;">Spesifikasi:</h4>
+                                <template x-for="(spec, index) in specs" :key="index">
+                                    <div style="margin-bottom: 12px;">
+                                        <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">
+                                            <span x-text="spec.nama"></span>
+                                            <span x-show="spec.satuan" style="color: #9ca3af;" x-text="'(' + spec.satuan + ')'"></span>
+                                        </label>
+                                        <!-- Select type -->
+                                        <template x-if="spec.tipe_input === 'select'">
+                                            <select x-model="selectedSpecs[index]"
+                                                    style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; background: white;">
+                                                <option value="">Pilih...</option>
+                                                <template x-for="pilihan in spec.pilihan" :key="pilihan">
+                                                    <option :value="pilihan" x-text="pilihan"></option>
+                                                </template>
+                                                <template x-for="bahan in spec.bahans" :key="bahan.id">
+                                                    <option :value="bahan.nama" x-text="bahan.nama + ' (Rp ' + formatNumber(bahan.hpp) + ')'"></option>
+                                                </template>
+                                            </select>
+                                        </template>
+                                        <!-- Number type -->
+                                        <template x-if="spec.tipe_input === 'number'">
+                                            <input type="number" x-model="selectedSpecs[index]"
+                                                   style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px;"
+                                                   :placeholder="spec.satuan || 'Masukkan angka'">
+                                        </template>
+                                        <!-- Text type -->
+                                        <template x-if="spec.tipe_input === 'text'">
+                                            <input type="text" x-model="selectedSpecs[index]"
+                                                   style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px;"
+                                                   :placeholder="spec.satuan || 'Masukkan teks'">
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <!-- Quantity -->
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">Jumlah</label>
+                            <input type="number" x-model="quantity" min="1" value="1"
+                                   style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px;">
+                        </div>
+
+                        <!-- Order Form -->
+                        <form :action="'{{ url('/l/' . $linktree->custom_url . '/order') }}/' + productId" method="POST">
+                            @csrf
+                            <input type="hidden" name="customer_name" :value="customerName">
+                            <input type="hidden" name="customer_phone" :value="customerPhone">
+                            <input type="hidden" name="customer_email" :value="customerEmail">
+                            <input type="hidden" name="quantity" :value="quantity">
+                            <input type="hidden" name="notes" :value="notes">
+                            <!-- Dynamic selected_specs fields -->
+                            <template x-for="(item, index) in specsArray" :key="index">
+                                <div>
+                                    <input type="hidden" :name="'selected_specs[' + index + '][name]'" :value="item.name">
+                                    <input type="hidden" :name="'selected_specs[' + index + '][value]'" :value="item.value">
+                                </div>
+                            </template>
+
+                            <!-- Customer Info -->
+                            <div style="margin-bottom: 16px;">
+                                <h4 style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 12px;">Informasi Anda:</h4>
+                                <input type="text" x-model="customerName" placeholder="Nama Lengkap *" required
+                                       style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px;">
+                                <input type="tel" x-model="customerPhone" placeholder="No. WhatsApp *" required
+                                       style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px;">
+                                <input type="email" x-model="customerEmail" placeholder="Email (opsional)"
+                                       style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px;">
+                                <textarea x-model="notes" placeholder="Catatan (opsional)" rows="2"
+                                          style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; resize: vertical;"></textarea>
+                            </div>
+
+                            <!-- Submit -->
+                            <button type="submit"
+                                    :disabled="!customerName || !customerPhone"
+                                    :style="(!customerName || !customerPhone) ? 'width:100%;padding:12px;background:#9ca3af;color:white;font-weight:600;border-radius:12px;border:none;font-size:15px;cursor:not-allowed;' : 'width:100%;padding:12px;background:#16a34a;color:white;font-weight:600;border-radius:12px;border:none;cursor:pointer;font-size:15px;transition:background 0.2s;'">
+                                <i class="fas fa-shopping-cart" style="margin-right: 8px;"></i> Pesan Sekarang
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
         @endif
 
@@ -407,8 +524,8 @@
                 @endif
 
                 {{-- Dynamic QRIS Payment via Xendit --}}
-                <div id="qris-dynamic-section" style="margin-top: 12px;">
-                    <div id="qris-payment-form">
+                <div id="qris-dynamic-section" x-data="{ qrisState: 'form', qrisError: '' }" @set-qris-state.window="qrisState = $event.detail.state; qrisError = $event.detail.error || ''" style="margin-top: 12px;">
+                    <div id="qris-payment-form" x-show="qrisState === 'form'">
                         <div style="margin-bottom: 8px;">
                             <input type="number" id="qris-amount" placeholder="Jumlah pembayaran (Rp)" min="1000" max="10000000"
                                 style="width: 100%; padding: 10px; border: 1px solid {{ $linktree->primary_color }}30; border-radius: 8px; font-size: 14px; text-align: center;">
@@ -420,12 +537,12 @@
                     </div>
 
                     <!-- Loading State -->
-                    <div id="qris-loading" style="display: none; padding: 20px;">
+                    <div id="qris-loading" x-show="qrisState === 'loading'" x-cloak style="padding: 20px;">
                         <div style="font-size: 14px; opacity: 0.7;">Memproses pembayaran...</div>
                     </div>
 
                     <!-- QR Code Result -->
-                    <div id="qris-result" style="display: none; padding: 12px;">
+                    <div id="qris-result" x-show="qrisState === 'result'" x-cloak style="padding: 12px;">
                         <div id="qris-qr-container" style="margin-bottom: 12px;"></div>
                         <div id="qris-amount-display" style="font-weight: 600; font-size: 16px; margin-bottom: 8px;"></div>
                         <div id="qris-status" style="font-size: 12px; opacity: 0.7; margin-bottom: 12px;">Menunggu pembayaran...</div>
@@ -435,7 +552,7 @@
                     </div>
 
                     <!-- Error State -->
-                    <div id="qris-error" style="display: none; padding: 12px; color: #dc3545; font-size: 13px;"></div>
+                    <div id="qris-error" x-show="qrisState === 'error'" x-cloak x-text="qrisError" style="padding: 12px; color: #dc3545; font-size: 13px;"></div>
                 </div>
 
             {{-- Xendit active but no QRIS image - show static QRIS only --}}
@@ -505,6 +622,11 @@
         let qrisInvoiceId = null;
         let qrisCheckInterval = null;
 
+        function setQrisState(state, error) {
+            const el = document.getElementById('qris-dynamic-section');
+            if (el) el.dispatchEvent(new CustomEvent('set-qris-state', { detail: { state, error } }));
+        }
+
         function formatRupiah(num) {
             return 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
@@ -521,10 +643,7 @@
             amountInput.style.borderColor = '{{ $linktree->primary_color }}30';
 
             // Show loading
-            document.getElementById('qris-payment-form').style.display = 'none';
-            document.getElementById('qris-loading').style.display = 'block';
-            document.getElementById('qris-error').style.display = 'none';
-            document.getElementById('qris-result').style.display = 'none';
+            setQrisState('loading');
 
             fetch('{{ route("linktree.pay.qris", $linktree->custom_url) }}', {
                 method: 'POST',
@@ -543,8 +662,7 @@
                 if (data.success) {
                     qrisInvoiceId = data.invoice_id;
 
-                    document.getElementById('qris-loading').style.display = 'none';
-                    document.getElementById('qris-result').style.display = 'block';
+                    setQrisState('result');
                     document.getElementById('qris-amount-display').textContent = formatRupiah(data.amount);
 
                     // Show QR code or redirect URL
@@ -588,10 +706,7 @@
         function resetQrisForm() {
             if (qrisCheckInterval) clearInterval(qrisCheckInterval);
             qrisInvoiceId = null;
-            document.getElementById('qris-payment-form').style.display = 'block';
-            document.getElementById('qris-loading').style.display = 'none';
-            document.getElementById('qris-result').style.display = 'none';
-            document.getElementById('qris-error').style.display = 'none';
+            setQrisState('form');
             document.getElementById('qris-amount').value = '';
         }
 
@@ -607,13 +722,9 @@
         }
 
         function showError(msg) {
-            document.getElementById('qris-loading').style.display = 'none';
-            document.getElementById('qris-result').style.display = 'none';
-            document.getElementById('qris-error').style.display = 'block';
-            document.getElementById('qris-error').textContent = msg;
+            setQrisState('error', msg);
             setTimeout(() => {
-                document.getElementById('qris-error').style.display = 'none';
-                document.getElementById('qris-payment-form').style.display = 'block';
+                setQrisState('form');
             }, 3000);
         }
 
@@ -632,123 +743,6 @@
             });
         }
     </script>
-
-    <!-- ==================== Product Detail Modal ==================== -->
-    <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         x-cloak
-         style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); padding: 16px;">
-        <div @click.outside="open = false"
-             x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
-             style="background: white; border-radius: 16px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-            <div style="padding: 24px;">
-                <!-- Header -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                    <h3 style="font-size: 18px; font-weight: 700; color: #111827; flex: 1; margin-right: 12px;" x-text="product?.name"></h3>
-                    <button @click="open = false" style="color: #9ca3af; font-size: 20px; cursor: pointer; background: none; border: none; padding: 4px; line-height: 1;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <!-- Product Image -->
-                <div style="margin-bottom: 16px;" x-show="product?.image">
-                    <img :src="product?.image" style="width: 100%; height: 192px; object-fit: cover; border-radius: 12px;">
-                </div>
-
-                <!-- Price -->
-                <div style="margin-bottom: 16px;" x-show="product?.price">
-                    <span style="font-size: 22px; font-weight: 700; color: #16a34a;" x-text="product?.price"></span>
-                </div>
-
-                <!-- Description -->
-                <p style="color: #6b7280; font-size: 14px; margin-bottom: 16px;" x-text="product?.description" x-show="product?.description"></p>
-
-                <!-- Spesifikasi -->
-                <template x-if="specs && specs.length > 0">
-                    <div style="margin-bottom: 16px;">
-                        <h4 style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 12px;">Spesifikasi:</h4>
-                        <template x-for="(spec, index) in specs" :key="index">
-                            <div style="margin-bottom: 12px;">
-                                <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">
-                                    <span x-text="spec.nama"></span>
-                                    <span x-show="spec.satuan" style="color: #9ca3af;" x-text="'(' + spec.satuan + ')'"></span>
-                                </label>
-                                <!-- Select type -->
-                                <template x-if="spec.tipe_input === 'select'">
-                                    <select x-model="selectedSpecs[index]"
-                                            style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; background: white;">
-                                        <option value="">Pilih...</option>
-                                        <template x-for="pilihan in spec.pilihan" :key="pilihan">
-                                            <option :value="pilihan" x-text="pilihan"></option>
-                                        </template>
-                                        <template x-for="bahan in spec.bahans" :key="bahan.id">
-                                            <option :value="bahan.nama" x-text="bahan.nama + ' (Rp ' + formatNumber(bahan.hpp) + ')'"></option>
-                                        </template>
-                                    </select>
-                                </template>
-                                <!-- Number type -->
-                                <template x-if="spec.tipe_input === 'number'">
-                                    <input type="number" x-model="selectedSpecs[index]"
-                                           style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px;"
-                                           :placeholder="spec.satuan || 'Masukkan angka'">
-                                </template>
-                                <!-- Text type -->
-                                <template x-if="spec.tipe_input === 'text'">
-                                    <input type="text" x-model="selectedSpecs[index]"
-                                           style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px;"
-                                           :placeholder="spec.satuan || 'Masukkan teks'">
-                                </template>
-                            </div>
-                        </template>
-                    </div>
-                </template>
-
-                <!-- Quantity -->
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 4px;">Jumlah</label>
-                    <input type="number" x-model="quantity" min="1" value="1"
-                           style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px;">
-                </div>
-
-                <!-- Order Form -->
-                <form :action="'{{ url('/l/' . $linktree->custom_url . '/order') }}/' + productId" method="POST">
-                    @csrf
-                    <input type="hidden" name="customer_name" :value="customerName">
-                    <input type="hidden" name="customer_phone" :value="customerPhone">
-                    <input type="hidden" name="customer_email" :value="customerEmail">
-                    <input type="hidden" name="quantity" :value="quantity">
-                    <input type="hidden" name="notes" :value="notes">
-                    <!-- Dynamic selected_specs fields -->
-                    <template x-for="(item, index) in specsArray" :key="index">
-                        <div>
-                            <input type="hidden" :name="'selected_specs[' + index + '][name]'" :value="item.name">
-                            <input type="hidden" :name="'selected_specs[' + index + '][value]'" :value="item.value">
-                        </div>
-                    </template>
-
-                    <!-- Customer Info -->
-                    <div style="margin-bottom: 16px;">
-                        <h4 style="font-weight: 600; color: #1f2937; font-size: 14px; margin-bottom: 12px;">Informasi Anda:</h4>
-                        <input type="text" x-model="customerName" placeholder="Nama Lengkap *" required
-                               style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px;">
-                        <input type="tel" x-model="customerPhone" placeholder="No. WhatsApp *" required
-                               style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px;">
-                        <input type="email" x-model="customerEmail" placeholder="Email (opsional)"
-                               style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; margin-bottom: 8px;">
-                        <textarea x-model="notes" placeholder="Catatan (opsional)" rows="2"
-                                  style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 14px; resize: vertical;"></textarea>
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit"
-                            :disabled="!customerName || !customerPhone"
-                            :style="(!customerName || !customerPhone) ? 'width:100%;padding:12px;background:#9ca3af;color:white;font-weight:600;border-radius:12px;border:none;font-size:15px;cursor:not-allowed;' : 'width:100%;padding:12px;background:#16a34a;color:white;font-weight:600;border-radius:12px;border:none;cursor:pointer;font-size:15px;transition:background 0.2s;'">
-                        <i class="fas fa-shopping-cart" style="margin-right: 8px;"></i> Pesan Sekarang
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <script>
     function productModal() {

@@ -58,6 +58,64 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 - ✅ **Pagination Consistency** — Vendor views menggunakan `components.pagination` yang konsisten
 - ✅ **N+1 Query Fixes** — Eager loading ditambahkan di `AuctionController`, `DeliveryConfirmationController`, `WalletManagementController` untuk menghilangkan N+1 queries
 
+### Catatan Update (23 Agustus 2026) — Bug Fixes & Improvements
+
+#### 🔴 Perbaikan Backend Critical
+- ✅ **`LinktreeProduct` model — TenantModel migration** — Model diubah dari `extends Model` ke `extends TenantModel` dengan tambah `vendor()` relation. Migration baru `2026_08_23_000001_add_vendor_id_to_linktree_products_table.php` menambah kolom `vendor_id` ke `linktree_products` table. **Ini adalah fix critical karena sebelumnya LinktreeProduct tidak ter-filter by vendor_id.**
+- ✅ **`CheckoutController` — Triple price calculation elimination** — Checkout sebelumnya melakukan 3x kalkulasi harga (50+ queries). Dikonsolidasi ke ~10 queries dengan single price calculation pass. **Impact: performa checkout meningkat signifikan.**
+- ✅ **`PosController` — Duplicate category query elimination** — Hapus query kategori duplikat yang memperlambat load halaman POS.
+
+#### 🟡 Perbaikan Backend High
+- ✅ **`SecurityService::encrypt()/decrypt()` — Laravel Crypt** — Ganti `openssl_encrypt/decrypt` ke `Crypt::encryptString()/decryptString()` untuk keamanan dan kompatibilitas yang lebih baik.
+- ✅ **Transaction code race condition** — Ganti `rand(1000,9999)` ke sequence-based (`TRX-{Ymd}-{vendor_id}-{sequence}`) untuk menghindari collision pada kode transaksi.
+- ✅ **`AuctionController::closeAuction()` — Bid ownership validation** — Tambah validasi kepemilikan bid saat closing auction.
+- ✅ **`CheckoutController` — `payment_amount` required for cash payment** — Field `payment_amount` diwajibkan untuk pembayaran cash.
+
+#### 🟢 Perbaikan Backend Medium
+- ✅ **`PriceCalculationService` — Float-to-int truncation fix** — Ganti `(int)` casting ke `ceil()` untuk menghindari pembulatan ke bawah pada harga. **Impact: harga tidak lagi terpotong ke bawah.**
+- ✅ **`LinktreeController::destroy()` — Cascade delete** — Tambah cascade delete untuk `linktreeProducts()` dan `abTests()` saat linktree dihapus.
+- ✅ **`TransaksiController::update()` — HPP & laba recalculation** — Tambah kalkulasi ulang `hpp_total` dan `laba_total` setelah transaksi diedit.
+
+#### 🔵 Perbaikan Navigasi/Sidebar
+- ✅ **User sidebar — Menu "Dasbor Lelang"** — Ditambahkan menu "Dasbor Lelang" di sidebar user (`resources/views/layouts/user.blade.php`)
+- ✅ **Vendor sidebar — Sub-menu Linktree** — Sub-menu Linktree ditambahkan: Analytics, Template, Katalog Produk (`resources/views/layouts/vendor.blade.php`)
+- ✅ **Admin sidebar — Bahasa dinormalisasi ke Indonesia** — Dashboard→Dasbor, Withdrawals→Penarikan, dll
+- ✅ **Admin sidebar — Logout→Keluar** — Tombol logout diganti ke Bahasa Indonesia
+- ✅ **Admin sidebar — Profile link fix** — Link profile diganti dari hardcoded ke `route('admin.profile')`
+
+#### 🔵 Perbaikan View Bugs
+- ✅ **`style="display: none;"` → Alpine.js `x-show` + `x-cloak`** — Dipatch di: `pos/checkout`, `layouts/pos`, `vendor/wallet/create-withdrawal`, `pos/printer-settings`
+- ✅ **`text-success` Bootstrap → `text-green-600` Tailwind** — Di `pos/checkout`
+- ✅ **`text-danger` Bootstrap → `text-red-500` Tailwind** — Di `pos/printer-settings`
+
+### Batch 2 & 3 — Clean Code & Performance (23 Agustus 2026)
+- ✅ **DRY refactoring status config** — Array `$statusConfig` untuk status colors/labels yang terduplikasi diekstrak di `resources/views/transaksi/index.blade.php` dan `resources/views/user/order-tracking/index.blade.php`
+- ✅ **Linktree public order — validasi harga** — [`LinktreePublicController`](app/Http/Controllers/LinktreePublicController.php) menambahkan validasi `unit_price` vs actual product price dengan toleransi 1 rupiah untuk mencegah price manipulation
+- ✅ **TransaksiController — validasi items array** — [`TransaksiController::update()`](app/Http/Controllers/vendor/TransaksiController.php) menambahkan validasi items array (is_array, non-empty, produk_id required, kuantitas min 1)
+- ✅ **PosController::checkPrice() — N+1 query fix** — Loop query `SpesifikasiProduk::find()` dan `Bahan::find()` diganti dengan eager load batch `whereIn()` + `keyBy()` di [`PosController`](app/Http/Controllers/vendor/pos/PosController.php)
+- ✅ **TransaksiController — eager loading untuk HPP recalculation** — [`TransaksiController::update()`](app/Http/Controllers/vendor/TransaksiController.php) menggunakan `TransaksiItem::with('transaksiItemSpecifications')` eager load untuk HPP recalculation
+- ✅ **Error response standardization** — [`LinktreeController::updateOrderStatus()`](app/Http/Controllers/vendor/LinktreeController.php) dan [`updatePaymentStatus()`](app/Http/Controllers/vendor/LinktreeController.php) diubah ke `FlashMessage::backSuccess()` untuk konsistensi
+- ✅ **Focus ring consistency** — `focus:ring-blue-500` → `focus:ring-primary` di 4 tempat di [`resources/views/transaksi/index.blade.php`](resources/views/transaksi/index.blade.php)
+
+### Batch 4 — Performance & UI Fixes (23 Agustus 2026)
+- **Tailwind custom colors `danger`/`success`** ditambahkan ke `theme.extend.colors` di [`tailwind.config.js`](tailwind.config.js) — class seperti `bg-danger`, `text-success` sekarang di-generate oleh Tailwind (mengatasi class tanpa styling di 8 POS views)
+- **N+1 query fix — CheckoutController** — Batch load `Produk` dan `EstimasiProduk` sebelum loop di [`processCheckout()`](app/Http/Controllers/vendor/pos/CheckoutController.php), [`show()`](app/Http/Controllers/vendor/pos/CheckoutController.php), dan [`calculateEstimatedCompletion()`](app/Http/Controllers/vendor/pos/CheckoutController.php) (3 lokasi)
+- **N+1 query fix — PosController::addToCart()** — Batch load `SpesifikasiProduk` dan `Bahan` sebelum loop validasi stok di [`PosController::addToCart()`](app/Http/Controllers/vendor/pos/PosController.php)
+- **Linktree public page — Alpine.js conversion** — QRIS loading/result/error sections dikonversi dari vanilla JS `display:none` ke Alpine.js `x-show` + `x-cloak` dengan `qrisState` state management di [`linktree/public.blade.php`](resources/views/linktree/public.blade.php)
+- **Admin views — Hardcoded URLs fix** — Hardcoded URL strings diganti ke `{{ url() }}` helper di [`dev/wallets/index.blade.php`](resources/views/dev/wallets/index.blade.php) dan [`dev/delivery/index.blade.php`](resources/views/dev/delivery/index.blade.php)
+- **VendorControllerTest — Flaky test fix** — Tambah explicit `actingAs()` dan `vendorUser()->attach()` untuk test isolation di [`VendorControllerTest.php`](tests/Unit/Controllers/VendorControllerTest.php)
+- **Test suite**: 546/550 passed (5 failures eliminated → 0 failed), 1482 assertions
+
+### Batch 5 — Critical Bug Fixes (23 Agustus 2026)
+- **POS Printer Settings:** Fix `resetDefaults()` crash — checkbox `id` attributes ditambahkan ke [`printer-settings.blade.php`](resources/views/pos/printer-settings.blade.php) agar `getElementById()` berfungsi (autoPrint, autoClose, autoCut)
+- **Linktree Public:** Product modal dipindahkan ke dalam Alpine.js `x-data` scope di [`linktree/public.blade.php`](resources/views/linktree/public.blade.php) — sebelumnya di luar scope, Alpine.js tidak bisa mengontrol modal
+- **POS Checkout:** Hapus Alpine.js v2 internal API (`__x`) di [`checkout.blade.php`](resources/views/pos/checkout.blade.php) — gunakan CustomEvent `close-modal` sebagai pengganti yang kompatibel dengan Alpine.js v3
+- **VendorControllerTest:** Fix flaky test — eksplisit `'is_active' => true` di factory untuk menghindari global scope filter di [`VendorControllerTest.php`](tests/Unit/Controllers/VendorControllerTest.php)
+- **VendorController::destroy():** Tambah logging dan better error handling di [`VendorController.php`](app/Http/Controllers/VendorController.php)
+- **Test suite:** 546/546 passed (0 failed, 4 skipped), 1482 assertions
+
+---
+
 ### Catatan Update (20 Agustus 2026) — Batch 3: Bug Fix, Layout Enhancement & Audit
 - ✅ **Footer Link Bug Fix (3 layouts)** — Footer copyright link `href="#"` yang merupakan dead link diperbaiki ke `{{ route('welcome') }}` di semua 3 layout:
   - **File**: `resources/views/dev/layouts/app.blade.php` — Admin footer
@@ -409,8 +467,8 @@ Grafika-Printing adalah platform multi-tenant untuk bisnis percetakan yang diban
 ## Testing
 
 ### Test Coverage Summary
-- **134+ tests, 244+ assertions**
-- Test files di `tests/Feature/`
+- **546/546 passed (0 failed, 4 skipped), 1482 assertions**
+- Test files di `tests/Feature/` dan `tests/Unit/`
 
 ### Coverage Areas
 | Area | Test File | Tests |
@@ -1045,6 +1103,7 @@ Yang sudah diimplementasikan:
 | `linktree_links` | ✅ Ada |
 | `linktree_socials` | ✅ Ada |
 | `linktree_payments` | ✅ Ada (via Xendit QRIS) |
+| `linktree_products` | ✅ Ada (extend TenantModel, vendor_id via migration) |
 
 ### Tabel Global
 | Tabel | Status |

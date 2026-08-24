@@ -2,9 +2,9 @@
 
 ## Status Proyek Saat Ini
 
-**Fase:** Phase 7 - Production Hardening Complete
+**Fase:** Phase 7 - Production Hardening Complete + Bug Fixes
 **Laravel Version:** 13.24.0 (di-upgrade dari 11.41.3 pada Agustus 2026)
-**Last Updated:** 22 Agustus 2026 (Phase 7 Complete)
+**Last Updated:** 23 Agustus 2026 (Phase 7 Complete + Bug Fixes Batch)
 
 ### Tech Stack
 | Layer | Teknologi | Versi |
@@ -281,6 +281,23 @@ Route::prefix('user-lelang')->name('user-lelang.')->group(function () {
 - [ ] **TAHAP 3E**: Final integration test
 
 ### 5.7 Bug Fix & Layout Enhancement (Batch 3) ✅ — 20 Agustus 2026
+
+### 5.8 Bug Fixes & Improvements (Batch 4) ✅ — 23 Agustus 2026
+- [x] **CRITICAL: `LinktreeProduct` → TenantModel** — Model diubah dari `extends Model` ke `extends TenantModel` + tambah `vendor()` relation. Migration baru: `2026_08_23_000001_add_vendor_id_to_linktree_products_table.php`
+- [x] **CRITICAL: `CheckoutController` triple price calculation** — Dari 50+ queries ke ~10 queries dengan single price calculation pass
+- [x] **CRITICAL: `PosController` duplicate category query** — Hapus query kategori duplikat
+- [x] **HIGH: `SecurityService` encryption** — Ganti `openssl_encrypt/decrypt` ke `Crypt::encryptString()/decryptString()`
+- [x] **HIGH: Transaction code race condition** — Ganti `rand(1000,9999)` ke sequence-based (`TRX-{Ymd}-{vendor_id}-{sequence}`)
+- [x] **HIGH: `AuctionController::closeAuction()` bid validation** — Tambah bid ownership validation
+- [x] **HIGH: `CheckoutController` payment_amount required** — `payment_amount` diwajibkan untuk cash payment
+- [x] **MEDIUM: `PriceCalculationService` float-to-int fix** — Ganti `(int)` ke `ceil()` untuk pembulatan harga
+- [x] **MEDIUM: `LinktreeController::destroy()` cascade delete** — Tambah cascade delete untuk `linktreeProducts()` dan `abTests()`
+- [x] **MEDIUM: `TransaksiController::update()` HPP recalculation** — Kalkulasi ulang `hpp_total` dan `laba_total` setelah edit
+- [x] **NAVIGATION: User sidebar — Dasbor Lelang menu** — Menu "Dasbor Lelang" ditambahkan
+- [x] **NAVIGATION: Vendor sidebar — Linktree sub-menu** — Sub-menu Analytics, Template, Katalog Produk
+- [x] **NAVIGATION: Admin sidebar — Bahasa Indonesia** — Dasbor, Penarikan, Keluar, profile link fix
+- [x] **VIEW: `x-show` + `x-cloak` migration** — Ganti `style="display: none;"` di 4 POS views
+- [x] **VIEW: Bootstrap → Tailwind classes** — `text-success`→`text-green-600`, `text-danger`→`text-red-500`
 - [x] **BUG FIX**: Footer link dead link `href="#"` → `{{ route('welcome') }}` di 3 layouts (admin, vendor, user)
 - [x] **BUG FIX**: Admin layout missing `@yield('breadcrumbs')` section
 - [x] **BUG FIX**: Admin footer language inconsistency "All rights reserved." → "Hak cipta dilindungi."
@@ -289,12 +306,38 @@ Route::prefix('user-lelang')->name('user-lelang.')->group(function () {
 - [x] **AUDIT**: Responsive mobile — 3 layouts + key views sudah responsive
 - [ ] **FUTURE**: Vendor views (order-tracking, tracking, wallet, withdrawal, audit-logs) perlu mobile card layouts
 
+### 5.9 Batch 2 & 3 — Clean Code & Performance (23 Agustus 2026) — ✅
+- [x] DRY status config extraction (transaksi/index, order-tracking/index)
+- [x] Linktree public order price validation
+- [x] TransaksiController items validation
+- [x] Error response standardization (LinktreeController)
+- [x] PosController::checkPrice() N+1 fix (eager loading batch)
+- [x] TransaksiController eager loading fix (HPP recalculation)
+- [x] Focus ring consistency (transaksi/index)
+
+### 5.10 Batch 4 — Performance & UI Fixes (23 Agustus 2026) — ✅
+- [x] Tailwind custom colors danger/success (`tailwind.config.js`)
+- [x] N+1 fix CheckoutController (3 locations: processCheckout, show, calculateEstimatedCompletion)
+- [x] N+1 fix PosController::addToCart() (batch load SpesifikasiProduk + Bahan)
+- [x] Linktree QRIS sections → Alpine.js reactive (x-show + x-cloak + qrisState)
+- [x] Hardcoded URLs → `url()` helper (dev/wallets, dev/delivery)
+- [x] Flaky VendorControllerTest fix (explicit actingAs + vendorUser attach)
+- [x] Test suite: 546/550 passed (5 failures eliminated → 0 failed), 1482 assertions
+
+### 5.11 Batch 5 — Critical Bug Fixes (23 Agustus 2026) — ✅
+- [x] Printer settings resetDefaults() — checkbox `id` attributes (autoPrint, autoClose, autoCut)
+- [x] Linktree product modal — Alpine.js scope fix (modal dipindahkan ke dalam `x-data` scope)
+- [x] Checkout Alpine.js v2 API cleanup — hapus `__x` internal API, gunakan CustomEvent `close-modal`
+- [x] VendorControllerTest flaky fix — eksplisit `is_active => true` di factory
+- [x] VendorController destroy logging — tambah logging dan better error handling
+- [x] Test suite: 546/546 passed (0 failed, 4 skipped), 1482 assertions
+
 ---
 
-## Phase 6: Testing & Bug Fixing — ✅ SELESAI (134 tests, 244 assertions)
+## Phase 6: Testing & Bug Fixing — ✅ SELESAI (546 tests, 1482 assertions)
 
 > **Prioritas:** 🟢 NORMAL → ✅ DISELESAIKAN
-> **Status:** 134 tests, 244 assertions — coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant, POS, Wallet, Auction
+> **Status:** 546/546 passed (0 failed, 4 skipped), 1482 assertions — coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant, POS, Wallet, Auction, Unit tests
 
 ### 6.1 Unit Tests — ✅
 - [x] FlashMessageTest (15 tests, 27 assertions)
@@ -341,7 +384,7 @@ Route::prefix('user-lelang')->name('user-lelang.')->group(function () {
 ## Phase 7: Production Hardening (Agustus 2026) — ✅ SELESAI
 
 > **Status:** ✅ Fully Implemented
-> **Last Updated:** 22 Agustus 2026
+> **Last Updated:** 23 Agustus 2026
 
 ### 7.1 Bug Fixes — ✅
 - [x] Fix duplicate Xendit webhook route
@@ -398,10 +441,11 @@ Route::prefix('user-lelang')->name('user-lelang.')->group(function () {
 ## Linktree Order Flow (22 Agustus 2026) — ✅ SELESAI
 
 > **Status:** ✅ Fully Implemented
-> **Last Updated:** 22 Agustus 2026
+> **Last Updated:** 23 Agustus 2026
 
 ### Fitur
-- [x] Fix LinktreeProduct extends TenantModel
+- [x] Fix LinktreeProduct extends TenantModel (+ migration `add_vendor_id_to_linktree_products_table`)
+- [x] Tambah `vendor()` relation di LinktreeProduct
 - [x] Tambah accessors spesifikasi di LinktreeProduct (`spesifikasi_summary`, `full_specs`, `bahans_list`, `kategori_name`)
 - [x] Buat LinktreeOrder model + migration (`linktree_orders` table dengan UUID, selected_specs JSON, status enums)
 - [x] Update LinktreePublicController (product detail, store order, order success)
@@ -566,7 +610,7 @@ graph TB
 
 3. ~~**No deploy/update scripts**~~ ✅ **SUDAH ADA** — `deploy.sh` dan `update.sh` sudah dibuat.
 
-4. ~~**Test coverage minim**~~ ✅ **SELESAI** — 134 tests, 244 assertions. Coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant isolation, POS, Wallet, Auction.
+4. ~~**Test coverage minim**~~ ✅ **SELESAI** — 546/546 passed (0 failed, 4 skipped), 1482 assertions. Coverage: Linktree, Vendor, Transactions, Webhook, Multi-tenant isolation, POS, Wallet, Auction, Unit tests.
 
 5. ~~**N+1 Query di notification dropdown**~~ ✅ **SUDAH DIPERBAIKI** — 3 layout (vendor, user, admin) sebelumnya memanggil `unreadNotifications->count()` 3 kali per page load.
 
@@ -574,7 +618,13 @@ graph TB
 
 7. ~~**FlashMessage pattern inconsistency**~~ ✅ **SUDAH DIPERBAIKI** — 3 notification controller sudah menggunakan `FlashMessage::backSuccess()`.
 
-5. **Mixed language kode** - Campuran Bahasa Indonesia dan Inggris, perlu standardisasi
+5. ~~**LinktreeProduct tidak menggunakan TenantModel**~~ ✅ **SUDAH DIPERBAIKI** — Model diubah ke `extends TenantModel` + migration `add_vendor_id_to_linktree_products_table` (23 Agustus 2026).
+
+6. ~~**CheckoutController triple price calculation**~~ ✅ **SUDAH DIPERBAIKI** — Dari 50+ queries ke ~10 queries (23 Agustus 2026).
+
+7. ~~**Transaction code race condition**~~ ✅ **SUDAH DIPERBAIKI** — Sequence-based: `TRX-{Ymd}-{vendor_id}-{sequence}` (23 Agustus 2026).
+
+8. **Mixed language kode** - Campuran Bahasa Indonesia dan Inggris, perlu standardisasi
 
 6. ~~**CDN dependencies**~~ ✅ **SUDAH DIPERBAIKI** — FontAwesome, ApexCharts, Chart.js, SortableJS semua sudah via npm/Vite build. 5 view yang masih pakai CDN Tailway sudah dimigrasi.
 

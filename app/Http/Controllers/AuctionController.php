@@ -205,6 +205,11 @@ class AuctionController extends Controller
 
         $winnerBid = AuctionBid::findOrFail($request->winner_bid_id);
 
+        // Validasi bahwa bid benar-benar milik lelang ini
+        if ($winnerBid->auction_id !== $auction->id) {
+            abort(403, 'Penawaran ini bukan milik lelang ini.');
+        }
+
         // Update auction status to waiting for payment
         $auction->update([
             'status' => 'waiting_payment',

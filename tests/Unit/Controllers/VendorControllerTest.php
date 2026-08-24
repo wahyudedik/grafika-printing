@@ -26,7 +26,7 @@ class VendorControllerTest extends TestCase
 
     public function test_index_displays_vendors()
     {
-        $vendors = Vendor::factory(3)->create();
+        $vendors = Vendor::factory(3)->create(['is_active' => true]);
 
         $response = $this->get(route('admin.vendors.index'));
 
@@ -70,7 +70,7 @@ class VendorControllerTest extends TestCase
 
     public function test_show_displays_vendor()
     {
-        $vendor = Vendor::factory()->create();
+        $vendor = Vendor::factory()->create(['is_active' => true]);
         $user = User::factory()->create();
         $vendor->vendorUser()->attach($user->id);
 
@@ -87,7 +87,7 @@ class VendorControllerTest extends TestCase
 
     public function test_edit_displays_form()
     {
-        $vendor = Vendor::factory()->create();
+        $vendor = Vendor::factory()->create(['is_active' => true]);
         $user = User::factory()->create();
         $vendor->vendorUser()->attach($user->id);
 
@@ -104,7 +104,7 @@ class VendorControllerTest extends TestCase
 
     public function test_update_vendor_with_new_logo()
     {
-        $vendor = Vendor::factory()->create(['logo' => 'vendors/old-logo.jpg']);
+        $vendor = Vendor::factory()->create(['logo' => 'vendors/old-logo.jpg', 'is_active' => true]);
         $user = User::factory()->create();
         $newLogo = UploadedFile::fake()->image('new-logo.jpg');
 
@@ -127,8 +127,13 @@ class VendorControllerTest extends TestCase
 
     public function test_destroy_vendor_with_logo()
     {
-        $vendor = Vendor::factory()->create(['logo' => 'vendors/logo.jpg']);
+        // Explicitly set is_active = true to ensure vendor is findable
+        // (Vendor model has global scope filtering is_active = true)
+        $vendor = Vendor::factory()->create(['logo' => 'vendors/logo.jpg', 'is_active' => true]);
+        $user = User::factory()->create();
+        $vendor->vendorUser()->attach($user->id);
 
+        $this->actingAs(User::where('usertype', 'dev')->first());
         $response = $this->delete(route('admin.vendors.destroy', $vendor->id));
 
         $response->assertRedirect(route('admin.vendors.index'));

@@ -88,19 +88,19 @@
                             <label class="block text-sm font-bold text-gray-700 mb-3">Otomatis</label>
                             <div class="space-y-3">
                                 <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="auto_print" value="1"
+                                    <input type="checkbox" name="auto_print" id="autoPrint" value="1"
                                         class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
                                         {{ $printerSettings->auto_print ? 'checked' : '' }}>
                                     <span class="text-sm text-gray-700">Auto-print saat halaman dimuat</span>
                                 </label>
                                 <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="auto_close_window" value="1"
+                                    <input type="checkbox" name="auto_close_window" id="autoClose" value="1"
                                         class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
                                         {{ $printerSettings->auto_close_window ? 'checked' : '' }}>
                                     <span class="text-sm text-gray-700">Tutup jendela setelah cetak</span>
                                 </label>
                                 <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="auto_cut" value="1"
+                                    <input type="checkbox" name="auto_cut" id="autoCut" value="1"
                                         class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
                                         {{ $printerSettings->auto_cut ? 'checked' : '' }}>
                                     <span class="text-sm text-gray-700">Auto-cut kertas (ESC/POS command)</span>
@@ -194,7 +194,7 @@
 
                     <div class="space-y-2">
                         <button type="button"
-                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-success text-success rounded-lg text-sm font-medium hover:bg-success/5 transition-colors"
+                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-green-500 text-green-600 rounded-lg text-sm font-medium hover:bg-green-50 transition-colors"
                             onclick="testWebUSB()">
                             <i class="fas fa-usb mr-2"></i>Test Koneksi WebUSB
                         </button>
@@ -206,9 +206,9 @@
                     </div>
 
                     {{-- WebUSB Status --}}
-                    <div id="webusb-status" class="mt-3" style="display: none;">
+                    <div id="webusb-status" class="mt-3" x-data="{ webusbVisible: false, webusbMessage: '', webusbColor: 'text-blue-700' }" x-show="webusbVisible" x-cloak>
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-                            <span id="webusb-message"></span>
+                            <span :class="webusbColor" x-html="webusbMessage"></span>
                         </div>
                     </div>
                 </div>
@@ -268,34 +268,42 @@
 
     // Test WebUSB
     async function testWebUSB() {
-        const statusDiv = document.getElementById('webusb-status');
-        const messageEl = document.getElementById('webusb-message');
-        statusDiv.style.display = 'block';
+        const statusEl = document.getElementById('webusb-status');
+        const webusbData = statusEl._x_dataStack ? statusEl._x_dataStack[0] : null;
+
+        if (webusbData) {
+            webusbData.webusbVisible = true;
+            webusbData.webusbMessage = 'Mencari printer USB...';
+            webusbData.webusbColor = 'text-blue-700';
+        }
 
         if ('usb' in navigator) {
             try {
-                messageEl.textContent = 'Mencari printer USB...';
-                messageEl.className = 'text-blue-700';
-
                 const device = await navigator.usb.requestDevice({ filters: [] });
                 await device.open();
 
-                messageEl.innerHTML = `<i class="fas fa-check-circle text-success mr-1"></i> Printer ditemukan: <strong>${device.productName || 'USB Device'}</strong><br>Vendor ID: ${device.vendorId}, Product ID: ${device.productId}`;
-                messageEl.className = 'text-green-700';
+                if (webusbData) {
+                    webusbData.webusbMessage = `<i class="fas fa-check-circle text-green-600 mr-1"></i> Printer ditemukan: <strong>${device.productName || 'USB Device'}</strong><br>Vendor ID: ${device.vendorId}, Product ID: ${device.productId}`;
+                    webusbData.webusbColor = 'text-green-700';
+                }
 
                 await device.close();
             } catch (error) {
-                if (error.name === 'NotFoundError') {
-                    messageEl.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Tidak ada printer yang dipilih. User membatalkan pemilihan.';
-                    messageEl.className = 'text-yellow-700';
-                } else {
-                    messageEl.innerHTML = `<i class="fas fa-times-circle text-danger mr-1"></i> Error: ${error.message}`;
-                    messageEl.className = 'text-red-700';
+                if (webusbData) {
+                    if (error.name === 'NotFoundError') {
+                        webusbData.webusbMessage = '<i class="fas fa-exclamation-triangle text-yellow-500 mr-1"></i> Tidak ada printer yang dipilih. User membatalkan pemilihan.';
+                        webusbData.webusbColor = 'text-yellow-700';
+                    } else {
+                        webusbData.webusbMessage = `<i class="fas fa-times-circle text-red-500 mr-1"></i> Error: ${error.message}`;
+                        webusbData.webusbColor = 'text-red-700';
+                    }
                 }
             }
         } else {
-            messageEl.innerHTML = '<i class="fas fa-times-circle text-danger mr-1"></i> WebUSB tidak didukung di browser ini. Gunakan Chrome atau Edge.';
-            messageEl.className = 'text-red-700';
+            if (webusbData) {
+                webusbData.webusbMessage = '<i class="fas fa-times-circle text-red-500 mr-1"></i> WebUSB tidak didukung di browser ini. Gunakan Chrome atau Edge.';
+                webusbData.webusbColor = 'text-red-700';
+            }
         }
     }
 </script>
