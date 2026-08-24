@@ -31,39 +31,145 @@ NC='\033[0m'
 # ============================================
 # DETEKSI PANEL (aaPanel vs Vanilla)
 # ============================================
+#
+# LOGIKA DETEKSI (priority order):
+#   1. Direktori saat ini punya artisan + .env → APP_DIR = $(pwd)
+#   2. Path aaPanel ada (/www/wwwroot/DOMAIN)  → APP_DIR = aaPanel path
+#   3. Path vanilla ada (/var/www/grafika-printing) → APP_DIR = vanilla path
+#   4. Error + exit
+#
+# Panel TYPE dideteksi TERPISAH untuk konfigurasi tools (PHP, Nginx, dst).
+# APP_DIR TIDAK akan di-override setelah ditentukan.
+#
 detect_panel() {
     print_header "DETEKSI SERVER ENVIRONMENT"
 
-    # === Step 1: Prioritas — cek apakah script dijalankan dari direktori project ===
-    if [ -f "$(pwd)/artisan" ] && [ -f "$(pwd)/.env" ]; then
+    # Reset semua variabel
+    APP_DIR=""
+    PANEL_TYPE=""
+    PHP_BIN=""
+    PHP_FPM_SOCKET=""
+    NGINX_BIN=""
+    NGINX_CONF_DIR=""
+    APP_USER=""
+    APP_GROUP=""
+    BACKUP_DIR=""
+
+    # ============================================================
+    # Step 1: Deteksi APP_DIR (berdasarkan keberadaan file aktual)
+    # ============================================================
+    # Prioritas berdasarkan reliability — yang paling reliable duluan.
+
+    # Priority 1: Script dijalankan dari direktori project
+    #   Cek ./artisan dan ./.env (relative ke CWD) — paling reliable
+    if [ -f "./artisan" ] && [ -f "./.env" ]; then
         APP_DIR="$(pwd)"
-        print_info "Laravel project ditemukan di direktori saat ini: $APP_DIR"
+        print_success "Priority 1: Laravel project di direktori saat ini"
+        print_info "  Path: $APP_DIR"
+
+    # Priority 2: aaPanel webroot path
+    elif [ -d "/www/wwwroot/${DOMAIN}" ]; then
+        APP_DIR="/www/wwwroot/${DOMAIN}"
+        print_success "Priority 2: aaPanel webroot path ditemukan"
+        print_info "  Path: $APP_DIR"
+
+    # Priority 3: Vanilla default path
+    elif [ -d "/var/www/grafika-printing" ]; then
+        APP_DIR="/var/www/grafika-printing"
+        print_success "Priority 3: Vanilla default path ditemukan"
+        print_info "  Path: $APP_DIR"
+
+    # Priority 4: Terakhir — cari artisan di CWD (tanpa .env)
+    elif [ -f "./artisan" ]; then
+        APP_DIR="$(pwd)"
+        print_warning "Priority 4: artisan ditemukan di CWD (tanpa .env)"
+        print_info "  Path: $APP_DIR"
+
+    # Tidak bisa menentukan direktori
+    else
+        print_error "Tidak bisa menentukan direktori aplikasi!"
+        echo ""
+        print_info "Path yang sudah dicoba:"
+        print_info "  1. $(pwd)/artisan + .env  (current directory)"
+        print_info "  2. /www/wwwroot/${DOMAIN}  (aaPanel webroot)"
+        print_info "  3. /var/www/grafika-printing  (vanilla default)"
+        echo ""
+        print_info "Solusi:"
+        print_info "  Jalankan dari directory project:"
+        print_info "    cd /www/wwwroot/${DOMAIN} && sudo bash update.sh"
+        print_info ""
+        print_info "  Atau pastikan website sudah dibuat di aaPanel Panel > Website"
+        print_info "  dengan domain: $DOMAIN"
+        exit 1
     fi
 
-    # === Step 2: Deteksi tipe panel (aaPanel vs Vanilla) ===
-    if [ -d "/www/server/panel" ] || [ -f "/etc/init.d/bt" ] || command -v bt &> /dev/null; then
-        PANEL_TYPE="aapanel"
-        print_info "Server menggunakan aaPanel"
+    # ============================================================
+    # Step 2: Deteksi panel TYPE (untuk tools: PHP, Nginx, dst)
+    # ============================================================
+    # Panel type dideteksi SETELAH APP_DIR agar tidak mengubah APP_DIR.
 
-        # --- aaPanel paths ---
-        APP_DIR="/www/wwwroot/${DOMAIN}"
+    IS_AAPANEL=false
+
+    # Cek marker aaPanel: /www/server/panel, /etc/init.d/bt, atau command bt
+    if [ -d "/www/server/panel" ]; then
+        IS_AAPANEL=true
+        PANEL_TYPE="aapanel"
+        print_info "aaPanel terdeteksi: /www/server/panel exists"
+    elif [ -f "/etc/init.d/bt" ]; then
+        IS_AAPANEL=true
+        PANEL_TYPE="aapanel"
+        print_info "aaPanel terdeteksi: /etc/init.d/bt exists"
+    elif command -v bt &> /dev/null 2>&1; then
+        IS_AAPANEL=true
+        PANEL_TYPE="aapanel"
+        print_info "aaPanel terdeteksi: bt command found"
+    fi
+
+    # === Reinforcement: jika APP_DIR di /www/wwwroot/ → pastikan aaPanel ===
+    if [[ "$APP_DIR" == /www/wwwroot/* ]]; then
+        IS_AAPANEL=true
+        PANEL_TYPE="aapanel"
+    fi
+
+    # === Reinforcement: jika APP_DIR di /var/www/ → pastikan vanilla ===
+    if [[ "$APP_DIR" == /var/www/* ]] && [ "$IS_AAPANEL" = false ]; then
+        PANEL_TYPE="vanilla"
+    fi
+
+    # Jika masih belum ditentukan, default ke vanilla
+    if [ -z "$PANEL_TYPE" ]; then
+        PANEL_TYPE="vanilla"
+    fi
+
+    print_info "Panel type: $PANEL_TYPE"
+
+    # ============================================================
+    # Step 3: Konfigurasi tools berdasarkan panel type
+    # ============================================================
+
+    if [ "$IS_AAPANEL" = true ]; then
+        # --- aaPanel tools ---
 
         # PHP binary: cari versi terbaru yang terinstall di aaPanel
-        PHP_BIN=$(ls /www/server/php/*/bin/php 2>/dev/null | sort -V | tail -1)
         if [ -z "$PHP_BIN" ]; then
-            PHP_BIN="php"
-            print_warning "PHP aaPanel tidak ditemukan, menggunakan php dari PATH"
-        else
-            print_success "PHP binary: $PHP_BIN"
+            PHP_BIN=$(ls /www/server/php/*/bin/php 2>/dev/null | sort -V | tail -1)
+            if [ -z "$PHP_BIN" ]; then
+                PHP_BIN="php"
+                print_warning "PHP aaPanel tidak ditemukan, menggunakan php dari PATH"
+            else
+                print_success "PHP binary: $PHP_BIN"
+            fi
         fi
 
         # PHP-FPM socket path
-        PHP_FPM_SOCKET=$(ls /www/server/php/*/tmp/php-fpm.sock 2>/dev/null | sort -V | tail -1)
         if [ -z "$PHP_FPM_SOCKET" ]; then
-            PHP_FPM_SOCKET="/tmp/php-fpm.sock"
-            print_warning "PHP-FPM socket tidak ditemukan, menggunakan default: $PHP_FPM_SOCKET"
-        else
-            print_success "PHP-FPM socket: $PHP_FPM_SOCKET"
+            PHP_FPM_SOCKET=$(ls /www/server/php/*/tmp/php-fpm.sock 2>/dev/null | sort -V | tail -1)
+            if [ -z "$PHP_FPM_SOCKET" ]; then
+                PHP_FPM_SOCKET="/tmp/php-fpm.sock"
+                print_warning "PHP-FPM socket tidak ditemukan, menggunakan default: $PHP_FPM_SOCKET"
+            else
+                print_success "PHP-FPM socket: $PHP_FPM_SOCKET"
+            fi
         fi
 
         # Nginx binary & config
@@ -80,16 +186,9 @@ detect_panel() {
         # aaPanel backup directory
         BACKUP_DIR="/www/backup/grafika-printing"
 
-        print_success "Panel type: aaPanel"
-        print_info "App directory: $APP_DIR"
-        print_info "Nginx config: $NGINX_CONF_DIR"
-
+        print_success "Panel tools: aaPanel"
     else
-        PANEL_TYPE="vanilla"
-        print_info "Server menggunakan vanilla Ubuntu/Debian (tanpa panel)"
-
-        # --- Vanilla paths ---
-        APP_DIR="/var/www/grafika-printing"
+        # --- Vanilla tools ---
         PHP_BIN="php"
         PHP_FPM_SOCKET=""
         NGINX_BIN="nginx"
@@ -106,65 +205,23 @@ detect_panel() {
             PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
         fi
 
-        print_success "Panel type: Vanilla"
-        print_info "App directory: $APP_DIR"
+        print_success "Panel tools: Vanilla"
         print_info "PHP version: $PHP_VERSION"
     fi
 
-    # === Step 3: Fallback — jika APP_DIR yang terdeteksi tidak ada, coba path alternatif ===
-    if [ ! -d "$APP_DIR" ]; then
-        print_warning "Directory $APP_DIR tidak ditemukan, mencari path alternatif..."
-
-        # Coba path aaPanel (meskipun panel marker tidak terdeteksi)
-        if [ -d "/www/wwwroot/${DOMAIN}" ]; then
-            APP_DIR="/www/wwwroot/${DOMAIN}"
-            PANEL_TYPE="aapanel"
-            print_success "Ditemukan: $APP_DIR (aaPanel webroot path)"
-
-            # Re-detect aaPanel tools jika belum di-set
-            if [ -z "$PHP_BIN" ] || [ "$PHP_BIN" = "php" ]; then
-                PHP_BIN=$(ls /www/server/php/*/bin/php 2>/dev/null | sort -V | tail -1)
-                [ -z "$PHP_BIN" ] && PHP_BIN="php"
-            fi
-            if [ -z "$PHP_FPM_SOCKET" ]; then
-                PHP_FPM_SOCKET=$(ls /www/server/php/*/tmp/php-fpm.sock 2>/dev/null | sort -V | tail -1)
-                [ -z "$PHP_FPM_SOCKET" ] && PHP_FPM_SOCKET="/tmp/php-fpm.sock"
-            fi
-            if [ -z "$APP_USER" ] || [ "$APP_USER" = "www-data" ]; then
-                APP_USER="www"
-                APP_GROUP="www"
-            fi
-            BACKUP_DIR="/www/backup/grafika-printing"
-            NGINX_CONF_DIR="/www/server/panel/vhost/nginx"
-
-        # Coba path vanilla
-        elif [ -d "/var/www/grafika-printing" ]; then
-            APP_DIR="/var/www/grafika-printing"
-            PANEL_TYPE="vanilla"
-            print_success "Ditemukan: $APP_DIR (vanilla path)"
-
-        # Coba current directory (script dijalankan dari project dir)
-        elif [ -f "$(pwd)/artisan" ]; then
-            APP_DIR="$(pwd)"
-            PANEL_TYPE="auto"
-            print_success "Ditemukan: $APP_DIR (current directory)"
-
-        else
-            print_error "Tidak bisa menentukan direktori aplikasi."
-            print_info "Path yang dicoba:"
-            print_info "  1. /www/wwwroot/${DOMAIN} (aaPanel webroot)"
-            print_info "  2. /var/www/grafika-printing (vanilla default)"
-            print_info "  3. $(pwd) (current directory)"
-            echo ""
-            print_info "Solusi:"
-            print_info "  - Jalankan script dari directory project: cd /www/wwwroot/${DOMAIN} && bash update.sh"
-            print_info "  - Atau pastikan website sudah dibuat di aaPanel Panel > Website"
-            exit 1
-        fi
-    fi
-
-    print_info "App user: $APP_USER"
-    print_info "Backup dir: $BACKUP_DIR"
+    # ============================================================
+    # Step 4: Ringkasan deteksi
+    # ============================================================
+    echo ""
+    print_info "┌─ Hasil Deteksi ─────────────────────────────"
+    print_info "│ Panel type   : $PANEL_TYPE"
+    print_info "│ App directory: $APP_DIR"
+    print_info "│ PHP binary   : $PHP_BIN"
+    print_info "│ App user     : $APP_USER"
+    print_info "│ Backup dir   : $BACKUP_DIR"
+    print_info "│ Nginx config : $NGINX_CONF_DIR"
+    print_info "└─────────────────────────────────────────────"
+    echo ""
 }
 
 # ============================================
@@ -226,6 +283,16 @@ preflight_checks() {
     fi
 
     cd "$APP_DIR"
+
+    # Fix git ownership issue (common on aaPanel when root runs git as www user)
+    if [ -d ".git" ]; then
+        SAFE_DIR=$(git config --global --get safe.directory "$APP_DIR" 2>/dev/null)
+        if [ -z "$SAFE_DIR" ]; then
+            print_info "Adding git safe.directory for $APP_DIR..."
+            git config --global --add safe.directory "$APP_DIR"
+            print_success "Git safe.directory configured"
+        fi
+    fi
 
     if [ ! -f ".env" ]; then
         print_error "File .env tidak ditemukan di $APP_DIR"
